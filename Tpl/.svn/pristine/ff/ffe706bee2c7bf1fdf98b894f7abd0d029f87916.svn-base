@@ -1,0 +1,214 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('product_synch/release')}" method="POST" name="dataForm" id="dataForm" class="well form-horizontal clearfix" role="form">
+		<volist name="Think.request.product_id" id="id">
+			<input type="hidden" class="product_id" name="product_id[]" value="{$id}">
+		</volist>
+		<div class="form-group">
+			<label class="control-label" for="account_id">帐号</label>
+			<select name="account_id" id="account_id" class="form-control">
+				<option value="">请选择帐号</option>
+				<volist name="accountList" id="website">
+					<?php
+						if($website[0]['website']!="aliexpress")continue;
+					?>
+					<optgroup label="{$website[0]['website']}">
+
+						<volist name="website" id="account">
+							<option value="{$account.id}" <?php if($_REQUEST['account_id'] == $account['id']) echo "selected"; ?>>{$account.account_name}</option>
+						</volist>
+					</optgroup>
+				</volist>
+			</select>
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="img_server">图片服务器</label>
+			<select name="img_server" id="img_server" class="form-control">
+				<option value="http://img.barboola.com" selected>
+					img.barboola.com
+				</option>
+				<option value="http://oa.barboola.com">
+					oa.barboola.com (Local)
+				</option>
+			</select>
+		</div>
+		<div class="form-group">
+			<label class="control-label">利润区间</label><br/>
+			1-10 => <input type="text"  size=4 name="profit_range[0-10]" value="0.1" /><br />
+			11-20 => <input type="text"  size=4 name="profit_range[10-30]" value="0.1" /><br />
+			31-50 => <input type="text"  size=4 name="profit_range[30-50]" value="0.1" /><br />
+			51-80 => <input type="text"  size=4 name="profit_range[50-80]" value="0.1" /><br />
+			81-100 => <input type="text"  size=4 name="profit_range[80-100]" value="0.1" /><br />
+			大于101 => <input type="text"  size=4 name="profit_range[100]" value="0.1" />
+		</div>		
+		<include file="$websiteFileName" />
+		<div class="alert"></div>
+
+		<div class="progress progress-striped active" style="display:none;">
+			<div class="progress-bar"  role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+		</div>
+
+		<div class="form-group text-center">
+			<input type="submit" id="releaseProduct" data-loading-text="正在保存..."  class="btn btn-primary" value="发布" />
+			<!-- <input type="submit"  onclick="exportProduct()" data-loading-text="正在保存..."  class="btn btn-primary" value="导出" />-->
+			<a type="submit" class="btn btn-danger" onclick='parent.$("#middleBox").modal("toggle");'/>关闭</a> 
+		</div>
+	</form>
+<script type="text/javascript">
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);
+
+	$("#releaseProduct").click(function(){
+		$(this).attr("disabled","disabled").val("正在发布...");
+		var ids = $("input.product_id");
+		$(".progress").show();
+		release(0,ids);
+		return false;
+
+	})
+
+
+	$("#retrieveProduct").click(function(){
+		start = 0;
+		go = true;
+		//把总共检索数置为0
+		$.post("{:U('resetRetrieveCount')}",$("#dataForm").serialize(),function(r){
+			if(!r.status){
+				$(".alert").attr("class","alert alert-danger").html(r.info);
+				alert(r.info);
+				go = false;
+			}
+		})
+		if(go == false)
+			return false;
+
+
+		$(this).attr("disabled","disabled").html("正在检索。。。");
+		var account_id = $("#account_id").val();
+		retrieveProduct(start,account_id);
+	});
+
+	$("#account_id").change(function(){
+		var account_id = $(this).val();
+
+		$("#dataForm").attr("action","{:U('prepare')}").submit();
+
+	})
+})
+
+
+function retrieveProduct(start){
+	var val = $("#dataForm").serialize();
+
+	$.ajax({
+		type:"POST",
+		cache:false,
+		url:"{:U('retrieve')}",
+		data:val + "&start=" + start,
+		success:function(r){
+			if(r.status){
+				if(r.data.start >= 0){
+					$("#retrieveProduct").html("正在检索 " +r.data.start+ " 。。。")
+					retrieveProduct(r.data.start);
+				}else{
+					$("#retrieveProduct").attr("disabled",null).html("检索")
+					
+					alert(r.data.info);
+					$(".alert").attr("class","alert alert-success").html(r.data.info);
+				}
+			}else{
+				if(r.info.indexOf('Error500') >= 0){
+				//请求超时的错误
+					retrieveProduct(start);	
+				}else{
+					$("#retrieveProduct").attr("disabled",null).html("检索");
+					var retrieved ;
+					$.post("{:U('getRetrieveCount')}",$("#dataForm").serialize(),function(r){
+						if(r.status){
+							retrieved = " 已检索：" + r.data.retrieveCount;
+						}
+					})
+					
+					alert(r.info + retrieved);
+					$(".alert").attr("class","alert alert-danger").html(r.info + retrieved);
+				}
+			}
+		},
+		error:function(){
+			retrieveProduct(start);	
+		}
+	});
+
+	
+}
+
+function exportProduct(){
+	
+	$("#dataForm").attr("action",'{:U("export")}').submit();
+	
+	return false;
+}
+
+function alertInfo(msg,style){
+	$(".alert").attr("class","alert alert-" + style).html(msg + "<br>" + $(".alert").html());
+}
+
+function release(key,ids){
+	if(ids.length<1){
+		parent.alertWarning('未选择产品');
+		parent.$("#middleBox").modal("toggle");
+	}
+
+	var data = $("#dataForm").serialize();
+	data += "&product_id=" + ids[key].value;
+	var url = "{:U('release')}";
+	$.ajax({
+		method:"POST",
+		url:url,
+		data:data,
+		cache:false,
+		success:function(r){
+			if(r.status){
+				key++;
+				processRate = key / ids.length * 100;
+				$(".progress-bar").css("width", processRate + "%");
+				if(key< ids.length)
+					release(key,ids);
+				else{
+					alert("发布完成");
+					alertInfo("发布完成","success");
+					$("#releaseProduct").attr("disabled",null).val("发布");
+				}
+			}else{
+
+				if(r.info.indexOf('Error500') >= 0){
+					release(key,ids);
+					return false;
+				}
+
+				$(".alert").attr("class","alert alert-danger").html($(".alert").html() + "<br>" + r.info);
+				if(window.confirm(r.info + "  是否跳过此错误继续执行？")){
+					key++;
+					processRate = key / ids.length * 100;
+					$(".progress-bar").css("width", processRate + "%");					
+					release(key,ids);
+				}else{
+					$("#releaseProduct").attr("disabled",null).val("发布");
+				}
+			}
+		},
+		error:function(r,d){
+			if(d != 'parsererror')
+				release(key,ids);
+			else{
+				alertWarning('网络错误，重试失败，请刷新后重试');
+				//$("#releaseProduct").attr("disabled",null).val("发布");
+			}
+		}
+	});
+}
+</script>

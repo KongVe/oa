@@ -1,0 +1,223 @@
+<layout name='Layout/ace_popup' />
+    {:W('PageHeader',array('name'=>"编辑订单收货地址"))}
+
+    <form action="{:U('localAddressSave')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+        <input type="hidden" id="ajax" name="ajax" value="1"/>
+
+		<input type="hidden" id="id" name="id" value="{$vo.id}">
+		<input type="hidden" id="opmode" name="opmode" value="edit">
+
+        <div class="panel panel-primary">
+            <div class="panel panel-heading">
+                <span>修改信息</span>
+            </div>
+            <div class="panel-body">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="local_shipping_first_name">名: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="local_shipping_first_name" name="local_shipping_first_name" value="" placeholder="名">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="local_shipping_last_name">姓: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="local_shipping_last_name" name="local_shipping_last_name" value="" placeholder="姓">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="local_shipping_street_address_1">地址1: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="local_shipping_street_address_1" name="local_shipping_street_address_1" value="" placeholder="地址1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="local_shipping_street_address_2">地址2: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="local_shipping_street_address_2" name="local_shipping_street_address_2" value="" placeholder="地址2">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="local_shipping_city">城市: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="local_shipping_city" name="local_shipping_city" value="" placeholder="城市">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="local_shipping_state">省份: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="local_shipping_state" name="local_shipping_state" value="" placeholder="省份">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">国家代码: </label>
+                            <div class="col-sm-9">
+                                <?php
+                                    $country_code_select = false;
+                                    if($vo['local_country_code']){
+                                        $country_code_select = $vo['local_country_code'];
+                                    }
+                                ?>
+                                <select name="local_country_code" id="local_country_code" style="width:350px;" check="require" msg="请选择目的国">
+                                    <option value="">请选择国家</option>
+                                    <volist name="country_list" id="country">
+                                        <option value="{$country.country_code}" <eq name="country.country_code" value="$country_code_select">selected="selected"</eq> >{$country.country} {$country.name_cn} ({$country.country_code})</option>
+                                    </volist>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="local_shipping_country">国家名称: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="local_shipping_country" name="local_shipping_country" value="" placeholder="国家名称">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="local_shipping_zipcode">邮政编码: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="local_shipping_zipcode" name="local_shipping_zipcode" value="" placeholder="邮政编码">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="local_shipping_phone">电话1: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="local_shipping_phone" name="local_shipping_phone" value="" placeholder="电话1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <notempty name="vo.related_order_auto_id">
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <label class="text-right col-sm-2" for="edit_related_order">同时修改合并订单: </label>
+                                <div class="col-sm-9">
+                                    <div class="col-sm-2">
+                                        <input class="form-control" type="checkbox" id="edit_related_order" name="edit_related_order" value="1" checked="checked">
+                                    </div>
+                                    <span class="help-block">
+                                        当前订单有已经合并的订单，勾选此项合并订单的地址将一起修改
+                                        <br>
+                                        <b>否则，合并的订单将被自动拆开</b>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    <else/>
+                        <input type="hidden" name="have_no_related_order" value="1"/>
+                    </notempty>
+
+                    
+                        <div class="form-group">
+                            <label class="text-right col-sm-2"></label>
+                            <div class="col-sm-9">
+                                <notempty name="have_print_package">
+                                    <span class="red" style="font-size:18px;">
+                                        注意！该订单或关联的合并订单 <b>存在包裹已经被打印标签</b> 请查看 <b>包裹信息。</b>
+                                        <br>
+                                    </span>
+                                </notempty>
+                                <span style="font-size:18px;">
+                                    修改订单地址不会更改包裹收货地址，
+                                    <br>
+                                    请修改完地址后 <b>手动提审相关的包裹并重新下载PDF</b>
+                                </span>
+                            </div>
+                        </div>
+                    
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="panel-default">
+            <div class="form-group text-center">
+                <input type="button" data-loading-text="正在保存..." data-close="1" class="editFormSubmit btn btn-primary" value="保存" />
+                <a class="close_box_button btn btn-danger">取消</a>
+            </div>
+        </div>
+    
+    </form>
+
+
+<script type="text/javascript">
+var country_list = {$country_list|default=""|json_encode};
+var order_detail_data = {$vo|default=""|json_encode};
+$(function($){
+    for(var key in order_detail_data){
+        if($("#"+key).length>0){
+            $("#"+key).val(order_detail_data[key]);
+        }
+    }
+
+    //输入框显蓝字
+    $(':input[type="text"]').each(function(i){
+        $(this).css({color:"blue"});
+    });
+    
+    $("#local_country_code").select2();
+
+    $("#local_country_code").change(function(){
+        var local_country_code = $(this).val();
+        for (var i = 0; i < country_list.length; i++) {
+            if(local_country_code == country_list[i].country_code){
+                $("#local_shipping_country").val(country_list[i].country);
+                break;
+            }
+        };
+    });
+
+    $(".editFormSubmit").click(function(){
+        if(!confirm("确认操作？")){
+            return false;
+        }
+        $("input").attr("disabled",null);
+        var data = $("#editForm").serialize();
+        var url = $("#editForm").attr("action");
+        
+        var btn = $(".editFormSubmit").button('loading');
+        if (check_form("editForm")) {
+            sendForm("editForm", url,false,function(msg){
+                btn.button('reset');
+                if(msg.status == 2){
+                    alertWarning(msg.info,1);
+                }else if(msg.status){
+                    alertWarning(msg.info,1);
+                    closeBox();
+                }else{
+                    alertWarning(msg.info);
+                }
+            });
+        }else{
+            btn.button('reset');
+        }
+    });
+});
+</script>

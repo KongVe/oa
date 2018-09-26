@@ -1,0 +1,102 @@
+<div class="form-group">
+	<label class="control-label">下单时间</label><br/>
+	<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="param[order_time]" id="order_time" value="<?php if($_REQUEST['param']['order_time']){ echo $_REQUEST['param']['order_time'];}?>"  placeholder="下单时间">
+</div>		
+
+<div class="form-group">
+	<label class="control-label">使用代理
+	</label>
+	<select name="param[useProxy]" class="form-control">
+		<option value="192.168.1.88:808" selected=">selected">192.168.1.88:808</option>
+		<option value="">不使用</option>
+	</select>	
+</div>
+
+
+<div class="form-group">
+	<label class="control-label">线上最后更新时间</label><br/>
+	<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="param[last_update]" id="last_update" value="<?php if($_REQUEST['param']['last_update']){ echo $_REQUEST['param']['last_update'];}?>"   readonly="readonly" placeholder="线上最后更新时间">
+</div>	
+<div class="form-group">
+	<label class="control-label">订单状态
+	</label>
+	<select name="param[order_state]" class="form-control">
+		<option value="" selected=">selected">All</option>
+		<option value="Pending">Pending</option>
+		<option value="Unshipped">Unshipped</option>
+		<option value="PartiallyShipped">PartiallyShipped</option>
+		<option value="Shipped">Shipped</option>
+		<option value="Canceled">Canceled</option>
+	</select>	
+</div>
+<div class="form-group">
+	<label class="control-label">执行方
+	</label>
+	<select name="param[FulfillmentChannel]" class="form-control">
+		<option value="" selected="selected">All</option>
+		<option value="AFN">Fulfilled by Amazon</option>
+		<option value="MFN">Fulfilled by the seller</option>
+	</select>
+</div>
+<?php
+	$accountInfo = M("OrderAccount")->find($_REQUEST['account_id']);
+
+	$map = array(
+		'website'	=>	$accountInfo['website'],
+		'account'	=>	$accountInfo['account_name'],
+		'order_state'	=>	'Waiting ship',
+		);
+	$earliestOrder = M("OrderDetail")->where($map)->order("order_time asc")->find();
+
+	if($earliestOrder){
+		$beginTime = date('Y-m-d',$earliestOrder['order_time'] - 3600 * 24);	
+	}else{
+		$beginTime = date("Y-m-d",time()-3600*24);
+	}
+	
+
+ ?>
+<script type="text/javascript">
+	$("#order_time").val("<?php echo $beginTime . ' - ' . date('Y-m-d'); ?>");
+</script>
+
+<div class="form-group">
+	<a id="lowestPrice" onclick="lowestPrice()" class="btn btn-danger">跟卖改最低价</a>
+</div>
+<script type="text/javascript">
+function lowestPrice(currentPage){
+	$("#lowestPrice").attr("disabled","disabled").html("正在删除...");
+	if(currentPage == undefined){
+		currentPage = 2;
+	}
+	console.log(currentPage)
+	$.ajax({
+		type:"POST",
+		url:"{:U('planLowestOfferTraversal')}",
+		data:$("#dataForm").serialize() + "&currentPage=" + currentPage,
+		cache:false,
+		success:function(r){
+			if(r.status){
+				$("#lowestPrice").attr("disabled",null).html("正在改价");
+				if(r.data.currentPage > 0){
+					$(".progress").show();
+					processRate = r.data.currentPage / r.data.totalPage * 100;
+					$(".progress-bar").css("width", processRate + "%");
+					lowestPrice(r.data.currentPage);
+				}else{
+					alert("删除完成");
+					$(".progress").hide();
+					$("#lowestPrice").attr("disabled",null).html("跟卖改最低价");
+				}
+			}else{
+				alert(r.info);
+				$("#lowestPrice").attr("disabled",null).html("跟卖改最低价");
+			}
+		},
+		error:function(XMLHttpRequest,textStatus){
+			$("#lowestPrice").attr("disabled",null).html("跟卖改最低价");
+			//lowestPrice();
+		}
+	})
+}
+</script>

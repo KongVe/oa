@@ -1,0 +1,88 @@
+<layout name='Layout/ace_box' />
+{:W('PageHeader',array('name'=>'修改物流'))}
+<form method='post' id="form_data" name="form_data" class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	
+	<input type="hidden" id="id" name="id" value="{$_REQUEST.id}">	
+	
+	<input type="hidden" id="opmode" name="opmode" value="edit">
+
+	<div class="col-xs-12">
+		<label class="col-sm-4 control-label" for="variation">包裹号：</label>	
+		<div class="col-sm-8">
+			<input type="text" name="package_code" class="form-control" value="{$vo.package_code}">
+		</div>
+	</div>
+	<div class="col-xs-12">
+		<label class="col-sm-4 control-label" for="variation">货代跟踪号：</label>	
+		<div class="col-sm-8">
+			<input type="text" name="forwarder_tracking_number" class="form-control" value="{$vo.forwarder_tracking_number}">
+		</div>
+	</div>
+	<div class="col-xs-12">
+		<label class="col-sm-4 control-label" >物流方式：</label>	
+		<div class="col-sm-8">
+			<select name="express_type" id="express_type" check="require" msg="请选择物流方式" onchange="showForwarder();" >
+				<option value="">请选择</option>
+				<volist name="express_list" id="express">
+					<option value="{$express.express_type}" <eq name="express.express_type" value="$vo.express_type">selected="selected"</eq> >{$express.express_type}({$express.express_name})</option>
+				</volist>
+			</select>
+		</div>
+	</div>
+
+	<div class="col-xs-12">
+		<label class="col-sm-4 control-label" >承运商：</label>	
+		<div class="col-sm-8" id="forwardr">
+			
+		</div>
+	</div>
+	
+	
+	<div class="action">
+		<label class="col-sm-4 control-label" for="variation"></label>	
+		<div class="col-sm-8">
+			<input type="hidden" name="model_name" value="place"> 
+			<input class="btn btn-sm btn-primary" type="button" value="提交" onclick="save();">
+			<input  class="btn btn-sm btn-default" type="button" value="取消" onclick="parent.$('#bottomBox').modal('hide');">
+		</div>
+	</div>
+</form>
+
+<script type="text/javascript">
+	var express_data = <?php echo json_encode($express_list);?>;
+
+	function showForwarder(){
+		var express_type = $("#express_type").val();
+
+		for (var i = 0; i < express_data.length; i++) {
+			if(express_data[i].express_type==express_type){
+				var show_data = express_data[i];
+			}
+		};
+		if(typeof(show_data) == "object"){
+			$("#forwardr").html("<b>"+show_data.forwarder_name+"</b>");
+		}else{
+			$("#forwardr").html("警告：未设置承运商");
+		}
+	}
+
+	function save() {
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('OrderPackage/changeExpressSave')}",false,function(msg){
+				if(msg.status){
+					if(parent.$("#bottomBox").length>0){
+						alertWarning(msg.info,1);
+						parent.window.location.reload();
+						parent.$("#bottomBox").modal('hide');
+					}else{
+						alertWarning(msg.info,1);
+					}
+				}else{
+					alertWarning(msg.info);
+				}
+			});
+		}
+	}
+	setTimeout(showForwarder,500);
+</script>

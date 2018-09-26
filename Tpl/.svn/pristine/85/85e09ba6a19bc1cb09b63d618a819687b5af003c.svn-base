@@ -1,0 +1,132 @@
+<layout name='Layout/ace_layout' />
+{:W('PageHeader',array('name'=>'库存编辑'))}
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="pull-left">
+			<!-- <a onclick="go_return_url();" class="btn btn-sm btn-primary">返回</a> -->
+		</div>
+		<div class="pull-right">
+			<a onclick="save(this);"  class="btn btn-sm btn-primary">保存</a>
+			<!-- |
+			<a onclick="del();"  class="btn btn-sm btn-danger">删除</a> -->
+		</div>
+	</div>
+</div>
+
+<div class="col-sm-4" id="relateStock"></div>
+<div class="col-sm-8">
+	<form method='post' id="form_data" action="{:U('update')}" class="well form-horizontal">
+		<input type="hidden" id="ajax" value=""/>
+		<input type="hidden" id="add_file" name="add_file" value=""/>
+		<table class="table table-bordered">
+			<input type="hidden"  id="id" name="id" value="{$vo.id}">
+			<div class="form-group col-xs-12">
+
+				<div class="col-sm-4  control-label">
+					<label  for="sku">SKU*：</label>
+					<div class="col-sm-12">
+						<a href="{$vo.thumbnail}" id="thumbnail_show" class="thumbnail" target="_blank" style="width: 60%;position: absolute;z-index:1000;"><img src="{$vo.thumbnail}" /></a>
+					</div>
+				</div>
+				
+				<div class="col-sm-4">
+					<input class="form-control" value="{$vo.sku}" type="text" id="sku" name="sku" check="require" placeholder="输入sku,区分大小写" msg="请输入SKU">
+					<!-- <span class="help-block">多个SKU值时，请使用英文逗号,分开</span> -->
+				</div>
+				<div class="col-sm-4" id="check_exist_alert"></div>
+			</div>
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 control-label" for="variation">规格：</label>
+				<div class="col-sm-8">
+					<input class="form-control" value="{$vo.variation}" type="text" id="variation" name="variation"   msg="请输入规格 ">
+				</div>
+			</div>
+
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 control-label" for="quantity"><b>增加数量</b>：</label>
+				<div class="col-sm-8">
+					除管理员外，其它成员已禁用库存 增加数量 的功能，遇到特殊情况需要强制新增库存的请联系管理员
+					<?php
+						if(isAdmin()){
+					?>	
+						<input class="form-control" value="0" type="text" id="quantity" name="quantity" check="require" msg="请输入数量">
+					<?php
+						}else{
+					?>
+						<!-- <input class="form-control" value="0" type="hidden" id="quantity" name="quantity" check="require" msg="请输入数量"> -->
+					<?php
+						}
+					?>
+					
+				</div>
+
+			</div>
+
+			<div class="form-group col-xs-12">
+		
+				<label class="col-sm-4 control-label" for="thumbnail">图片：</label>
+				<div class="col-sm-8">
+					<input class="form-control" value="{$vo.thumbnail}" type="text" id="thumbnail" name="thumbnail" check="require" msg="请输入图片地址" onchange="showThumbnail()">
+					<div class="form-group col-xs-12">
+						如果图片不正确，请选择参考卖出过的图片和规格<br>
+						也可以 直接输入正确的图片地址 或 上传图片文件
+					</div>
+				</div>
+			</div>
+			
+			<div class="form-group col-xs-12">
+		
+				<label class="col-sm-4 control-label" for="thumbnail_upload">上传图片：</label>
+				<div class="col-sm-8">
+					<div class="col-sm-12">
+						<include file="Widget:uploader" />
+					</div>
+				</div>
+			</div>
+		
+			<div class="form-group col-xs-12" style="display:none;">
+				<label class="col-sm-4 control-label" for="memo">货架位：</label>
+				<div class="col-sm-8">
+					<div class="col-sm-6">
+						仓库<br>
+						<select id="warehouse_select" onchange="ajaxGetChildrenList($(this).val(),'region','warehouse');"></select>
+					</div>
+					<div class="col-sm-6">
+						区域<br>
+						<select  id="region_select" onchange="ajaxGetChildrenList($(this).val(),'shelf','region');"></select>
+					</div>
+					<div class="col-sm-6">
+						货架<br>
+						<select  id="shelf_select" name="shelf_id" onchange="ajaxGetChildrenList($(this).val(),'place','shelf');"></select>
+					</div>
+					<div class="col-sm-6">
+						货架位置<br>
+						<select  id="place_select" name="place_id"   msg="请选择货架位" >
+							<option value="">请选择货架位</option>
+							<!-- <option value="1">增加数量为0时才选,数量大于0请交给采购部处理</option> -->
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="form-group col-xs-12" style="display:none;">
+				<label class="col-sm-4 control-label" for="memo"></label>
+				<div class="col-sm-8">
+						如果货架位不存在，请添加该货架位 <br>
+						<a href="{:U('order_stock/placeList')}" target="_blank">货架位管理</a>
+						<a href="{:U('order_stock/shelfList')}" target="_blank">货架管理</a>
+				</div>
+			</div>
+
+
+			<div class="form-group col-xs-12">
+				<div class="col-xs-8 pull-right" id="reference">
+
+				</div>	
+			</div>
+		</table>
+	</form>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+

@@ -1,0 +1,452 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" action="{:U("")}" method="post">
+    <input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ;?>" >
+    <input type="hidden" name="_order" id="order" value="{$order}">
+    <input type="hidden" name="id" value="{$Think.request.id}" />
+
+<div class="page-header clearfix">
+    <h1 class="col-sm-2">{$title}</h1>
+    <div class="col-sm-10 pull-right">
+        <!-- <div class="input-group col-sm-3">
+            <span class="input-group-addon">
+                选择物流方式:
+            </span>
+            
+            <select style="width:100%;" name="express_type_id" id="express_type_id" onchange="checkData(); checkTextDataInput();">
+                <option value="">请选择物流方式</option>
+                <volist name="express_type_list" id="express_type">
+                    <option value="{$express_type.id}" <eq name="express_type.id" value="$_RUQUEST.express_type_id"> selected="selected"</eq> >{$express_type.forwarder_name} {$express_type.express_name}</option>
+                </volist>
+            </select>
+        </div> -->
+        <div class="input-group col-sm-6">
+            <input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="搜索 包裹号 或 跟踪号"/>
+            <span class="input-group-btn">
+                <a class="btn btn-sm btn-info submit_button" id="submit_button" title="搜索"> <i class="bigger-135 icon-search"></i> </a>
+                <a class="roload_form_action btn btn-sm btn-danger" title="重新载入"><i class="bigger-125 icon-rotate-right"></i> </a>
+            </span>
+        </div>
+        <div class="input-group col-sm-3">
+            <a href="{:U('V2OrderPackage/index')}?print_not_ship=1" class="btn btn-inverse" target="_blank" >已打印但未发货包裹</a>
+        </div>
+    </div>
+</div>
+<div class="message-container" style="width:100%;">
+
+    <div class="alert alert-block alert-danger" style="text-align:center;display:none;" id="alertShipWarning_div">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <h1>错误!</h1>
+            <p id="alertShipWarning" style="font-size:20px">
+                
+            </p>
+            <div>
+                <a class="closeAlertShipWarning btn btn-danger">关闭</a>
+            </div>
+    </div>
+    
+
+    <table class="table table-striped table-bordered">
+            <tbody class="tbody ">
+            <empty name="list">
+                <tr>
+                    <th class="text-center">
+                        未获取到待发货的包裹 请搜索 包裹号 或 跟踪号
+                    </th>
+                </tr>
+            </empty>
+            <volist name="list" id="package" key="package_key">
+                <tr>
+                    <td colspan="2">
+                        包裹号: <b>{$package.package_code}</b>
+                        <br>
+                        跟踪号: <b>{$package.forwarder_tracking_number}</b>
+                        <br>
+                        仓库: <b>{$package.warehouse_data.warehouse_name}</b>
+                        <br>
+                        物流方式: <b>{$package.express_type_data.express_show_name}</b>
+                    </td>
+                    <td colspan="3" class="text-center" style="font-size:22px;">
+                        <div class="col-xs-4">
+                            包含 订单: <b class="red"><?php echo count($package['order_data_list']);?></b> 个
+                        </div>
+                        <div class="col-xs-4">
+                            产品条目：<b class="red" >{$package['package_local_product_count']}</b> 个
+                        </div>
+                        <div class="col-xs-4">
+
+                        </div>
+                    </td>
+                </tr>
+                <volist name="package.order_data_list" id="order_list" key="order_key">
+                    
+                    <volist name="order_list.local_product_data_list" id="vo" key="product_key">
+                        <tr>    
+                            <eq name="product_key" value="1">
+                                <td rowspan="4" class="col-xs-1">
+                                    <b style="font-size:15px;">产品信息</b> 
+                                </td>
+                            <else/>
+                                <td rowspan="4" class="col-xs-1"></td>
+                            </eq>
+                            
+                            <td rowspan="4" class="col-xs-2">
+                                <a href="{$vo.thumbnail}" class="thumbnail" target="_blank">
+                                    <img src="{$vo.thumbnail}" />
+                                </a>
+                            </td>
+
+                            <td class="col-xs-3">
+                                规格SKU: <b style="color:blue;font-size:20px;">{$vo.sku}</b>
+                                <notempty name="vo.sku_flag_list"> 
+                                    <div class="col-xs-12">
+                                        <foreach name="vo.sku_flag_list" item="flag">
+                                            <div class="col-xs-6">
+                                                <span class="btn-minier" style="border-color:red; background-color:{$flag.bg_color};color:{$flag.font_color};" title="{$flag.description}">{$flag.flag_name}</span>
+                                            </div>
+                                        </foreach>
+                                    </div>
+                                </notempty>
+                            </td>
+                            <td class="col-xs-3">
+                                SKU名称: <b style="color:blue;font-size:20px;">{$vo.sku_name}</b>
+                            </td>
+                            <eq name="product_key" value="1">
+                                
+                                <eq name="order_key" value="1">
+                                    <td rowspan="8" class="col-xs-2">
+                                        <eq name="package.package_state" value="Really ship">
+
+                                            <a class="confirmShip btn btn-large" data-package_id="{$package.id}" data-shipped="1" href="#" title="确定" style="width: 100%;height:70%;font-size: 400%;">已发货</a>
+
+                                            <br>
+                                            <br>
+
+                                            <a class="cancelConfirmShip btn btn-large btn-danger" href="#" data-package_id="{$package.id}" style="width: 100%;height:30%;font-size: 200%;">取消发货</a>
+
+                                        <else/>
+                                            <notempty name="package.can_not_ship">
+                                                <a class="confirmShip btn btn-large" data-package_id="{$package.id}" data-shipped="1" href="#" title="确定" style="width: 100%;height: 80%;font-size: 400%;">不可发货</a>
+                                            <else/>
+                                                <div class="input-group">
+                                                    <input type="number" class="weight_input form-control" data-id="{$package.id}" id="weight_{$package.id}" value="" placeholder="单个包裹重量"/>
+                                                    <div class="input-group-addon">
+                                                        <b>克</b>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div>
+                                                    <a class="confirmShip btn btn-large btn-danger" data-package_id="{$package.id}" id="confirmShip_{$package.id}" title="确定" style="width:100%;height:300px;font-size:500%;">发 货</a>
+                                                </div>
+                                            </notempty>
+                                        </eq>   
+                                    </td>
+                                </eq>
+                            </eq>
+                        </tr>
+                        <tr>
+                            <td>
+                                包含数量: <b style="color:red;font-size:20px;">{$vo.product_quantity}</b> 个
+                            </td>
+                            <td >
+                                SKU说明: 
+                                <notempty name="vo.map_sku_memo">
+                                    <b style="color:red;font-size:20px;" class="blink_selector">{$vo.map_sku_memo}</b>
+                                <else/>
+                                    <b style="font-size:20px;">无</b>
+                                </notempty>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                本地状态: <b style="color:red;font-size:20px;">{$vo.local_state|L}</b>
+                            </td>
+                            <td>
+                                线上付款状态: <b style="color:red;font-size:20px;">{$vo.online_product_data.online_payment_status|L}</b>
+                                <br>
+                                线上发货状态: <b style="color:red;font-size:20px;">{$vo.online_product_data.online_shipping_status|L}</b>
+                            </td>   
+                        </tr>
+                        <tr>
+                            <td >
+                                <div class="col-xs-4">
+                                    <a href="{$vo.online_product_data.thumbnail}" class="thumbnail" target="_blank">
+                                        <img src="{$vo.online_product_data.thumbnail}" />
+                                    </a>
+                                </div>
+                                <div class="col-xs-8">
+                                    线上颜色: {$vo.online_product_data.online_color}
+                                    <br>
+                                    <br>
+                                    线上尺码: {$vo.online_product_data.online_size}
+                                </div>
+                            </td> 
+                            <td>
+                                本地备注: 
+                                <notempty name="order_list.local_memo">
+                                    <b style="color:red" class="blink_selector">{$order_list.local_memo}</b>
+                                <else/>
+                                    <b>无</b>
+                                </notempty>
+                            </td>
+                        </tr>
+                    </volist>
+                
+
+                    <tr class="danger tr_order">
+                        <td>
+                            <b style="font-size:15px;">订单信息</b> 
+                        </td>
+                        <td style="word-break:break-all;">
+                            订单ID: {$order_list['online_order_id']}
+                            <br>
+                            <a href="{:U('V2OrderDetail/index')}?order_auto_id={$order_list['id']}" target="_blank" class="link">查看</a>
+                        </td>
+                        <td>
+                            处理状态: <b style="color:red;">{$order_list.manual_process_status|L}</b>
+                        </td>
+                        <td>
+                            下单时间: 
+                            <notempty name="order_list.order_time">
+                                {$order_list.order_time|date="y-m-d H:i:s",###}
+                            <else/>
+                                无
+                            </notempty>
+                        </td>   
+                    </tr>
+                    
+                    <tr class="danger">
+                        <td></td>
+                        <td>
+                            姓名: <b>{$order_list.local_shipping_first_name} {$order_list.local_shipping_last_name}</b>
+                        </td>
+                        <td>
+                            国家: <b>{$order_list.local_shipping_country}</b>
+                        </td>
+                        <td>
+                            <!-- 备注: <b>{$order_list.local_memo|default="无"}</b> -->
+                        </td> 
+                    </tr>
+                </volist>
+
+                <tr class="success">
+                    <td style="width:100px;">
+                        <b style="font-size:15px;">包裹信息</b> 
+                    </td>
+                    <notempty name="package.local_send_time">
+                        <td>
+                            本地称重: <b>{$package.local_weight}</b> G
+                        </td>
+                        <td>
+                            发货员: <b>{$package.ship_user_name|default="未发货"}</b>
+                        </td>
+                        <td >
+                            发货时间: 
+                            <b>
+                                <notempty name="package.local_send_time">
+                                    {$package.local_send_time|date="y-m-d H:i:s",###}
+                                <else/>
+                                    无
+                                </notempty>
+                            </b>
+                        </td>
+                    <else/>
+                        <td colspan="3">
+                            
+                        </td> 
+                    </notempty>
+
+                
+                </tr>
+                <tr class="success">
+                    <td class="text-right" rowspan="2">
+                        包裹序号: <b>{$package.id}</b>
+                    </td>
+                    <td colspan="2">
+                        包裹号: <b>{$package.package_code}</b>
+                        <br>
+                        跟踪号: <b>{$package.forwarder_tracking_number}</b>
+                    </td>   
+                    <td>
+                        包裹状态: <b>{$package.package_state|L}</b>  
+                    </td>
+                </tr>
+                <tr class="success">
+                    <td colspan="2">
+                        仓库: <b>{$package.warehouse_data.warehouse_name}</b>
+                        <br>
+                        承运商: <b>{$package.express_type_data.forwarder_name}</b>
+                        &nbsp;&nbsp;
+                        物流方式: <b>{$package.express_type_data.express_name}</b>
+                    </td>
+                    <td>
+                        打单员: <b>{$package.print_user_name|default="无"}</b> 
+                        <eq name="package.is_print" value="No">
+                            <b class="red">(未提交打印完成)</b>
+                        </eq>
+                        <br>
+                        打印时间:<b>
+                        <notempty name="package.local_print_time">
+                            {$package.local_print_time|date="y-m-d H:i:s",###}
+                        <else/>
+                            未打印
+                        </notempty>
+                    </b>
+                    </td>
+                </tr>
+                <tr style="height:50px;">
+                    <td colspan="5">
+                        
+                    </td>
+                </tr>
+            </volist>
+        </tbody>
+    </table>
+    <div class="pagination">
+        {$page}
+    </div>  
+    <div style="height:300px;"></div>
+    <div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none;">
+        <iframe src="" id="order-detail-iframe" frameborder="0" height="300px" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+    </div>
+</div>
+</form>
+<!-- 
+<div class="thumbnailBox">
+    <a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+ -->
+<script type="text/javascript">
+var weight_package_id = 0;
+var sroll_buttom = {$sroll_buttom|default=0};
+$(function(){
+    //close sidebar
+    // ace.settings.sidebar_collapsed(true);
+
+    $("#q").focus(function(){
+        $(document).bind('keydown',function(event){
+            if(event.keyCode == "13"){
+                //回车键搜索
+                $("#submit_button").click();
+            };
+          
+        });
+    }).blur(function(){
+        $(document).unbind('keydown');
+    }),
+
+    $(".submit_button").click(function(){
+        $("#form_search").submit();
+    })
+
+    $(".weight_input").focus(function(){
+        weight_package_id = $(this).data('id');
+        $(document).bind('keydown',function(event){
+            //回传键发货
+            if(event.keyCode == "13"){
+
+                console.log(weight_package_id);
+
+                if($(".confirmShip").length>0){
+                    //默认只发一个搜索结果
+                    if($("#confirmShip_"+weight_package_id).data("shipped")){
+                        return false;
+                    }
+                    $("#confirmShip_"+weight_package_id).click();
+                }
+            };
+          
+        });
+    }).blur(function(){
+        $(document).unbind('keydown');
+    });
+
+    if($(".weight_input").length > 0){
+        $(".weight_input").eq(0).focus().select();
+    }else{
+        $("#q").focus().select();
+    }
+    
+    $("input").click(function(){
+        $(this).select();
+    });
+
+    $(".confirmShip").click(function(){
+        if($(this).data("shipped")){
+            return false;
+        }
+        var package_id = $(this).data("package_id");
+        if(!package_id){
+            alertShipWarning("页面参数错误");
+            return 1;
+        }
+        var weight = $("#weight_"+package_id).val();
+        var btn = $(this);
+        btn.button('loading');
+        $.post("{:U('V2OrderPackage/confirmShip')}",{id:package_id,weight:weight},function(msg){
+            btn.button('reset');
+            if(msg.status){
+                // alertWarning(msg.info,1);
+                window.location.reload();
+            }else{
+                alertShipWarning(msg.info);
+            }
+        }).error(function(){
+            btn.button('reset');
+            alertShipWarning("网络错误，请重试");
+            return false;
+        });
+    });
+
+    $(".cancelConfirmShip").click(function(){
+        var package_id = $(this).data("package_id");
+        if(!package_id){
+            alertWarning("页面参数错误");
+            return 1;
+        }
+        if(!confirm("确认取消？")){
+            return false;
+        }
+        var btn = $(this);
+        btn.button('loading');
+        $.post("{:U('V2OrderPackage/cancelConfirmShip')}",{id:package_id},function(msg){
+            btn.button('reset');
+            if(msg.status){
+                alertWarning(msg.info,1);
+                window.location.reload();
+            }else{
+                alertWarning(msg.info);
+            }
+        }).error(function(){
+            btn.button('reset');
+            alertWarning("网络错误，请重试");
+            return false;
+        });
+    });
+
+    $(".closeAlertShipWarning").click(function(){
+        closeAlertShipWarning();
+    });
+
+    if(sroll_buttom){
+        document.getElementsByTagName('body')[0].scrollTop = $('body').height();
+    }
+  
+});
+
+
+
+function alertShipWarning(msg){
+    document.getElementsByTagName('body')[0].scrollTop = 0;
+    $("#alertShipWarning_div").show();
+    $("#alertShipWarning").html(msg);
+    $("#q").attr("disabled",true);
+    $(".weight_input").attr("disabled",true);
+}
+
+function closeAlertShipWarning(){
+    $("#alertShipWarning_div").hide();
+    $("#alertShipWarning").html("");
+    $("#q").attr("disabled",false);
+    $(".weight_input").attr("disabled",false);
+}
+</script>

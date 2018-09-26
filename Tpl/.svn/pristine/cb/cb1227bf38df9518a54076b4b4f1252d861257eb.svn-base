@@ -1,0 +1,174 @@
+<layout name='Layout/ace_box' />
+<div class="panel panel-default">
+	<div class="panel-body">
+		<div id="orderDetailContent" class="tab-content">
+				<table class="table table-striped table-hover table-bordered table-condensed">
+					<tr>
+						<th>操作</th>
+						<th>SKU</th>
+						<th>FNSKU</th>
+						<th>上架时间</th>
+						<th>帐号</th>
+						<th>线上状态</th>
+						<th>近一单利润</th>
+						<th>近一月销量</th>
+						<th>FBA库存</th>
+						<th>线上价格</th>
+						<th>发货方式</th>
+						<th>发布者</th>
+						<th>备注</th>
+					</tr>
+					<tbody class="tbody">
+						<foreach name="list" item="vo" key="pK">
+							<tr>
+								<th>
+									<input type="hidden" name="id[]" value="{$vo.id}" />
+									<a class="btn btn-xs btn-danger showBox" data-url="{:U('AmazonMerchantBlocked/edit')}?issue_id={$vo.id}" data-use_parent=1 >投诉</a>
+									<a class="btn btn-xs btn-primary showBox" data-url="{:U('edit')}?id={$vo.id}" data-use_parent=1 >修改</a>
+									
+									<?php if($vo['hasAnalysis']){ ?>
+									<a class="btn btn-xs btn-danger showBox" data-url="{:U('AmazonBusinessReports/detailV2')}?issue_id={$vo.id}" data-use_parent=1 >分析</a>
+									 <?php } ?>
+									 <eq name="vo.fulfill_by" value="Amazon">
+										<a class="btn btn-xs btn-warning" onclick="printFNSKU({$vo.id})">打印FNSKU</a>
+										<input type="text" id="fnsku_quantity_{$vo.id}" value="1" size=4/>
+									</eq>
+
+								</th>
+								<td>{$vo.sku}<empty name="vo.promote_plan_data"><br>
+
+									<!-- <a data-url="{:U('V2AmazonPromotePlan/edit')}?sellyours_id={$vo.sellyours_id}&issue_id={$vo.id}" data-use_parent="1" class="showBox btn btn-primary btn-xs">添加PPC</a> -->
+									
+									<else/>
+
+									<!-- <br>
+									
+									<a data-url="{:U('V2AmazonPromotePlan/edit')}?sellyours_id={$vo.sellyours_id}&issue_id={$vo.id}&id={$vo.promote_plan_data.id}" data-use_parent="1" class='showBox btn <switch name="vo.promote_plan_data.status" >
+											<case value="Advertising">btn-inverse</case>
+											<case value="End">btn-danger</case>
+											<case value="Pause">btn-warning</case>
+											<default />btn-info
+											</switch> btn-xs'>编辑PPC(<switch name="vo.promote_plan_data.status" >
+											<case value="Advertising">推</case>
+											<case value="End">停</case>
+											<case value="Pause">暂</case>
+											<default />待
+											</switch>)</a> -->
+
+									</empty>
+
+									<!-- <a href="{:U('V2AmazonReportPromotePerformance/skuPerformanceDetail')}?issue_id={$vo.id}" target="_blank">统计</a> -->
+								</td>
+								<td>{$vo.fnsku}
+									<eq name="vo.fulfill_by" value="Amazon">
+										<br>
+										发货: <input style="max-width:30px;" data-issue-id="{$vo.id}" value="{$vo.plan_transfer_quantity|default=0}" class="createTransferPlanQuantity">
+										<gt name="vo.planed_transfer_quantity" value="0">
+											<b class="green"> / {$vo.planed_transfer_quantity}</b>
+										</gt>
+									</eq>
+								</td>
+								<td>{$vo.issue_time}</td>
+								<td>{$vo.account.show_name}</td>
+								<td>{$vo.status}</td>
+								<td>
+									<neq name="vo.last_order_cost" value="0">
+										利润: ￥<b class="red">{$vo.last_order_profit}</b> , 
+										成本: ￥{$vo.last_order_cost} , 
+										利润率: <?php echo ($vo['last_order_profit_rate'] * 100) . "%"; ?> <br> 售价:<?php echo formatPrice($vo['last_order_price'],$vo['price_currency']); ?>,
+										<?php echo date("Y-m-d", $vo['last_order_time']); ?>
+									</neq>
+								</td>
+								<td>{$vo.month_order_units}
+									<neq name="vo.pending_order_units" value="0">
+										<br>
+										Pending: {$vo.pending_order_units}
+									</neq>									
+								</td>
+								<td><div data-toggle="popover" class="blue"  data-content="{$vo.fba_stock_detail}"> {$vo.fba_stock_quantity}</div></td>
+								<td>
+									<empty name="vo.reprice_log">
+										<?php echo formatPrice($vo['product_price'],$vo['price_currency']); ?>
+									<else/>
+										<a data-toggle="popover" href="{:U('AmazonRepriceQueue/index')}?q={$vo.sku}" target="_blank" class="blue"  data-content="{$vo.reprice_log}">
+											<?php echo formatPrice($vo['product_price'],$vo['price_currency']); ?>
+										</a>
+									</empty>
+									
+								</td>
+								<td>{$vo.fulfill_by}</td>
+								<td>{$vo.issue_empname}</td>
+								<td>
+									<span class="V2EditMemo" data-table-name="amazon_sellyours_issue" data-field-value="{$vo.id}"><pre>{$vo.memo}</pre></span>
+								</td>
+							</tr>
+						</foreach>
+					</tbody>
+				</table>
+			<?php if(count($transfer_plan_list) > 0){  ?>
+			<b>V2 FBA发货记录(最近10次)：</b>
+				<table class="table table-striped table-hover table-bordered table-condensed">
+					<tr>
+						<th>FNSKU</th>
+						<th>发货时间</th>
+						<th>数量</th>
+						<th>FBA已收</th>
+						<th>Shipment ID</th>
+						<th>帐号</th>
+						<th>备注</th>
+					</tr>
+					<volist name="transfer_plan_list" id="transfer_plan">
+						<tr>	
+							<td>{$transfer_plan.target_product_sn}</td>
+							<td><?php echo $transfer_plan['confirm_transfer_time']?date("Y-m-d H:i",$transfer_plan['confirm_transfer_time']):"未发货"; ?></td>
+							<td>{$transfer_plan.packed_quantity}</td>
+							<td><b class="red">{$transfer_plan.receive_quantity|default="0"}</b></td>
+							<td>
+								<?php if($transfer_plan['online_shipment_id']){ ?> 
+									<a href="{:U('V2TransferShipment/index')}?id={$transfer_plan.transfer_shipment_id}" target="_blank">{$transfer_plan.online_shipment_id}</a>
+								<?php }else{ ?>  
+									<a class="red" href="{:U('V2TransferPlan/index')}?transfer_shipment_id={$transfer_plan.transfer_shipment_id}" target="_blank">打包中,未发货</a>
+								<?php  } ?>
+							</td>
+							<td>{$transfer_plan.order_account.show_name}</td>
+							<td>{$transfer_plan.memo}</td>
+						</tr>
+					</volist>
+				</table>
+			<?php } ?>				
+			<?php if(count($fba_plan_list) > 0){  ?>.
+
+			.
+
+			 
+			<b>FBA发货记录(最近10次)：</b>
+				<table class="table table-striped table-hover table-bordered table-condensed">
+					<tr>
+						<th>SKU</th>
+						<th>FNSKU</th>
+						<th>发货时间</th>
+						<th>数量</th>
+						<th>FBA已收</th>
+						<th>Shipment ID</th>
+						<th>帐号</th>
+						<th>备注</th>
+					</tr>
+					<volist name="fba_plan_list" id="fba_plan">
+						<tr>	
+							<td>{$fba_plan.sku}</td>
+							<td>{$fba_plan.fnsku}</td>
+							<td><?php echo date("Y-m-d",$fba_plan['ship_time']); ?></td>
+							<td>{$fba_plan.final_ship_quantity}</td>
+							<td><b class="red">{$fba_plan.receive_quantity}</b></td>
+							<td>{$fba_plan.online_shipment_id}</td>
+							<td>{$fba_plan.account_name}</td>
+							<td>{$fba_plan.memo}</td>
+						</tr>
+					</volist>
+				</table>
+			<?php } ?>
+			
+		</div>
+	</div>
+</div>
+<!-- <a class="btn btn-danger pull-right"  onclick="closeBox()" style="position: absolute;right: 12px;top: 15px;z-index:100;">关闭</a> -->

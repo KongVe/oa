@@ -1,0 +1,92 @@
+<html>
+<head>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" href="__PUBLIC__/assets/css/bootstrap.min.css"  />
+	<script src='__PUBLIC__/assets/js/jquery-1.9.1.min.js'></script>
+	<script src='__PUBLIC__/assets/js/common.js'></script>
+	<script type="text/javascript">
+		$(function() {
+			$('.del_span').hover(
+				function(){
+					$(this).children().show();
+				},
+				function () {
+					$(this).children().hide();
+				});
+			$('.del_btn').click(function(){
+				if(confirm('确认删除？')){
+					var id=$(this).data('id');
+					$.post("{:U('delCartOne')}",{key:'888',itemId:id},function(msg){
+						if(msg.status==1){
+							$('#tr_'+id).remove();
+							window.location.reload();
+						}else{
+							alert(msg.info);
+						}
+					})
+				}
+				
+			})
+		})
+	</script>
+	<style type="text/css">
+		.del_btn{
+			display: none;
+		}
+		.del_span{
+			width: 50px;
+			height: 50px;
+			display: block;
+		}
+	</style>
+</head>
+<body>
+<table class="clearfix sourceHtml" width="100%" border="1" >
+	<tr>
+		<th>SKU</th>
+		<th>图片</th>
+		<th>链接&档口</th>
+		<th>货号</th>
+		<th>规格</th>
+		<!-- <th>尺码</th> -->
+		<th>数量</th>
+		<th>单价</th>
+		<th>操作</th>
+	</tr>
+	<volist name='cartList' id='item' key="key">
+		<?php
+			$location;
+			if($item['location']==$cartList[$key-1]['location'] && $key >=1 && $item['source_type']=="1688" && $location!=$item['location']){
+				$location=$item['location'];
+		?>
+			<tr style=" background-color: #E7E7E7;" >
+				<td colspan="3"><a href="{$item.link}" target="_blank">{$item.location}</a>(店铺)</td>
+				<td>{$item.name}</td>
+				<td style="color:blue;">标识码：</td>
+				<td colspan="2" >
+					<b style="color:red;">
+						<span class="editStatic" field="message_id" onclick="editStatic(this,'{:U('OrderProduct/editCart')}?id=<?php echo $key-1;?>')">{$item.message_id}</span>
+					</b>
+					<i style="font-size:13px;">点击修改</i>
+				</td>
+				<td colspan="2"></td>
+			</tr>
+		<?php
+			}
+		?>
+		<tr>
+			<td>{$item.sku}</td>
+			<td><img src="{$item.thumbnail}" height="60" /></td>
+			<td><a href="{$item.link}" target="_blank">{$item.location}</a></td>
+			<td>{$item.item_number}</td>
+			<!-- <td>{$item.color}</td> -->
+			<td>{$item.variation}</td>
+			<td>{$item.quantity} 个</td>
+			<td>
+				<span class="editStatic" field="price" onclick="editStatic(this,'{:U('OrderProduct/editCart')}?id=<?php echo ($key-1); ?>')">{$item.price}</span>
+				<i style="font-size:13px;">点击修改</i>
+			</td>
+			<td><span class="del_span"><a data-id="{$item.itemId}" class="del_btn btn btn-danger">删除</a></span></td>
+		</tr>
+	</volist>
+</table>

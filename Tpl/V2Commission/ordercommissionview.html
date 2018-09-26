@@ -1,0 +1,161 @@
+<layout name='Layout/ace_box' />
+
+<div class="panel panel-default">
+	<div class="panel-body">
+
+		<volist name="list" id="online_product">
+			<div class="col-sm-12">
+				<div class="col-sm-12">
+					<div class="col-sm-3 text-right">子订单序号:</div>
+					<div class="col-sm-9">
+						{$online_product.id}
+					</div>
+				</div>
+				<div class="col-sm-12">
+					<div class="col-sm-3 text-right">主订单ID:</div>
+					<div class="col-sm-9">
+						{$online_product.online_order_id}
+					</div>
+				</div>
+				<div class="col-sm-12">
+					<div class="col-sm-3 text-right">图片:</div>
+					<div class="col-sm-9">
+						<a href="{$online_product.thumbnail}" target="_blank" style="width:150px"><img src="{$online_product.thumbnail}" width="150" /></a>
+					</div>
+				</div>
+			
+				<div class="col-sm-12">
+					<div class="col-sm-3 text-right">数量:</div>
+					<div class="col-sm-9">
+						{$online_product.quantity} 个
+					</div>
+				</div>
+				
+				<div class="col-sm-12">
+					<div class="col-sm-3 text-right">当前实收金额:</div>
+					<div class="col-sm-9">
+						{$online_product.real_loan_total} 元
+					</div>
+				</div>
+
+				<div class="col-sm-12">
+					<div class="col-sm-3 text-right">当前产品成本:</div>
+					<div class="col-sm-9">
+						{$online_product.product_cost} 元
+					</div>
+				</div>
+				<div class="col-sm-12">
+					<div class="col-sm-3 text-right">当前运费成本:</div>
+					<div class="col-sm-9">
+						{$online_product.shipping_cost} 元
+					</div>
+				</div>
+				<div class="col-sm-12">
+					<div class="col-sm-3 text-right">利润:</div>
+					<div class="col-sm-9">
+						{$online_product.profit} 元
+					</div>
+				</div>
+				<div class="col-sm-12">
+					<div class="col-sm-3 text-right">利润率:</div>
+					<div class="col-sm-9">
+						{$online_product.profit_rate} 元
+					</div>
+				</div>
+
+				<notempty name="online_product.profit_recoup_id">
+					<div class="col-sm-12">
+						<div class="col-sm-3 text-right">利润回收率:</div>
+						<div class="col-sm-9">
+							{$online_product.profit_recoup_rate}
+						</div>
+					</div>
+					<div class="col-sm-12">
+						<div class="col-sm-3 text-right">利润回收金额:</div>
+						<div class="col-sm-9">
+							{$online_product.profit_recoup_amount}
+						</div>
+					</div>
+				</notempty>
+
+				<if condition=" isAdmin() ">
+					<div class="col-sm-12">
+						<div class="col-sm-9 text-right"></div>
+						<div class="col-sm-3">
+							<a class="showHiddenCommission btn-link" data-typye="1">显示</a>
+						</div>
+					</div>
+				</if>
+
+				<div class="col-sm-12">
+					<table class="table">
+
+						<tr>
+							<th>所属用户</th>
+							<th>发提成时的实收</th>
+							<th>发提成时的产品成本</th>
+							<th>发提成时的运费成本</th>
+							<th>业绩完成率</th>
+							<th>利润回收率</th>
+							<th>发提成时的订单总提成</th>
+							<th>本次发放提成</th>
+							<th>发放时间</th>
+							<th>状态</th>
+						</tr>
+
+						<empty name="online_product.commission_list">
+							<tr>
+								<td colspan="10" class="align-center"><b class="red">提成未结算</b></td>
+							</tr>
+						</empty>
+						<foreach name="online_product.commission_list" item="commission_data" key="k2">
+							
+							<tr <neq name="commission_data.owner_uid" value="$online_product.owner_uid">style="display:none" class="no_order_owner"</neq>  >
+								<td>{$commission_data.owner_user_name}</td>
+								<td>{$commission_data.real_loan_total}</td>
+								<td>{$commission_data.product_cost}</td>
+								<td>{$commission_data.shipping_cost}</td>
+								<td>{$commission_data.sale_finished_rate}</td>
+								<td>{$commission_data.profit_recoup_rate}</td>
+								<td>{$commission_data.commission}</td>
+								<td>{$commission_data.plan_give_commission}</td>
+								<td>
+									<notempty name="commission_data.give_time">
+										{$commission_data.give_time|default=""|date="Y-m-d H:i",###}
+									<else/>
+										未发放
+									</notempty>
+								</td>
+								<td>{$commission_data.status|I}</td>
+							</tr>
+
+						</foreach>
+					</table>
+				</div>
+			</div>
+		</volist>
+	</div>
+</div>
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+<script type="text/javascript">
+$(function($){
+	
+	$(".showHiddenCommission").click(function(){
+		var type = $(this).data("type");
+		if(type){
+			$(".no_order_owner").show();
+			$(this).data("type",0);
+		}else{
+			$(".no_order_owner").hide();
+			$(this).data("type",1);
+		}
+		
+
+	});
+
+});
+</script>

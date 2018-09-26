@@ -1,0 +1,119 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'编辑数据'))}
+
+<form method='post' id="form_data" name="form_data" class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	<notempty name="vo.id">
+		<input type="hidden" id="id" name="id" value="{$vo.id}">	
+	</notempty>
+	
+	<input type="hidden" id="add_file" name="add_file" value="{$vo.add_file}">
+	<input type="hidden" id="opmode" name="opmode" value="<notempty name="_REQUEST['id']">edit<else/>add</notempty>">
+	<empty name="vo.id">
+		<!-- 生成SKU -->
+		<div class="form-group">
+			<label class="control-label" for="price_lowest">帐号</label>
+			<select class="form-control" id="account_id" name="account_id">
+				<option value="">请选择账号</option>
+				<volist name="accountList" id="website">
+					<optgroup label="{$website[0]['website']}">
+						<volist name="website" id="account">
+							<option value="{$account.id}" <?php if($_REQUEST['account_id'] == $account['id']) echo "selected"; ?>>{$account.account_name} <notempty name="account.proxy_host" > &nbsp;&nbsp;VPC：{$account.proxy_host}</notempty></option>
+						</volist>
+					</optgroup>
+				</volist>
+			</select>
+		</div>
+		<table id="skuList">
+			<tr>
+				<td width=300>模板</td>
+				<td>SKU</td>
+			</tr>
+		</table>
+	</empty>
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="sku">sku：</label>
+		<div class="col-sm-10">
+			<input class="form-control" type="text" id="sku" name="sku" value="{$vo.sku}"  check="require" msg="请输入生成的SKU ">
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="货源类型">货源类型：</label>
+		<div class="col-sm-10">
+			<select name="source_type" check="require" msg="请选择货源">
+				<option value="1688" <eq name="vo.source_type" value="1688">selected</eq> >1688</option>
+				<option value="taobao" <eq name="vo.source_type" value="taobao">selected</eq> >taobao</option>
+				<option value="17zwd" <eq name="vo.source_type" value="17zwd">selected</eq> >17zwd</option>
+				<option value="guangzhou_shoes" <eq name="vo.source_type" value="guangzhou_shoes">selected</eq> >guangzhou_shoes</option>
+				<option value="go2" <eq name="vo.source_type" value="go2">selected</eq> >go2</option>
+				<option value="571xz" <eq name="vo.source_type" value="571xz">selected</eq> >571xz</option>
+			</select>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="source_link">货源链接：</label>
+		<div class="col-sm-10">
+			<input class="form-control" type="text" id="source_link" name="source_link" value="{$vo.source_link}"  check="require" msg="请输入货源链接">
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="source_title">货源标题：</label>
+		<div class="col-sm-10">
+			<input class="form-control" type="text" id="source_title" name="source_title" value="{$vo.source_title}" >
+		</div>
+	</div>
+
+
+
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="thumbnail">图片网址：</label>
+		<div class="col-sm-10">
+			<input class="form-control" type="text" id="thumbnail" name="thumbnail" value="{$vo.thumbnail}" onchange="$('#img_thumbnail').attr('src',$(this).val());$('#a_thumbnail').attr('href',$(this).val());">	
+		</div>
+	</div>	
+	<div class="form-group">
+		<label class="col-sm-2 control-label"></label>
+		<div class="col-sm-10">
+			<a href="{$vo.thumbnail}" target="_blank" id="a_thumbnail" class="thumbnail"><img src="{$vo.thumbnail}" id="img_thumbnail" width="60" /></a>
+		</div>
+	</div>	
+
+	
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="other_source">其它货源：</label>
+		<div class="col-sm-10">
+			<textarea class="form-control" type="text" id="other_source" name="other_source">{$vo.other_source}</textarea>
+			<span class="help-block">可选，其它备用货源信息，用<b style="color:red;">换行</b>分隔</span>
+		</div>
+
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="memo">备注：</label>
+		<div class="col-sm-10">
+			<textarea class="form-control" type="text" id="memo" name="memo">{$vo.memo}</textarea>
+		</div>
+	</div>
+	<div class="action">
+		<input class="btn btn-sm btn-primary" type="button" value="保存" onclick="save();">
+		<input  class="btn btn-sm btn-default" type="button" value="取消" onclick="parent.$('#middleBox').modal('hide');">
+	</div>
+</form>
+<script type="text/javascript">
+	function save() {
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('skuSourceSave')}",false,function(msg){
+				if(msg.status){
+					if(parent.$("#middleBox").length>0){
+						parent.window.location.reload();
+						parent.$("#middleBox").modal('hide');
+					}else{
+						alertWarning(msg.info,1);
+					}
+				}else{
+					alertWarning(msg.info);
+				}
+			});
+		}
+	}
+	
+</script>

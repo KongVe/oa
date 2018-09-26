@@ -1,0 +1,140 @@
+<layout name='Layout/ace_layout' />
+{:W('PageHeader',array('name'=>'编辑模板'))}
+
+<form method='post' id="form_data" name="form_data" enctype="multipart/form-data"   class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="0">
+	<input type="hidden" id="type" name="type" value="{$type}">
+	<input type="hidden" id="folder" name="folder" value="{$folder}">
+	<input type="hidden" id="fid" name="fid" value="{$folder}">
+	<if condition="$_REQUEST['id'] neq ''">
+		<input type="hidden" id="id" name="id" value="{$vo.id}">
+		<input type="hidden" id="opmode" name="opmode" value="edit">
+	<else/>
+		<input type="hidden" id="opmode" name="opmode" value="add">
+	</if>
+
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-3 control-label" for="title" >模板名称：</label>
+			<div class="col-sm-9">
+				<input class="form-control" type="text" id="title" name="name" value="{$vo.name}"  check="require" msg="请输入模板名称" placeholder="模板名称">
+			</div>
+		</div>
+	</div>
+	<!-- <div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-3 control-label" for="title" >适用平台：</label>
+			<div class="col-sm-9">
+				<select name="website" id="website">
+					<option value="">请选择平台</option>
+					<volist name="website_list" id="website">
+						<option value="{$website}" <eq name="vo.website" value="$website">selected</eq> >{$website}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+	</div> -->
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-3 control-label" for="title" >适用帐号：</label>
+			<div class="col-sm-9">
+				<select name="account_id" id="account_id" class="form-control">
+					<option value="{$account.id}" >请选择帐号</option>
+					<volist name="accountList" id="website">
+						<optgroup label="{$website[0]['website']}">
+							<volist name="website" id="account">
+								<option value="{$account.id}" <eq name="account.id" value="$vo.account_id" > selected </eq> >{$account.account_name} <notempty name="account.proxy_host" > &nbsp;&nbsp;VPC：{$account.proxy_host}</notempty></option>
+							</volist>
+						</optgroup>
+					</volist>
+				</select>
+			</div>
+		</div>
+	</div>
+
+	<if condition="$_REQUEST['id'] neq ''">
+		<div class="form-group col-sm-12">
+			<div class="form-group col-sm-6">
+				<label class="col-sm-3 control-label" >创建人：</label>
+				<div class="col-sm-9">
+					<span><b>{$vo['create_user_name']}</b></span>
+				</div>
+			</div>
+			<div class="form-group col-sm-6">
+				<label class="col-sm-3 control-label" for="name" >创建时间：</label>
+				<div class="col-sm-9">
+					<span><b><if condition="$vo.create_time neq 0">{$vo['create_time']|date="Y-m-d H:i:s",###}<else/>时间出错</if></b></span>
+				</div>
+			</div>
+		</div>
+		<div class="form-group col-sm-12">
+			<div class="form-group col-sm-6">
+				<label class="col-sm-3 control-label" >创建人：</label>
+				<div class="col-sm-9">
+					<span><b>{$vo['last_update_user_name']}</b></span>
+				</div>
+			</div>
+			<div class="form-group col-sm-6">
+				<label class="col-sm-3 control-label" for="name" >最后更新时间：</label>
+				<div class="col-sm-9">
+					<span><b><if condition="$vo.last_update neq 0">{$vo['last_update']|date="Y-m-d H:i:s",###}<else/>未更新</if></b></span>
+				</div>
+			</div>
+		</div>
+	</if>
+
+	<div class="form-group">
+		<div class="col-xs-12">
+			<div class="col-xs-4">
+				<label><b>是否支持HTML</b></label>
+				<label><input type="checkbox" name="haveHtml" value="1" onclick="changeDetailType();"></label>
+			</div>
+			<div class="col-xs-4">
+				<label><b>插入产品原描述内容请插入</b></label><||description||> <br>
+				<label><b>变量</b></label><||featurestr=内容||><br>
+				<label><b>插入尺码表请插入</b></label><||sizetable||><br>
+				<label><b>变量</b></label><||sizestr=内容||><br>
+				<label><b>插入规格清单请插入</b></label><||colorlist||><br>
+				<label><b>变量</b></label><||colorstr=内容||><br>
+				
+			</div>
+		</div>
+		<div class="col-xs-12">
+			<textarea id="detail" name="detail" style="width:100%;height:300px;" check="require" msg="请输入内容">{$vo.detail}</textarea>
+		</div>
+	</div>
+
+	<div class="action">
+		<if condition="$_REQUEST['id'] neq ''">
+			<input class="btn btn-sm btn-primary" type="button" value="保存" onclick="save();">
+		<else/>
+			<input class="btn btn-sm btn-primary" type="button" value="创建" onclick="save();">
+		</if>
+		
+		<input class="btn btn-sm btn-default" type="button" value="关闭" onclick="window.close();">
+	</div>
+</form>
+
+<script type="text/javascript">
+	function save() {
+		if($("#account_id").val()==""){
+			alertWarning("请选择帐号");
+			return;
+		}
+		$("#ajax").val(1);
+		//editor.sync();
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('templateSave')}",'',function(msg){
+				alert(msg.info);
+				if(msg.status){
+					window.opener=null;window.open('','_self');window.close();
+				}
+			});
+		}
+	}
+
+	//更改详情输入模块 为纯文本或者富文本
+	function changeDetailType(){
+
+	}
+</script>

@@ -1,0 +1,302 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'实发SKU捆绑库存SKU'))}
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		
+		<div class="col-sm-12">
+			<div class="col-sm-6 pull-left">
+				<a onclick="parent.$('#middleBox').modal('hide');" class="btn btn-sm btn-danger">关闭</a>
+				<empty name="Think.request.list">
+					<a href="{:U('OrderStock/bingStockSkuList')}" target="_blank" class="btn btn-sm btn-info">绑定记录列表</a>
+				</empty>
+			</div>
+			<div class="col-sm-6">
+				<div class=" pull-right">
+					
+					<a onclick="save();"  class="btn btn-sm btn-primary">保存</a>
+				</div>
+				
+			</div>
+		<div>
+	</div>
+</div>
+
+<div class="col-sm-4" id="relateStock"></div>
+<div class="col-sm-8">
+	<form method='post' id="form_data" action="{:U('update')}" class="well form-horizontal">
+		<input type="hidden" id="ajax" value="1"/>
+		<input type="hidden" id="bingstock_product_auto_id" value="{$Think.request.bingstock_product_auto_id}"/>
+		 
+		<table class="table table-bordered">
+			<input type="hidden"  id="id" name="id" value="{$vo.id}">
+			<div class="form-group col-xs-12" style="display:none;">
+
+				<label class="col-sm-4 control-label" for="main_stock_id">实发库存id：</label>
+				<div class="col-sm-4">
+					<input class="form-control" value="{$stock_data.id}" type="text" id="main_stock_id" name="main_stock_id" readonly="readonly">
+				</div>
+				<div class="col-sm-4" id="check_exist_alert_stock_sku"></div>
+			</div>
+			<div class="form-group col-xs-12">
+				<div class="col-sm-12">
+					<a href="{$vo.thumbnail}" id="thumbnail_show" class="thumbnail" target="_blank" style="width: 50px;position: absolute;z-index:1000;"><img src="{$vo.thumbnail}" /></a>
+				</div>
+
+				<label class="col-sm-4  control-label" for="sku">实发SKU：</label>
+				<div class="col-sm-4">
+					<input class="form-control" value="{$vo.sku}" type="text" id="sku"  name="sku" check="require" placeholder="输入sku,区分大小写" msg="请输入SKU">
+					<!-- <span class="help-block">多个SKU值时，请使用英文逗号,分开</span> -->
+				</div>
+				<div class="col-sm-4" id="check_exist_alert_sku"></div>
+			</div>
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 control-label" for="variation">实发规格：</label>
+				<div class="col-sm-8">
+					<textarea class="form-control" id="variation" name="variation" readonly="readonly">{$vo.variation}</textarea>
+				</div>
+			</div>
+			
+			<!-- <div class="col-sm-4">
+				<label class="col-sm-12 control-label" for="thumbnail">图片：</label>
+				<div class="col-sm-12"> -->
+					<input class="form-control" value="{$vo.thumbnail}" type="hidden" id="thumbnail" name="thumbnail" onchange="showThumbnail()">
+			<!-- 		
+				</div>
+			</div> --> 
+			
+
+			<div class="form-group col-xs-12" style="display:none;">
+
+				<label class="col-sm-4 control-label" for="stock_id">库存id：</label>
+				<div class="col-sm-4">
+					<input class="form-control" value="{$stock_data.id}" type="text" id="stock_id" name="stock_id" readonly="readonly">
+				</div>
+				<div class="col-sm-4" id="check_exist_alert_stock_sku"></div>
+			</div>
+
+			<div class="form-group col-xs-12">
+				<div class="col-sm-12">
+					<a href="" id="stock_thumbnail_show" class="thumbnail" target="_blank" style="width: 50px;position: absolute;z-index:1000;">
+						<img src="" />
+					</a>
+				</div>
+
+				<label class="col-sm-4 control-label" for="stock_sku">库存SKU：</label>
+				<div class="col-sm-4">
+					<input class="form-control" value="{$stock_data.stock_sku}" type="text" id="stock_sku" name="stock_sku" check="require" placeholder="输入sku,区分大小写" msg="请输入SKU">
+					<!-- <span class="help-block">多个SKU值时，请使用英文逗号,分开</span> -->
+				</div>
+				<div class="col-sm-4" id="check_exist_alert_stock_sku"></div>
+			</div>
+			
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 control-label" for="stock_variation">库存规格：</label>
+				<div class="col-sm-8">
+					<textarea class="form-control" id="stock_variation" name="stock_variation" readonly="readonly" ></textarea>
+				</div>
+			</div>
+
+			<input class="form-control" value="" type="hidden" id="stock_thumbnail" name="stock_thumbnail" onchange="showThumbnail()">
+
+		<!-- 	<div class="form-group col-xs-12">
+				<label class="col-sm-4 control-label" for="quantity">选择指定库存：</label>
+				<div class="col-sm-8">
+					<div class="col-xs-12">
+						<b>如果 已存在的库存 中有对应该规格的库存记录，请点击 该库存记录</b> 
+					</div>
+					<div class="col-xs-12">
+						目前已选的库存记录：
+						<notempty name="Think.request.stock_id">
+
+							<input type="hidden" name="stock_id" value="{$_REQUEST['stock_id']}"> <br>
+
+							<b>库存ID：</b>{$_REQUEST['stock_id']}<br>
+							<b>库存SKU：</b>{$stock_data.sku}<br>
+							<b>库存规格：</b>{$stock_data.variation}<br>
+						<else/>
+							<b>否</b>
+						</notempty>
+					</div>
+				
+				</div>
+			</div> -->
+
+
+
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 control-label" for="quantity"><b>绑定库存数量</b>：</label>
+				<div class="col-sm-8">
+					<b>1</b>个实发SKU捆绑 <input style="width:50px;" value="" type="text" id="quantity" name="quantity" check="require" msg="请输入绑定库存数量"> 个库存SKU
+				</div>
+			</div>
+			<div class="form-group col-xs-12">
+				<div class="col-xs-8 pull-right" id="reference">
+
+				</div>	
+			</div>
+		</table>
+	</form>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<script type="text/javascript">
+	function save() {
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('doBingStockSku')}",false,function(msg){
+				if(msg.status){
+					if(parent.$("#middleBox").length>0){
+						parent.window.location.reload();
+						parent.$("#middleBox").modal('hide');
+
+					}else{
+						alertWarning(msg.info,1);
+					}
+				}else{
+					alertWarning(msg.info);
+				}
+			});
+		}
+	}
+
+	
+
+	function showRelate(r){
+
+		if(r.status){
+			if(r.data.relateHtml){
+				$("#relateStock").html(r.data.relateHtml);
+			}else{
+				$("#relateStock").html('无');
+			}
+		}else{
+			$("#relateStock").html('无');
+		}
+	}
+
+	function showReference(r){
+		if(r.status){
+			if(r.data.referenceHtml){
+				$("#reference").html(r.data.referenceHtml);
+			}else{
+				$("#reference").html('无');
+			}
+		}else{
+			$("#reference").html('无');
+		}
+	}
+
+	function setShipData(obj){
+		var main_stock_id = $(obj).attr('data-id');
+		var sku = $(obj).attr('data-sku');
+		var variation = $(obj).attr('data-variation');
+		var thumbnail = $(obj).attr('data-thumbnail');
+		$("#main_stock_id").val(main_stock_id);
+		$("#sku").val(sku);
+		$("#variation").val(variation);
+		$("#thumbnail").val(thumbnail);
+
+		showThumbnail();
+		$(obj).removeClass("btn-primary");
+		$(obj).addClass("btn-success");
+	}
+
+	function setStockData(obj) {
+		if($(obj).attr('data-id') && $(obj).attr('data-id') != undefined){
+			var stock_id = $(obj).attr('data-id');
+			$("#stock_id").val(stock_id);
+		}
+		var sku = $(obj).attr('data-sku');
+		var variation = $(obj).attr('data-variation');
+		var thumbnail = $(obj).attr('data-thumbnail');
+		
+		$("#stock_sku").val(sku);
+		$("#stock_variation").val(variation);
+		$("#stock_thumbnail").val(thumbnail);
+		showThumbnail();
+		$(obj).removeClass("btn-primary");
+		$(obj).addClass("btn-success");
+	}
+
+	function setCheckVariation(obj){
+		var sku = $(obj).attr("data-sku");
+		var variation = $(obj).attr("data-variation");
+		if(sku){
+			$("#sku").val(sku);
+		}
+		if(variation){
+			$("#variation").val(variation);
+		}
+		
+		var img = $(obj).parent().parent().parent().find('img').attr("src");
+		$("#thumbnail").val(img);
+		showThumbnail();
+	}
+
+	function showThumbnail(){
+		var src=$("#thumbnail").val();
+		$('#thumbnail_show').attr('href',src);
+		$('#thumbnail_show img').attr('src',src);
+		var src1=$("#stock_thumbnail").val();
+		$('#stock_thumbnail_show').attr('href',src1);
+		$('#stock_thumbnail_show img').attr('src',src1);
+		
+	}
+
+	$(function() {
+		set_val('is_del', "{$vo.is_del}");
+
+		$("#sku").change(function(){
+		
+			$.post("{:U('OrderStock/bindCheck')}",'edit_stock_action=OrderStock%2FbingStockSkuView&sku=' + $(this).val()+"&variation=" + $("#variation").val() + "&url_param[stock_sku]=" + $("#stock_sku").val()  + '&url_param[sku]=' + $(this).val()+"&url_param[variation]=" + $("#variation").val(),showRelate)
+		})
+
+		if($("#sku").val() != ''){
+			$.post("{:U('OrderStock/bindCheck')}",'edit_stock_action=OrderStock%2FbingStockSkuView&sku=' + $("#sku").val()+"&variation=" + $("#variation").val() + "&url_param[stock_sku]=" + $("#stock_sku").val()  + '&url_param[sku]=' + $("#sku").val()+"&url_param[variation]=" + $("#variation").val(),showRelate)
+		}
+
+		$("#stock_sku").change(function(){
+			$.post("{:U('OrderStock/bindCheck')}",'edit_stock_action=OrderStock%2FbingStockSkuView&sku=' + $("#stock_sku").val()+"&variation=" + $("#variation").val() + "&url_param[stock_sku]=" + $("#stock_sku").val() + '&url_param[sku]=' + $("#sku").val()+"&url_param[variation]=" + $("#variation").val(),showRelate)
+		})
+
+		if($("#stock_sku").val() != ''){
+			$.post("{:U('OrderStock/bindCheck')}",'edit_stock_action=OrderStock%2FbingStockSkuView&sku=' + $("#stock_sku").val()+"&variation=" + $("#variation").val() + "&url_param[stock_sku]=" + $("#stock_sku").val()  + '&url_param[sku]=' + $("#sku").val()+"&url_param[variation]=" + $("#variation").val(),showRelate)
+		}
+
+		
+	}); 
+
+	function ajaxGetChildrenList(id,next_model_name,model_name){
+		var data={};
+		if(model_name){
+			data['model_name']=model_name;
+		}
+		if(id){
+			data['id']=id;
+		}
+		if(!next_model_name){
+			next_model_name="warehouse";
+		}
+		$.post("{:U('OrderStock/ajaxGetChildrenList')}",data,function(msg){
+			if(msg.status && msg.data){
+				$("#"+next_model_name+"_select").html('<option value="">请选择</option>');
+				var selected=$("#"+next_model_name+"_select").attr("select-data");
+				for (var i = 0; i < msg.data.length; i++) {
+
+					if(msg.data[i].id==selected){
+						$("#"+next_model_name+"_select").append('<option value="'+msg.data[i].id+' selected="selected">'+msg.data[i][next_model_name+"_name"]+'</option>');
+					}else{
+						$("#"+next_model_name+"_select").append('<option value="'+msg.data[i].id+'" >'+msg.data[i][next_model_name+"_name"]+'</option>');
+					}
+				};
+			}else{
+				$("#"+next_model_name+"_select").html("");
+				$("#"+next_model_name+"_select").append("<option>无数据</option>");
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+		})
+	}
+	ajaxGetChildrenList();
+</script>
+

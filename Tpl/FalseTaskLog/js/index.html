@@ -1,0 +1,43 @@
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	// ace.settings.sidebar_collapsed(true);
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}	
+
+	<?php
+	if($_REQUEST['showDetail'] == '1'){
+		echo "detail(" . $list[0]['id'] . ");";
+	}
+	?>		
+
+})
+ 
+
+
+function detail(id){
+	$("#middleBoxIframe").attr("src","<?php echo U("detail"); ?>?id=" + id + "&_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal("show");	
+}
+
+
+
+</script>

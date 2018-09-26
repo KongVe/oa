@@ -1,0 +1,95 @@
+<script type="text/javascript">
+	function delSource(id){
+		if(confirm("确定删除？")){
+			var data = {'id':id};
+			$.post("{:U('OrderSource/del')}",data,function(r){
+				if(r.status){
+					window.location.reload(true);
+				}
+			})
+		}
+		return false;
+	}
+
+	function addProduct(sku){
+		parent.$("#editSourceIframe").attr("src","<?php echo U("OrderSource/edit"); ?>?sku=" + sku);
+		parent.$("#editSource").modal("show");
+		return false;
+	}
+	function editSource(id){
+		parent.$("#editSourceIframe").attr("src","<?php echo U("OrderSource/edit"); ?>?id=" + id);
+		parent.$("#editSource").modal("show");
+		return false;
+	}
+
+	function stockDetail(sku,quantity){
+		var product_id = $("input[name='product_id[]']").serialize();
+		parent.$("#bottomBoxIframe").attr("src","<?php echo U("OrderStock/detail"); ?>?sku=" + sku + '&quantity=' + quantity + "&" + product_id);
+		parent.$("#bottomBox").modal("show");
+		return false;
+	}
+
+	function refund(){
+		if(confirm("Are you sure? 退款哦")){
+			var product_id = $("input[name='product_id[]']").serialize();
+			var tr_key = $("#tr_key").val();
+			var data = product_id;
+			$.post("{:U('OrderProduct/refund')}",data,function(r){
+				if(r.status){
+					parent.$("#tr_"+ tr_key).remove();
+					parent.$("#purchase-detail-box").hide("fast");
+				}else{
+					alert(r.info);
+				}
+			})
+		}
+		return false;
+	}
+	
+	function purchase(id){
+		var quantity = $("#quantity_" + id).val();
+		var price = $("#price_" + id).val();
+		var product_id = $("input[name='product_id[]']").serialize();
+		var tr_key = $("#tr_key").val();
+		var data = product_id + "&quantity=" + quantity + "&source_id=" + id + "&price=" + price;
+		$.post("{:U('OrderPurchase/purchase')}",data,function(r){
+			if(r.status){
+				parent.$("#tr_"+ tr_key).addClass("danger");
+				parent.$("#purchase-detail-box").hide("fast");
+			}else{
+				alert("Error!");
+			}
+		})
+		return false;
+	}
+	
+	function closeBox(){
+		parent.$("#purchase-detail-box").hide("fast");
+	}
+ 	$(function(){
+
+ 		$("input[name^='price']").hover(
+ 			function(){
+ 				sourcePrice = $(this).val();
+ 				inputId = $(this).attr("id");
+				var position = $(this).position(),
+				box_top = position.top + 34,
+				box_left = position.left - $(this).outerWidth() / 2;
+
+
+ 				$(".adjustPriceBox a").data("sourcePrice",sourcePrice).data("inputId",inputId);
+ 				$(".adjustPriceBox").css({top:box_top,left:box_left}).show(); 
+ 			}
+ 		);
+
+ 		$(".adjustPriceBox a").click(function(){
+ 			var sourcePrice = parseFloat($(this).data("sourcePrice")),
+ 				adjustPrice = parseFloat($(this).data("price")),
+ 				inputId = $(this).data("inputId");
+ 			$("#" + inputId).val(sourcePrice + adjustPrice);
+ 		})
+ 		$("body").click(function(){
+ 			$(".adjustPriceBox").hide();	
+ 		})
+ 	})
+</script>

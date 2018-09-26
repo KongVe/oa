@@ -1,0 +1,78 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'设置显示项'))}
+
+<form method='post' id="form_data" name="form_data" class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	<notempty name="vo.id">
+		<input type="hidden" id="id" name="id" value="{$vo.id}">	
+	</notempty>
+	
+	<input type="hidden" id="add_file" name="add_file" value="{$vo.add_file}">
+	<input type="hidden" id="opmode" name="opmode" value="<notempty name="_REQUEST['id']">edit<else/>add</notempty>">
+
+
+	<div class="form-group col-sm-12">
+		<div class="col-sm-4" style="height:45px;">
+			<label class="col-sm-8" for="choose_all" ><b>全选：</b></label>
+			<div class="col-sm-4" >
+				<input type="checkbox" style="height:20px;width: 20px;"  id="choose_all" value="1" onchange="chooseAll(this)"/>
+			</div>
+		</div>
+	</div>
+	<div class="form-group col-sm-12">
+
+		<foreach name="list" item="vo" key="vo_k">
+
+			<?php
+				if(in_array($vo_k, array("action","order_id"))){
+					$vo['checked'] = 1;
+					$hidden = "display:none;";
+					$choose_options = '';
+				}else{
+					$hidden = '';
+					$choose_options = "choose_options";
+				}
+			?>
+			<div class="col-sm-4" style="height:45px; {$hidden} ">
+				<label class="col-sm-8" for="{$vo_k}" >{$vo.title}：</label>
+				<div class="col-sm-4" >
+					<input type="checkbox" class="{$choose_options}" style="height:20px;width: 20px;" name="taobao_order[{$vo_k}]" id="{$vo_k}" value="1" <notempty name="vo.checked"> checked="checked" </notempty> />
+				</div>
+			
+			</div>
+		</foreach>
+	</div>
+
+	<div class="action">
+		<input type="hidden" name="model_name" value="place"> 
+		<input class="btn btn-sm btn-primary" type="button" value="保存" onclick="save();">
+		<input  class="btn btn-sm btn-default" type="button" value="取消" onclick="parent.$('#middleBox').modal('hide');">
+	</div>
+</form>
+
+<script type="text/javascript">
+	function save() {
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('TaobaoOrder/setShowOptionsSave')}",false,function(msg){
+				if(msg.status){
+					if(parent.$("#middleBox").length>0){
+						parent.window.location.reload();
+						parent.$("#middleBox").modal('hide');
+					}else{
+						alertWarning(msg.info,1);
+					}
+				}else{
+					alertWarning(msg.info);
+				}
+			});
+		}
+	}
+
+	function chooseAll(obj){
+		if($(obj).prop("checked")){
+			$(".choose_options").prop("checked",true);
+		}else{
+			$(".choose_options").prop("checked",false);
+		}
+	}
+</script>

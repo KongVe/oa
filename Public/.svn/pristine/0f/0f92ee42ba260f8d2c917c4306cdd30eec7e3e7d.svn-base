@@ -1,0 +1,55 @@
+// 公用方法
+debugger
+
+var test = window.location.protocol; 
+function menu_list(){
+	test1 = test+'//'+ window.location.host+'/User/getUserInfo'; 
+	$.ajax({
+		url:test1,
+		type:'GET',
+		dataType:'json',
+		success:function(data){debugger
+        // data = JSON.parse(data);
+        console.log(data.data.menu_tree);
+        if(data.data.menu_tree.length>0){
+        	Get_menu_list(data.data);
+        }
+    },
+})	
+}
+function Get_menu_list(data){debugger
+	var list = "";
+	var list_list = '';
+	var len = data.menu_tree.length;
+	$.each(data.menu_tree,function(i,e){
+		var list_tree2 = '';
+		var list_tree = '';
+		if(e._child.length > 0){
+			for(var j = 0; j<e._child.length;j++){
+				if(j == 0){
+					list_tree2 += '<dl class="layui-nav-child">'
+				}
+				list_tree2 += 
+				'<dd data-name="'+e._child[j].id+'">'+
+				'<a  id="'+e._child[j].id+'" data-pid="'+e._child[j].pid+'" href="'+e._child[j].url+'">'+e._child[j].name+'</a>'+
+				'</dd>'
+			}
+			list_tree2+= '</dl>'
+
+		}
+		if(e._child.length > 0){
+			list_tree += '<li class="layui-nav-item" data-name="'+e.id+'"><a href="#"  data-pid="'+e.pid+'" lay-tips="'+e.name+'"><cite>'+e.name+'</cite><span class="layui-nav-more"></span></a>'+
+			list_tree2+
+			'</li>';
+		}else{
+			list_tree += '<li class="layui-nav-item" data-name="'+e.id+'"><a href="'+e.url+'"  data-pid="'+e.pid+'">'+e.name+'</a></li>'+
+			list_tree2;
+		}
+		list_list +=list_tree
+	});
+	list +=
+
+	list_list
+	$('#LAY-system-side-menu').append(list)
+}
+// })

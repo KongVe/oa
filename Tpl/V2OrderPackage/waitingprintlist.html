@@ -1,0 +1,430 @@
+<layout name='Layout/ace_layout' />
+<style type="text/css">
+.sku_table_td{
+    width:500px;
+}
+.sku_td{
+    width:150px;
+    word-break:break-all;
+}
+.sku_name_td{
+    width:200px;
+    word-break:break-all;
+}
+.sku_thumbnail_td{
+    width:100px;
+}
+.sku_quantity_td{
+    width:50px;
+}
+.td_border_right{
+    border-right-style: dashed;
+    border-right-width: 1px;
+}
+</style>
+
+<form name="form_search" action="{:U()}" id="form_search" method="post">
+    <input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+    <input type="hidden" name="_order" id="order" value="{$order}">
+
+<div class="page-header clearfix">
+    <h1 class="col-sm-2">{$title}</h1>
+    <div class="col-sm-10 pull-right">
+        
+        <div class="form-group col-sm-2 pull-left">
+            <div class="input-group">
+                <span class="input-group-addon">
+                    承运商:
+                </span>
+                <select name="forwarder_id[]" id="forwarder_id_select" size="1" multiple="multiple" size="1" style="width:120px;" placeholder="选择承运商">
+                    <volist name="forwarder_list" id="forwarder">
+                        <option value="{$forwarder.id}" <?php  if(in_array($forwarder['id'], $_REQUEST['forwarder_id']))echo 'selected="selected"';?> >{$forwarder.forwarder_name}</option>
+                    </volist>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group col-sm-3 pull-left">
+            <div class="input-group">
+                <span class="input-group-addon">
+                    提审时间:
+                </span>
+                <input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="forwarder_submit_time" id="forwarder_submit_time" value="{$Think.request.forwarder_submit_time}"  placeholder="提审时间">
+            </div>
+        </div>
+
+        <div class="form-group col-sm-3 pull-left">
+            <div class="input-group">
+                <span class="input-group-addon">
+                    包裹历史
+                </span>
+                <input class="form-control " type="text" name="history_express_data" id="history_express_data" value="{$Think.request.history_express_data}"  placeholder="包裹历史包裹号或跟踪号">
+            </div>
+        </div>
+        <div class="form-group col-sm-3 pull-left">
+            <label>
+                <input type="checkbox" class="ace input-lg" name="include_batch_package" value="1" <notempty name="Think.request.include_batch_package">checked="checked"</notempty> />
+                <span class="lbl">
+                    包含可批量打印包裹
+                </span>
+            <label>
+        </div>
+
+        <div class="form-group col-sm-12">
+            <div class="form-group col-sm-2">
+                <div class="input-group">
+                    <span class="input-group-addon">
+                        包裹序号:
+                    </span>
+                    <input class="form-control " type="text" name="id" id="id" value="{$Think.request.id}"  placeholder="包裹序号,英文逗号分隔">
+                </div>
+            </div>
+            <div class="input-group col-sm-8">
+                <span class="inline input-group" style="width:25%;">
+                    <input class="form-control" type="text" name="sku_q" id="sku_q" value="{$Think.request.sku_q}" placeholder="搜索 规格SKU"/>
+                </span>
+                <span class="inline input-group" style="width:25%;">
+                    <input class="form-control" type="text" name="order_id_q" id="order_id_q" value="{$Think.request.order_id_q}" placeholder="搜索 订单号"/>
+                </span>
+                <span class="inline input-group" style="width:35%;">
+                    <input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="搜索 包裹号,跟踪号"/>
+                </span>
+                <span class="inline input-group-btn">
+                    <button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ul class="nav nav-tabs">
+    <?php 
+        if(stripos(ACTION_NAME, "batchPrintList")!==false){
+            $page_select = 1;
+        }
+        if(stripos(ACTION_NAME, "waitingprintlist")!==false){
+            $page_select = 2;
+        }
+        if(stripos(ACTION_NAME, "printedlist")!==false){
+            $page_select = 3;
+        }
+    ?>
+    <li <eq name="page_select" value="1">class="active"</eq> >
+        <a href="{:U('V2OrderPackage/batchPrintList')}">按SKU批量打单列表</a>
+    </li>
+    <li <eq name="page_select" value="2">class="active"</eq> >
+        <a href="{:U('V2OrderPackage/waitingPrintList')}">待打单包裹</a>
+    </li>
+   <!--  <li <eq name="page_select" value="3">class="active"</eq> >
+        <a href="{:U('V2OrderPackage/printedlist')}">已打单包裹</a>
+    </li> -->
+</ul>
+
+<div class="operate panel panel-default">
+    <div class="panel-body">
+
+        <div class="btn-group">
+            <!-- <a href="{:U('V2OrderPackage/waitingPrintList')}">查看打印</a> -->
+        </div>
+            
+        <div class="btn-group">
+            <div id="alert_div"></div>
+        </div>
+    </div>
+</div>
+
+<ul class="nav nav-tabs">
+    <?php 
+        if($_REQUEST['warehouse_id']){
+            $warehouse_id_select = $_REQUEST['warehouse_id'];
+        }else{
+            $warehouse_id_select = $warehouse_select_list[0]['id'];
+        }
+    ?>
+    <volist name="warehouse_select_list" id="warehouse">
+        <li <eq name="warehouse.id" value="$warehouse_id_select">class="active"</eq> >
+            <a class="selectWarehouse" data-id="{$warehouse.id}" data-toggle="tab">{$warehouse.warehouse_name}</a>
+        </li>
+    </volist>
+    <input type="hidden" id="warehouse_id" name="warehouse_id" value="{$warehouse_id_select}">
+</ul>
+
+<div class="message-container" style="width:100%;overflow:scroll;">
+    <table class="table table-striped table-hover">
+        
+            <include file="Layout:title_v2"/>
+            
+            <tbody class="tbody">
+            <volist name="list" id="vo" key="package_key">
+                <volist name="vo.order_data_list" id="order_data" key="order_key">
+                    <tr>
+                        <if condition=" $order_key eq 1">
+                            <td rowspan="{$vo.package_order_row}" style="width:180px;">
+                                <label class="inline pull-left">
+                                    <input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+                                    <span class="lbl"></span>
+                                    {$vo.id}
+                                </label>
+                                <br>
+                                <br>
+                                <div class="form-group">
+                                    <a data-id="{$vo.id}" class="printLabel btn btn-primary btn-sm">打印PDF</a>
+                                    <eq name="vo.is_print" value="No">
+                                        <a data-id="{$vo.id}" id="confirmPrint_{$vo.id}" class="confirmPrint btn btn-success btn-sm">确认打印</a>
+                                        <a data-id="{$vo.id}" id="cancelConfirmPrint_{$vo.id}" class="cancelConfirmPrint btn btn-warning btn-sm display-none">取消打印</a>
+                                    </eq>
+                                </div>
+                                <div class="form-group">
+                                    <a data-id="{$vo.id}" class="reDownloadPdf btn btn-danger btn-sm">重载PDF</a>
+                                   <!--  <a data-url="{:U('V2OrderPackage/printDetail')}?id={$vo.id}" class="showBox btn btn-info btn-sm" target="_blank">查看</a> -->
+                                </div>
+                            </td>
+                            <td rowspan="{$vo.package_order_row}">
+                                {$vo.package_code|default="未提审"}
+                                
+                                <notempty name="vo.forwarder_tracking_number">
+                                    <br>
+                                    <br>
+                                    <b>跟踪号: </b>{$vo.forwarder_tracking_number}
+                                </notempty>
+
+                                <notempty name="vo.local_print_time">
+                                    <!-- <br>
+                                    <br>
+                                    <b>最后点击打印用户: </b>{$vo.print_user_name}
+                                    <br>
+                                    <b>时间:</b>{$vo.local_print_time|default=" "|date="y-m-d H:i:s",###} -->
+                                </notempty>
+
+                                <br>
+                                <a href="{:U('V2OrderPackage/index')}?package_auto_id={$vo.id}" target="_blank" class="btn btn-info btn-xs">查看</a>
+                            </td>
+                            <td rowspan="{$vo.package_order_row}">
+                                {$vo.express_type_data.forwarder_name} <br>
+                                {$vo.express_type_data.express_name|default="未分配"}
+                            </td>
+                            
+                            <td rowspan="{$vo.package_order_row}" class="td_border_right">
+                                <?php 
+                                    if($vo['is_download_pdf']=="Yes"){
+                                        echo "已下载";
+                                    }else{
+                                        echo "<b>未下载</b>";
+                                    }
+                                ?>
+                            </td>
+                        </if>
+
+                        <td colspan="4" class="sku_table_td td_border_right">
+                            <table class="table">
+                                <tr>
+                                    <th class="sku_thumbnail_td">SKU图片</th>
+                                    <th class="sku_td">规格SKU</th>
+                                    <th class="sku_name_td">SKU名称</th>
+                                    <th class="sku_quantity_td">数量</th>
+                                </tr>
+                                <volist name="order_data.local_product_data_list" id="local_product">
+                                    <tr>
+                                        <td>
+                                            <a class="thumbnail"  href="{$local_product.thumbnail}" target="_blank">
+                                                <img src="{$local_product.thumbnail}" width="60" />
+                                            </a>
+                                        </td>
+                                        <td  style="font-size:16px;">
+                                            {$local_product.sku}
+                                            <br>
+                                            <br>
+                                            <!--   <br>
+                                            <br>
+                                            <span style="font-size:12px;">线上产品:</span>
+                                            <a href="{$local_product.online_product_data.thumbnail}" target="_blank">
+                                                <img src="{$local_product.online_product_data.thumbnail}" width="40" />
+                                            </a> -->
+
+                                            <foreach name="local_product.sku_flag_list" item="flag">
+                                                <div class="col-xs-6">
+                                                    <span class="btn-minier" style="border-color:red; background-color:{$flag.bg_color};color:{$flag.font_color};" title="{$flag.description}">{$flag.flag_name}</span>
+                                                </div>
+                                            </foreach>
+                                        </td>
+                                        <td  style="font-size:16px;">
+                                            {$local_product.sku_name}
+                                            <br>
+                                            <br>
+                                            <notempty name="local_product.map_sku_memo">
+                                                <div class="red blink_selector">说明：{$local_product.map_sku_memo}</div>
+                                            </notempty>  
+                                        </td>
+                                        <td  style="font-size:16px;">
+                                            <b class="red">{$local_product.product_quantity}</b> 个
+                                        </td>
+                                    </tr>
+                                </volist>
+                            </table>
+                        </td>
+
+                        <td style="word-break:break-all;width:220px;max-width:250px;">
+                            {$order_data.online_order_id}
+
+                            <br>
+                            
+                            <a href="{:U('V2OrderDetail/index')}?order_auto_id={$order_data.id}" class="btn btn-link" target="_blank">查看订单</a>
+
+                            <notempty name="order_data.related_order_auto_id">
+                                <span class="btn-minier" style="border-color:red; background-color:red;color:white;">已合并订单</span>
+                            </notempty>
+
+                            <notempty name="order_data.local_memo">
+                                <br>
+                                <br>
+                                <div class="red blink_selector" ><b>本地备注: </b>{$order_data.local_memo}</div>
+                            </notempty> 
+                        </td>
+
+                        <td>{$order_data.local_shipping_country}({$order_data.local_country_code})</td>
+
+                        <td>{$order_data.local_shipping_first_name} {$order_data.local_shipping_last_name}
+                            <br>
+                            <br>
+                            平台: <b>{$order_data.website_data.website_name}</b>
+                        </td>
+                    </tr>
+                </volist>
+            </volist>
+        </tbody>
+    </table>
+    <div class="pagination">
+        {$page}
+    </div>  
+    <div style="height:300px;"></div>
+    <div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none;">
+        <iframe src="" id="order-detail-iframe" frameborder="0" height="300px" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+    </div>
+</div>
+</form>
+
+
+
+<div class="thumbnailBox" >
+    <a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+<script type="text/javascript">
+var labelWindow;
+$(function($){
+
+    $("#forwarder_id_select").select2();
+
+    $(".selectWarehouse").click(function(){
+        var id = $(this).data("id");
+        var id_bak = $("#warehouse_id").val();
+        if(id == id_bak){
+            return false;
+        }
+        if(!id){
+            alertWarning("缺少参数ID");
+            return false;
+        }
+        if($("#warehouse_id").length<=0){
+            alertWarning("缺少warehouse对象");
+            return false;
+        }
+        $("#warehouse_id").val(id);
+        $("#form_search").submit();
+    });
+
+    $(".confirmPrint").click(function(){
+        var package_id = $(this).data("id");
+        var btn = $(this);
+        btn.button('loading');
+        $.post("{:U('confirmPrint')}",{id:package_id},function(msg){
+            btn.button('reset');
+            if(msg.status){
+                btn.hide();
+                $("#cancelConfirmPrint_"+package_id).show();
+            }else{
+                alertWarning(msg.info);
+            }
+        }).error(function(){
+            btn.button('reset');
+            alertWarning("网络错误，请重试");
+            return false;
+        });
+    });
+
+    $(".cancelConfirmPrint").click(function(){
+        if(!confirm("确认取消打印完成？")){
+            return false;
+        }
+        var package_id = $(this).data("id");
+        var btn = $(this);
+        btn.button('loading');
+        $.post("{:U('cancelConfirmPrint')}",{id:package_id},function(msg){
+            btn.button('reset');
+            if(msg.status){
+                btn.hide();
+                $("#confirmPrint_"+package_id).show();
+            }else{
+                alertWarning(msg.info);
+            }
+        }).error(function(){
+            btn.button('reset');
+            alertWarning("网络错误，请重试");
+            return false;
+        });
+    });
+
+    $(".reDownloadPdf").click(function(){
+        var package_id = $(this).data("id");
+        var btn = $(this);
+        btn.button('loading');
+        $.post("{:U('reDownloadPdf')}",{id:package_id},function(msg){
+            btn.button('reset');
+            if(msg.status){
+                if(btn.next().data("reDownloadPdf_alert")>0){
+                    btn.next().html("下载成功");
+                    return true;
+                }else{
+                    btn.after('<div data-reDownloadPdf_alert="1"></div>');
+                    btn.next().html("下载成功");
+                }
+            }else{
+                alertWarning(msg.info);
+            }
+        }).error(function(){
+            btn.button('reset');
+            alertWarning("网络错误，请重试");
+            return false;
+        });
+    });
+    
+    $(".printLabel").click(function(){
+        var package_id = $(this).data("id");
+        $(this).removeClass("btn-primary");
+        if(!$(this).hasClass("btn-inverse")){
+            $(this).addClass("btn-inverse");
+            $(this).html("已打印");
+        }
+        labelWindow = window.open('{:U("printLabelView")}?id=' + package_id,'','width=600,height=400');
+        print(labelWindow);
+        $('body').click(function(){
+            labelWindow.close();
+        });
+        return false;
+    });
+});
+
+function print(labelWindow){
+    labelWindow.onload=function(){
+        //console.log(labelWindow.document.getElementsByTagName('embed'));
+        if(labelWindow.document.readyState=="complete"){     
+            if(labelWindow.document.getElementsByTagName('embed').length!=0){
+                labelWindow.window.print();
+                return false;
+            }else{
+                print(labelWindow);
+            } 
+        }   
+    }
+}
+</script>

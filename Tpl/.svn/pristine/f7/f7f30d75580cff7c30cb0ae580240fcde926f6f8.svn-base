@@ -1,0 +1,171 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'库存移位'))}
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="pull-left">
+			<a class="close_box_button btn btn-sm btn-danger">关闭</a>
+		</div>
+		<div class="pull-right">
+			<a data-reload="1" data-close="1" class="defaultEditFormSubmit btn btn-sm btn-primary">提交</a> 
+		</div>
+	</div>
+</div>
+
+<div class="col-sm-6">
+	<div class="panel panel-default">
+		<table class="table table-bordered table-striped">
+			<tr>
+				<th>
+					货架位
+				</th>
+				<th>
+					类型
+				</th>
+				<th>
+					系统数量
+				</th>
+				<th>
+					可用数量
+				</th>
+				<th>
+					预留数量
+				</th>
+			</tr>
+			<tr>
+				<th colspan="5" class="text-center red">
+					当前要移动的货架位
+				</th>
+			</tr>
+			<tr class="success">
+				<td>
+					{$map_place_data.place_name}
+				</td>
+				<td>
+					{$map_place_data.place_type|L}
+				</td>
+				<td>
+					{$map_place_data.quantity|default=0}
+				</td>
+				<td>
+					{$map_place_data.available_quantity|default=0}
+				</td>
+				<td>
+					{$map_place_data.reserved_quantity|default=0}
+				</td>
+			</tr>
+			<tr>
+				<th colspan="5" class="text-center">
+					已存在的库存数据
+				</th>
+			</tr>
+			
+			<foreach name="map_place_list" item="place">
+				<tr>
+					<td>
+						{$place.place_name}
+					</td>
+					<td>
+						{$place.place_type|L}
+					</td>
+					<td>
+						{$place.quantity|default=0}
+					</td>
+					<td>
+						{$place.available_quantity|default=0}
+					</td>
+					<td>
+						{$place.reserved_quantity|default=0}
+					</td>
+				</tr>
+			</foreach>
+			
+		</table>
+	</div>
+</div>
+<div class="col-sm-6">
+	<form method='post' id="editForm" action="{:U('changeStockPlaceSave')}" class="well form-horizontal clearfix">
+		<input type="hidden"  id="ajax" name="ajax" value="1">
+		<input type="hidden"  id="stock_id" name="stock_id" value="{$stock_data.id}">
+		<input type="hidden"  id="old_place_id" name="old_place_id" value="{$map_place_data.place_id}">
+		<input type="hidden"  id="old_place_stock_id" name="old_place_stock_id" value="{$map_place_data.id}">
+		<div class="form-group col-xs-12">
+			<div class="col-sm-4 control-label">规格SKU: </div>
+			<div class="col-sm-8">
+				{$sku_product_data.sku}
+			</div>
+		</div>
+
+		<div class="form-group col-xs-12">
+			<div class="col-sm-4 control-label">SKU名称: </div>
+			<div class="col-sm-8">
+				{$sku_product_data.sku_name}
+			</div>
+		</div>
+
+		<div class="form-group col-xs-12">
+			<div class="col-sm-4 control-label">SKU图片: </div>
+			<div class="col-sm-8">
+				<div class="col-sm-12" style="padding:0px;">
+					<a href="{$sku_product_data.thumbnail}" id="thumbnail_show" class="thumbnail" target="_blank" style="width: 50%;"><img src="{$sku_product_data.thumbnail}" /></a>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group col-xs-12">
+			<label class="col-sm-4 control-label" for="quantity"><b>移动数量：</b></label>
+			<div class="col-sm-4 input-group">
+				<input class="form-control" value="{$map_place_data.available_quantity}" type="number" id="quantity" name="quantity" check="require" msg="请输入数量">
+				<span class="input-group-addon">
+					个
+				</span>
+			</div>
+		</div>
+
+		<div class="form-group col-xs-12">
+			<label class="col-sm-4 control-label" for="memo">新货架位：</label>
+			<div class="col-sm-8">
+				<div class="col-sm-6">
+					仓库<br>
+					<b>{$warehouse_data.warehouse_name}</b>
+				</div>
+				<div class="col-sm-6">
+					区域<br>
+					<select  id="region_select" name="region_id" onchange="ajaxGetChildrenList($(this).val(),'shelf','region');"></select>
+				</div>
+				<div class="col-sm-6">
+					货架<br>
+					<select  id="shelf_select"  name="shelf_id" onchange="ajaxGetChildrenList($(this).val(),'place','shelf');"></select>
+				</div>
+				<div class="col-sm-6">
+					货架位置<br>
+					<select  id="place_select" name="place_id" msg="请选择货架位" check="require" ><option value=""></option></select>
+				</div>
+			</div>
+		</div>
+		<div class="form-group col-xs-12">
+			<label class="col-sm-4 control-label" for="memo"></label>
+			<div class="col-sm-8">
+				如果货架位不存在，请在添加该货架位
+			</div>
+		</div>
+	</form>
+</div>
+
+<script type="text/javascript">
+
+//货架位
+<include file="V2StockPlace:getchildrenlistjs" />
+
+$(function(){
+
+	var choose_warehouse = {$stock_data['warehouse_id']|default="false"};
+	var choose_region = {$_SESSION['change_stock_place_choose']['region_id']|default="false"};
+	var choose_shelf = {$_SESSION['change_stock_place_choose']['shelf_id']|default="false"};
+	var choose_place = {$_SESSION['change_stock_place_choose']['place_id']|default="false"};
+
+	ajaxGetChildrenList(choose_warehouse,'region','warehouse',choose_region);
+	ajaxGetChildrenList(choose_region,'shelf','region',choose_shelf);
+	ajaxGetChildrenList(choose_shelf,'place','shelf',choose_place);
+});
+
+</script>

@@ -1,0 +1,491 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" name="id" id="id" value="{$vo.id}">
+		<input type="hidden" id="opmode" name="opmode" value="{$vo.opmode}" >
+		<div class="form-group">
+			<label class="control-label" for="username">帐号</label>
+			<input class="form-control" type="text" id="username" name="username" value="{$vo.username}" check="require" msg="必填">
+		</div>		
+<?php
+	if($vo['isAdmin'] == false){
+		$vo['canEdit'] = false;
+	}else{
+		$vo['canEdit'] = true;
+	}
+	if(empty($vo['password'])){
+		$vo['password'] = rand_string(11);
+	}
+?>		
+	
+		<div class="form-group" <?php //if($vo['canEdit'] == false){ echo "style='display:none;'"; } ?> >
+			<label class="control-label" for="password">密码</label>
+			<input class="form-control" type="text" id="password" name="password" value="{$vo.password}">	
+		</div>	
+
+	
+		<?php $websiteList = D("FalseWebsite")->getAll(); ?>
+		<div class="form-group">
+			<label class="control-label" for="website">网站</label>
+			<select name="website" id="website" class="form-control" check="require" msg="网站必选">
+				<option value="" website-id="">请选择网站</option>
+				<volist name="websiteList" id="website">
+					<option value="{$website.name}" website-id="{$website.id}" <?php if($vo['website'] == $website['name']){echo 'selected';} ?> >{$website.name}</option>
+				</volist>
+			</select>
+			<input type="hidden" name="website_id" id="website_id" value="{$vo.website_id}" />
+		</div>
+
+		<div class="alert alert-warning" role="alert" id="editAlert" style="display:none;" ></div>		
+		<div class="form-group">
+			<div class="col-xs-12">
+				<div class="col-xs-6">
+					<label class="control-label" for="email_id">Email <span class="red" id="email_selected"></span></label>
+				</div>
+				<div class="col-xs-6">
+					<input type="text" id="searchEmail"  placeholder="搜索邮箱" />
+				</div>
+			</div>
+			<div class="col-xs-12">
+				<select name="email_id" id="email_id" class="form-control">
+					<option value="">请选择邮箱</option>
+					<volist name="emailList" id="email">
+						<option value="{$email.id}" email="{$email.email}" <?php if($email['id'] == $vo['email_id']){ echo "selected"; } ?> >ID {$email.id}: Type: {$email.type}: {$email.email}</option>
+					</volist>
+				</select>
+			</div>
+			
+
+			<input type="hidden" name="email" value="{$vo.email}" id="email" />
+		</div>		
+		<div class="form-group">
+			<div>
+				<div class="col-xs-12">
+					<div class="col-xs-1">
+						<label class="control-label" for="vpn_server_id">VPN</label>
+					</div>
+					<div class="col-xs-11" id="selectVPNWrap">
+						<a class="btn btn-xs btn-primary" id="currentIPasVPN">使用当前IP</a>
+						<span style="display:none;" id="currentIPHtml"></span>
+						<a class="btn btn-xs btn-primary" id="getRiskScore" style="display:none;">获取风险值</a>
+						<span style="display:none;" id="riskScore"></span>
+					</div> 
+				</div>
+				<div class="col-xs-12">
+					<select name="vpn_server_id" id="vpn_server_id" class="form-control" check="require" msg="VPN必选">
+						<option value="">请选择VPN</option>
+						<volist name="vpnServerList" id="vpnServer">
+							<option id="vpn_server_id_{$vpnServer.id}" value="{$vpnServer.id}" <eq name="vpnServer.selected" value="true">selected</eq> >{$vpnServer.optionHtml}</option>
+						</volist>
+					</select>
+				</div>
+			</div>
+			<div id="vpnAccountList" style="display:none;">
+				可换VPN： 
+				<volist name="vpn.vpnAccountList" id="vpnAccount">
+					<a href="{:U('FalseVpn/getSwitchBat')}?vpn_id={$vpnAccount.vpn_id}&vpn_server_id={$vpn.id}" target="middleBoxIframe" style="margin-right:10px;">{$vpnAccount.website} -> {$vpnAccount.username} </a> 
+				</volist>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="pay_id">支付方式</label>
+			<select class="form-control" id="pay_id" name="pay_id" >
+				<option value="" >请选择支付方式</option>
+				<volist name="payList" id="pay">
+					<option value="{$pay.id}" <?php if($pay['id'] == $vo['pay_id']){ echo "selected"; } ?> >{$pay.type}-{$pay.card_number}-{$pay.username}
+				</volist>
+			</select>
+		</div>
+		<?php /*<div class="form-group">
+			<label class="control-label" for="">Header</label>
+			<div>
+				<div class="col-xs-5">Name: </div>
+				<div class="col-xs-5">Value: </div>
+			</div>
+			<?php $vo['header'] = unserialize($vo['header']); ?>
+			<volist name="vo.header" id="header">
+			<div class="dataRow form-group">
+					<div class="col-xs-5">
+						<input type="text" name="header[{$key}][name]" value="{$header.name}" onChange="addDataRow()" class="form-control data-name">
+					</div>
+					<div class="col-xs-5">
+						<input type="text" name="header[{$key}][value]" value="{$header.value}" class="form-control data-value">
+					</div>
+			</div>
+			</volist>
+			<div class="dataRow form-group">
+				<div class="col-xs-5">
+					<input type="text" name="header[<?php echo $key+1;?>][name]" value=""  onChange="addDataRow()" class="form-control data-name">
+				</div>
+				<div class="col-xs-5">
+					<input type="text" name="header[<?php echo $key+1;?>][value]" value="" onChange="addDataRow()" class="form-control data-value">
+				</div>
+			</div>	
+			<script type="text/javascript">
+			var dataRowKey = <?php echo $key+1;?>;
+			</script>
+			
+			<p class="help-block col-xs-12">把name值设为空值等于删除该行。</p>		
+			
+		</div>		*/ ?>
+		<empty name="vo.id">
+			<input type="hidden" name="status" value="Unregistered" />
+		<else />
+			<div class="form-group">
+				<label class="control-label" for="status">状态</label>
+				<select class="form-control" name="status" id="status">
+					<option value="Normal" <eq name="vo.status" value="Normal">selected</eq>>正常</option>
+					<option value="Disabled" <eq name="vo.status" value="Disabled">selected</eq>>失效</option>
+					<option value="Unregistered" <eq name="vo.status" value="Unregistered">selected</eq>>未注册</option>
+				</select>
+			</div>
+		</empty>	
+		<div class="form-group">
+			<label class="control-label" for="memo">备注</label>
+			<textarea name="memo" id="memo" class="form-control">{$vo.memo}</textarea>
+		</div>
+		<div class="form-group text-center">
+			<?php if($vo['id']){ ?>
+			<input type="submit" id="editFormSubmit"  class="btn btn-primary" value="保存" />
+
+			<?php }else{ ?>
+			<a class="btn btn-warning" id="refresh" onclick="refresh()">刷新</a>
+			<input type="submit" id="registAccount"  class="btn btn-primary" value="注册" />
+			<?php } ?>
+			<a class="btn btn-success" id="cancel">取消</a>
+			<?php if($vo['id']){ ?> 
+			<a class="btn btn-danger" id="delete">删除</a>
+			<?php } ?>
+		</div>
+	</form>
+<script type="text/javascript">
+
+var test, minFraudResult;
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);
+
+	$("#cancel").click(function(){
+		parent.$("#middleBox").modal("hide");
+	})
+	$("#delete").click(function(){
+		
+		if(window.confirm("Delete? ")){
+			$(this).attr("disabled","disabled");
+			$("#opmode").val("del");
+			var data = $("#editForm").serialize();
+			var url = '{:U("del")}';
+			$.post(url,data,function(r){
+
+				if(r.status){
+
+					//parent.$("#middleBox").modal("hide");
+					parent.window.location.reload();
+
+				}else{
+					$(this).attr("disabled",null);
+					alert(r.info);
+					return false;
+				}
+			})
+		}else{
+			return false;
+		}
+
+		return false;
+	})
+	$("#searchEmail").change(function(){
+		searchEmail();
+	})
+	
+	$("#editFormSubmit").click(function(){
+		var data = $("#editForm").serialize();
+		var url = $("#editForm").attr("action");
+		if(check_form("editForm")){
+			$(this).attr("disabled","disabled");
+			var obj = $(this);
+			$.post(url,data,function(r){
+				if(r.status){
+					if({$vo.fromExecute} == 1){
+						parent.window.location.href = parent.window.location.href + "," + $("#id").val();
+					}else{
+						parent.window.location.reload();	
+					}
+					
+
+				}else{
+					obj.attr("disabled",null);
+					alert(r.info);
+					return false;
+				}
+			})
+		}
+		return false;
+	})
+
+	$("#registAccount").click(function(){
+		var data = $("#editForm").serialize();
+		var url = $("#editForm").attr("action");
+		if(check_form("editForm")){
+			$(this).attr("disabled","disabled");
+			var obj = $(this);
+			$.post(url,data,function(r){
+				obj.attr("disabled",null);
+				if(r.status){
+					alert("保存数据成功，可以开始注册。");
+
+					if({$vo.fromExecute} == 1){
+						window.location.href = "{:U()}?fromExecute=1&id=" + r.data.id;	
+					}else{
+						window.location.href = "{:U()}?id=" + r.data.id;	
+					}
+					
+
+
+				}else{
+					
+					alert(r.info);
+					return false;
+				}
+			})
+		}
+		return false;		
+	})
+
+
+	$("#email_id").change(function(){
+		if($(this).val() != ''){
+			var email_id = $(this).val();
+			var email = $('option[value="' + email_id + '"]',this).attr("email");
+			$("#email").val(email);
+
+			$(this).attr("disabled",'disabled');
+			obj = $(this);
+			data = {email_id:$(this).val()};
+			$.post("{:U('FalseEmail/useEmail')}",data,function(r){
+				if(r.status){
+					html = $("option:selected",obj).html();
+					$("#email_selected").html(html);					
+				}else{
+					alert(r.info);
+				}
+				obj.attr("disabled",null);
+			})
+		}
+	}).change();
+
+	$("#vpn_server_id").change(function(){
+		$("#vpnAccountList").html('');
+		$("#vpnAccountList").hide();
+		if($(this).val() != ''){
+			$(this).attr("disabled",'disabled');
+
+			var obj = $(this);
+			data = {vpn_server_id:$(this).val()};
+			$.post("{:U('FalseVpnServer/useServer')}",data,function(r){
+				if(r.status){
+					
+						$("#vpnAccountList").html(r.data.vpnHtml);
+						$("#vpnAccountList").show();
+					
+				}else{
+					alert(r.info);
+				}
+
+				obj.attr("disabled",null);
+			})
+		}
+	}).change();
+
+	$("#website").change(function(){
+		var website_id = $("option[value='" + $(this).val() + "']",$(this)).attr("website-id");
+		$("#website_id").val(website_id);
+
+		$("#email_selected").html('');
+
+		//更新支付方式
+		if(website_id != ''){
+			$(this).attr("disabled",'disabled');
+			var obj = $(this);
+
+			data = {
+				website_id:website_id,
+				account_id:$("#id").val()
+			};
+			$.post("{:U('getListByWebsite')}",data,function(r){
+				obj.attr("disabled", null);
+				if(r.status){
+					$("#pay_id").html(r.data.payListHtml);
+					$("#vpn_server_id").html(r.data.vpnServerListHtml);
+					$("#email_id").html(r.data.emailListHtml);
+				}else{
+					alert(r.info);
+				}
+
+				
+			})			
+		}
+	})
+
+	$("#currentIPasVPN").click(function(){
+		if($("#website_id").val() == ''){
+			alert("请先选择网站。");
+			return false;
+		}
+
+		$(this).attr("disabled","disabled");
+
+		getCurrentIP();
+		return false;
+	})
+
+	$("#getRiskScore").click(function(){
+		$("#getRiskScore").attr("disabled","disabled");
+		var riskIp = '', vpn_server_id = '';
+		if($("#currentIPHtml").html() != ''){
+			riskIp = $("#currentIPHtml").html();
+		}else{
+			if($("#vpn_server_id").val() != ''){
+				vpn_server_id = $("#vpn_server_id").val();
+			}	
+		}
+		var data = {
+			risk_ip:riskIp,
+			vpn_server_id:vpn_server_id,
+		}
+		$.post("{:U('FalseVpnServer/get_ip_risk_score')}",data,function(r){
+			if(r.status){
+				$("#getRiskScore").hide();
+				$("#riskScore").html(r.data.riskScore).show();
+				minFraudResult = r.data.minfraud_result;
+			}else{
+				alert(r.info);
+			}
+			$("#getRiskScore").attr("disabled",null);
+		})
+
+	})
+
+})
+
+
+function addDataRow(){
+
+	if($(".data-name").length > 1){
+		for(i=0; i < $(".data-name").length; i++){
+			obj = $(".data-name")[i];
+			console.log(obj);
+			if($.trim($(obj).val()) == ''  && i < $(".data-name").length-1){
+				if(window.confirm("Delete? ")){
+					console.log($(obj).parents(".dataRow"));
+					$(obj).parents(".dataRow").remove();
+					break;
+				}
+			}				
+		}
+	}
+
+	if($.trim($(".data-value:last").val()) != '' && $.trim($(".data-name:last").val()) != ''){
+		//如果最后一个name和value的值不为空, 则要新增一行
+		var newRow = $(".dataRow:last").clone();
+		dataRowKey++;
+		$("input",newRow).val('');
+		$(".data-name",newRow).attr('name','data[' + dataRowKey + '][name]');
+		$(".data-value",newRow).attr('name','data[' + dataRowKey + '][value]');
+		$(".dataRow:last").after(newRow);
+		
+	}
+}
+
+function getCurrentIP(){
+	var newScript = "<script type=\"text/javascript\" src=\"http://img.barboola.com/falseIp.php\"><\/script>";
+	$("body").append(newScript);
+}
+
+function getCurrentServer(){
+	$.post("{:U('FalsePlan/getCurrentServer')}",currentServer,function(r){
+		if(r.status){
+			currentIPasVPN(r.data.currentIP);
+		}else{
+			alert(r.info);
+		}
+	})
+}
+
+function currentIPasVPN(ip){
+	var data = {
+		website_id:$("#website_id").val(),
+		currentIP:ip
+	}
+	$.post("{:U('FalseVpn/currentIPasVPN')}",data,function(r){
+		if(r.status){
+			$("#getRiskScore").show();
+			if(r.data.vpn_server_id){
+				alert(r.info);
+				if($("#vpn_server_id_" + r.data.vpn_server_id).length > 0){
+					$("#vpn_server_id").val(r.data.vpn_server_id);
+				}else{
+					$("#vpn_server_id").append(r.data.returnHtml);
+					$("#vpn_server_id").val(r.data.vpn_server_id);
+				}
+			}else{
+				$("#currentIPasVPN").hide();
+				$("#currentIPHtml").html(r.data.currentIP).show();
+				$("#currentIPHtml").after(r.data.returnHtml);
+				$("#selectVPN").change(function(){
+					var data = {
+						vpn_id:$(this).val(),
+						ip:r.data.currentIP,
+						minFraudResult:minFraudResult
+					}
+					$.post("{:U('FalseVpn/selectVPNforCurrentIP')}",data,function(sr){
+						if(sr.status){
+							$("#vpn_server_id").append("<option value='" + sr.data.vpn_server_id + "' >ID: " + sr.data.vpn_server_id + ' => ' + sr.data.server_address + '</option>').val(sr.data.vpn_server_id);
+							$("#selectVPN").remove();
+						}else{
+							alert(sr.info);
+						}
+					})
+				});					
+			}
+
+
+		}else{
+			alert(r.info);
+		}
+	})
+}
+
+function searchEmail(){
+	var q = $("#searchEmail").val();
+	if(q != ''){
+		data = {
+			q:q
+		}
+		$.post("{:U('FalseEmail/searchEmail')}",data,function(r){
+			if(r.status){
+				if(r.data.email_list.length > 0){
+					for(var i=0; i< r.data.email_list.length; i++){
+						email = r.data.email_list[i];
+						option_html = "<option value='" + email.id + "'>ID: " + email.id + " Type: " + email.type + " " + email.email + "</option>";
+						$("#email_id").prepend(option_html);
+					}
+				}
+			}else{
+				alert(r.info);
+			}
+		})
+
+	}else{
+		return false;
+	}
+}
+
+function refresh(){
+	window.location.reload();
+}
+
+</script>

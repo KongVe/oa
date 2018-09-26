@@ -1,0 +1,171 @@
+<layout name='Layout/ace_box' />
+{:W('PageHeader',array('name'=>'产品打版数据编辑'))}
+
+<link href="__PUBLIC__/assets/js/dropzone/dist/min/dropzone.min.css" rel="stylesheet" />
+<script src="__PUBLIC__/assets/js/dropzone/dist/dropzone.js"></script>
+
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="pull-left">
+			<a onclick="parent.$('#middleBox').modal('hide');" class="btn btn-sm btn-danger">关闭</a>
+		</div>
+		<div class="pull-right">
+			<a onclick="save(this);"  class="btn btn-sm btn-primary">保存</a>
+		</div>
+	</div>
+</div>
+<div class="col-sm-12">
+	<form method='post' id="form_data" action="" class="well form-horizontal ">
+		<input type="hidden" id="ajax" name="ajax" value="1"/>
+		<input type="hidden" id="add_file" name="develop_file" value="{$vo.develop_file}"/>
+		<input type="hidden" id="add_gallery" name="develop_gallery" value="{$vo.develop_gallery_file}"/>
+
+		<if condition="$vo['id'] neq ''">
+			<input type="hidden" id="id" name="id" value="{$vo.id}">
+			<input type="hidden" id="opmode" name="opmode" value="edit">
+		<else/>
+			<input type="hidden" id="opmode" name="opmode" value="add">
+		</if>
+
+		<table class="table table-bordered">
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 control-label" for="sku">SKU：</label>
+				<div class="col-sm-8">
+					<span>{$vo.sku}</span>
+				</div>
+			</div>
+
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 control-label" for="short_name">产品简称：</label>
+				<div class="col-sm-8">
+					<span>{$vo.short_name}</span>
+				</div>
+			</div>
+
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 control-label" for="estimate_cost">预估成本：</label>
+				<div class="col-sm-8">
+					<input value="{$vo.estimate_cost}" type="text" id="estimate_cost" name="estimate_cost" check="require" placeholder="请输入预估成本" msg="请输入预估成本">
+					元
+				</div>
+			</div>
+
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 control-label" for="estimate_weight">预估重量：</label>
+				<div class="col-sm-8">
+					<input value="{$vo.estimate_weight}" type="text" id="estimate_weight" name="estimate_weight" check="require" placeholder="请输入预估重量" msg="请输入预估重量">
+					克
+				</div>
+			</div>
+
+			<div class="form-group col-sm-12">
+				<label class="col-sm-4 control-label" for="add_gallery">添加图片：</label>
+				<div class="col-sm-8">
+					<div id="uploader_img">
+						<a id="pickimgs" href="javascript:;" class="btn btn-sm btn-primary">添加</a>
+						<ul id="file_img_list">
+							<notempty name="file_img_list">
+								<volist name="file_img_list" id="file">
+									<li class="tbody file_li" data-id="{$file.id}" id="{$file.id}" add_gallery="{$file.id}" size="{$file.size}" filename="{$file.name}">
+										<div class="loading"></div>
+										<div class="data">
+											<span class="del text-center"><a class="link del">删除</a> <div class="btn-group btn-group-vertical"><a class="btn btn-primary btn-xs" onclick="changeFilePlace(1,this);">↑</a><a class="btn btn-info btn-xs" onclick="changeFilePlace(0,this);">↓</a></div></span>
+
+											<span class="size" >{$file.size|reunit}</span>
+
+											<span class="text-right"><a href="{$file.url}" target="_blank"><img src="{$file.url}" style="height:40px"/></a></span>
+
+											<span class="auto autocut" title="{$file.name}"> <a target="_blank" href="{:U('down?attach_id='.f_encode($file['id']))}">{$file.name}</a>
+												<eq name="file.extension" value="mp4">
+													(<a class="link down" target="_blank" onclick='winopen("{:U("file/player?attach_id=".f_encode($file["id"]))}",730,460)' >播放</a> )
+												</eq> </span>
+										</div>
+									</li>
+								</volist>
+							</notempty>
+						</ul>
+					</div>
+				</div>
+			</div>
+
+
+			<div class="form-group col-sm-12">
+				<label class="col-sm-4 control-label" for="add_file">打版附件：</label>
+				<div class="col-sm-8">
+					<include file="Widget:uploader" />
+				</div>
+			</div>
+
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 control-label" for="develop_memo">打版备注：</label>
+				<div class="col-sm-8">
+					<textarea name="develop_memo"  id="content" placeholder="请输入备注" class="form-control col-sm-12">{$vo.develop_memo}</textarea>
+				</div>
+			</div>
+
+			<eq name="vo.status" value="Wait develop">
+				<div class="form-group col-xs-12">
+					<label class="col-sm-4 control-label" for="develop_memo">打版完成：</label>
+					<div class="col-sm-8">
+						<input value="1" type="checkbox" id="finish" name="finish" style="width:20px;height:20px;" />
+					</div>
+				</div>
+			</eq>
+		</table>
+	</form>
+
+	
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+
+<script type="text/javascript">
+
+function setTypeName(obj){
+	var type_name = $(obj).val();
+	$("#type_name").val(type_name);
+}
+
+function save() {
+	if (check_form("form_data")) {
+		editor.sync();
+		sendForm("form_data", "{:U('developSave')}",false,function(msg){
+			if(msg.status){
+				if(parent.$("#middleBox").length>0){
+					parent.window.location.reload();
+					parent.$("#middleBox").modal('hide');
+				}else{
+					alertWarning(msg.info,1);
+				}
+			}else{
+				alertWarning(msg.info);
+			}
+		});
+	}
+}
+// function addImg(){
+// 	var num = 0;
+// 	while($("#add_gallery_"+num).length > 0){
+// 		num++;
+// 	}
+// 	$("#add_gallery_box").append('<div class="add_imgs input-group" id="add_img_div_'+num+'"><input value="" class="form-control" type="text" id="add_gallery_'+num+'" name="add_gallery[]" placeholder="请输入图片URL地址"><div class="input-group-btn"><a class="btn btn-danger btn-sm " onclick="delImg('+num+');"> - </a></div></div>');
+// }
+
+// function delImg(num){
+// 	if(!confirm("确认删除？")){
+// 		return false;
+// 	}
+// 	$("add_img_div_"+num).remove();
+// }
+// Dropzone.options.dropzoneForm = {
+//         init: function () {
+//             this.on("complete", function (data,info,) { 
+//             	console.log(data);               
+//                 var res = eval('(' + data.xhr.responseText + ')');
+//                 alert(res.Message);
+//             });
+//         }
+//     };
+
+</script>

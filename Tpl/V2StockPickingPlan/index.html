@@ -1,0 +1,271 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" action="{:U()}" id="form_search" method="post" class="form-inline">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+<div class="page-header clearfix">
+	<h1 class="col-xs-2">{$title}</h1>
+	<div class="col-xs-10">
+
+		<div class="form-group col-sm-2">
+			<label>
+				<input type="checkbox" name="unconfirm_plan" id="unconfirm_plan" value="1" <notempty name="Think.request.unconfirm_plan">checked="checked"</notempty> > 拣货中未核对
+			</label>
+		</div>
+
+		<div class="form-group col-sm-2">
+			<div class="col-sm-12">
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}" placeholder="添加时间">
+			</div>
+		</div>
+
+		<div class="form-group col-sm-2">
+			<div class="col-sm-12">
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="last_picking_time" id="last_picking_time" value="{$Think.request.last_picking_time}" placeholder="拣货时间">
+			</div>
+		</div>
+
+		<div class="form-group col-sm-2">
+			<div class="col-sm-12">
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="last_confirm_time" id="last_confirm_time" value="{$Think.request.last_confirm_time}" placeholder="确认时间">
+			</div>
+		</div>
+		<div class="form-group col-sm-2">
+			<div class="col-sm-12">
+				<input class="form-control" type="text" name="from_id" id="from_id" value="{$Think.request.from_id}" placeholder="来源ID"/>
+			</div>
+		</div>
+
+		<div class="input-group col-sm-2">
+			<div class="input-group">
+				<input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="规格SKU，SKU名称"/>
+				<span class="input-group-btn">
+					<button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>	
+<div class="message-container" id="container_table" style="width:100%;overflow:scroll;">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="btn-group">
+				<a href="{:U('waitingPickingList')}" target="_blank" class="btn btn-primary">待拣货列表</a>
+			</div>
+			<div class="btn-group">
+				<a href="{:U('V2StockPickingDetail/index')}" target="_blank" class="btn btn-info">拣货批次</a>
+			</div>
+			<div class="btn-group">
+				<a class="pickingChoose btn btn-inverse">拣货选中</a>
+			</div>
+		</div>
+	</div>
+
+	<table class="table table-hover table-bordered">
+		<include file="Layout:title_v2"/>
+		
+		<tbody class="tbody">
+		<volist name="list" id="vo" key="tr_key">
+			<tr id="tr_{$vo.id}" >
+				<td>
+					<label class="inline pull-left">
+						<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+						<span class="lbl"></span>
+						{$vo.id}
+					</label>
+					<?php 
+						if(in_array($vo['status'], array('Waiting picking','Partial picking'))){
+					?>
+						<br>
+						<br>
+						<a href="{:U('waitingPickingList')}?id={$vo.id}" target="_blank" class="btn btn-primary btn-sm">拣货</a>
+					<?php
+						}
+					?>
+					
+				</td>
+				<td >
+					<a href="{$vo.thumbnail}" class="thumbnail" target="_blank"><img src="{$vo.thumbnail}" data-src="{$vo.thumbnail}" width="60" /></a>
+					{$vo.sku}
+					<br>
+					<a href="{:U('V2SkuProduct/index')}?id={$vo.sku_id}" target="_blank">查看</a>
+				</td>
+				<td style="word-break:break-all;max-width:80px;">
+					{$vo.sku_name}
+				</td>
+				<td >
+					{$vo.from_type|L}
+					<br>
+					<a href="{$vo.from_url}" target="_blank">{$vo.from_id}</a>
+				</td>
+				<td>
+					{$vo.place_name}
+				</td>
+				<td >
+					<b>{$vo.status|L}</b>
+					<eq name="vo.is_confirm" value="Yes">
+						<br>
+						<b>(已确认)</b>
+					</eq>
+				</td>
+				<td >
+					<span>{$vo.reserved_quantity}</span>
+				</td>
+				<td style="min-width:180px;">
+					<b>{$vo.picking_quantity}</b>
+				</td>
+				<td >
+					<span class="red">{$vo.picked_quantity}</span>
+				</td>
+				<td >
+					<b>{$vo.last_picking_user_name}</b>
+				</td>
+				<td style="width:80px;">
+					{$vo.last_picking_time|default=""|date="y-m-d<bR>H:i:s",###}
+				</td>
+				<td >
+					<b>{$vo.last_confirm_user_name}</b>
+				</td>
+				<td style="width:80px;">
+					{$vo.last_confirm_time|default=""|date="y-m-d<bR>H:i:s",###}
+				</td>
+				<td >
+					<b>{$vo.add_user_name}</b>
+				</td>
+				<td style="width:80px;">
+					{$vo.add_time|default=""|date="y-m-d<bR>H:i:s",###}
+				</td>
+				<!-- <td>
+					<span class="editMemo" field="memo" onclick="editMemo(this,'{:U('V2StockPickingPlan/addMemo')}?id={$vo.id}','textarea')">{$vo.memo}</span>
+				</td> -->
+				<td>
+					<div class="col-sm-12">
+						<a data-url="{:U('detail')}?id={$vo.id}" class="showBox btn btn-primary btn-sm">详情</a>
+						<br>
+						<br>
+
+						<eq name="vo.from_type" value="Transfer plan">
+							<a data-id="{$vo.id}" class="closePickingPlan btn btn-danger btn-sm">撤销</a>
+							<br>
+							<br>
+						</eq>
+
+						<a data-url="{:U('OperateLog/view')}?id={$vo.id}&table_name=v2_stock_picking_plan" class="showBox btn btn-info btn-sm">日志</a>
+					</div>
+				</td>
+			</tr>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+
+<div id="tmp" class="display-none">
+	<form name="form_tmp" id="form_tmp" method="post" class="form-inline">
+	</form>
+</div>
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+<script type="text/javascript">
+$(function($){
+	$(".changePickingQuantity").click(function(){
+		var id = $(this).data("id");
+		var type = $(this).data("type");
+		var quantity = $(this).data("quantity");
+		if(!quantity){
+			quantity = 1;
+		}
+		var change_quantity = $("#change_quantity_"+id).val();
+		change_quantity = parseInt(change_quantity);
+		if(type == "add"){
+			change_quantity+=quantity;
+		}else{
+			change_quantity-=quantity;
+		}
+		if(change_quantity!=0){
+			$("#confirmChangeButton_"+id).show();
+		}else{
+			$("#confirmChangeButton_"+id).hide();
+		}
+		$("#change_quantity_"+id).val(change_quantity);
+	});
+
+	$(".change_quantity").change(function(){
+		var id = $(this).data("id");
+		if(!$(this).val()){
+			$("#confirmChangeButton_"+id).hide();
+		}else{
+			$("#confirmChangeButton_"+id).show();
+		}
+	});
+	
+	
+
+	$(".closePickingPlan").click(function(){
+		var id = $(this).data("id");
+		if(!id){
+			return false;
+		}
+		if(!confirm("确认撤销？")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('closePickingPlan')}",{id:id},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+
+	$(".confirmPickingQuantity").click(function(){
+		var id = $(this).data("id");
+		var change_quantity = $("#change_quantity_"+id).val();
+		if(!id){
+			return false;
+		}
+		if(!confirm("确认数量正确？")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('changePickingQuantity')}",{id:id,change_quantity:change_quantity},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".pickingChoose").click(function(){
+
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择订单");
+			return false;
+		}
+		tmpSendForm("{:U('waitingPickingList')}",data);
+	});
+});
+
+</script>

@@ -1,0 +1,79 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'已完成的评价'))}
+
+<form method='post' id="form_data" name="form_data" enctype="multipart/form-data"   class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+
+	<input type="hidden" id="id" name="id" value="{$Think.request.id}">
+	<input type="hidden" id="opmode" name="opmode" value="edit">
+
+	<input type="hidden" id="allow_review" name="allow_review" value="{$vo.allow_review}">
+
+	<div class="form-group col-sm-12">
+		<label class="col-sm-3 control-label" for="product_rating_star">商品评价分数：</label>
+		<div class="col-sm-9">
+			{$vo.product_rating_star}
+		</div>
+	</div>
+	<div class="form-group col-sm-12">
+		<label class="col-sm-3 control-label" for="review_content">商品评价内容：</label>
+		<div class="col-sm-9">
+				{$vo.review_content}
+		</div>
+	</div>
+
+	<div class="form-group col-sm-12">
+		<label class="col-sm-3 control-label" for="merchant_rating_star">店铺评价分数：</label>
+		<div class="col-sm-9">
+			{$vo.merchant_rating_star}
+		</div>
+	</div>
+	<div class="form-group col-sm-12">
+		<label class="col-sm-3 control-label" for="merchant_rating_content">店铺评价内容：</label>
+		<div class="col-sm-9">
+				{$vo.merchant_rating_content}
+		</div>
+	</div>
+
+	
+
+	<div class="action">
+		<input class="btn btn btn-default" type="button" value="关闭" onclick="parent.$('#middleBox').modal('hide');">
+	</div>
+</form>
+
+<script type="text/javascript">
+	function save() {
+		$("#ajax").val(1);
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('saveReview')}",'',function(msg){
+				if(msg.status){
+					alertWarning(msg.info,1);
+					parent.window.location.reload();
+				}else{
+					alertWarning(msg.info);
+				}
+			});
+		}
+	}
+
+	function confirmView(){
+		if(!confirm("确认虚假包裹已经被签收？评价内容正确？确认评价后评价内容会自动提交到wish。")){
+			$("#allow_review").val("No");
+			return false;
+		}else{
+			$("#allow_review").val("Yes");
+			save();
+		}
+	}
+	//取消评价
+	function cancalConfirm(){
+		if(!confirm("确认取消评价?")){
+			
+			return false;
+		}else{
+			$("#allow_review").val("No");
+			save();
+		}
+	}
+</script>

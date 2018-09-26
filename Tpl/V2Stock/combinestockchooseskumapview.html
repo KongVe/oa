@@ -1,0 +1,99 @@
+<layout name='Layout/ace_popup' />
+
+{:W('PageHeader',array('name'=>'<b>选择虚拟SKU</b> -> 合并库存'))}
+
+<form method='post' action="{:U('V2stock/combineStockView')}" id="editForm" class="well form-horizontal clearfix">
+	<input type="hidden" id="ajax" value="1"/>
+	<input type="hidden" id="id" name="id" value="{$Think.request.id}">
+
+	<div class="panel panel-primary">
+		<div class="panel panel-heading">
+			<span>选择虚拟SKU</span>
+		</div>
+		<div class="panel-body">
+
+			<div class="form-group col-xs-12">
+				<table class="table table-hover table-bordered">
+					<tr>
+						<th>虚拟规格SKU</th>
+						<th>SKU名称</th>
+						<th>图片</th>
+						<th>操作</th>
+					</tr>
+					<empty name="list">
+						<tr>
+							<td colspan="4" class="text-center">
+								<b class="red">未获取到可合并的虚拟SKU</b>
+							</td>
+						</tr>
+					</empty>
+					<volist name="list" id="virtual_sku">
+						<tr class="success">
+							<td>
+								{$virtual_sku.sku}
+							</td>
+							<td>
+								{$virtual_sku.sku_name}
+							</td>
+							<td>
+								<a class="thumbnail"  href="{$virtual_sku.thumbnail}" target="_blank">
+			  						<img src="{$virtual_sku.thumbnail}" width="60" />
+			  					</a>
+							</td>
+							<td>
+								<a href="{:U('combineStockView')}?id={$_REQUEST['id']}&virtual_sku_id={$virtual_sku.id}" class="btn btn-primary">选择</a>
+							</td>
+						</tr>
+						<tr>
+							<td colspan="4">
+								<table class="table">
+									<tr>
+										<th>SKU序号</th>
+										<th>规格SKU</th>
+										<th>SKU名称</th>
+										<th>图片</th>
+										<th>绑定数量</th>
+									</tr>
+									<volist name="virtual_sku.sku_product_list" id="vo">
+										<tr>
+											<td>
+												{$vo.id}
+											</td>
+											<td>
+												{$vo.sku}
+											</td>
+											<td>
+												{$vo.sku_name}
+											</td>
+											<td>
+												<a class="thumbnail"  href="{$vo.thumbnail}" target="_blank">
+							  						<img src="{$vo.thumbnail}" width="60" />
+							  					</a>
+											</td>
+											<td>
+												<b>{$vo.quantity}</b> 个
+											</td>
+										</tr>
+									</volist>
+								</table>
+							</td>
+						</tr>
+					</volist>
+				</table>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12">
+		<label class="col-sm-4 text-right"></label>
+		<div class="col-sm-8">
+			<input class="close_box_button btn btn-sm btn-default" type="button" value="取消">
+		</div>
+	</div>
+</form>
+
+<script type="text/javascript">
+
+
+</script>

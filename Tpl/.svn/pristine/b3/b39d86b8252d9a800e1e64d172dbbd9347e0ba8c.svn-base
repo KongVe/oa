@@ -1,0 +1,14 @@
+<script type="text/javascript">
+
+	jQuery(function($){
+		//close sidebar
+		// ace.settings.sidebar_collapsed(true);
+
+
+		//如果有搜索值，默认全选了搜索值
+		if($("#q").val() != ''){
+			$("#q").focus().select();
+		}
+
+	});
+</script>

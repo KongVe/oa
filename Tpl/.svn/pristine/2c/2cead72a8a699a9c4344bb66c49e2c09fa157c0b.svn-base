@@ -1,0 +1,167 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" action="{:U('')}" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="id" value="{$Think.request.id}" />
+<div class="page-header clearfix">
+	<h1 class="col-sm-4">{$title}</h1>
+	<div class="col-sm-8">
+		<notempty name="Think.request.ids">
+			<div class="form-group col-sm-2" >
+				<label>
+					<input type="checkbox" class="ace input-lg" name="ids" value="{$Think.request.ids}" <notempty name="Think.request.ids">checked="checked"</notempty> />
+					<span class="lbl padding-5">
+						在当前结果中搜索
+					</span>
+				<label>
+			</div>
+		</notempty>
+
+		<div class="form-group col-sm-3">
+			<div class="col-sm-12">
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}" placeholder="绑定时间">
+			</div>
+		</div>
+		<div class="input-group col-sm-4">
+			<div class="input-group">
+				<input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="线上Product Id,规格SKU，名称"/>
+				<span class="input-group-btn">
+					<button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a data-url="{:U('Edit')}" class="showBox btn btn-primary btn-sm" >添加</a>
+		</div>
+	</div>
+</div>
+
+<div class="message-container" id="container_table" style="width:100%;overflow:scroll;">
+
+	<table class="table table-hover table-bordered">
+
+		<include file="Layout:title_v2"/>
+		<tbody class="tbody">
+			<volist name="list" id="vo" key="tr_key">
+				<tr id="tr_{$vo.id}" >
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td>
+						{$vo.website_data.website}
+					</td>
+	  				<td>
+	  					{$vo.online_product_id}
+					</td>
+					<td>
+	  					{$vo.online_variation_id}
+					</td>
+					<td style="width:80px;" >
+						<a class="thumbnail"  href="{$vo.thumbnail}" target="_blank">
+      						<img src="{$vo.thumbnail}" width="80" />
+      					</a>
+					</td>
+					<td>
+						参考颜色: <b>{$vo.online_color}</b><br>
+						参考尺码: <b>{$vo.online_size}</b><br>
+						(来自最新订单的颜色和尺码)
+					</td>
+					<td>
+	  					<a href="{:U('V2SkuProduct/index')}?id={$vo.sku_id}" target="_blank" >{$vo.sku}</a>
+	  					<eq name="vo.is_virtual_sku" value="Yes">
+	  						<br>
+  							<a href="{:U('V2SkuProduct/virtualSkuList')}?q={$vo.sku}" target="_blank"><span class="label label-info arrowed-right arrowed-in">虚拟SKU</span></a>
+	  					</eq>
+					</td>
+					<td>
+	  					{$vo.sku_name}
+					</td>
+					<td style="width:80px;" >
+						<a class="thumbnail"  href="{$vo.sku_thumbnail}" target="_blank">
+      						<img src="{$vo.sku_thumbnail}" width="80" />
+      					</a>
+					</td>
+					<td>
+	  					{$vo.status|L}
+					</td>
+					<td>
+	  					{$vo.add_user_name}
+					</td>
+					<td>
+	  					{$vo.add_time|date="y-m-d<bR>H:i:s",###}
+					</td>
+					<td style="word-break:break-all;width:150px;">
+	  					{$vo.map_sku_memo}
+
+	  					<notempty name="vo.memo_thumbnail">
+	  						<a class="thumbnail"  href="{$vo.memo_thumbnail}" target="_blank" style="width:80px;">
+		  						<img src="{$vo.memo_thumbnail}" width="80" />
+		  					</a>
+	  					</notempty>
+					</td>
+					<td>
+						<a data-url="{:U('Edit')}?id={$vo.id}" class="showBox btn btn-primary btn-sm" >编辑</a>
+						<eq name="vo.status" value="Normal">
+							<!-- <a data-id="{$vo.id}" data-type="0" class="changeStatus btn btn-danger btn-sm" >禁用</a> -->
+						<else/>
+							<!-- <a data-id="{$vo.id}" data-type="1" class="changeStatus btn btn-info btn-sm" >启用</a> -->
+						</eq>
+					</td>
+	       		</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+<script type="text/javascript">
+$(function($){
+
+	$(".changeStatus").click(function(){
+		var id = $(this).attr("data-id");
+		var type = $(this).attr("data-type");
+		if(!confirm("确认操作？")){
+			return false;
+		}
+
+		if(type==1){
+			var status = "Normal";
+		}else{
+			var status = "Disabled";
+		}
+
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('changeStatus')}",{id:id,status:status},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	
+	});
+	
+});
+</script>

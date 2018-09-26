@@ -1,0 +1,72 @@
+<layout name='Layout/ace_popup_v2' />
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			<b>ASIN Detail</b>
+		</div>
+		<div class="panel-body">
+			<table class="table table-striped table-hover">
+				<tr>
+					<td>ASIN</td>
+					<td><a href="{$marketplace.product_link}{$vo.asin}" target="_blank">{$vo.asin}</a>
+						<br>
+						{$vo.variation}
+						<br>
+						<BR>{$vo.product_name}
+					</td>
+					<td><a href="{$vo.thumbnail}" target="_blank" class="thumbnail">
+						<img src="{$vo.thumbnail}" width=100 />
+					</a></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			<b>Sales Tracking</b>
+		</div>
+		<div class="panel-body">
+			<table class="table table-striped table-hover">
+				<tr>
+					<td>Date</td>
+					<td>Inventory / Sold</td>
+				</tr>
+				<foreach name="log_list" item="seller_list" key="log_date">
+					<tr>
+						<td>{$log_date}</td>
+						<foreach name="seller_list" item="fulfill_by_list" key="seller_id">
+							<td>
+								<table>
+									<tr><td>
+										<?php echo $seller_name_list[$seller_id] ? $seller_name_list[$seller_id] : $seller_id; ?>
+									</td></tr>
+									<tr>
+										<td>
+											<foreach name="fulfill_by_list" item="log" key="fulfill_by">
+
+												{$fulfill_by} : 
+											</foreach>
+										</td>
+										<td width=60 title="Inventory">
+										<foreach name="fulfill_by_list" item="log" key="fulfill_by">
+											{$log.quantity} 
+										</foreach>
+										</td>
+										<td width=60 title="Quantity Sold">
+										<foreach name="fulfill_by_list" item="log" key="fulfill_by">
+											{$log.qty_sold}
+										</foreach>
+										</td>
+									</tr>
+								</table>
+							
+
+							</td>
+						</foreach>
+					</tr>
+				</foreach>
+			</table>
+		</div>
+	</div>
+<script type="text/javascript">
+
+</script>

@@ -1,0 +1,76 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo intval(!$sort); ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="transfer_shipment_id" id="transfer_shipment_id" value="{$Think.request.transfer_shipment_id}" />
+
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">{$title}</h1>
+	<div class="col-sm-10 pull-right">
+	</div>
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a class="btn btn-sm btn-danger" href="{:U('V2TransferPackage/index')}?transfer_shipment_id={$Think.request.transfer_shipment_id}" >返回</a>
+		</div>
+		<div class="btn-group">
+			<b>总真实除5000体积重: </b>{$total_data.volume_weight} kg |
+		</div>
+		<div class="btn-group">
+			<b>总真实除6000体积重: </b>{$total_data.volume_weight2} kg |
+		</div>
+		<div class="btn-group">
+			<b>总真实重量: </b>{$total_data.real_weight} kg |
+		</div>
+	</div>
+</div>
+<div class="message-container">
+	<table class="table table-striped table-hover">
+		 	<include file="Layout:title"/>
+			<tbody class="tbody">
+			<volist name="list" id="vo">
+				<tr>
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td>
+						{$vo.box_number}
+					</td>
+					<td>
+						{$vo.box_type.volume_html}
+					</td>
+					<td>
+						{$vo.real_length} cm * 
+						{$vo.real_width} cm * 
+						{$vo.real_height} cm
+					</td> 
+					
+					<td>
+						{$vo.volume_weight} kg
+					</td> 
+					<td>
+						{$vo.volume_weight2} kg
+					</td> 
+					<td>
+						{$vo.real_weight} kg
+					</td> 
+					<td><span class="V2EditMemo" data-table-name="v2_transfer_package" data-field-value="{$vo.id}"><pre>{$vo.memo}</pre></span></td>
+					<td>
+						<a class="btn btn-primary btn-sm" href="{:U('v2_transfer_plan/index')}?transfer_box_id={$vo.id}&transfer_shipment_id={$vo.transfer_shipment_id}" target="_blank">产品</a>
+						<a class="btn btn-warning btn-sm" id="btn_return_{$vo.id}" onclick="return({$vo.id})">退货</a>
+					</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+
+</div>
+</form>

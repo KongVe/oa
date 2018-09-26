@@ -1,0 +1,324 @@
+<layout name='Layout/ace_layout' />
+{:W('PageHeader',array('name'=>'报关单','search'=>'S'))}
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="pull-left">
+			<a href="{:U('V2TransferPackage/index')}?transfer_shipment_id={$Think.request.transfer_shipment_id}" class="btn btn-sm btn-primary">返回</a>
+			<?php if($has_declaration == true){ ?>
+			<a id="btn_dhlOfficialDeclaration" class="btn btn-sm btn-danger showBox" data-url="{:U('dhlOfficialDeclaration')}?transfer_shipment_id=<?php echo $_REQUEST['transfer_shipment_id']; ?>">DHL官方对接</a>
+			<a id="btn_dhlOfficialDeclaration" class="btn btn-sm btn-danger" href="{:U('emsForwarder')}?transfer_shipment_id=<?php echo $_REQUEST['transfer_shipment_id']; ?>" target="_blank" >EMS官方对接</a>
+			<div class="btn-group">
+				<a href="#" id="btn_flyexpressForwarder" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown">飞特对接 <i class="icon-caret-down"></i></a>
+				<ul class="dropdown-menu">
+					<li><a href="#" onclick="flyexpressForwarder('CNDHL-DH')">DHL 21-77KG</a></li>
+					<li><a href="#" onclick="flyexpressForwarder('DHLTJ')">DHL 77KG以上</a></li>
+					<li><a href="#" onclick="flyexpressForwarder('HKDHL')">香港DHL</a></li>
+					<!--<li><a href="#" onclick="flyexpressForwarder('HDUPS')">华东UPS</a></li>-->
+					<li><a href="#" onclick="flyexpressForwarder('CNUPS')">中国UPS</a></li>
+					<li><a href="#" onclick="flyexpressForwarder('CA-E')">CA-E美国空加派</a></li>
+					<li><a href="#" onclick="flyexpressForwarder('FBA-US')">美国FBA-US空加派</a></li>
+
+					
+					<li><a href="#" onclick="flyexpressForwarder('UKFBA')">欧洲空加派</a></li>
+					<li><a href="#" onclick="flyexpressForwarder('JP-FBA')">日本空加派</a></li>
+					
+					
+				</ul>			
+			</div>
+			<div class="btn-group">
+				<a href="#" id="btn_baiqianchengForwarder" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown">百千诚对接 <i class="icon-caret-down"></i></a>
+				<ul class="dropdown-menu">
+					<!-- <li><a href="{:U('baiqianchengForwarder')}?transfer_shipment_id=<?php echo $_REQUEST['transfer_shipment_id']; ?>&PostType=Y003180" >美国FBA专线</a></li> -->
+					<li><a href="#" onclick="baiqianchengForwarder('Y003180')">美国FBA专线</a></li>
+				</ul>			
+			</div>
+			<?php  } ?>
+			<a  class="btn btn-sm btn-danger" href="{:U('chukou1Declaration')}?transfer_shipment_id=<?php echo $_REQUEST['transfer_shipment_id']; ?>" target="_blank">出口易对接</a>
+			<a  class="btn btn-sm btn-danger" href="{:U('changhuiDeclaration')}?transfer_shipment_id=<?php echo $_REQUEST['transfer_shipment_id']; ?>" target="_blank">昌辉对接</a>
+			<a  class="btn btn-sm btn-danger" href="{:U('fanqiangdaDeclaration')}?transfer_shipment_id=<?php echo $_REQUEST['transfer_shipment_id']; ?>" target="_blank">凡强达对接</a>
+			<a  class="btn btn-sm btn-danger" href="{:U('tianfengDeclaration')}?transfer_shipment_id=<?php echo $_REQUEST['transfer_shipment_id']; ?>" target="_blank">天锋对接(测试中)</a>
+		</div>
+		
+		<div class="pull-right">
+			<a onclick="reset()" id="btn_reset" class="btn btn-sm btn-danger">重置</a>
+			<a onclick="save()" id="btn_save" class="btn btn-sm btn-primary">保存</a>
+		</div>
+	</div>
+	<div class="panel-body">
+		<div class="pull-left">
+			<div class="col-sm-12">
+				<b>申报须知</b>
+			</div>
+			<div class="col-sm-12">
+				1、所有渠道：需要填下 <b class="red">用途</b> 和 <b class="red">材质</b>：如橡胶，塑料，PU，硅胶等。
+			</div>
+			<div class="col-sm-12">
+				2、所有渠道：需要填好<b class="red">海关编码</b>，并且和 申报名称相对应。有修改时记得海关编码和申报名称一起修改。海关编码查询网站 <a href="https://www.hsbianma.com" target="_blank">https://www.hsbianma.com</a>
+			</div>
+			<div class="col-sm-12">
+				3、所有渠道：请勿包含违禁品名 <b class="red">gift,accessory,part,cloths,tools,toy,stationery</b>。如 Christmas gift是不行的
+			</div>
+			<div class="col-sm-12">
+				4、填写顺序：先设置左侧栏目每种产品的申报信息，刷新后系统会自动汇总到右侧栏目，然后修改右侧信息再保存。有错误可以点 重置 按钮。
+			</div>
+			<div class="col-sm-12">
+				5、技巧：点击‘修改规格’，勾选‘同时设置同商品申报信息’，再编辑保存，可快速同时设置同个商品SKU下其它所有规格的申报信息
+			</div>
+		</div>
+		
+	</div>
+</div>
+<!-- 列表显示区域  -->
+<div class="row">
+	<div class="col-sm-6 sub_left_menu">
+		<table class="table table-bordered table-striped">
+			<thead>
+				<tr>
+					<th>
+					<nobr>
+						产品
+					</nobr></th>
+					<th>
+					<nobr>
+						SKU
+					</nobr></th>
+					<th>
+					<nobr>
+						申报名(EN)
+					</nobr></th>
+					<th>
+					<nobr>
+						申报名(CN)
+					</nobr></th>
+					<th>
+					<nobr>
+						海关编码
+					</nobr></th>
+					<th>
+					<nobr>
+						用途
+					</nobr></th>
+					<th>
+					<nobr>
+						材质
+					</nobr></th>
+					<th>
+					<nobr>
+						申报价值({$marketplace.price_currency})
+					</nobr></th>
+				</tr>
+			</thead>
+			<tbody>
+				<volist name="sku_list" id="sku">
+					<tr id="{$sku.id}">
+						<td>
+							<a href="{$sku.thumbnail}" target="_blank" class="thumbnail"><img src="{$sku.thumbnail}" width="60" />
+						</td>
+						<td style="width:200px;word-break:break-all;">
+							{$sku.sku}
+							<br>
+							{$sku.sku_name}
+							<br>
+							<a data-url="{:U('V2SkuProduct/skuEdit')}?id={$sku['id']}" class="showBox btn btn-link btn-xs">修改规格</a>
+
+						</td>
+						<td>
+							<input name="declare_name_en" value="{$sku.declare_name_en}" onchange="saveStatic(this,'/v2_sku_product/fastSave?id={$sku.id}','',{})" style="width:100px;"/>
+						</td>
+						<td>
+							<input name="declare_name_cn" value="{$sku.declare_name_cn}" onchange="saveStatic(this,'/v2_sku_product/fastSave?id={$sku.id}','',{})" style="width:100px;"/>
+						</td>
+						<td>
+							<input name="hs_code" value="{$sku.hs_code}" onchange="saveStatic(this,'/v2_sku_product/fastSave?id={$sku.id}','',{})" style="width:100px;" />
+						</td>
+						<td>
+							<input name="declare_purpose" value="<?php if($sku['declare_purpose']){echo $sku['declare_purpose'];}else{echo $sku['declare_name_cn'];}?>" onchange="saveStatic(this,'/v2_sku_product/fastSave?id={$sku.id}','',{})" style="width:100px;" />
+						</td>
+						<td>
+							<input name="declare_material" value="{$sku.declare_material}" onchange="saveStatic(this,'/v2_sku_product/fastSave?id={$sku.id}','',{})" style="width:80px;" />
+						</td>
+						<td>
+							{$sku.cost}
+						</td>
+					</tr>
+				</volist>
+			</tbody>
+		</table>
+	</div>
+	<div class="col-sm-6 sub_content">
+		<form id="form_data" name="form_data" method="post" >
+			<input type="hidden" id="transfer_shipment_id" name="transfer_shipment_id" value="{$Think.request.transfer_shipment_id}"	/>
+			<volist name="package_list" id="package">
+				<div class="panel panel-default">
+				  <div class="panel-body">
+				  	<?php $package_key = $key; ?>
+				    第 {$key+1} 票，总价值：<b class="red" id="total_value_{$package.id}">{$package.total_value}</b> {$marketplace.price_currency}
+				    <input type="hidden" id="declaration_total_value_{$package.id}" name="declaration[{$package.id}][total_value]" value="{$package.total_value}" />
+				  </div>
+				</div>
+				<table class="table table-bordered table-striped" data-declaration-key="{$package.id}">
+					<thead>
+						<tr>
+							<th>申报名(EN)</th>
+							<th>申报名(CN)</th>
+							<th>海关编码</th>
+							<th>数量</th>
+							<th><nobr>申报价值({$marketplace.price_currency})</nobr></th>
+							<th><nobr>总值</nobr></th>
+						</tr>
+					</thead>
+					<tbody>
+						<volist name="package.declaration_list" id="vo">
+							<tr>
+								<td>
+									<input type="text" name="declaration[{$package.id}][declaration_list][{$key}][declare_name_en]" value="{$vo.declare_name_en}" />
+								</td>
+								<td>
+									<input type="text" name="declaration[{$package.id}][declaration_list][{$key}][declare_name_cn]" value="{$vo.declare_name_cn}" />
+								</td>
+								<td>
+									<input type="text" name="declaration[{$package.id}][declaration_list][{$key}][hs_code]" value="{$vo.hs_code}" />
+								</td>
+								<td>
+									<input style="width:80px;" type="number" class="cal_param declaration_quantity"  name="declaration[{$package.id}][declaration_list][{$key}][quantity]" value="{$vo.quantity}" />
+								</td>
+								<td >
+									<input style="width:120px;" type="number"  class="cal_param declaration_price" name="declaration[{$package.id}][declaration_list][{$key}][cost]" value="{$vo.cost}" />
+								</td>
+								<td class="declaration_price_total">
+									<?php
+										echo round($vo['cost'] * $vo['quantity'],2);
+									?>
+								</td>
+							</tr>
+						</volist>
+					</tbody>
+				</table>
+			</volist>
+		</form>
+	</div>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<style>
+.showBottomBox{cursor: pointer;}
+</style>
+
+<script type="text/javascript">
+jQuery(function($){
+
+	$(".table .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+
+	$(".cal_param").change(function(){
+		var total_value=0;
+		var declaration_key = $(this).parents("table").data('declaration-key');
+
+		
+		$("tr",$(this).parents("table")).each(function(){
+			quantity = $(".declaration_quantity",this).val();
+			price = $(".declaration_price",this).val();
+			if(quantity > 0 && price > 0){
+				total_value += quantity*price;
+			}
+			var tmp_total = price*quantity;
+			
+			$(".declaration_price_total",this).html(tmp_total.toFixed(2));
+
+		})
+		
+		total_value = Math.ceil(total_value*100) / 100;
+		$("#total_value_"+declaration_key).html(total_value);
+		$("#declaration_total_value_"+declaration_key).val(total_value);
+	}).change();
+
+});
+
+function dhlOfficialDeclaration(){
+	var data = {
+		transfer_shipment_id:$("#transfer_shipment_id").val()
+	}
+	$("#btn_dhlOfficialDeclaration").attr("disabled","disabled");
+	$.post("{:U('dhlOfficialDeclaration')}",data,function(r){
+		$("#btn_dhlOfficialDeclaration").attr("disabled",null);
+		if(r.status){
+			alert(r.info);
+		}else{
+			alertWarning(r.info);
+		}
+	})
+}
+
+function flyexpressForwarder(forwarder){
+	var data = {
+		transfer_shipment_id:$("#transfer_shipment_id").val(),
+		PostType:forwarder
+	}
+	
+	$("#btn_flyexpressForwarder").attr("disabled","disabled");
+	$.post("{:U('flyexpressForwarder')}",data,function(r){
+		$("#btn_flyexpressForwarder").attr("disabled",null);
+		if(r.status){
+			alert(r.info);
+		}else{
+			alertWarning(r.info);
+		}
+	})	
+}
+function baiqianchengForwarder(forwarder){
+	var data = {
+		transfer_shipment_id:$("#transfer_shipment_id").val(),
+		PostType:forwarder
+	}
+	
+	$("#btn_baiqianchengForwarder").attr("disabled","disabled");
+	$.post("{:U('baiqianchengForwarder')}",data,function(r){
+		$("#btn_baiqianchengForwarder").attr("disabled",null);
+		if(r.status){
+			alert(r.info);
+		}else{
+			alertWarning(r.info);
+		}
+	})	
+}
+function reset(){
+	var data = {
+		transfer_shipment_id:$("#transfer_shipment_id").val()
+	}
+	$("#btn_reset").attr("disabled","disabled");
+	$.post("{:U('resetDeclaration')}",data,function(r){
+		$("#btn_reset").attr("disabled",null);
+		if(r.status){
+			window.location.reload(true);
+		}else{
+			alertWarning(r.info);
+		}
+	})
+}
+
+function save(){
+	var data = $("#form_data").serialize();
+	$("#btn_save").attr("disabled","disabled");
+	$.post("{:U('saveDeclaration')}",data,function(r){
+		$("#btn_save").attr("disabled",null);
+		if(r.status){
+			window.location.reload(true);
+		}else{
+			alertWarning(r.info);
+		}
+	})
+}
+
+</script>

@@ -1,0 +1,54 @@
+<script type="text/javascript">
+	function del_product(id){
+		if(confirm("确定删除？")){
+			var data = {id:id}
+			$.post("{:U('OrderProduct/del')}",data,function(r){
+				if(r.status){
+					window.location.reload(true);
+				}
+			})
+		}
+	}
+
+
+	function addProduct(order_auto_id){
+		parent.$("#editProductIframe").attr("src","<?php echo U("OrderProduct/edit"); ?>?order_auto_id=" + order_auto_id);
+		parent.$("#editProduct").modal("show");
+	}
+	function editProduct(id){
+		parent.$("#editProductIframe").attr("src","<?php echo U("OrderProduct/edit"); ?>?id=" + id);
+		parent.$("#editProduct").modal("show");
+	}
+
+
+	function ship(order_auto_id){
+		parent.$("#bottomBoxIframe").attr("src","<?php echo U("OrderPackage/detail"); ?>?order_auto_id=" + order_auto_id + "&_" + Math.round(new Date().getTime()/1000));
+		parent.$("#bottomBox").modal("show");
+	}
+	function closeBox(){
+		parent.$("#order-detail-box").hide("fast");
+	}
+	$(function(){
+		$(".tbody .thumbnail").hover(
+			function(){
+				$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+				var position = $(this).position(),
+				outerWidth = $(this).outerWidth(true),
+				box_top = position.top,
+				box_left = position.left + outerWidth + 10;
+				$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+			},
+			function(){
+				$(".thumbnailBox").hide();
+			}
+		);	
+	})
+
+$(function(){
+	//保存远程图片
+	var ids = $(".tbody input[name='id[]']").serialize();
+	$("#saveThunbnail").attr("src","{:U('OrderImage/download')}?" + ids);
+	
+})
+
+</script>

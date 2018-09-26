@@ -1,0 +1,154 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" id="form_search" method="post" class="form-inline">
+
+<div class="page-header clearfix">
+	<h1 class="col-xs-2">模板列表</h1>
+	<div class="col-xs-10 pull-right">
+		<!-- <div class="form-group col-xs-2">
+			<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="last_update" id="last_update" value="{$Think.request.last_update}"   placeholder="更新时间">
+		</div>		
+		<div class="form-group col-xs-2">
+			<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="create_time" id="create_time" value="{$Think.request.create_time}"   placeholder="更新时间">
+		</div>	 -->			
+		<!-- <div class="form-group col-xs-2">
+			<label class="sr-only" >适用平台</label>
+			<select name="website" id="website" class="form-control ">
+				<option value=''>请选择</option>
+				<volist name="websiteList" id="website">
+					<option value="{$website}" <?php if($_REQUEST['website'] == $website) echo "selected"; ?>>{$website}</option>
+				</volist>
+			</select>
+		</div> -->
+		<div class="form-group col-xs-3">
+			<label class="sr-only" >q</label>
+			<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.post.q}" placeholder="可搜索模板名称，模板内容"/>
+		</div>
+		<div class="form-group">
+			<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+			<button class="btn btn-sm btn-danger" onclick="window.location.reload();" title="重置"><i class="icon-rotate-right" ></i></button>
+		</div>
+	</div>
+</div>	
+<div class="message-container" id="container_table">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="btn-group">
+				<a href="{:U('templateEdit')}" target="_blank" class="btn btn-danger" id="createTemplate">创建模板</a>
+			</div>
+		</div>
+	</div>
+	<table class="table table-hover table-bordered">
+		<tr>
+			<th width="80">
+				<label class="inline pull-left">
+					<input class="ace" type="checkbox" name="id-toggle-all" id="id-toggle-all" />
+					<span class="lbl"></span>
+					<b>序号</b>
+				</label>
+			</th>
+			<th width="120">名称</th>
+			<th style="min-width:80px;">适用平台</th>
+			<th style="min-width:80px;">适用帐号</th>
+			<th width="120" style="max-width:180px;">内容摘要</th>
+			<th>创建时间</th>
+			<th>创建用户</th>
+			<th>最后更新时间</th>
+			<th>最后更新用户</th>
+			<th>操作</th>
+		</tr>
+		<tbody class="tbody">
+		<volist name="list" id="vo">
+			<tr id="tr_{$vo.id}" >
+				<td  >
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="template_id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+				<td >
+					{$vo.name}
+				</td>
+				<td >
+					{$vo.website}
+				</td>
+				<td >
+					{$vo.account_name}
+				</td>
+				<td style="max-width:180px;word-break:break-all">
+					<?php 
+						if(strlen($vo['detail'])>80){
+							echo substr_cut($vo['detail'],80)."...";
+						}else{
+							echo $vo['detail'];
+						}
+					?>
+				</td>
+				<td><if condition="$vo.create_time neq 0">{$vo.create_time|date="y-m-d H:i:s",###}<else/>时间出错</if></td>
+				<td>{$vo.create_user_name}</td>
+				<td><if condition="$vo.last_update neq 0">{$vo.last_update|date="y-m-d H:i:s",###}<else/>未更新</if></td>
+				<td>{$vo.last_update_user_name}</td>
+			
+				<td >
+				<a href="{:U('templateEdit?id='.$vo[id])}" class="btn btn-danger btn-xs" target="_blank" >修改</a>
+					<br>
+					<br>
+					<a class="btn btn-warning btn-xs" onclick="delTemplate({$vo.id})">删除</a>
+				</td>
+			</tr>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+<!-- 警告弹窗 -->
+<div class="modal fade " id="alertBox" tabindex="-1" role="dialog" aria-labelledby="alertBoxLabel" aria-hidden="true">
+  <div class="modal-dialog">
+  	<div class="bs-example">
+      <div class="alert alert-danger fade in" id="alertStatus">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h4> </h4>
+        <p id="alerBody"></p>
+
+        <p>
+          <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal" id="alertConfirm">确认</button>
+        </p>
+      </div>
+    </div>   
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- 模态弹窗-->
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxIframe" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<script type="text/javascript">
+function delTemplate (id) {
+	if(confirm("确认删除？")){
+		$.post("{:U('save')}",{id:id,opmode:'del'},function(msg){
+			if(msg.status){
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+			
+			
+		}).error(function(){
+			alert("网络错误,请重试");
+			window.location.reload();
+		});
+	}
+	
+}
+</script>

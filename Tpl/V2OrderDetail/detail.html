@@ -1,0 +1,1066 @@
+<layout name='Layout/ace_box' />
+
+<!-- {:W('PageHeader',array('name'=>array('订单详情')))} -->
+
+<div class="panel panel-default">
+	<div class="panel-body">
+		<ul id="orderDetailNav" class="nav nav-tabs">
+			<li><a href="#order" data-id="order" data-toggle="tab" class="changeDetailNav">订单详情</a></li>
+			<li><a href="#product" data-id="product" data-toggle="tab" class="changeDetailNav">产品明细</a></li>
+			<li><a href="#address" data-id="address" data-toggle="tab" class="changeDetailNav">地址信息</a></li>
+			<li><a href="#package" data-id="package" data-toggle="tab" class="changeDetailNav">包裹信息</a></li>
+			<li><a href="#order_log" data-id="order_log" data-toggle="tab" class="changeDetailNav">订单日志</a></li>
+			<notempty name="returned_list">
+				<li><a href="#returned" data-id="returned" data-toggle="tab" class="changeDetailNav">退货登记</a></li>
+			</notempty>
+
+			<li>
+				&nbsp;&nbsp;订单序号: <b style="font-size:18px;"> <a href="{:U('V2OrderDetail/index')}?order_auto_id={$order_data.id}" target="_blank">{$order_data.id}</a></b>
+			</li>
+			<li>
+				&nbsp;&nbsp;处理状态: <b style="font-size:18px;"> {$order_data.manual_process_status|L}</b>
+			</li>
+			<li>
+				&nbsp;&nbsp;发货状态:
+				<volist name="order_data.local_status_data" id="v1">
+					<b style="font-size:18px;"> {$v1|L}</b>&nbsp;&nbsp;
+				</volist>
+			</li>
+			<li>
+				&nbsp;&nbsp;&nbsp;
+			</li>
+			<li>
+				<a data-id="{$order_auto_id_list|implode=",",###}" class="autoProcess btn btn-inverse btn-xs">自动处理</a>
+			</li>
+			<li>
+				&nbsp;|&nbsp;
+			</li>
+
+			<eq name="order_data.manual_process_status" value="Exception">
+				<li>
+					<a data-id="{$order_auto_id_list|implode=",",###}" class="cancelExceptionState btn btn-danger btn-xs">取消异常</a>
+				</li>
+			<else/>
+				<li>
+					<a data-id="{$order_auto_id_list|implode=",",###}" class="setExceptionState btn btn-primary btn-xs">标记异常</a>
+				</li>
+				
+			</eq>
+
+			<li>
+				&nbsp;|&nbsp;
+			</li>
+			<li>
+				<a class="btn btn-default btn-xs" onclick="parent.showDetail({$order_data.id},1);">刷新</a>
+			</li>
+
+			<eq name="order_data.manual_process_status" value="Package submit error">
+				<li>
+					&nbsp;|&nbsp;
+				</li>
+
+				<li>
+					<a data-id="{$order_auto_id_list|implode=",",###}" class="btn btn-info btn-xs confirmPackageNormal">已修正地址和物流重新提审</a>
+				</li>
+			</eq>
+
+		</ul>
+		<div id="orderDetailContent" class="tab-content">
+			<div class="tab-pane fade" id="order">
+				<div class="clearfix">
+					<div class="col-xs-6">
+						<b>订单序号: </b>{$order_data.id}<br>
+						<b>线上订单ID: </b>{$order_data.online_order_id}<br>
+						<b>下单时间: </b>{$order_data.order_time|default=""|date="Y-m-d H:i:s",###}<br>
+						<b>付款时间: </b>{$order_data.payment_time|default=""|date="Y-m-d H:i:s",###}<br>
+						<b>付款币种: </b>{$order_data.online_currency}<br>
+						<b>客户指定物流: </b>{$order_data.customer_express_data.online_express_type}<br>
+						<b>指定发货国家: </b>{$order_data.ship_from_country_code}<br>
+						<b>最迟发货时间: </b>{$order_data.latest_ship_time|default=""|date="Y-m-d H:i:s",###}<br>
+						<b>发货方: </b>{$order_data.fulfill_by}<br>
+						
+					</div>
+
+					<div class="col-xs-6">
+						<b>总产品售价: </b>{$order_data.currency_symbol}{$order_data.price_total}<br>
+						<b>总运费: </b>{$order_data.currency_symbol}{$order_data.shipping_fee_total}<br>
+						<b>总计: </b>{$order_data.currency_symbol}{$order_data.amount_total}<br>
+						<b>预计可得: </b>{$order_data.currency_symbol}{$order_data.estimate_total}<br>
+						<b>本地添加时间: </b>{$order_data.add_time|default=""|date="Y-m-d H:i:s",###}<br>
+						<b>系统最后同步时间: </b>{$order_data.sync_last_update|default=""|date="Y-m-d H:i:s",###}<br>
+						<b>平台最近更新时间: </b>{$order_data.online_last_update|default=""|date="Y-m-d H:i:s",###}<br>
+						<b>订单锁定: </b>{$order_data.is_lock|L}<br>
+						<b>锁定时间: </b>{$order_data.last_lock_time|default=""|date="Y-m-d H:i:s",###}<br>
+						<b>合并时间: </b>{$order_data.related_order_time|default=""|date="Y-m-d H:i:s",###}<br>
+					</div>
+				</div>
+			</div>
+			<div class="tab-pane fade active in" id="product">			
+				<?php
+					foreach ($order_list as $k1 => $order) {
+						$online_product_list = $order['online_product_data'];
+				?>
+				<span>
+					<notempty name="order.related_order_auto_id">
+						<b>合并订单</b> 共 <b><?php echo count($order_list);?></b> 个 当前第 <b class="red">{$k1+1}</b> 个 
+						<br>
+					</notempty>
+					
+					订单ID：{$order.online_order_id} <b>|</b> 子订单数：<b><?php echo count($online_product_list);?></b>
+
+					<a data-url="{:U('V2OrderDetail/localProductEdit')}?id={$order.id}" data-use_parent="1" class="showBox btn btn-primary btn-xs">编辑本地产品</a>
+				</span>
+				<table class="table table-striped table-hover table-bordered table-condensed">
+					<tr>
+						<th>操作</th>
+						<th>子订单ID|快照ID</th>
+						<th>图片</th>
+						<th>线上SKU</th>
+						<th>颜色</th>
+						<th>尺码</th>
+						<th>数量</th>
+						<th>线上备注</th>
+						<th>线上状态</th>
+						<th>产品ID | 标题</th>
+						<th>价格</th>
+						<th>预计可得</th>
+						<th>实收</th>
+					</tr>
+					<tbody class="tbody">
+						<volist name="online_product_list" id="online_product">
+							<tr>
+								<td>
+									子订单<b>{$key+1}</b>
+
+									<br>
+									<br>
+									子订单序号<b>{$online_product.id}</b>
+								</td>
+								<td>
+									<b>子订单ID: </b>{$online_product.online_item_id}
+									<neq name="online_product.online_item_id" value="$online_product.online_snapshot_id">
+										<br>
+										<br>
+										<b>快照ID: </b>{$online_product.online_snapshot_id}
+									</neq>
+
+									<br>
+									<br>
+									<b>线上跟踪号: </b>{$online_product.online_tracking_number}<br>
+									<b>回传跟踪号: </b>{$online_product.last_postback_tracking_number}<br>
+									<notempty name="online_product.last_postback_tracking_number">
+										<a data-id="{$online_product.id}" class="rePostback btn btn-inverse btn-xs">重新回传</a>
+									</notempty>
+
+									<eq name="order.fulfill_by" value="Merchant">
+										<eq name="online_product.ignore_postback" value="No">
+											<a data-id="{$online_product.id}" data-type="1" class="ignorePostback btn btn-danger btn-xs">免回传</a>
+										<else/>
+											<a data-id="{$online_product.id}" data-type="0" class="ignorePostback btn btn-inverse btn-xs">激活回传</a>
+										</eq>
+									</eq>
+								</td>
+								<td>
+									<a href="{$online_product.thumbnail}" class="thumbnail" target="_blank"><img src="{$online_product.thumbnail}" width="60" /></a>
+								</td>
+								<td>
+									{$online_product.online_sku}
+									<br>
+									<span class="red">(不能以此参考颜色和尺码)</span>
+									<br>
+									<b>规格ID: </b> {$online_product.online_variation_id}
+									<br>
+									
+									<neq name="order_data.website_id" value="20">
+										<empty name="online_product.have_sku_map">
+											<a data-url="{:U('v2_online_product_map_sku/Edit')}?online_product_auto_id={$online_product.id}" data-use_parent="1" class="showBox btn btn-inverse btn-sm">关联本地SKU</a>
+										</empty>
+
+										<empty name="online_product.have_warehouse_express_map">
+											<a data-url="{:U('V2OnlineProductMapWarehouseExpress/Edit')}?online_product_auto_id={$online_product.id}" data-use_parent="1" class="showBox btn btn-primary btn-sm">增加仓库物流规则</a>
+										<else/>
+											<a data-url="{:U('V2OnlineProductMapWarehouseExpress/Edit')}?online_product_auto_id={$online_product.id}&id={$online_product.warehouse_express_data.id}" data-use_parent="1" class="showBox btn btn-warning btn-xs">修改物流规则</a>
+											
+										</empty>
+									<else/>
+										<span class="red">手工订单请手动 编辑本地产品 和 调整包裹</span>
+									</neq>
+
+									
+								</td>
+								<td>
+									<b>{$online_product.online_color}</b>
+								</td>
+								<td>
+									<b>{$online_product.online_size}</b>
+								</td>
+								<td>
+									<b class="red">{$online_product.quantity}</b>
+								</td>
+								<td style="word-break:break-word;max-width:200px;">{$online_product.online_memo|default="无"}</td>
+								<td>
+									付款状态: {$online_product.online_payment_status|L}
+									<br>
+									<br>
+									发货状态: {$online_product.online_shipping_status|L}
+								</td>
+								<td style="word-break:break-word;max-width:200px;">
+									<b>产品ID: </b>{$online_product.online_product_id}
+									<br>
+									<a href="{$online_product.online_product_link}" target="_blank">{$online_product.online_product_name}</a>
+								</td>
+								<td>
+									价格: {$online_product.currency_symbol}{$online_product.online_price}
+									&nbsp;&nbsp;
+									运费: {$online_product.currency_symbol}{$online_product.online_shipping_fee}
+									<br>
+									<b>合计: {$online_product.currency_symbol}{$online_product.online_amount}</b>
+
+									<br>
+									产品总成本: {$online_product.product_cost} 元
+									<br>
+									运费总成本: {$online_product.shipping_cost} 元
+									
+									<br>
+									<b>成本合计: {$online_product['product_cost']+$online_product['shipping_cost']} 元
+
+								</td>
+								<td>
+									{$online_product.currency_symbol}{$online_product.estimate_total}
+									<br>
+									{$online_product.estimate_total_CNY} 元
+									
+									<if condition=" $online_product.product_cost_finished eq 'Yes' AND $online_product.shipping_cost_finished eq 'Yes'">
+										<br>
+										预计利润: <?php 
+											$estimate_total = calCurrency($online_product['estimate_total'],$online_product['online_currency'],"CNY");
+											$profit = $estimate_total - $online_product['product_cost'] - $online_product['shipping_cost'];
+											echo $profit; 
+										?> 元
+
+										<br>
+
+										<?php 
+											if($profit >= 0){
+												echo round($profit / $estimate_total,2) * 100 ."%"; 
+											}
+											
+										?>
+									<else/>
+										<br>
+										<b>成本统计未完成</b>
+									</if>
+
+									<br>
+									所属: <b>{$online_product.owner_user_name}</b>
+								</td>
+
+								<td>
+									实收:
+									{$online_product.real_loan_total} 元
+									<br>
+									<empty name="online_product.real_loan_time">
+										(未放款)
+									<else/>
+										{$online_product.real_loan_time|default=""|date="y-m-d",###}
+									</empty>
+									
+
+									<if condition=" $online_product.product_cost_finished eq 'Yes' AND $online_product.shipping_cost_finished eq 'Yes' ">
+										<notempty name="online_product.real_loan_time">
+											<br>
+											实际利润: <?php 
+												$profit = $online_product['real_loan_total'] - $online_product['product_cost'] - $online_product['shipping_cost'];
+												echo $profit; 
+											?> 元
+
+											<br>
+
+											<?php 
+												if($profit >= 0){
+													echo round($profit / $online_product['real_loan_total'],2) * 100 ."%"; 	
+												}
+											?>
+											<br>
+											<if condition=" $online_product.owner_uid eq $_SESSION['authId'] OR isAdmin('61') ">
+
+												<a data-url="{:U("V2Commission/orderCommissionView")}?online_product_auto_ids={$online_product.id}" data-use_parent="1" class="showBox btn-link">查看提成</a>
+
+											</if>
+										</notempty>
+									<else/>
+										<br>
+										<b>成本统计未完成</b>
+									</if>
+
+								</td>
+							</tr>
+							<tr >
+								<td colspan="13">
+									<table class="table table-striped table-hover table-bordered">
+										<tr>
+											<th colspan="3" class="text-center">
+												对应的本地产品 
+											</th>
+											<th>图片</th>
+											<th>规格sku</th>
+											<th>SKU名称</th>
+											<th>拣货状态</th>
+											<th>本地状态</th>
+											<th>数量</th>
+											<th>已配库存</th>
+											<th>待发货</th>
+											<th>已发货</th>
+											<th>成本</th>
+										</tr>
+										<notempty name="online_product.local_product_data">
+											<volist name="online_product.local_product_data" id="local_product">
+												<tr class="success">
+													<td class="text-right" colspan="3">
+														序号: {$local_product.id}
+
+														<br>
+														<br>
+
+														<?php
+															if($local_product['is_disabled'] == "No"){
+																if(!in_array($local_product['local_state'], array("Shipped","Returned")) && $local_product['reserved_quantity'] == $local_product['shipped_quantity']){
+														?>
+															
+															<a data-id="{$local_product.id}" class="productDisabled btn btn-danger btn-sm">废弃</a>
+
+														<?php
+																}
+															}else{
+														?>
+
+															<b style="font-size:20px;" class="red">已废弃</b>
+
+															<a data-id="{$local_product.id}" class="productActivate btn btn-inverse btn-sm">重新激活</a>
+															
+														<?php
+															}
+														?>
+													</td>
+													<td>
+														<a href="{$local_product.thumbnail}" class="thumbnail" target="_blank"><img src="{$local_product.thumbnail}" width="60" /></a>
+													</td>
+													<td>
+														{$local_product.sku}
+														
+														<a href="{:U('V2PurchaseDetail/index')}?q={$local_product.sku}" class="btn btn-primary btn-xs" target="_blank">查看采购</a>
+
+														<eq name="order.manual_process_status" value="Stockout">
+														</eq>
+														
+														<eq name="order.manual_process_status" value="Declare info incomplete">
+															<br>
+															<br>
+															<a data-url="{:U('V2SkuProduct/skuEdit')}?id={$local_product['sku_id']}&order_auto_id={$order_data.id}" data-use_parent="1" class="showBox btn btn-primary btn-xs">修改申报名称</a>
+														</eq>
+
+														<notempty name="local_product.map_sku_memo">
+															<br>
+															<br>
+															<b>规则说明:</b> {$local_product.map_sku_memo}
+														</notempty>
+													</td>
+													<td>
+														{$local_product.sku_name}
+														<br>
+														<br>
+														
+														<b>仓库:</b> {$local_product.warehouse_data.warehouse_name}
+
+													</td>
+													<td>
+														{$local_product.picking_state|L}
+														
+														<br>
+
+														<notempty name="local_product.picking_reserved_quantity">
+															<br>
+
+															<a href="{:U('V2StockPickingPlan/index')}?from_id={$local_product.id}" target="_blank" class="btn btn-primary btn-xs">查看拣货单</a> ( 已配货: {$local_product.picking_reserved_quantity} 个 )
+
+															<?php
+																if($local_product['local_returned_state'] == "Normal" && $local_product['local_state'] != "Shipped" && $local_product['is_disabled'] != "Yes"){
+															?>
+
+															<neq name="local_product.picking_reserved_quantity" value="$local_product.picking_cancal_quantity">
+																<a data-id="{$local_product.id}" class="cancelPicking btn btn-danger btn-xs">撤销拣货</a>
+															<else/>
+																<b class="red">撤销中: </b><b>{$local_product.picking_cancal_quantity}</b> 个
+															</neq>
+
+															<?php
+																}
+															?>
+														
+														</notempty>
+														
+														<notempty name="local_product.oversea_reserved_quantity">
+															<br>
+															<b>海外仓配货:</b> {$local_product.oversea_reserved_quantity} 个
+														</notempty>
+
+														<?php
+															if($local_product['stockout_state'] == "Normal"){
+																if($local_product['picking_state'] != "Finished" && $local_product['reserved_quantity'] < $local_product['quantity'] && $order['manual_process_status'] =="Stockout"){
+														?>
+
+															<!-- <a data-id="{$local_product.id}" class="productStockout btn btn-inverse btn-xs">断货</a> -->
+
+														<?php
+																}
+															}else{
+														?>
+
+															<!-- <b>已标记断货</b> -->
+
+														<?php
+															}
+														?>
+													</td>
+													<td>
+														<b>{$local_product.local_state|L}</b>
+													</td>
+													<td>
+														{$local_product.quantity} 个
+													</td>
+													<td>
+														{$local_product.reserved_quantity} 个
+													</td>
+													<td>
+														<span class="red">{$local_product.waiting_ship_quantity}</span> 个
+													</td>
+													<td>
+														{$local_product.shipped_quantity} 个
+													</td>
+													<td>
+														<a data-url="{:U("V2StockOneQuantity/viewOrderProductCost")}?local_product_auto_ids={$local_product.id}" data-use_parent="1" class="showBox btn-link">成本单价</a>: {$local_product.cost_currency_symbol}{$local_product.product_cost} 元
+														<br>
+														运费单价: {$local_product.cost_currency_symbol}{$local_product.shipping_cost} 元
+													</td>
+												</tr>
+											</volist>
+										<else/>
+											<tr>
+												<td class="text-center" colspan="2"></td>
+												<td colspan="11" class="danger text-center">
+													<b class="red">未匹配本地SKU</b>
+												</td>
+											</tr>
+										</notempty>
+									</table>
+								</td>
+							</tr>
+						</volist>
+					</tbody>
+				</table>
+				<hr>
+				<?php
+					}
+				?>
+			</div>
+
+			<div class="tab-pane fade" id="address">
+				<div class="clearfix">
+					<div class="col-xs-6">
+						<b>线上收货地址</b><br>
+						<b>名: </b>{$order.online_shipping_first_name}<br>
+						<b>姓: </b>{$order.online_shipping_last_name}<br>
+						<b>街道地址1: </b>{$order.online_shipping_street_address_1}<br>
+						<b>街道地址2: </b>{$order.online_shipping_street_address_2}<br>
+						<b>城市: </b>{$order.online_shipping_city}<br>
+						<b>省: </b>{$order.online_shipping_state}<br>
+						<b>邮编: </b>{$order.online_shipping_zipcode}<br>
+						<b>国家: </b>{$order.online_shipping_country}<br>
+						<b>电话号码: </b>{$order.online_shipping_phone}<br>
+						<notempty name="order.email">
+							<neq name="order.website_id" value="11">
+								<b>E-mail: </b><span>{$order.email}</span><br>
+							</neq>
+						</notempty>
+						<notempty name="order.ip_address">
+							<if condition=" isAdmin() ">
+								<b>IP: </b><span>{$order.ip_address}</span>
+							</if>
+						</notempty>
+					</div>
+
+					<div class="col-xs-6">
+						<b>系统收货地址</b><br> 
+						<b>名: </b>{$order.local_shipping_first_name}<br>
+						<b>姓: </b>{$order.local_shipping_last_name}<br>
+						<b>街道地址1: </b>{$order.local_shipping_street_address_1}<br>
+						<b>街道地址2: </b>{$order.local_shipping_street_address_2}<br>
+						<b>城市: </b>{$order.local_shipping_city}<br>
+						<b>省: </b>{$order.local_shipping_state}<br>
+						<b>邮编: </b>{$order.local_shipping_zipcode}<br>
+						<b>国家: </b>{$order.local_shipping_country}<br>
+						<b>电话号码: </b>{$order.local_shipping_phone}<br>
+						
+						<br>
+
+						<?php
+							if(isAdmin()){
+						?>
+							
+						<?php
+							}
+						?>
+						<a data-url="{:U('V2OrderDetail/localAddressEdit')}?id={$order.id}" data-use_parent="1"  class="showBox btn btn-primary btn-sm">修改</a>
+							
+						
+						
+					</div>
+				</div>
+			</div>		
+
+			<div class="tab-pane fade" id="package">
+				<notempty name="can_edit_package">
+					<a data-url="{:U('V2OrderPackage/orderPackageEdit')}?order_auto_id={$order_list.0.id}" data-use_parent="1" class="showBox btn btn-primary btn-sm">编辑调整包裹(保存后请点自动处理)</a>
+				</notempty>
+
+				<volist name="package_list" id="package" key="package_key">
+					<table class="table table-hover table-bordered">
+						<tr>
+							<th>包裹号</th>
+							<th>包裹信息</th>
+							<th>仓库 | 物流</th>
+							<th>规格SKU</th>
+							<th>SKU名称</th>
+							<th>SKU图片</th>
+							<th>该包裹包含的本地商品数量</th>
+							<th>订单ID</th>
+						</tr>
+						<volist name="package.order_data_list" id="order_vo" key="order_key">
+							<volist name="order_vo.local_product_data_list" id="local_product" key="product_key">
+								<tr>
+									<if condition=" $order_key eq 1 && $product_key eq 1">
+										<td rowspan="{$package.package_row}">
+											<b>包裹序号: </b>{$package.id}
+											
+											<br>
+											<b>包裹号: </b>{$package.package_code|default="未提审"}
+											<br>
+											<b>跟踪号: </b><a href="http://www.17track.net/en/track?nums={$package.forwarder_tracking_number}" target="_blank">{$package.forwarder_tracking_number|default="未获取"}</a>
+											<br>
+
+											<a href="{:U('V2OrderPackage/index')}?package_auto_id={$package.id}" target="_blank" class="btn btn-inverse btn-sm">查看</a>
+
+											<a data-url="{:U('OperateLog/view')}?id={$package.id}&table_name=v2_order_package" data-use_parent="1" class="showBox btn btn-info btn-sm">日志</a>
+
+											<notempty name="package.can_edit_package">
+												
+												<a data-url="{:U('V2OrderPackage/packageEdit')}?id={$package.id}" data-use_parent="1" class="showBox btn btn-primary btn-sm">修改包裹</a>
+												
+											</notempty>
+											<eq name="package.warehouse_data.warehouse_type" value="Local">
+												<eq name="package.forwarder_submit_state" value="Waiting submit">
+													<a class="submitPackage btn btn-info btn-sm" data-id="{$package.id}">提审</a>
+												<else/>
+													<a class="submitPackage btn btn-inverse btn-sm" data-id="{$package.id}">重新提审</a>
+												</eq>
+											</eq>
+
+											<?php
+												if(isAdmin()){
+											?>
+												<!-- <a data-url="{:U('V2OrderPackage/packageEdit')}?id={$package.id}" data-use_parent="1" class="showBox btn btn-primary btn-sm">修改包裹</a> -->
+											<?php
+												}
+											?>
+												
+										</td>
+										<td rowspan="{$package.package_row}">
+											<b>添加类型: </b> {$package.add_type|L}
+											<br>
+											<b>包裹状态: </b> {$package.package_state|L}
+											<br>
+											<b>是否打印: </b> {$package.is_print|L}
+											<br>
+											<b>发货时间: </b> <?php 
+									                            if($package['local_send_time'] > 0){
+									                                echo date("y-m-d H:i:s",$package['local_send_time']);
+									                            }else{
+									                                echo "未发货";
+									                            }
+									                        ?>
+											<br>
+											<b>出仓时间: </b> <?php 
+									                            if($package['local_out_storage_time'] > 0){
+									                                echo date("y-m-d H:i:s",$package['local_out_storage_time']);
+									                            }else{
+									                                echo "未出仓";
+									                            }
+									                        ?>
+											<br>
+										</td>
+										<td rowspan="{$package.package_row}" style="max-width:350px;">
+											<b>仓库: </b> {$package.warehouse_data.warehouse_name|default="数据错误，请联系技术人员"}
+											<br>
+											<b>物流: </b> {$package.express_type_data.express_show_name|default="数据错误，请联系技术人员"}
+
+											<br>
+											<br>
+
+											<b>重量: </b> {$package.forwarder_weight} &nbsp;&nbsp;&nbsp; <b>费用: </b> {$package.shipping_fee_total}
+											<br>
+
+											<neq name="package.warehouse_data.warehouse_type" value="Local">
+												
+												<neq name="package.package_state" value="Really ship">
+
+													<gt name="local_product.package_reserved_quantity" value="0">
+														<br>
+														<br>
+														<a data-id="{$package.id}" class="cancelOverseaPackage btn btn-danger btn-xs">撤销海外仓包裹</a>
+													</gt>
+												</neq>
+											</neq>
+										</td>
+									</if>
+									
+									<td>
+										{$local_product.sku}
+
+										<br>
+										<br>
+										<b>本地产品序号:</b> {$local_product.id}
+
+									</td>
+									<td>
+										{$local_product.sku_name}
+
+										<?php
+											if($local_product['local_state'] == "Partial shipped" || $local_product['local_state'] == "Shipped"){
+										?>
+											<br>
+											<br>
+
+											<eq name="local_product.local_returned_state" value="Returned">
+												<b class="red">已登记退货</b> {$local_product.returned_quantity} 个
+											<else/>
+												<a data-url="{:U('addReturnedEdit')}?local_product_auto_id={$local_product.id}&package_auto_id={$package.id}" data-use_parent="1" class="showBox btn btn-inverse btn-sm">登记退货</a>
+
+												<neq name="local_product.returned_quantity">
+													( <b class="red">已登记</b> {$local_product.returned_quantity} 个 )
+												</neq>
+											</eq>
+										<?php
+											}
+										?>
+									</td>
+									<td>
+										<a href="{$local_product.thumbnail}" class="thumbnail" target="_blank" style="width:80px;"><img src="{$local_product.thumbnail}"/></a>
+									</td>
+									<td>
+										总数量: <b>{$local_product.product_quantity}</b> 个<br>
+										已配货: <b>{$local_product.package_reserved_quantity}</b> 个<br>
+										待发货: <b>{$local_product.package_waiting_ship_quantity}</b> 个<br>
+										已发货: <b>{$local_product.package_shipped_quantity}</b> 个<br>
+									</td>
+
+									<if condition=" $product_key eq 1 ">
+										<td rowspan="{$order_vo.order_row}" style="width:210px;word-break:break-all;">
+											{$order_vo.online_order_id}
+
+											<br>
+											<br>
+
+											<b>订单序号:</b> {$order_vo.id}
+										</td>
+									</if>
+								</tr>
+							</volist>	
+						</volist>
+					</table>
+				</volist>
+			</div>
+
+			<div class="tab-pane fade" id="order_log">
+				
+				{$log_html}
+
+			</div>
+
+			<div class="tab-pane fade" id="returned">
+				<table class="table table-striped table-hover table-bordered table-condensed">
+					<volist name="returned_list" id="returned_data">
+						<tr>
+							<th>
+								退货序号
+							</th>
+							<th>
+								图片
+							</th>
+							<th>
+								规格SKU
+							</th>
+							<th>
+								SKU名称
+							</th>
+							<th>
+								登记数量
+							</th>
+							<th>
+								退货原因
+							</th>
+							<th>
+								登记时间
+							</th>
+							<th>
+								登记用户
+							</th>
+							<th>
+								操作
+							</th>
+						</tr>
+
+						<tr>
+							<td>
+								{$returned_data.id}
+							</td>
+							<td>
+								<a href="{$returned_data.local_product_data.thumbnail}" target="_blank"><img src="{$returned_data.local_product_data.thumbnail}" width="100" /></a></td>
+							<td>
+								{$returned_data.local_product_data.sku}
+							</td>
+							<td>
+								{$returned_data.local_product_data.sku_name}
+							</td>
+							<td>
+								{$returned_data.returned_quantity}
+							</td>
+							<td>
+								{$returned_data.reason}
+							</td>
+							<td>
+								{$returned_data.returned_time|date="Y-m-d H:i:s",###}
+							</td>
+							<td>
+								{$returned_data.returned_user_name}
+							</td>
+							<td>
+								<a class="cancelReturned btn btn-primary btn-sm" data-id="{$returned_data.id}">撤销登记</a>
+								<br>
+								<br>
+								<a href="{:U('V2StockInstockPlan/index')}?key_type=Returned&key_id={$returned_data.id}" class="btn btn-danger btn-sm" target="_blank">查看入库单</a>
+							</td>
+						</tr>
+					</volist>
+				</table>
+
+			</div>
+		</div>
+	</div>
+</div>
+<div class="thumbnailBox" style="width:220px;">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+
+<script type="text/javascript">
+$(function($){
+	$(".changeDetailNav").click(function(){
+		var id = $(this).data("id");
+		set_cookie("changeDetailNav",id);
+	});
+	$(".changeDetailNav").each(function(i){
+		var id = $(this).data("id");
+		var id_save = get_cookie("changeDetailNav");
+		if(id == id_save){
+			$(this).click();
+			return true;
+		}
+		if(!id_save && $(".changeDetailNav").length == i+1){
+			$(".changeDetailNav").eq(0).click();
+		}
+	});
+
+	$(".autoProcess").click(function(){
+		var id = $(this).data("id");
+		if(!id){
+			alertWarning("系统错误，请联系技术人员");
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('orderAutoProcess')}",{id:id},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				parent.alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				parent.alertWarning(msg.info);
+				window.location.reload();
+			}
+		}).error(function(){
+			parent.alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	})
+
+    $(".cancelPicking").click(function(){
+    	if(!confirm("确认取消拣货单？对应的拣货单将被取消")){
+    		return false;
+    	}
+    	var local_product_auto_id = $(this).data("id");
+    	var btn = $(this);
+		btn.button('loading');
+    	$.post("{:U('V2OrderDetail/cancelPicking')}",{local_product_auto_id:local_product_auto_id},function(msg){
+    		btn.button('reset');
+    		if(msg.status){
+                //parent.alertWarning(msg.info,1);
+                alert(msg.info);
+                window.location.reload();
+    		}else{
+    			parent.alertWarning(msg.info);
+    		}
+    	}).error(function(){
+    		btn.button('reset');
+    		parent.alertWarning("网络错误，请重试");
+    		return false;
+    	});
+    });
+
+    $(".cancelReturned").click(function(){
+    	if(!confirm("确认撤销？对应的入库单也将被取消")){
+    		return false;
+    	}
+    	var id = $(this).data("id");
+    	var btn = $(this);
+		btn.button('loading');
+    	$.post("{:U('V2OrderDetail/cancelReturned')}",{id:id},function(msg){
+    		btn.button('reset');
+    		if(msg.status){
+                parent.alertWarning(msg.info,1);
+                window.location.reload();
+    		}else{
+    			parent.alertWarning(msg.info);
+    		}
+    	}).error(function(){
+    		btn.button('reset');
+    		parent.alertWarning("网络错误，请重试");
+    	});
+    });
+    
+    $(".productStockout").click(function(){
+    	if(!confirm("确认断货？该订单产品将不再拣货。已拣货和发货的数量不受影响")){
+    		return false;
+    	}
+    	var id = $(this).data("id");
+    	var btn = $(this);
+		btn.button('loading');
+    	$.post("{:U('V2OrderDetail/productStockout')}",{local_product_auto_id:id,auto_process:1},function(msg){
+    		btn.button('reset');
+    		if(msg.status){
+                parent.alertWarning(msg.info,1);
+                window.location.reload();
+    		}else{
+    			parent.alertWarning(msg.info);
+    		}
+    	}).error(function(){
+    		btn.button('reset');
+    		parent.alertWarning("网络错误，请重试");
+    	});
+    });
+
+    $(".productDisabled").click(function(){
+    	if(!confirm("确认废弃？该订单产品将不再配货。已发货的数量不受影响")){
+    		return false;
+    	}
+    	var id = $(this).data("id");
+    	var btn = $(this);
+		btn.button('loading');
+    	$.post("{:U('V2OrderDetail/productDisabled')}",{local_product_auto_id:id,auto_process:1},function(msg){
+    		btn.button('reset');
+    		if(msg.status){
+                parent.alertWarning(msg.info,1);
+                window.location.reload();
+    		}else{
+    			parent.alertWarning(msg.info);
+    		}
+    	}).error(function(){
+    		btn.button('reset');
+    		parent.alertWarning("网络错误，请重试");
+    	});
+    });
+
+    $(".cancelOverseaPackage").click(function(){
+    	if(!confirm("确认撤销海外仓发货包裹？")){
+    		return false;
+    	}
+    	var id = $(this).data("id");
+    	var btn = $(this);
+		btn.button('loading');
+    	$.post("{:U('V2OrderPackage/cancelOverseaPackage')}",{id:id},function(msg){
+    		btn.button('reset');
+    		if(msg.status){
+                parent.alertWarning(msg.info,1);
+                window.location.reload();
+    		}else{
+    			parent.alertWarning(msg.info);
+    		}
+    	}).error(function(){
+    		btn.button('reset');
+    		parent.alertWarning("网络错误，请重试");
+    	});
+    });
+
+    $(".productActivate").click(function(){
+    	if(!confirm("确认激活产品？")){
+    		return false;
+    	}
+    	var id = $(this).data("id");
+    	var btn = $(this);
+		btn.button('loading');
+    	$.post("{:U('V2OrderDetail/productActivate')}",{local_product_auto_id:id,auto_process:1},function(msg){
+    		btn.button('reset');
+    		if(msg.status){
+                parent.alertWarning(msg.info,1);
+                window.location.reload();
+    		}else{
+    			parent.alertWarning(msg.info);
+    		}
+    	}).error(function(){
+    		btn.button('reset');
+    		parent.alertWarning("网络错误，请重试");
+    	});
+    });
+
+    $(".rePostback").click(function(){
+    	if(!confirm("确认重新回传？将删除回传跟踪号")){
+    		return false;
+    	}
+    	var id = $(this).data("id");
+    	var btn = $(this);
+		btn.button('loading');
+    	$.post("{:U('V2OrderDetail/rePostback')}",{online_product_auto_id:id},function(msg){
+    		btn.button('reset');
+    		if(msg.status){
+                parent.alertWarning(msg.info,1);
+                window.location.reload();
+    		}else{
+    			parent.alertWarning(msg.info);
+    		}
+    	}).error(function(){
+    		btn.button('reset');
+    		parent.alertWarning("网络错误，请重试");
+    	});
+    });
+
+    $(".ignorePostback").click(function(){
+    	if(!confirm("确认免回传？修改或新建包裹将不会回传")){
+    		return false;
+    	}
+    	var id = $(this).data("id");
+    	var type = $(this).data("type");
+    	var btn = $(this);
+    	var data = {online_product_auto_id:id,ignore_postback:type};
+		btn.button('loading');
+    	$.post("{:U('V2OrderDetail/ignorePostback')}",data,function(msg){
+    		btn.button('reset');
+    		if(msg.status){
+                parent.alertWarning(msg.info,1);
+                window.location.reload();
+    		}else{
+    			parent.alertWarning(msg.info);
+    		}
+    	}).error(function(){
+    		btn.button('reset');
+    		parent.alertWarning("网络错误，请重试");
+    	});
+    });
+    
+    $(".cancelExceptionState").click(function(){
+
+		var id = $(this).data("id");
+		if(!confirm("确认取消 订单异常 状态？将会自动进行一次 自动处理")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('cancelExceptionState')}",{id:id},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+    $(".setExceptionState").click(function(){
+		var id = $(this).data("id");
+		if(!confirm("确认标记为 订单异常?")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('setExceptionState')}",{id:id},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+    
+    $(".submitPackage").click(function(){
+        var id = $(this).data("id");
+        
+        if(!confirm("确认提审？将覆盖当前的包裹信息")){
+            return false;
+        }
+        var btn = $(this);
+        btn.button('loading');
+        $.post("{:U('V2OrderPackage/submitPackage')}",{id:id},function(msg){
+            btn.button('reset');
+            if(msg.status){
+                parent.alertWarning(msg.info,1);
+                window.location.reload();
+            }else{
+                parent.alertWarning(msg.info);
+            }
+        }).error(function(){
+            btn.button('reset');
+            parent.alertWarning("网络错误，请重试");
+            return false;
+        });
+    });
+
+  
+	$(".confirmPackageNormal").click(function(){
+		var id = $(this).data("id");
+		if(!confirm("确认已修正地址和物流，将重新提审？")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('confirmPackageNormal')}",{id:id},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+});
+</script>

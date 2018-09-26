@@ -1,0 +1,171 @@
+<layout name='Layout/ace_box' />
+
+<script type="text/javascript" src="__PUBLIC__/js/echarts/build/dist/echarts.js"></script>
+
+<form name="form_search" id="form_search" action="{:U()}" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+
+	<input class="form-control" type="hidden" id="sku_unique_key" name="sku_unique_key" value="{$Think.request.sku_unique_key}" />
+	<input class="form-control" type="hidden" id="advertised_sku" name="advertised_sku" value="{$Think.request.advertised_sku}" />
+	<input class="form-control" type="hidden" id="keyword" name="keyword" value="{$Think.request.keyword}" />
+	<input class="form-control" type="hidden" id="match_type" name="match_type" value="{$Think.request.match_type}" />
+	<input class="form-control" type="hidden" id="start_date" name="start_date" value="{$Think.request.start_date}" />
+	<input class="form-control" type="hidden" id="account_id" name="account_id" value="{$Think.request.account_id}" />
+	
+	<div class="page-header clearfix">
+		<h1 class="col-sm-2">{$title}</h1>
+		<div class="col-sm-10 pull-right">
+
+			<div class="input-group col-sm-3">
+		        <div class="input-group">
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="start_date" id="start_date" value="{$Think.request.start_date}" placeholder="时间段">		            <span class="input-group-btn">
+		                <button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+		            </span>
+		        </div>
+		    </div>
+		</div>
+	</div>
+
+	<div class="operate panel panel-default">
+	    <div class="panel-body">
+
+	        <div class="btn-group">
+	        	活动: <b>{$_REQUEST['campaign_name']|urldecode}</b> | 
+	        	组: <b>{$_REQUEST['ad_group_name']|urldecode}</b> | 
+	        	SKU: <b>{$_REQUEST['advertised_sku']|urldecode}</b> | 
+	        	Keyword: <b>{$_REQUEST['keyword']|urldecode}</b> | 
+	        	match_type: <b>{$_REQUEST['match_type']|urldecode}</b> | 
+	        </div>
+	     
+	    </div>
+	</div>
+	<div class="operate panel panel-default">
+	    <div class="panel-body">
+
+	        <div class="btn-group">
+	        	<foreach name="total_data" item="total">
+	        		&nbsp;{$type_list[$key]}:&nbsp;<b>{$total}</b>&nbsp;|&nbsp;
+	        	</foreach>
+	        
+	        </div>
+	     
+	    </div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-body">
+			
+
+			<div class="col-sm-12 align-center">
+				<span>
+					<b>销量:</b> {$quantity_total} 个
+				</span>
+				<span>
+					<b>订单数据:</b> {$count_total} 单
+				</span>
+				<span>
+					<b>预计销售额:</b> {$estimate_total} 元
+				</span>	
+				<span>
+					<b>实收:</b> {$real_loan_total_total} 元
+				</span>
+				<if condition=" isAdmin() ">
+					<a class="showProfit">显示</a>
+					<span class="profit_span" style="display:none;">
+						<b>预计利润:</b> {$profit_total} 元
+					</span>	
+					<span class="profit_span" style="display:none;">
+						<b>实收利润:</b> {$real_profit_total} 元
+					</span>
+				</if>
+			</div>
+
+			<div class="col-sm-12 align-center">
+				<div id="canvasDiv" style="height:600px;width:90%;">
+					<!-- <div class="col-sm-12 chart_list" id='canvasDiv'></div>		 -->
+				</div>		
+			</div>
+		</div>
+	</div>
+</form>
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+
+<script type="text/javascript">
+
+var label_list=<?php echo json_encode($label_list); ?>;
+
+var variation_legend_list=<?php echo json_encode($label_name_list); ?>;
+var variation_data= <?php echo json_encode($chartByCount); ?>	
+var variation_option  = {
+	    tooltip : {
+	        trigger: 'axis'
+	    },
+	    legend: {
+	    	selected: {	
+	        },
+	        data:variation_legend_list,
+	        // orient:"vertical",
+	        x:"left",
+	    },
+	    toolbox: {
+	        show : true,
+	        feature : {
+	            mark : {show: true},
+	            dataView : {show: true, readOnly: false},
+	            magicType : {show: true, type: ['bar', 'line']},
+	            restore : {show: true},
+	            saveAsImage : {show: true}
+	        }
+	    },
+	    calculable : true,
+	    xAxis : [
+	        {
+	            type : 'category',
+	            boundaryGap : true,
+
+	            data : label_list,
+	        }
+	    ],
+	    yAxis : [
+	        {
+	            type : 'value',
+	            
+	        }
+	    ],
+
+	    series :variation_data,
+	};           
+
+var variationChart = function(){
+	// 路径配置
+	require.config({
+	    paths: {
+	        echarts: '__PUBLIC__/js/echarts/build/dist'
+	    }
+	});
+	// 使用
+    require(
+        [
+            'echarts',
+            'echarts/chart/bar',
+            'echarts/chart/line',
+        ],
+        function (ec) {
+            // 基于准备好的dom，初始化echarts图表
+            var myChart = ec.init(document.getElementById('canvasDiv')); 
+              // 为echarts对象加载数据 
+	        myChart.setOption(variation_option); 
+	    }
+    );
+}
+
+
+$(function($){
+
+	variationChart();
+})
+</script>

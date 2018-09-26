@@ -1,0 +1,88 @@
+var data_list=[];
+var jj=0;
+var success=0;
+var account=$.trim($('.container-fluid .pull-right .nav').eq(0).find('li').text().toLowerCase()).replace(' ','');
+
+//$('body').append('<script type="text/javascript" src="{:U('AnalysisWishService/chooseAccountJs','',true,false,true)}"></script>');
+
+function choose_account(){
+
+	// if(confirm("确定是该帐号？")){
+	// 	account_id=$('#acount_id_choose').val();
+	// 	getData(0,data_list,0);
+	// }
+}
+function getData (ii,data_list,attempt) {
+	var obj_list=$('#aggregate-table tbody a');
+	console.log(data_list.length);
+	if(ii>=obj_list.length){
+		uploadData(data_list);
+		return data_list;
+	}
+
+	var obj=obj_list.eq(ii);
+
+	if(obj.attr("date-stamp")!=undefined){
+		var url="https://merchant.wish.com/stats/product/weekly/export?target_date="+obj.attr("date-stamp")+"&stats_type=customer_service&merchant_id=";
+		$.get(url,function(msg){
+			if(msg){
+				var tmp=msg.split("\n");
+				for (var i = 0; i < tmp.length; i++) {
+					if(tmp[i].indexOf("0.00,0,0,0.00%,0.00,0.00%")=="-1"){
+						data_list.push(tmp[i]);
+					}
+				};
+				ii++;
+				getData(ii,data_list,0);
+			}else{
+				alert("错误");
+			}
+		}).error(function(){
+			attempt=attempt+1;
+			if(attempt>3){
+				alert("网络错误，请重试");
+			}else{
+				getData(ii,data_list,attempt);	
+			}
+		});
+		
+	}else{
+		ii++;
+		getData(ii,data_list,0);
+	}
+}
+
+function uploadData(){
+	if($("#uploadData").length<=0){
+		$("body").append("<div id='uploadData'></div>");
+	}
+	if(jj==undefined){
+		jj=0;
+	}
+
+	var div_obj=$("#uploadData");
+	var upload_data=[];
+	for (var i = 0; i <= 3; i++) {
+		if(data_list[jj]==undefined){
+			var finish=1;
+			break;
+		}
+		upload_data.push("data[]="+data_list[jj]);
+		jj++;
+	};
+	var url=upload_data.join("&");
+	
+	url+=("&account="+account);
+
+	if(finish==1){
+		url=url+("&finish=1&count="+jj);	
+	}
+	url="?"+encodeURI(url);
+
+	div_obj.html('<script type="text/javascript" src="{:U('AnalysisWishService/getDataService','',true,false,true)}'+ url +'"></script>');
+}
+
+function alertMsg(cc){
+	alert("插入"+cc+"条数据");
+}
+getData(0,data_list,0);

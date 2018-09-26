@@ -1,0 +1,207 @@
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	// ace.settings.sidebar_collapsed(true);
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position();
+			console.log(position);
+			outerWidth = $(this).outerWidth(true);
+			box_top = position.top-80;
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);	
+	// $("tbody.tbody tr").click(function(){
+	// 	$("tbody.tbody tr").removeClass("success");
+	// 	$(this).addClass("success");
+	// 	var order_detail_box = $("div.order-detail-box");
+	// 	var id = $(this).find("input[name='id[]']").val();
+
+	// 	//parent.window.frames["order-detail-iframe"].document.write("");
+	// 	//parent.window.frames["order-detail-iframe"].document.close();
+		
+	// 	if($("#order-detail-iframe").attr("src").indexOf(id) > 0 ){
+	// 		order_detail_box.show();
+	// 		return true;
+	// 	}
+			
+		
+	// 	var box_top = document.documentElement.clientHeight - order_detail_box.height();
+	// 	var box_width = window.screen.availWidth;
+	// 	order_detail_box.css({display:"block",top:box_top + "px",width:box_width + "px"});
+	// 	$("#order-detail-iframe").attr("src","{:U('orderDetail/detail')}?id=" + id + "&_"+  Math.round(new Date().getTime()/1000));
+	// });
+
+
+	//如果只有一条记录，默认打开详细框
+	if($("tbody.tbody tr").length == 1){
+		$("tbody.tbody tr").click();
+	}
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}
+	if($("#oaid").val() != ''){
+		$("#oaid").focus().select();
+	}
+	$("#oaid").click(function(){
+		$(this).select();
+	})
+})
+
+
+
+//操作模式
+function setMode(mode){
+	//先清空所有筛选的input
+	$("input[name^='filter']").remove();
+
+	if(mode == 'purchasePriority'){
+		$("#form_search").append('<input name="filter[local_state][New]" value="New" />');
+		$("#form_search").append('<input name="filter[order_state][Waiting ship]" value="Waiting ship" />');
+		$("#form_search").append('<input name="filter[order_state][Shipped]" value="Shipped" />');
+		for(var i= 2;i<10;i++){
+			$("#form_search").append('<input name="filter[quantity][' +i+ ']" value="' +i+ '" />');	
+		}
+		$("#order").val("quantity");
+		$("#sort").val("0");
+		$("input[name='list_rows']").val("2000");
+		$("#form_search").submit();
+	}
+
+	if(mode == 'purchase'){
+		$("#form_search").append('<input name="filter[local_state][New]" value="New" />');
+		$("#form_search").append('<input name="filter[order_state][Waiting ship]" value="Waiting ship" />');
+		$("#form_search").append('<input name="filter[order_state][Shipped]" value="Shipped" />');
+		$("input[name='list_rows']").val("2000");
+		$("#form_search").submit();
+	}
+	if(mode == 'ship'){
+		$("#form_search").append('<input name="filter[local_state][New]" value="New" />');
+		$("#form_search").append('<input name="filter[local_state][Waiting ship]" value="Waiting ship" />');
+		$("#form_search").append('<input name="filter[local_state][Purchasing]" value="Purchasing" />');
+		$("#form_search").append('<input name="filter[local_state][Waiting ship]" value="Waiting ship" />');
+		$("#form_search").append('<input name="filter[order_state][Shipped]" value="Shipped" />');
+		$("#order").val("order_time");
+		$("#sort").val("1");
+		$("#form_search").submit();
+	}
+
+	//导出E邮宝 
+	if(mode == 'outputEPost'){
+		$("#form_search").append('<input name="outputEPost" value="1" />');
+
+		$("input[name='list_rows']").val("2000");
+		$("#form_search").submit();
+	}
+}
+
+function mark(action){
+	var vars = $(".tbody input[type=checkbox]").serialize();
+
+	switch (action) {
+		case "flag":
+			if(vars == ''){
+				alert("请选择操作项!");
+				$("input[name^='binary_key']").prop('checked', false);
+				return false;
+			}
+			var binary_key = $("input[name='binary_key']:checked").val();
+			vars = vars + "&binary_key=" + binary_key;
+			sendAjax("{:U('mark?action=flag')}", vars, function(data) {
+					if (data.status) {
+						$("#form_search").submit();
+					}
+				});
+			$("input[name^='binary_key']").prop('checked', false);
+		break;
+		case "unflag":
+			if(vars == ''){
+				alert("请选择操作项!");
+				$("input[name^='binary_key']").prop('checked', false);
+				return false;
+			}
+			var binary_key = $("input[name='binary_key']:checked").val();
+			vars = vars + "&binary_key=" + binary_key;
+			sendAjax("{:U('mark?action=unflag')}", vars, function(data) {
+					if (data.status) {
+						$("#form_search").submit();
+					}
+				});
+			$("input[name^='binary_key']").prop('checked', false);
+		break;
+		case "local_state":
+			if(vars == ''){
+				alert("请选择操作项!");
+				return false;
+			}
+			var local_state = $("#local_state").val();
+			vars = vars + "&local_state=" + local_state;
+			sendAjax("{:U('mark?action=local_state')}", vars, function(data) {
+					if (data.status) {
+						$("#form_search").submit();
+					}
+				});
+		break;
+
+	}
+
+}
+
+////////////////--dylan////////////
+function editSource(id){
+	$("#bottomBox1Iframe").attr("src","<?php echo U("OrderSource/sourceEdit"); ?>?id=" + id);
+	var height=document.documentElement.clientHeight;
+	$("#bottomBox1Iframe").css("height",height+50+'px');
+
+	$("#bottomBox1").modal("show");
+	return false;
+}
+
+function addSource(){
+	var height=document.documentElement.clientHeight;
+	$("#bottomBox1Iframe").attr("src","<?php echo U("OrderSource/sourceEdit"); ?>");
+	$("#bottomBox1Iframe").css("height",height+50+'px');
+
+	$("#bottomBox1").modal("show");
+	return false;
+}
+
+function delSource(id){
+	if(confirm("确认删除?")){
+		$.post("{:U('save')}",{id:id,opmode:'del'},function(msg){
+			if(msg.status){
+				alert(msg.info);
+				parent:window.location.reload();
+			}else{
+				alertWarning(msg.info);	
+			}
+			
+
+		});
+	}
+}
+
+// --></mce:script>
+</script>

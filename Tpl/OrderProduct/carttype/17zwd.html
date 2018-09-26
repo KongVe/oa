@@ -1,0 +1,79 @@
+<html>
+<head>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" href="__PUBLIC__/assets/css/bootstrap.min.css"  />
+	<script src='__PUBLIC__/assets/js/jquery-1.9.1.min.js'></script>
+	<script src='__PUBLIC__/assets/js/common.js'></script>
+	<script type="text/javascript">
+		$(function() {
+			$('.del_span').hover(
+				function(){
+					$(this).children().show();
+				},
+				function () {
+					$(this).children().hide();
+				});
+			$('.del_btn').click(function(){
+				if(confirm('确认删除？')){
+					var id=$(this).data('id');
+					$.post("{:U('delCartOne')}",{key:'888',itemId:id},function(msg){
+						if(msg.status==1){
+							$('#tr_'+id).remove();
+							//window.location.reload();
+						}else{
+							alert(msg.info);
+						}
+					})
+				}
+				
+			})
+		})
+	</script>
+	<style type="text/css">
+		.del_btn{
+			display: none;
+		}
+		.del_span{
+			width: 50px;
+			height: 50px;
+			display: block;
+		}
+	</style>
+</head>
+<body>
+<table class="clearfix sourceHtml" width="100%" border="1" >
+	<!-- <tr>
+		<th>SKU</th>
+		<th>图片</th>
+		<th>链接</th>
+		<th>档口</th>
+		<th>货号</th>
+		<th>颜色</th>
+		<th>尺码</th>
+		<th>数量</th>
+		<th>单价</th>
+		<th>操作</th>
+	</tr> -->
+	<volist name='cartList' id='item'>
+		<tr id="tr_{$item.itemId}" height="70" <?php if($item['line']==1){ ?> style=" background-color: #E7E7E7;" <?php }?> >
+			<td>{$item.sku}</td>
+			<td><img src="{$item.thumbnail}" height="60" /></td>
+			<td><a href="{$item.link}" target="_blank">{$item.link}</a></td>
+			<td>{$item.location}</td>
+			<td>{$item.item_number}</td>
+			<td>{$item.color}</td>
+			<td>{$item.size}</td>
+			<td>{$item.quantity}</td>
+			<td>
+				<span class="editStatic" field="price" onclick="editStatic(this,'{:U('OrderProduct/editCart')}?id={$key}')">{$item.price}</span>
+			</td>
+			<td>{$item.phone_number}</td>
+			<td><span class="del_span"><a data-id="{$item.itemId}" class="del_btn btn btn-danger">删除</a></span></td>
+		</tr>
+	</volist>
+</table>
+
+
+
+		
+

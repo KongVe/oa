@@ -1,0 +1,225 @@
+<span class="help-block red">注意调节利润率在0.6以上，才能做促销</span>
+<div class="form-group">
+	<label class="control-label">分类</label>
+	<input type="hidden" name="categoryId" id="categoryId" value="0" />
+</div>
+<div class="form-group">
+	<div class="col-sm-3">
+		<select name="categoryLevel1" id="categoryLevel1" class="form-control" onchange="getCategoryList(1)">
+			<option value="">请选择分类---</option>
+			<volist name="formData.categoryList" id="category">
+				<option value="{$category.id}">{$category.names.zh} >>></option>
+			</volist>
+		</select>
+	</div>
+	<div class="col-sm-3">
+		<select name="categoryLevel2" id="categoryLevel2" class="form-control" style="display:none;" onchange="getCategoryList(2)">
+		</select>	
+	</div>
+	<div class="col-sm-3">	
+		<select name="categoryLevel3" id="categoryLevel3" class="form-control" style="display:none;" onchange="getCategoryList(3)">
+		</select>	
+	</div>
+	<div class="col-sm-3">	
+		<select name="categoryLevel4" id="categoryLevel4" class="form-control" style="display:none;" onchange="getCategoryList(4)">
+		</select>	
+	</div>		
+	<div class="col-sm-3">	
+		<select name="categoryLevel5" id="categoryLevel5" class="form-control" style="display:none;" onchange="getCategoryList(5)">
+		</select>	
+	</div>
+	<div class="col-sm-12" id="alertInfo" style="color:red;">	
+		
+	</div>		
+</div>
+<div class="form-group col-sm-5">
+	<label class="control-label">运费模板</label>
+	<select name="freightTemplateId" class="form-control" id="freightTemplateId">
+		<option value=''>---请选择运费模板</option>
+		<volist name="formData.freightTemplateList" id="template">
+			<option value="{$template.templateId}">{$template.templateName}</option>
+		</volist>
+	</select>
+</div>
+<div class="form-group col-sm-5">
+	<label class="control-label">服务模板</label>
+	<select name="promiseTemplateId" class="form-control" id="promiseTemplateId">
+		<option value=''>---请选择服务模板</option>
+		<volist name="formData.promiseTemplateList" id="template">
+			<option value="{$template.id}">{$template.name}</option>
+		</volist>
+	</select>
+</div>
+<div class="form-group col-sm-12">
+	<label class="control-label">产品分组</label>
+	<select name="productGroupIds[]" id="producgGroupIds" onchange="productGroupLimit()"  class="form-control" style="width:40%;" multiple="multiple" >
+		<volist name="formData.productGroupList" id="group">
+			<option value="{$group.groupId}" <?php if($group['childGroup']){echo "disabled";} ?>  >{$group.groupName}</option>
+			<volist name="group.childGroup" id="childGroup">
+				<option value="{$childGroup.groupId}" <?php if($childGroup['childGroup']){echo "disabled";} ?>>-->{$childGroup.groupName}</option>
+				<volist name="childGroup.childGroup" id="childGroup2">
+					<option value="{$childGroup2.groupId}">-->{$childGroup2.groupName}</option>
+				</volist>				
+			</volist>
+		</volist>
+	</select>
+	<span class="help-block">只能选择三个。</span>
+</div>
+<div class="form-group col-sm-6">
+	<label class="control-label">描述开头的信息模块</label>
+	<select name="productDetailModuleId1">
+		<option value=''>---请选择信息模块</option>
+		<volist name="formData.productDetailModuleList" id="module">
+			<option value="{$module.id}">{$module.name}</option>
+		</volist>
+	</select>
+</div>
+<div class="form-group col-sm-6">
+	<label class="control-label">描述结尾的信息模块</label>
+	<select name="productDetailModuleId2">
+		<option value=''>---请选择信息模块</option>
+		<volist name="formData.productDetailModuleList" id="module">
+			<option value="{$module.id}">{$module.name}</option>
+		</volist>
+	</select>
+</div>
+<div class="form-group col-sm-12">
+	价格 = ( ( ( 成本 + 国内运费 ) / ( 1 - 利润率) + 利润<input type="text" name="profit_plus" value="0" size=3 />RMB ) / 汇率<input type="text" name="exchange_rate" value="6" size=3 />  + 运费 / (1 - 利润率 ) - 运费  ) / ( 1 - 手续费<input type="text" name="handle_rate" value="0.05" size=3 />)
+</div>		
+<div class="form-group col-sm-12">
+	运费 = ( 重量 * 每kg运费<input type="text" name="shipping_fee" value="100" size=3 /> + 挂号费<input type="text" name="barcode_fee" value="15" size=3 /> ) / 汇率<input type="text" name="exchange_rate" value="6" size=3 /> 
+</div>		
+<?php /*
+<div class="form-group">
+	<label class="control-label">运费调节 = 
+		<input type="text" name="shipping_adjust" value=0 size=4/>%
+	</label>
+	<span class="help-block">
+		可以把 百分比 的运费 转移到价格上
+	</span>
+</div>
+*/ ?>
+<div class="form-group col-sm-12">
+	<label class="control-label">是否免邮</label><br>
+	<label class="radio-inline">
+	  <input type="radio"  name="free_shipping" value="0" > 否
+	</label>
+	<label class="radio-inline">
+	  <input type="radio"  name="free_shipping" value="1" checked> 是
+	</label>	
+	<span class="help-block">
+		免邮的话，会把全部运费转移到价格上
+	</span>				
+</div>	
+<div class="form-group col-sm-12">
+	<label class="control-label">是否添加水印</label><br>
+	<label class="radio-inline">
+	  <input type="radio"  name="have_watermark" value="0" > 否
+	</label>
+	<label class="radio-inline">
+	  <input type="radio"  name="have_watermark" value="1" checked> 是
+	</label>	
+	<span class="help-block">
+		添加自制水印到主图上。
+	</span>
+</div>	
+<div class="clearfix"></div>
+<!-- <div class="form-group">
+	<a id="delPicturesUnused" onclick="delPicturesUnused()" class="btn btn-danger">删除无引用图片</a>
+</div> -->
+
+<script type="text/javascript">
+
+//删除无引用图片
+function delPicturesUnused(currentPage){
+	$("#delPicturesUnused").attr("disabled","disabled").html("正在删除...");
+	if(currentPage == undefined){
+		currentPage = 2;
+	}
+	console.log(currentPage)
+	$.ajax({
+		type:"POST",
+		url:"{:U('delPicturesUnused')}",
+		data:$("#dataForm").serialize() + "&currentPage=" + currentPage,
+		cache:false,
+		success:function(r){
+			if(r.status){
+				$("#delPicturesUnused").attr("disabled",null).html("删除无引用图片");
+				if(r.data.currentPage > 0){
+					$(".progress").show();
+					processRate = r.data.currentPage / r.data.totalPage * 100;
+					$(".progress-bar").css("width", processRate + "%");
+					delPicturesUnused(r.data.currentPage);
+				}else{
+					alert("删除完成");
+					$(".progress").hide();
+					$("#delPicturesUnused").attr("disabled",null).html("删除无引用图片");
+				}
+				
+			}else{
+				alert(r.info);
+			}
+		},
+		error:function(XMLHttpRequest,textStatus){
+			delPicturesUnused();
+		}
+	})
+}
+
+
+//限制只能选中三个分组
+function productGroupLimit(){
+	var val = $("#producgGroupIds").val();
+	
+	if(val.length == 3){
+		$("#producgGroupIds option").attr("disabled","disabled");
+		$("#producgGroupIds option:selected").attr("disabled",null);
+	}else{
+		$("#producgGroupIds option").attr("disabled",null);
+		return true;
+	}
+}
+
+function getCategoryList(categoryLevel){
+
+	for(var i = 5; i > categoryLevel; i--){
+		$("#categoryLevel" + i).hide();
+	}
+
+	var categoryId = $("#categoryLevel" + categoryLevel).val();
+	var categoryName=$("#categoryLevel" + categoryLevel).html();
+
+	if(categoryName.indexOf(">>>")!='-1'){
+		$('#alertInfo').html('正在获取子类目...');
+	}
+
+	$("#categoryId").val(categoryId);
+	data = $("#dataForm").serialize();
+	$.post("{:U('getCategoryList')}",data,function(r){
+		if(r.status){
+			var html = '<option value="">请选择分类。。。</option>';
+			$.each(r.data,function(i,n){
+				html += '<option value="' + n.id + '">' + n.names.zh;
+				if(n.isleaf == false)
+					html += "   >>>";
+
+				html += "</option>";
+			})
+
+			$("#categoryLevel" + (categoryLevel+1)).html(html).show();
+
+		}else{
+			alert(r.info);
+		}
+		$('#alertInfo').html('');
+	}).error(function(){
+		$('#alertInfo').html('获取失败，请重试');
+	});
+
+}
+
+$(function(){
+	$("input[name^='profit_range']").each(function(){this.value = 0.1});
+
+})
+</script>

@@ -1,0 +1,50 @@
+<script type="text/javascript">
+jQuery(function($){
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+})
+
+
+function closeBox(){
+	parent.$("#order-detail-box").hide("fast");
+}
+
+function edit(id){
+	parent.$("#middleBoxIframe").attr("src","<?php echo U("AmazonFbaPlan/edit"); ?>?id=" + id);
+	parent.$("#middleBox").modal("show");
+}
+
+function del(id){
+	if(window.confirm("确定删除？")){
+		$("#btn_del_" + id).attr("disabled","disabled");
+		data = {
+			id:id,
+			opmode:'del',
+			edit_plan_ship_quantity:1
+		}
+		$.post("{:U('save')}",data,function(r){
+			if(r.status){
+				$("#form_search").submit();
+			}else{
+				alertWarning(r.info);
+			}
+			$("#btn_del_" + id).attr("disabled",null);
+		})
+	}
+}
+
+
+</script>

@@ -1,0 +1,167 @@
+var uploadCount;
+var uploadTotal;
+
+function postOrder(data,order){
+
+  item = data.item;
+  transaction = data.transaction;
+  shipping = item.shipping_details;
+  ourUrl = "account=" + item.merchant_name 
+  + "&sku=" + item.manufacturer_id 
+  + "&product_name=" + item['name'] 
+  + "&order_state=" + item['state'] 
+  + "&color=" + item['color'] 
+  + "&size=" + item['size'] 
+  + "&quantity=" + item['quantity']
+  + "&image_url=" + item.image_url 
+  + "&product_id=" + item['product_id'] 
+  + "&add_time=" +  order.date 
+  + "&variation_id=" + item.variation_id
+  + "&order_id=" + order.transaction_id 
+  + "&price=" + item.merchant_price 
+  + "&shipping_fee=" + item.shipping 
+  + "&total=" + order.total 
+  + "&real_price=" + order.cost
+  + "&last_update=" + order.last_update 
+  + "&client_id=" + transaction.user_id 
+  + "&order_link=https://merchant.wish.com/transaction/" + order['id']
+  + "&city=" + shipping.city 
+  + "&country=" + shipping.country 
+  + "&name=" + shipping['name'] 
+  + "&phone=" + shipping.phone_number 
+  + "&provider=" + shipping.provider  
+  + "&shipped_date=" + shipping.shipped_date 
+  + "&state=" + shipping.state
+  + "&adr1=" + shipping.street_address1 
+  + "&adr2=" + shipping.street_address2 
+  + "&tracking_id=" + shipping.tracking_id 
+  + "&tracking_url=" + shipping.tracking_url
+  + "&zipcode=" + shipping.zipcode 
+  + "&refunded_by=" + item.refunded_by 
+  + "&refund_reason_category=" + item.refund_reason_category
+  + "&country_code=" + shipping.country_code;  
+
+  if(typeof(page_name)!='undefined'){
+    ourUrl += "&page_name=" +page_name; 
+  }
+  //page_name嵌入此文件前定义并赋值:Action / History;
+  
+  ourUrl = ourUrl.replace(/#/g,"No.");
+  ourUrl = encodeURI(ourUrl);
+
+  ourUrl = "{:U('Order/wishImport','',true,false,true)}?" + ourUrl
+  $("body").append('<script type="text/javascript" src="'+ ourUrl +'"></script>');
+}
+
+
+var new_order_count = $("#action-required-count").html();
+var pageParams = {};
+//if(window.location.href.indexOf("transactions/action") >= 0){
+if(page_name=='Action'){
+  pageParams.attention = "true";
+}else{
+  pageParams.attention = "false";
+}
+
+
+//if($(".option-item").html().match(/Showing\s+(\d+)/)[1]>0){
+  // if(synch_order_count!=0){
+      pageParams.count = synch_order_count; //orderSyn/js里设置的变量
+  // }else{
+  //    pageParams.count = 250;
+  // }
+
+  pageParams['start'] = 0;//parseInt($(".option-item").html().match(/Showing\s+(\d+)/)[1]) - 1;
+  //pageParams.count = 250; //parseInt($("#display-count").val());
+  //pageParams.count = 3;
+  pageParams.ack = "false";
+  //pageParams.search_type = $("#search-type").val();
+  //pageParams.query = $("#transaction-search").val();
+  //var sortOrderBy = $(".double-arrow").filter(".up-arrow");
+  // if(!sortOrderBy[0]){
+  //   sortOrderBy = $(".double-arrow").filter(".down-arrow"); 
+  // }
+  // pageParams.sort = sortOrderBy.attr("sort");
+  // pageParams.order = sortOrderBy.attr("state");
+  if(pageParams.order == "0"){
+    pageParams.order = "asc";
+  }else{
+    pageParams.order = "desc";
+  }
+  // var search_label = $(".search-label").html();
+  // if(search_label){
+  //   if(search_label.indexOf("SHIPPED transactions") >= 0)
+  //     pageParams.filter = "shipped";
+  //   if($.trim(search_label) == 'Showing     <a class="close">×</a>')
+  //     pageParams.filter = "refunded-by-admin";
+  //   if(search_label.indexOf("REFUNDED transactions") >= 0)
+  //     pageParams.filter = "refunded";
+  // }
+
+  uploadCount = 0;
+  getOrderList(pageParams,0);
+
+//}else{
+  
+//}
+
+////////////////////////////////////////////
+
+
+//获取订单列表 
+function getOrderList(pageParams,attempt){
+   
+    $.ajax({
+      url:"https://merchant.wish.com/api/merchant/transactions/get",
+      data:pageParams,
+      cache:false,
+      type:'POST',
+      timeout:30000,
+      success:function(r){
+        
+        uploadTotal = r.data.results.length;
+        if(uploadTotal<=0){
+          if(parent.this_page_name=="Action"){
+            parent.synchWishOrder("History");
+          }else{
+           parent.synchWishOrder("");
+          }
+        }
+
+        $.each(r.data.results,function(i,order){
+          getDetail(i,order,0);
+        });
+      },
+      error:function(){
+        console.log(attempt);
+        if(attempt>=3){
+          parent.$('#syncCK1').html('获取订单列表失败，请重试');
+        }else{
+          attempt++;
+          getOrderList(pageParams,attempt);
+        }
+      },
+    });
+}
+
+
+//递归，重试
+function getDetail(i,order,attempt){
+  $.ajax({
+    type:'POST',
+    url:"https://merchant.wish.com/api/transaction/detail",
+    data:{tid:order.transaction_id,cid:order.product_id,vid:order.variation_id},
+    async:true,
+    cache:false,
+    timeout:20000,
+    success:function(rr){
+      postOrder(rr.data,order);
+    },
+    error:function(){
+      attempt++;
+      if(attempt<3){
+        getDetail(i,order,attempt);  
+      }
+    },
+  });
+}

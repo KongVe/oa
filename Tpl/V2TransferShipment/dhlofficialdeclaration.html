@@ -1,0 +1,49 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('AmazonFbaPackage/saveDHLOfficialPackage')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">	
+		<input type="hidden" name="fba_shipment_id" value="{$shipment.id}">
+		<input type="hidden" name="account_id" value="{$shipment.account_id}">
+		<input type="hidden" name="box_sequence_list" value="{$box_sequence_list}">
+		<table class="table">
+			<volist name="js_list" id="js">
+				<tr>
+					<td width=300>{$js.js_html}</td>
+					<td>
+						<label>请输入跟踪号</label>
+						<input name="tracking_number[{$js.key}]" >
+						<input name="box_number[{$js.key}]" value="{$js.box_number}" type="hidden">
+					</td>
+				</tr>
+
+			</volist>
+		</table>
+
+		<div class="form-group text-center">
+			<a id="editFormSubmit"   class="btn btn-primary" >保存</a>
+		</div>
+	</form>
+<script type="text/javascript">
+
+$(function(){
+
+
+	$("#editFormSubmit").click(function(){
+		$("#editFormSubmit").button("loading");
+		var data = $("#editForm").serialize();
+		var url = $("#editForm").attr("action");
+		$.post(url,data,function(r){
+			$("#editFormSubmit").button("reset");
+			if(r.status){
+				//window.location.reload(0);
+				window.location.href = "{:U('AmazonFbaPackage/index')}?shipment_id={$shipment.id}"
+
+			}else{
+				alertWarning(r.info);
+				return false;
+				
+			}
+		})
+		return false;
+	})
+})
+
+</script>

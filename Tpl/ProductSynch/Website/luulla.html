@@ -1,0 +1,52 @@
+<div class="form-group">
+	价格 = ( ( ( 成本 + 国内运费 ) / ( 1 - 利润率) + 利润<input type="text" name="profit_plus" value="0" size=3 />RMB ) / 汇率<input type="text" name="exchange_rate" value="6" size=3 /> + 运费 / (1 - 利润率 ) - 运费 ) / ( 1- 手续费<input type="text" name="handle_rate" value="0.1" size=3 />) + 
+</div>		
+<div class="form-group">
+	运费 = ( 重量 * 每kg运费<input type="text" name="shipping_fee" value="112" size=3 /> + 挂号费<input type="text" name="barcode_fee" value="15" size=3 /> ) / 汇率<input type="text" name="exchange_rate" value="6" size=3 /> 
+</div>
+<div class="form-group">
+	<label class="control-label">运费调节 = 
+		<input type="text" name="shipping_adjust" value=0 size=4/>
+	</label>
+	<span class="help-block">
+		该值大于0时把运费转移到价格上，小于0时把价格转移到运费上
+	</span>
+</div>
+<div class="form-group">
+	<label class="control-label">上传分类</label>
+<select name="categoryId" class="form-control">
+	<option value="0">Accessories</option>
+	<option value="1">Art and Photography</option>
+	<option value="2">Bags and Purses</option>
+	<option value="3">Bath and Beauty</option>
+	<option value="4">Children</option>
+	<option value="5">Coats and Jackets</option>
+	<option value="6">Crochet and Knitting</option>
+	<option value="7">Dolls and Miniatures</option>
+	<option value="8">Everything Else</option>
+	<option value="0">Holidays</option>
+	<option value="10">Housewares</option>
+	<option value="11">Jewelry</option>
+	<option value="12">Jumpers and Cardigans</option>
+	<option value="13">Lingerie and Nightwear</option>
+	<option value="14">Men Clothing</option>
+	<option value="15">Paper Craft</option>
+	<option value="16">Patterns</option>
+	<option value="17">Phone Cases</option>
+	<option value="18" selected="selected">Select Category</option>
+	<option value="19">Shoes</option>
+	<option value="20">Socks and Tights</option>
+	<option value="21">Supplies</option>
+	<option value="22">Swimwear and Bikinis</option>
+	<option value="23">Trousers and Leggings</option>
+	<option value="24">Vintage</option>
+	<option value="25">Weddings</option>
+	<option value="26">Women Clothing</option>
+	<option value="27">Women Dresses</option>
+	<option value="28">Women Skirts</option>
+	<option value="29">Women Tops</option>
+</select>
+</div>
+<script type="text/javascript">
+$("#img_server").val("http://oa.barboola.com");
+</script>

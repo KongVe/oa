@@ -1,0 +1,40 @@
+<layout name='Layout/ace_popup' />
+<div class="page-header"><h1>检查结果</h1></div>
+
+<div class="panel panel-default">
+	<div class="panel-heading">系统显示未发货的跟踪号：</div>
+	<table class="table">
+		<foreach name="falseShip" item="ship">
+			<tr><td>{$ship}</td></tr>
+		</foreach>		
+	</table>
+</div>
+
+<div class="panel panel-default">
+	<div class="panel-heading">重复的跟踪号：</div>
+	<table class="table">
+		<foreach name="repeatShip" item="ship">
+			<tr><td>{$ship}</td></tr>
+		</foreach>		
+	</table>
+</div>
+<div class="panel panel-default">
+	<div class="panel-heading">没有找到记录的跟踪号：</div>
+	<table class="table">
+		<foreach name="unknowShip" item="ship">
+			<tr><td>{$ship}</td></tr>
+		</foreach>		
+	</table>
+</div>
+<script type="text/javascript">
+
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#bottomBoxIframe").css("height",height);
+
+})
+</script>

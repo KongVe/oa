@@ -1,0 +1,109 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		
+		<?php foreach($_REQUEST['id'] as $id){ ?>
+			<input type="hidden" name="order_detail_id[]" value="{$id}">
+		<?php }		?>		
+		<div class="form-group">
+			<label class="control-label" for="goods_id">仓库商品</label>
+			<input name="goods_id" type="hidden" class="tag-input-style" id="goods_id" style="width:100%"  value="<?php echo $_SESSION['Storage5Order']['goods_id']; ?>"  check="require" />				
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="per_quantity">对应数量：</label>
+			<input type"text" class="form-control" id="per_quantity" name="per_quantity" value="1" />
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="shipping_id">运输方式</label>
+			<select class="form-control" id="shipping_id" name="shipping_id">
+				<option value="">请选择运输方式</option>
+				<volist name="shipping_list" id="shipping">
+					<option value="{$shipping.di_value}" <?php if($_SESSION['Storage5Order']['shipping_id'] == $shipping['di_value']){ echo "selected";  } ?> >{$shipping.di_caption}</option>
+				</volist>
+			</select>
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="auto_review">自动审核</label>
+			<select class="form-control" id="auto_review" name="auto_review">
+				<option value="true">是</option>
+				<option value="false">否</option>
+			</select>
+		</div>
+		<div class="form-group text-center">
+			<input type="submit" id="editFormSubmit" data-loading-text="正在保存..."  class="btn btn-primary" value="保存" />
+			<a class="btn btn-success" id="cancel">取消</a>
+			<?php /* <a class="btn btn-danger" id="delete">删除</a> */ ?>
+		</div>
+	</form>
+	<div>
+		<b>总数：</b>{$quantity_total}
+	</div>
+	<div>
+		<volist name="order_product_list" id="order_product">
+			<a href="{:U('OrderDetail/index')}?oaid={$order_product.order_auto_id}" class="thumbnail pull-left" target="_blank">
+				<img src="{$order_product.thumbnail}" width=60 /><br>
+				{$order_product.product_id} = {$order_product.quantity}
+			</a>
+		</volist>
+	</div>
+<script type="text/javascript">
+
+$(function(){
+
+	$("#cancel").click(function(){
+		closeBox();
+	})
+
+
+	$("#editFormSubmit").click(function(){
+		obj = $(this).button("loading");
+		var data = $("#editForm").serialize();
+		var url = $("#editForm").attr("action");
+		$.post(url,data,function(r){
+			obj.button("reset");
+			if(r.status){
+				alert("Storage5Order success");
+				parent.$("#form_search").submit();
+				//closeBox();
+			}else{
+				alertWarning(r.info);
+			}
+		})
+		return false;
+	})
+
+	var init_data = {$product|default=""|json_encode};
+	$('#goods_id').select2({
+	    placeholder          : "请输入搜索SKU",
+	    minimumInputLength   : 1,
+	    multiple             : true,
+	    // separator            : "",                          // 分隔符
+	    maximumSelectionSize : 1,                               // 限制数量
+	    initSelection        : function (element, callback) {   // 初始化时设置默认值
+	        var data = [];
+	        console.log(init_data);
+	        if(init_data.id){
+	        	data.push(init_data);
+	        	console.log(data);
+	        	callback(data);
+	        }
+	       
+	    },
+	    // createSearchChoice   : function(term, data) {           // 创建搜索结果（使用户可以输入匹配值以外的其它值）
+	    //     return { id: term, text: term };
+	    // },
+	    formatSelection : function (item) { return "<table><tr><td width=50><img src='"+item.thumbnail+"' style='width:40px;' /></td><td width=100>"+item.asin+"<br>" + item.sku + "<br>" + item.fnsku+"</td><td>" +item.goods_qty+ "</td></tr></table>"; },  // 选择结果中的显示
+	    formatResult    : function (item) { return "<table><tr><td width=50><img src='"+item.thumbnail+"' style='width:40px;' /></td><td width=100>"+item.asin+"<br>" + item.sku + "<br>" + item.fnsku+"</td><td>" +item.goods_qty+ "</td></tr></table>"; },  // 搜索列表中的显示
+	    ajax : {
+	        url      : "{:U('Storage5Order/selectProduct')}",              // 异步请求地址
+	        dataType : "json",                  // 数据类型
+	        data     : function (term, page) {  // 请求参数（GET）
+	            return { q: term };
+	        },
+	        results      : function (data, page) { return {results:data.data}; },  // 构造返回结果
+	        escapeMarkup : function (m) { return m; }               // 字符转义处理
+	    }
+	});	
+})
+
+
+</script>

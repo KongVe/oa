@@ -1,0 +1,119 @@
+<script type="text/javascript">
+function ShowCate(cateID,button){ 
+	var cate=$("#"+cateID);
+	if(cate.css("display")=="none"){ 
+		cate.css("display",""); 
+		button.className="icon-minus";
+	}else{
+		cate.css("display","none"); 
+		button.className="icon-plus";
+	} 
+} 
+function addModal(cateID){
+	$('#add_category_name').val("");
+	$('#addCate').modal('show');
+	$("#addBtn").attr("onclick","add('"+cateID+"');");
+	getProductTypeList(1);
+	document.onkeydown=function(event){
+		var e = event || window.event || arguments.callee.caller.arguments[0];         
+		if(e && e.keyCode==13){ // enter 键
+		    $('#addBtn').click();
+		}
+	}; 
+}
+
+function editModal(cateID,cate_name){
+	$('#edit_category_name').val(cate_name);
+	$('#editCate').modal('show');
+	$("#editBtn").attr("onclick","edit('"+cateID+"');");
+	getProductTypeList(2,cateID);
+	document.onkeydown=function(event){
+		var e = event || window.event || arguments.callee.caller.arguments[0];         
+		if(e && e.keyCode==13){ // enter 键
+		    $('#editBtn').click();
+		}
+	}; 
+}
+
+//获取产品类型列表
+function getProductTypeList(num,cateID){
+	$.post("{:U('getProductTypeList')}",{category_id:cateID},function(msg){
+		if(msg.status==1){
+			var list=msg.data.list;
+			$('#product_type_list'+num).html('');
+			$('#product_type_list'+num).append("<select  name='product_type1' id='product_type"+num+"'></select>");
+			$('#product_type'+num).append("<option value=''>请选择产品分类</option>" );
+			var length=list.length;
+			for (var i = 0; i < length; i++) {
+
+				if(list[i].product_type == msg.data.product_type){
+					$('#product_type'+num).append("<option value='"+list[i].product_type+"' selected>"+list[i].product_type+"</option>" );
+				}else{
+					$('#product_type'+num).append("<option value='"+list[i].product_type+"'>"+list[i].product_type+"</option>" );
+				}
+				
+			};
+		}
+	});
+}
+
+
+function add(cateID){
+
+	var cate_name = $('#add_category_name').val();
+	var product_type= $('#product_type1').val();
+	if(product_type==""){
+		alert('请选择产品类型');
+	}
+
+	if(cate_name==""){
+		alert('请输入分类名称');
+	}else{	
+		$.post("{:U('ProductCategory/add')}",{category_id:cateID,name:cate_name,product_type:product_type},function(data){
+			if(data.status==0){
+				alert(data.info);
+			}
+			$('#addCate').modal('toggle');
+			window.location.reload();
+		});
+	}
+
+}
+
+function edit(cateID){
+	var cate_name = $('#edit_category_name').val();
+	var product_type= $('#product_type2').val();
+	if(product_type==""){
+		alert('请选择产品类型');
+	}
+	if(cate_name==""){
+		alert('请输入分类名称');
+	}else{	
+		$.post("{:U('ProductCategory/edit')}",{category_id:cateID,name:cate_name,product_type:product_type},function(data){
+			if(data.status==0){
+				alert(data.info);
+			}
+			$('#editCate').modal('toggle');
+			window.location.reload();
+		});
+	}
+}
+
+function del(cateID){
+	if(confirm("是否删除?")){
+	 	$.post("{:U('ProductCategory/del')}",{category_id:cateID},function(data){
+			alert(data.info);
+			if(data.status!=0){
+				window.location.reload();
+			}
+		});
+	}
+}
+
+//显示产品类型管理
+function showProductTypeContral(){
+	$("#bottomBoxIframe").attr("src","<?php echo U("productTypeContral"); ?>?_" + Math.round(new Date().getTime()/1000));
+	$("#bottomBox").modal("show");	
+}
+
+</script>

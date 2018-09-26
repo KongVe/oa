@@ -1,0 +1,59 @@
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>vvic采购表格</title>
+	<link rel="stylesheet" href="__PUBLIC__/assets/css/bootstrap.min.css"  />
+	<script src='__PUBLIC__/assets/js/jquery-1.9.1.min.js'></script>
+	<script src='__PUBLIC__/assets/js/common.js'></script>
+	<script type="text/javascript">
+		
+	</script>
+	<style type="text/css">
+		.del_btn{
+			display: none;
+		}
+		.del_span{
+			width: 50px;
+			height: 50px;
+			display: block;
+		}
+	</style>
+</head>
+<body>
+<table class="clearfix sourceHtml text-center" width="100%" border="1" >
+	<!-- <tr>
+		<th>SKU</th>
+		<th>图片</th>
+		<th>链接</th>
+		<th>档口</th>
+		<th>货号</th>
+		<th>颜色</th>
+		<th>尺码</th>
+		<th>数量</th>
+		<th>单价</th>
+		<th>操作</th>
+	</tr> -->
+	<volist name='list' id='vo'>
+		<tr id="tr_{$vo.id}" height="70" <?php if($key%2 == 1){ ?> style=" background-color: #E7E7E7;" <?php }?> >
+			<td>{$vo.detail_data.sku}</td>
+			<td><img src="{$vo.detail_data.thumbnail}" height="60" /></td>
+			<td>{$vo.detail_data.supplier_name}</td>
+			<td>{$vo.detail_data.item_number}</td>
+			<td>{$vo.detail_data.sku_color}</td>
+			<td>{$vo.detail_data.sku_size}</td>
+			<td>{$vo.quantity}</td>
+			<td>
+				{$vo.reference_cost}
+			</td>
+			<td></td>
+			<td><a href="{$vo.detail_data.link}" target="_blank">{$vo.detail_data.link}</a></td>
+			<td>{$vo.detail_data.phone_number}</td>
+			
+		</tr>
+	</volist>
+</table>
+
+
+
+		
+

@@ -1,0 +1,709 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" action="{:U()}" id="form_search" method="post">
+    <input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+    <input type="hidden" name="_order" id="order" value="{$order}">
+
+<div class="page-header clearfix">
+    <h1 class="col-sm-2">{$title}</h1>
+   
+    <div class="form-group col-sm-2">
+        <div class="input-group">
+            <span class="input-group-addon">
+                提审时间
+            </span>
+            <input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="forwarder_submit_time" id="forwarder_submit_time" value="{$Think.request.forwarder_submit_time}"  placeholder="提审时间">
+        </div>
+    </div>
+
+    <div class="form-group col-sm-2">
+        <div class="input-group">
+            <span class="input-group-addon">
+                打印时间
+            </span>
+            <input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="local_print_time" id="local_print_time" value="{$Think.request.local_print_time}"  placeholder="打印时间">
+        </div>
+    </div>
+
+    <div class="form-group col-sm-2">
+        <div class="input-group">
+            <span class="input-group-addon">
+                确认打印
+            </span>
+            <input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="confirm_print_time" id="confirm_print_time" value="{$Think.request.confirm_print_time}"  placeholder="确认打印时间">
+        </div>
+    </div>
+
+    <div class="form-group col-sm-2">
+        <div class="input-group">
+            <span class="input-group-addon">
+                发货时间
+            </span>
+            <input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="local_send_time" id="local_send_time" value="{$Think.request.local_send_time}"  placeholder="发货时间">
+        </div>
+    </div>
+
+    <div class="form-group col-sm-2">
+        <div class="input-group">
+            <span class="input-group-addon">
+                出仓时间
+            </span>
+            <input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="local_out_storage_time" id="local_out_storage_time" value="{$Think.request.local_out_storage_time}"  placeholder="出仓时间">
+        </div>
+    </div>
+
+    <div class="btn-group col-sm-2">
+        <notempty name="Think.request.local_out_storage_id">
+            <div class="input-group">
+                <span class="input-group-btn">
+                    出仓包裹
+                </span>
+                <input class="form-control " type="checkbox" name="local_out_storage_id" id="local_out_storage_id" value="{$Think.request.local_out_storage_id}" <notempty name="_REQUEST.local_out_storage_id">checked="checked"</notempty> >
+            </div>
+        </notempty>
+    </div>
+
+    <div class="form-group col-sm-2">
+        <div class="input-group">
+            <span class="input-group-addon">
+                提审用户
+            </span>
+            <select name="forwarder_submit_uid[]" id="forwarder_submit_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+                <option value="">选择用户</option>
+                <volist name="user_list" id="user">
+                    <option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['forwarder_submit_uid'])){echo 'selected="selected"';} ?> >{$user.emp_name}</option>
+                </volist>
+            </select>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <div class="input-group">
+            <span class="input-group-addon">
+                打印用户
+            </span>
+            <select name="print_uid[]" id="print_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+                <option value="">选择用户</option>
+                <volist name="user_list" id="user">
+                    <option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['print_uid'])){echo 'selected="selected"';} ?> >{$user.emp_name}</option>
+                </volist>
+            </select>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <div class="input-group">
+            <span class="input-group-addon">
+                确认用户
+            </span>
+            <select name="confirm_print_uid[]" id="confirm_print_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+                <option value="">选择用户</option>
+                <volist name="user_list" id="user">
+                    <option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['confirm_print_uid'])){echo 'selected="selected"';} ?> >{$user.emp_name}</option>
+                </volist>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group col-sm-2">
+        <div class="input-group">
+            <span class="input-group-addon">
+                发货用户
+            </span>
+            <select name="ship_uid[]" id="ship_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+                <option value="">选择用户</option>
+                <volist name="user_list" id="user">
+                    <option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['ship_uid'])){echo 'selected="selected"';} ?> >{$user.emp_name}</option>
+                </volist>
+            </select>
+        </div>
+    </div>
+    <div class="form-group col-sm-2">
+        <div class="input-group">
+            <span class="input-group-addon">
+                出仓用户
+            </span>
+            <select name="local_out_storage_uid[]" id="local_out_storage_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+                <option value="">选择用户</option>
+                <volist name="user_list" id="user">
+                    <option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['local_out_storage_uid'])){echo 'selected="selected"';} ?> >{$user.emp_name}</option>
+                </volist>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group col-sm-2">
+        <div class="input-group">
+            <span class="input-group-btn">
+                已打印未发货
+            </span>
+            <input class="form-control " type="checkbox" name="print_not_ship" id="print_not_ship"value="1" <notempty name="_REQUEST.print_not_ship">checked="checked"</notempty> >
+        </div>
+    </div>
+
+    <div class="form-group col-sm-2">
+        <div class="input-group">
+            <span class="input-group-addon">
+                序号
+            </span>
+            <input class="form-control " type="text" name="package_auto_id" id="package_auto_id" value="<?php if(is_scalar($_REQUEST['package_auto_id'])){echo $_REQUEST['package_auto_id'];} ?>"  placeholder="序号,英文逗号分隔">
+        </div>
+    </div>
+
+    <div class="form-group col-sm-2">
+        <div class="input-group">
+            <span class="input-group-addon">
+                包裹历史
+            </span>
+            <input class="form-control " type="text" name="history_express_data" id="history_express_data" value="{$Think.request.history_express_data}"  placeholder="历史包裹号或跟踪号">
+        </div>
+    </div>
+
+    <div class="form-group col-sm-2">
+        <div class="input-group">
+            <span class="input-group-addon">
+                承运商
+            </span>
+            <select name="forwarder_id[]" id="forwarder_id_select" size="1"  multiple="multiple" style="width:120px;" placeholder="选择承运商">
+                <volist name="forwarder_list" id="forwarder">
+                    <option value="{$forwarder.id}" <?php  if(in_array($forwarder['id'], $_REQUEST['forwarder_id']))echo 'selected="selected"';?> >{$forwarder.forwarder_name}</option>
+                </volist>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group col-sm-2">
+        <div class="input-group">
+            <span class="input-group-addon">
+                规格SKU
+            </span>
+            <input class="form-control " type="text" name="sku" id="sku" value="{$Think.request.sku}"  placeholder="规格SKU">
+        </div>
+    </div>
+
+    <div class="input-group col-sm-2">
+        <div class="input-group">
+            <input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="搜索 包裹号,跟踪号"/>
+            <span class="input-group-btn">
+                <button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+            </span>
+        </div>
+    </div>
+
+</div>
+
+<div class="operate panel panel-default">
+    <div class="panel-body">
+
+        <div class="btn-group">
+            <a class="cancelConfirmPrint btn btn-sm btn-warning">取消打印</a>
+        </div>
+        <div class="btn-group">
+            <a class="cancelConfirmShip btn btn-sm btn-danger">取消发货</a>
+        </div>
+        <div class="btn-group">
+            <a class="submitPackage btn btn-sm btn-primary">包裹提审</a>
+        </div>
+        <div class="btn-group">
+            <a class="reDownloadPdf btn btn-sm btn-inverse">重新下载PDF</a>
+        </div>
+
+        <div class="btn-group">
+            <a class="outputPackageToCsv btn btn-sm btn-warning">导出表格</a>
+        </div>
+        <div class="btn-group">
+            <a class="showPackageTrackingNumber btn btn-sm btn-primary">汇总跟踪号</a>
+        </div>
+
+        <div class="btn-group">
+            <a class="cancelOutStorage btn btn-sm btn-info">取消出仓</a>
+        </div>
+        
+        <div class="btn-group">
+            <div id="alert_div"></div>
+        </div>
+
+        <div class="btn-group">
+            <label>
+                <input type="checkbox" class="ace input-lg" name="have_disabled" value="1" <notempty name="Think.request.have_disabled">checked="checked"</notempty> />
+                <span class="lbl">
+                    包含已禁用
+                </span>
+            <label>
+        </div>
+
+        <div class="btn-group">
+            <a class="cancelSubmitPackage btn btn-sm btn-danger">取消提审</a>
+        </div>
+
+
+
+        <div class="btn-group">
+            批量修改物流：
+        </div>
+        <div class="btn-group">
+            <select name="express_type_id_choose" id="express_type_id_choose" class="pull-left">
+                <option value="">请选择物流方式</option>
+                <volist name="express_type_list_normal" id="express_type_vo">
+                     <option value="{$express_type_vo.id}">{$express_type_vo.express_show_name}</option>
+                </volist>
+            </select>
+            <a class="changeSubmitPackage btn btn-primary btn-sm">批量修改</a>
+        </div>
+    </div>
+</div>
+
+<div id="package_iframe_div" class="operate panel panel-default" style="width:100%;height:100%;display:none;">
+    <iframe src=""  id="package_iframe" name="package_iframe"  style="width:100%;height:100%;" scrolling="auto" ></iframe>
+</div>
+
+<div class="message-container" style="width:100%;">
+    <table class="table table-striped table-hover">
+        
+            <include file="Layout:title_v3"/>
+            
+            <tbody class="tbody">
+            <volist name="list" id="vo">
+                <tr>
+                    <td style="width:150px;">
+                        <label class="form-group col-xs-12 pull-left">
+                            <input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+                            <span class="lbl"></span>
+                            {$vo.id}
+                        </label>
+                        <notempty name="vo.forwarder_submit_time">
+                            <div class="form-group col-xs-12">
+                                <a data-id="{$vo.id}" class="printLabel btn btn-primary btn-sm">打印PDF</a>
+                            </div>
+                        </notempty>
+                        <div class="form-group col-xs-12">
+                            <!-- <a data-url="{:U('V2OrderPackage/view')}?id={$vo.id}" class="showBox btn btn-primary btn-sm">查看</a> -->
+                            <a data-url="{:U('OperateLog/view')}?id={$vo.id}&table_name=v2_order_package" class="showBox btn btn-info btn-sm">日志</a>
+                        </div>
+                    </td>
+                    <td style="word-break:break-all;width:120px;min-width:120px;">
+                        {$vo.package_code}
+                        <notempty name="vo.can_edit_package">
+                            <br>
+                            <br>
+                            <br>
+                            <a data-url="{:U('V2OrderPackage/packageEdit')}?id={$vo.id}" class="showBox btn btn-primary btn-xs">修改包裹</a>
+                        </notempty>
+                        
+                        
+
+                    </td>
+                    <td style="max-width:240px;">
+                        <empty name="vo.sku_data_list">
+                            <b>无</b>
+                        <else/>
+                            <volist name="vo.sku_data_list" id="sku_data">
+                                <a href="{$sku_data.thumbnail}" class="thumbnail" target="_blank"><img src="{$sku_data.thumbnail}" data-src="{$sku_data.thumbnail}" width="50" /></a>
+                                <p>{$sku_data.sku}<span class="blue">*</span><b class="red">{$sku_data.product_quantity}</b></p>
+                            </volist>
+                        </empty>
+                    </td>
+                    <td>
+                        {$vo.forwarder_submit_state|L}
+                    </td>
+                    <td>
+                        {$vo.package_state|L}
+                        <br>
+                        <eq name="vo.is_disabled" value="Yes">
+                            <b>(已禁用)</b>
+                        <else/>
+                        </eq>
+                    </td>
+                    <td>{$vo.is_print|L}</td>
+                    <td>
+                        <?php 
+                            if($vo['is_download_pdf']=="Yes"){
+                                echo "下载成功";
+                            }else{
+                                echo "<b>未下载</b>";
+                            }
+                        ?></td>
+                    <td>{$vo.warehouse_data.warehouse_name|default="<b>未分配</b>"}</td>
+                    <td>
+                        {$vo.express_type_data.forwarder_name}
+                        <br>
+                        {$vo.express_type_data.express_name|default="<b>未分配</b>"}
+                    </td>
+                    
+                    <td>
+                        {$vo.forwarder_online_state|L}
+                        <br>
+                        <br>
+                        <eq name="vo.package_state" value="Really ship">
+                            <a data-url="{:U('V2OrderPackage/shippedPackageEdit')}?id={$vo.id}" class="showBox btn btn-info btn-xs">手工转单号</a>
+                        </eq>
+                    </td>
+                    <td style="word-break:break-all;width:150px;min-width:150px;">
+                        {$vo.forwarder_tracking_number}
+                    </td>
+                    <td>
+                        {$vo.shipping_fee_total}
+                        <if condition=" isAdmin(67) && $vo.shipping_fee_total eq 0 ">
+                           <!--  <br>
+                            <br>
+                            <a data-url="{:U('V2OrderPackageFee/packageFeeEdit')}?id={$vo.id}" class="showBox btn btn-info btn-sm">编辑运费</a> -->
+                        </if>
+                    </td>
+                    <td>{$vo.forwarder_weight} G</td>
+                    <td>{$vo.local_weight} G</td>
+                    <td style="min-width:85px;">
+                        <?php 
+                            if($vo['forwarder_submit_time']>0){
+                                echo date("y-m-d H:i:s",$vo['forwarder_submit_time']);
+                            }else{
+                                echo "未提审";
+                            }
+                        ?>
+                        <br>
+                        {$vo.forwarder_submit_user_name|default="未提审"}
+                        <br>
+                        <br>
+                        <eq name="vo.forwarder_submit_state" value="Submit error">
+                            {$vo.forwarder_submit_state|L}
+                        </eq>
+                    </td>
+                    <td style="min-width:85px;">
+                        <?php 
+                            if($vo['local_print_time']>0){
+                                echo date("y-m-d H:i:s",$vo['local_print_time']);
+                            }else{
+                                echo "<b class='red'>未打印</b>";
+                            }
+                        ?>
+                        <br>
+                        {$vo.print_user_name|default="未打印"}
+                    </td>
+                    <td style="min-width:85px;">
+                        <?php 
+                            if($vo['confirm_print_time']>0){
+                                echo date("y-m-d H:i:s",$vo['confirm_print_time']);
+                            }else{
+                                echo "<b class='red'>未打印</b>";
+                            }
+                        ?>
+                        <br>
+                        {$vo.confirm_print_user_name|default="未确认"}
+                    </td>
+
+                    <td style="min-width:85px;">
+                        <?php 
+                            if($vo['local_send_time']>0){
+                                echo date("y-m-d H:i:s",$vo['local_send_time']);
+                            }else{
+                                echo "未发货";
+                            }
+                        ?>
+                        <br>
+                        {$vo.ship_user_name|default="未发货"}
+                    </td>
+                    <td style="min-width:85px;">
+                        <?php 
+                            if($vo['local_out_storage_time']>0){
+                                echo date("y-m-d H:i:s",$vo['local_out_storage_time']);
+                            }else{
+                                echo "未出仓";
+                            }
+                        ?>
+                        <br>
+                        {$vo.local_out_storage_user_name|default="未出仓"}
+                    </td>
+                    
+                </tr>
+            </volist>
+        </tbody>
+    </table>
+    <div class="pagination">
+        {$page}
+    </div>  
+    <div style="height:300px;"></div>
+    <div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none;">
+        <iframe src="" id="order-detail-iframe" frameborder="0" height="300px" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+    </div>
+</div>
+</form>
+
+
+<div class="thumbnailBox" >
+    <a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+<script type="text/javascript">
+$(function($){
+
+    //输入框显蓝字
+    $(':input[type="text"]').each(function(i){
+        $(this).css({color:"blue"});
+    });
+
+    $("#forwarder_id_select").select2();
+    $("#forwarder_submit_uid").select2();
+    $("#confirm_print_uid").select2();
+    $("#print_uid").select2();
+    $("#ship_uid").select2();
+    $("#local_out_storage_uid").select2();
+
+    $(document).ready(function(){
+        if($(".message-container table tr").length == 2){
+            $("#id-toggle-all").click();
+        }
+    })
+    
+    $(".submitPackage").click(function(){
+        var data = $('[name="id[]"]').serialize();
+        if(!data){
+            alertWarning("请选择包裹");
+            return false;
+        }
+        if(!confirm("确认提审？将覆盖当前的包裹信息")){
+            return false;
+        }
+        var btn = $(this);
+        btn.button('loading');
+        $.post("{:U('submitPackage')}",data,function(msg){
+            btn.button('reset');
+            if(msg.status){
+                alertWarning(msg.info,1);
+                window.location.reload();
+            }else{
+                alertWarning(msg.info);
+            }
+        }).error(function(){
+            btn.button('reset');
+            alertWarning("网络错误，请重试");
+            return false;
+        });
+    });
+
+    $(".reDownloadPdf").click(function(){
+        var data = $('[name="id[]"]').serialize();
+        if(!data){
+            alertWarning("请选择包裹");
+            return false;
+        }
+        var btn = $(this);
+        btn.button('loading');
+        $.post("{:U('reDownloadPdf')}",data,function(msg){
+            btn.button('reset');
+            if(msg.status){
+                alertWarning(msg.info,1);
+            }else{
+                alertWarning(msg.info);
+            }
+        }).error(function(){
+            btn.button('reset');
+            alertWarning("网络错误，请重试");
+            return false;
+        });
+    });
+
+    $(".cancelOutStorage").click(function(){
+        var data = $('[name="id[]"]').serialize();
+        if(!data){
+            alertWarning("请选择包裹");
+            return false;
+        }
+        if(!confirm("确认取消出仓？")){
+            return false;
+        }
+        var btn = $(this);
+        btn.button('loading');
+        $.post("{:U('cancelOutStorageCheck')}",data,function(msg){
+            btn.button('reset');
+            if(msg.status == 2){
+                var title = "申请撤销包裹出仓 包裹数量: "+ msg.data.count + " 个";
+                var param_data = {id:msg.data.id_str};
+                var form_data = {
+                    title:title,
+                    content: '<a href="{:U('V2OrderPackage/index')}?package_auto_id='+msg.data.id_str+'" class="btn btn-primary" target="_blank">查看相关包裹</a>',
+                    audit_action_id:21,
+                    param_json:$.param(param_data),
+                };
+                showBox();
+                tmpSendForm("{:U('V2AuditFlow/addView')}",form_data,"middleBoxIframe");
+                return false;
+            }else if(msg.status){
+                alertWarning(msg.info,1);
+                window.location.reload();
+            }else{
+                alertWarning(msg.info);
+            }
+        }).error(function(){
+            btn.button('reset');
+            alertWarning("网络错误，请重试");
+            return false;
+        });
+    });
+
+    
+    
+
+    $(".changeSubmitPackage").click(function(){
+        var data = $('[name="id[]"]').serialize();
+        if(!data){
+            alertWarning("请选择包裹");
+            return false;
+        }
+        var express_type_id = $("#express_type_id_choose").val();
+        if(!express_type_id){
+            alertWarning("请选择物流方式");
+            return false; 
+        }
+        data += ("&express_type_id=" + express_type_id);
+
+        if(!confirm("确认修改物流方式？")){
+            return false;
+        }
+        var btn = $(this);
+        btn.button('loading');
+        $.post("{:U('changeSubmitPackage')}",data,function(msg){
+            btn.button('reset');
+            if(msg.status){
+                alertWarning(msg.info,1);
+                window.location.reload();
+            }else{
+                alertWarning(msg.info);
+            }
+        }).error(function(){
+            btn.button('reset');
+            alertWarning("网络错误，请重试");
+            return false;
+        });
+    });
+
+
+
+
+    $(".cancelSubmitPackage").click(function(){
+        var data = $('[name="id[]"]').serialize();
+        if(!data){
+            alertWarning("请选择包裹");
+            return false;
+        }
+        if(!confirm("确认取消提审？")){
+            return false;
+        }
+        var btn = $(this);
+        btn.button('loading');
+        $.post("{:U('cancelSubmitPackage')}",data,function(msg){
+            btn.button('reset');
+            if(msg.status){
+                alertWarning(msg.info,1);
+                window.location.reload();
+            }else{
+                alertWarning(msg.info);
+            }
+        }).error(function(){
+            btn.button('reset');
+            alertWarning("网络错误，请重试");
+            return false;
+        });
+    });
+
+
+    $(".cancelConfirmPrint").click(function(){
+        var data = $('[name="id[]"]').serialize();
+        if(!data){
+            alertWarning("请选择包裹");
+            return false;
+        }
+        if(!confirm("确认取消打印完成？")){
+            return false;
+        }
+        var btn = $(this);
+        btn.button('loading');
+        $.post("{:U('cancelConfirmPrint')}",data,function(msg){
+            btn.button('reset');
+            if(msg.status){
+                alertWarning(msg.info,1);
+                window.location.reload();
+            }else{
+                alertWarning(msg.info);
+            }
+        }).error(function(){
+            btn.button('reset');
+            alertWarning("网络错误，请重试");
+            return false;
+        });
+    });
+
+    $(".cancelConfirmShip").click(function(){
+        var data = $('[name="id[]"]').serialize();
+        if(!data){
+            alertWarning("请选择包裹");
+            return false;
+        }
+        if(!confirm("确认取消发货？")){
+            return false;
+        }
+        var btn = $(this);
+        btn.button('loading');
+        $.post("{:U('cancelConfirmShip')}",data,function(msg){
+            btn.button('reset');
+            if(msg.status){
+                alertWarning(msg.info,1);
+                window.location.reload();
+            }else{
+                alertWarning(msg.info);
+            }
+        }).error(function(){
+            btn.button('reset');
+            alertWarning("网络错误，请重试");
+            return false;
+        });
+    });
+
+
+    $(".outputPackageToCsv").click(function(){
+        var data = $('[name="id[]"]').serialize();
+        if(!data){
+            alertWarning("请选择包裹");
+            return false;
+        }
+        tmpSendForm("{:U('outputPackageToCsv')}",data,"_blank");
+    });
+
+    $(".showPackageTrackingNumber").click(function(){
+        var data = $('[name="id[]"]').serialize();
+        if(!data){
+            alertWarning("请选择包裹");
+            return false;
+        }
+        tmpSendForm("{:U('showPackageTrackingNumber')}",data,"_blank");
+    });
+
+
+
+    $(".printLabel").click(function(){
+        var package_id = $(this).data("id");
+        
+        $(this).removeClass("btn-primary");
+        if(!$(this).hasClass("btn-inverse")){
+            $(this).addClass("btn-inverse");
+            $(this).html("已打印");
+        }
+
+        labelWindow = window.open('{:U("printLabelView")}?id=' + package_id,'','width=600,height=400');
+        print(labelWindow);
+        $('body').click(function(){
+            labelWindow.close();
+        });
+        return false;
+    });
+});
+
+function print(labelWindow){
+    labelWindow.onload=function(){
+        //console.log(labelWindow.document.getElementsByTagName('embed'));
+        if(labelWindow.document.readyState=="complete"){     
+            if(labelWindow.document.getElementsByTagName('embed').length!=0){
+                labelWindow.window.print();
+                return false;
+            }else{
+                print(labelWindow);
+            } 
+        }   
+    }
+}
+</script>

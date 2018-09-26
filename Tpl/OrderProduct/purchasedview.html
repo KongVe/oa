@@ -1,0 +1,66 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'查看备货详情'))}
+
+
+
+<foreach name="product_list" item="vo" key="kk">
+	<table class="table table-striped table-hover table-bordered table-condensed">
+					<tr>
+						<th>订单ID</th>
+						<th>实发SKU</th>
+						<th>实发规格</th>
+						<th>已采购产品</th>
+						<th>备货完成产品</th>
+						<th>已发产品</th>
+						<th>成本(each)</th>
+						<th>成本(total)</th>
+					</tr>
+					<tbody class="tbody">
+						<tr>
+							<td>{$vo.order_id}</td>
+							<td>{$vo.sku}</td>
+							<td>{$vo.variation}</td>
+							<td>{$vo.purchased_quantity}</td>
+							<td>{$vo.waiting_ship_quantity}</td>
+							<td>{$vo.shipped_quantity}</td>
+							<td>{$vo.cost}</td>
+							<td>{$vo.cost_total}</td>
+						</tr>
+						<th>是否绑定库存SKU</th>
+						<th>库存SKU</th>
+						<th>库存规格</th>
+						<th>提交采购数量</th>
+						<th>采购入库数量</th>
+						<th>采购入库成本</th>
+						<th>用库数</th>
+						<th>用库成本</th>
+						
+						<foreach name="vo.purchased_data" item="purchase" key="pK">
+							<tr>
+								<td>
+									<notempty name="purchase.bind_this.id">
+										<b>是</b>
+										<br>
+										1个实发产品对应{$purchase.bind_this.order_stock_quantity}个库存
+									<else/>
+										否
+									</notempty>
+								</td>
+								<td>{$purchase.bind_this.sku}</td>
+								<td>{$purchase.bind_this.variation}</td>
+
+								<td>{$purchase.purchased_quantity}</td>
+
+								<td>{$purchase.instock_quantity}</td>
+								<td>{$purchase.instock_price}</td>
+
+								<td>{$purchase.use_stock_quantity}</td>
+								<td>{$purchase.use_stock_price}</td>
+								
+								<!-- <td>{$purchase.purchase_price}</td> -->
+								
+							</tr>
+						</foreach>
+					</tbody>
+				</table>
+</foreach>

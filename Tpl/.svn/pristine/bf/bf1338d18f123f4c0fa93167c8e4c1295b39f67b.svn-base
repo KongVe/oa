@@ -1,0 +1,100 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'编辑货架位'))}
+
+<form method='post' id="form_data" name="form_data" class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	<notempty name="vo.id">
+		<input type="hidden" id="id" name="id" value="{$vo.id}">	
+	</notempty>
+	
+	<input type="hidden" id="add_file" name="add_file" value="{$vo.add_file}">
+	<input type="hidden" id="opmode" name="opmode" value="<notempty name="_REQUEST['id']">edit<else/>add</notempty>">
+
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="place_name">货架位名称：</label>
+		<div class="col-sm-10">
+			<input class="form-control" type="text" id="place_name" name="place_name" value="{$vo.place_name}"  check="require" msg="请输入货架位名称">
+			<b>请按照 货架名+"0"+货架位序号命名，<br>比如17号货架的第1个位置就命名为1701,17号第11个位置就命名为17011</b>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="place_name">货架位类型：</label>
+		<div class="col-sm-10">
+			<select name="type">
+				<option value="良品" <eq name="vo.type" value="良品"> selected</eq>>良品</option>
+				<option value="次品" <eq name="vo.type" value="次品"> selected</eq>>次品</option>
+			</select>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="type_quantity_limit">种类数量限制：</label>
+		<div class="col-sm-10">
+			<input class="form-control col-sm-4" type="text" id="type_quantity_limit" name="type_quantity_limit" value="<?php if($vo['type_quantity_limit']===null || $vo['type_quantity_limit']===false){ echo "15"; }else{echo $vo['type_quantity_limit']; }?>"  check="require" msg="请输入货架位产品种类数量限制" style="width:80px;"><b class="col-sm-5">0为无限制</b>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="memo">所属货架：</label>
+		<div class="col-sm-10">
+			<div class="col-sm-3">
+				仓库<br>
+				<select id="warehouse_select" onchange="ajaxGetChildrenList($(this).val(),'region','warehouse');"></select>
+			</div>
+			<div class="col-sm-3">
+				区域<br>
+				<select  id="region_select" onchange="ajaxGetChildrenList($(this).val(),'shelf','region');"></select>
+			</div>
+			<div class="col-sm-3">
+				货架<br>
+				<select  id="shelf_select" name="shelf_id" check="require" msg="请选择货架位"></select>
+			</div>
+		</div>
+	</div>
+
+	<div class="action">
+		<input type="hidden" name="model_name" value="place"> 
+		<input class="btn btn-sm btn-primary" type="button" value="保存" onclick="save();">
+		<input  class="btn btn-sm btn-default" type="button" value="取消" onclick="parent.$('#middleBox').modal('hide');">
+	</div>
+</form>
+<script type="text/javascript">
+	function save() {
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('layoutSave')}",false,function(msg){
+				if(msg.status){
+					if(parent.$("#middleBox").length>0){
+						parent.window.location.reload();
+						parent.$("#middleBox").modal('hide');
+
+					}else{
+						alertWarning(msg.info,1);
+					}
+				}else{
+					alertWarning(msg.info);
+				}
+			});
+		}
+	}
+
+	//货架位
+	//货架位
+	<include file="OrderStock:js/chooseshelfjs"/>
+
+	ajaxGetChildrenList(false,false,false,1);
+	ajaxGetChildrenList(1,'region','warehouse',2);
+	//ajaxGetChildrenList(2,'shelf','region',2);
+	
+
+	<?php
+		if($vo['shelf_id']){
+			echo "setTimeout(\"ajaxGetChildrenList(2,'shelf','region',".$vo['shelf_id'].");\",100);";
+			
+			if($vo['place_id']){
+				echo "setTimeout(\"ajaxGetChildrenList(".$vo['shelf_id'].",'place','shelf',".$vo['place_id'].");\",500);";
+			}else{
+				echo "setTimeout(\"ajaxGetChildrenList(".$vo['shelf_id'].",'place','shelf',);\",500);";
+			}
+		}else{
+			echo "ajaxGetChildrenList(2,'shelf','region');";
+		}
+	?>
+</script>

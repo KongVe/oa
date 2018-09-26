@@ -1,0 +1,42 @@
+<layout name='Layout/ace_popup' />
+	{:W('PageHeader',array('name'=>$title))}
+
+	<div class="panel panel-default">
+		<input type="hidden" id="ajax" value="1">
+		<!-- <input type="hidden" name="transfer_shipment_id" id="transfer_shipment_id" value="{$Think.request.transfer_shipment_id}" /> -->
+		<table class="table table-striped table-hover">
+			<tr>
+				<th>箱子序号</th>
+				<th>箱子类型</th>
+				<th>真实体积</th>
+				<th>真实重量(kg)</th>
+			</tr>
+		
+			<volist name="box_list" id="box" key="box_key">
+				<tr>
+					<td>{$box.box_number}</td>
+					<td>{$box.box_name}<br>
+						箱子长宽高(CM)：{$box.length} * {$box.width} * {$box.height}
+					</td>
+					<td>
+						真实长宽高(CM):
+						长：<b><span class="editStatic" field="real_length" onclick="editStatic(this,'{:U('V2TransferBox/save')}?id={$box.id}')">{$box.real_length|default=0}</span></b>
+						 * 
+						宽：<b><span class="editStatic" field="real_width" onclick="editStatic(this,'{:U('V2TransferBox/save')}?id={$box.id}')">{$box.real_width|default=0}</span></b>
+						 * 
+						高：<b><span class="editStatic" field="real_height" onclick="editStatic(this,'{:U('V2TransferBox/save')}?id={$box.id}')">{$box.real_height|default=0}</span></b>
+					</td>
+					<td>
+						<b><span class="editStatic" field="real_weight" onclick="editStatic(this,'{:U('V2TransferBox/save')}?id={$box.id}','textarea')">{$box.real_weight}</span></b> kg
+					</td>
+				</tr>
+			</volist>
+		</table>
+		<div class="form-group text-center">
+			<a class="btn btn-success close_box_button" id="cancel">关闭</a>
+		</div>
+	</div>
+	
+<script type="text/javascript">
+		
+</script>

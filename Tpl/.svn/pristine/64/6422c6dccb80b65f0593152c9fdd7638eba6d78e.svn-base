@@ -1,0 +1,59 @@
+<layout name='Layout/ace_popup' />
+
+{:W('PageHeader',array('name'=>$title))}
+
+<form method='post' action="{:U('localSkuDataImport')}" id="editForm" action="" enctype="multipart/form-data" class="well form-horizontal clearfix">
+	<!-- <div class="form-group">
+		<label class="col-sm-2 control-label" for="import_file">模板下载</label>
+		<div class="col-sm-4">
+			<a class="btn btn-sm btn-link" href="__PUBLIC__/template/批量登记上架亚马逊SKU和关联本地SKU模板.csv">批量登记上架亚马逊SKU和关联本地SKU模板.csv</a>
+		</div>
+	</div>	 -->
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="import_file">选择csv文件</label>
+		<div class="col-sm-4">
+			<input type="file" class="from-control" name="import_file" id="import_file" />
+		</div>
+	</div>	
+	<!-- <div class="form-group">
+		<label class="col-sm-2 control-label" for="password">选择数据的帐号</label>
+		<div class="form-group col-sm-6">
+			<select name="account_id" id="account_id" style="width:100%;">
+				<option value=''>请选择帐号</option>
+				<volist name="accountList" id="account">
+					<option value="{$account.id}">{$account.website_name} => {$account.proxy_host} => {$account.account_name} {$account.status_name}</option>
+				</volist>
+			</select>
+		</div>
+	</div>	 -->
+
+	<div class="form-group text-center">
+		<a class="btn btn-sm btn-primary editFormSubmit" id="submit">导入</a>
+	</div> 
+
+</form>
+
+<script type="text/javascript">
+	
+$(function() {
+	$("#account_id").select2();
+
+	
+	$(".editFormSubmit").click(function(){
+       
+        var import_file = $("#import_file").val();
+        if(!import_file){
+            alertWarning("请选择文件");
+            return false;
+        }
+        var account_name = $("#account_id option:selected").text(); 
+		if(!confirm("确认导入？")){
+        	return false;
+        }
+
+        $("#editForm").submit();
+    });
+}); 
+
+
+</script>

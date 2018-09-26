@@ -1,0 +1,85 @@
+<notempty name="widget.jquery-ui">
+	<script src="__PUBLIC__/assets/js/jquery-ui-1.10.3.custom.min.js"></script>
+	<script src="__PUBLIC__/assets/js/jquery.ui.touch-punch.min.js"></script>
+</notempty>
+
+<notempty name="widget.date">
+	<script src="__PUBLIC__/assets/js/date-time/bootstrap-datepicker.min.js"></script>
+</notempty>
+
+
+<notempty name="widget.date-range">
+	<script src="__PUBLIC__/assets/js/date-time/moment.min.js"></script>
+	<script src="__PUBLIC__/assets/js/date-time/daterangepicker.min.js"></script>
+</notempty>
+
+<notempty name="widget.date-time">
+	<link href="__PUBLIC__/assets/css/bootstrap-datetimepicker.css" rel="stylesheet" media="screen">
+	<script src="__PUBLIC__/assets/js/date-time/moment.min.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/assets/js/date-time/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>
+</notempty>
+
+<notempty name="widget.uploader">
+	<script type="text/javascript" src="__PUBLIC__/js/plupload/plupload.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/plupload/plupload.flash.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/plupload/plupload.html5.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/js/plupload/plupload.setting.js"></script>
+</notempty>
+
+<notempty name="widget.editor">
+	<script type="text/javascript" src="__PUBLIC__/editor/kindeditor.js"></script>
+	<script type="text/javascript" src="__PUBLIC__/editor/kindeditor.setting.js"></script>
+</notempty>
+
+<notempty name="widget.select2">
+	<link rel="stylesheet" href="__PUBLIC__/assetsv2/css/select2.css"  />
+	<script type="text/javascript" src="__PUBLIC__/assetsv2/js/select2/select2.min.js"></script>
+</notempty>
+
+<notempty name="widget.echarts3">
+	<script type="text/javascript" src="__PUBLIC__/js/echarts3/echarts.min.js"></script>
+</notempty>
+
+
+<notempty name="widget.ueditor">
+    <!--建议手动加在语言，避免在ie下有时因为加载语言失败导致编辑器加载失败-->
+    <!--这里加载的语言文件会覆盖你在配置项目里添加的语言类型，比如你在配置项目里配置的是英文，这里加载的中文，那最后就是中文-->
+	<script type="text/javascript" charset="utf-8" src="__PUBLIC__/ueditor/ueditor.config.js"></script>
+	<script type="text/javascript" charset="utf-8" src="__PUBLIC__/ueditor/ueditor.all.js"></script>
+	<script type="text/javascript" charset="utf-8" src="__PUBLIC__/ueditor/lang/zh-cn/zh-cn.js"></script>
+</notempty>
+
+<script type="text/javascript">
+		$(document).ready(function() {
+	<notempty name="widget.date">
+		$('.input-date').datepicker({
+		autoclose : true
+		})
+	</notempty>
+
+	<notempty name="widget.date-range">
+		$(".input-date-range").daterangepicker({
+		format : 'YYYY-MM-DD',
+		});
+	</notempty>
+
+	<notempty name="widget.date-time">
+		$(".input-date-time").datetimepicker({
+	        format: "yyyy/mm/dd hh:ii",
+	        formatType: "standard",
+	        autoclose: true,
+	        todayBtn: true,
+	        language:"cn",
+	        startdate:2016, 
+	    });
+	</notempty>
+
+	<notempty name="widget.uploader">
+		uploader_init();
+	</notempty>
+
+	<notempty name="widget.editor">
+		editor_init();
+	</notempty>
+
+	})</script>

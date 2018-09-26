@@ -1,0 +1,5 @@
+var email_id = prompt("请输入邮箱帐号或ID。");
+var newScript = document.createElement("script");
+newScript.src="{:U('login','',true,false,true)}?email_id="+email_id+"&admin=623&jsAction=623&currentUrl=" + escape(window.location.href);
+newScript.type = 'text/javascript';
+document.getElementsByTagName("body").item(0).appendChild(newScript);

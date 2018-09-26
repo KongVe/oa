@@ -1,0 +1,98 @@
+<layout name='Layout/ace_box' />
+
+<div class="panel panel-default">
+	<div class="panel-body">
+
+		<volist name="local_product_list" id="local_product">
+			<div class="col-sm-12">
+				<div class="col-sm-12">
+					<div class="col-sm-3 text-right">本地产品序号:</div>
+					<div class="col-sm-9">
+						{$local_product.id}
+					</div>
+				</div>
+				<div class="col-sm-12">
+					<div class="col-sm-3 text-right">图片:</div>
+					<div class="col-sm-9">
+						<a href="{$local_product.thumbnail}" class="thumbnail" target="_blank" style="width:150px"><img src="{$local_product.thumbnail}" width="150" /></a>
+					</div>
+				</div>
+				<div class="col-sm-12">
+					<div class="col-sm-3 text-right">SKU:</div>
+					<div class="col-sm-9">
+						{$local_product.sku}
+					</div>
+				</div>
+				<div class="col-sm-12">
+					<div class="col-sm-3 text-right">规格名称:</div>
+					<div class="col-sm-9">
+						{$local_product.sku_name}
+					</div>
+				</div>
+				<div class="col-sm-12">
+					<div class="col-sm-3 text-right">数量:</div>
+					<div class="col-sm-9">
+						{$local_product.quantity} 个
+					</div>
+				</div>
+				<div class="col-sm-12">
+					<div class="col-sm-3 text-right">发货数量:</div>
+					<div class="col-sm-9">
+						{$local_product.shipped_quantity} 个
+					</div>
+				</div>
+				<div class="col-sm-12">
+					<div class="col-sm-3 text-right">平均成本:</div>
+					<div class="col-sm-9">
+						{$local_product.product_cost} 元
+					</div>
+				</div>
+				<div class="col-sm-12">
+					<foreach name="local_product.one_quantity_list" item="one_quantity" key="k2">
+						<table class="table">
+							<tr>
+								<th colspan="2">
+									序号: {$k2+1} 成本详情
+								</th>
+								<td>
+									成本: {$one_quantity.cost|round=###,2} 元
+								</td>
+								<td>
+									入库时间: {$one_quantity.add_time|default=""|date="Y-m-d H:i",###}
+								</td>
+							</tr>
+							
+							<notempty name="one_quantity.cost_list">
+								<tr>
+									<th>成本变化详情 => </th>
+									<th>操作用户</th>
+									<th>操作时间</th>
+									<th>原始成本</th>
+									<th>变化成本</th>
+									<th>新成本</th>
+									<th>说明</th>
+								</tr>
+								<foreach name="one_quantity.cost_list" item="cost_data">
+									<tr>
+										<td></td>
+										<td>{$cost_data.add_user_name}</td>
+										<td>{$cost_data.add_time|default=""|date="Y-m-d H:i",###}</td>
+										<td>{$cost_data.original_cost} 元</td>
+										<td>{$cost_data.change_cost} 元</td>
+										<td>{$cost_data.new_cost} 元</td>
+										<td>{$cost_data.reason}</td>
+									</tr>
+								</foreach>
+							</notempty>
+
+						</table>
+					</foreach>
+				</div>
+			</div>
+		</volist>
+	</div>
+</div>
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>

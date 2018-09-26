@@ -1,0 +1,219 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'采购详细'))}
+
+<form action="{:U('doPurchase')}" method="POST" class="well form-horizontal clearfix" id="editForm" name="editForm" >
+
+	<input type="hidden" name="ajax" id="ajax" value="1">
+
+	<!-- 主列表点击哪行 -->
+	<input type="hidden" name="tr_key" id="tr_key" value="{$tr_key}" />
+
+	<input type="hidden" name="sku_id" id="sku_id" value="{$sku_id}">
+
+	<!-- 选择采购哪个货源-->
+	<input type="hidden" name="source_id" id="source_id" value="{$source_id}" />
+
+	<!-- 相关的采购计划 -->
+	<foreach name="plan_ids" item="plan_id">
+		<input type="hidden" name="plan_ids[]" value="{$plan_id}" />
+	</foreach>
+	
+
+	<div class="col-sm-12">
+		<div class="col-sm-6">
+			<?php
+				// 1688和淘宝这些线上采购需要填采购的订单
+				if(in_array($source_data['platform_id'], $online_order_id_platform_id_list)){
+			?>
+			<!-- <div class="form-group" >
+				<label class="control-label red" for="">采购订单号 一个订单号对应一条</label>
+
+				<div id="online_order_id_box">
+					<div class="online_order_ids_div">
+						<div class="input-group" style="width:80%;">
+							<input type="text" name="online_order_ids[]" class="form-control online_order_ids" value="" placeholder="采购订单号" />
+							<span class="input-group-btn" style="width:60px;">
+								<a class="btn btn-success btn-xs add_online_order_id"> + </a>
+							</span>
+						</div>
+					</div>
+					<span class="help-block">		
+						<b>注意：填写采购平台返回的订单号。也可以在 <a href="{:U('v2_purchase_detail/index')}" target="_blank" >采购批次管理</a> 里再添加修改</b>
+					</span>
+				</div>
+			</div> -->
+			<?php
+				}
+			?>
+
+			<div class="form-group">
+				<label class="control-label" for="quantity">采购数量</label>
+
+				<input type="number" name="quantity" id="quantity" data-max="{$vo.waiting_purchase_quantity_total}" data-bak="{$vo.waiting_purchase_quantity_total}" class="form-control" check="number" value="{$vo.waiting_purchase_quantity_total}" />
+			
+				<span>需要采购的数量：<b>{$vo.plan_quantity_total}</b> - <b>{$vo.purchasing_quantity_total}</b> - <b>{$vo.instock_quantity_total}</b> = <b>{$vo.waiting_purchase_quantity_total}</b> </span>
+			</div>
+
+			<div class="form-group">
+				<label class="control-label"  for="reference_cost">成本单价(元)</label>
+				<input type="text" name="reference_cost" id="reference_cost" class="form-control cost_limit"  value="{$source_data.price}" check="require"/>
+				当前采购总成本:<b id="total_cost"></b>
+				
+			</div>	
+
+			<div class="form-group">
+				<label class="control-label" for="memo">采购备注</label>
+				<textarea name="memo" id="memo" class="form-control"></textarea>
+			</div>
+		</div>
+		<div class="col-sm-6">
+			
+		</div>
+
+	</div>
+	<div class="col-sm-12">
+		<div class="form-group text-center col-sm-6">
+			<a class="editFormSubmit btn btn-primary" >采购</a>
+
+			<div class="pull-right">
+				<a class="close_box_button btn btn-warning" >关闭</a>
+				&nbsp;&nbsp;
+			<div>
+		</div>
+	</div>
+</form>
+
+<script type="text/javascript">
+$(function(){
+
+	$(".add_online_order_id").click(function(){
+		var this_div = $(this).parent().parent().parent();
+		var this_clone = this_div.clone(true).insertAfter(this_div);
+		if($(this_div).find(".del_online_order_id").length<=0){
+			this_clone.find(".input-group-btn").append('<a class="btn btn-danger btn-xs del_online_order_id"> - </a>');
+			$(".del_online_order_id").click(function(){
+				$(this).parent().parent().parent().remove();
+			}); 
+		}
+	});
+
+	$(".price_limit").keyup(function(){    
+        $(this).val($(this).val().replace(/[^0-9.]/g,''));    
+    }).bind("paste",function(){  //CTR+V事件处理    
+        $(this).val($(this).val().replace(/[^0-9.]/g,''));     
+    }).css("ime-mode", "disabled"); //CSS设置输入法不可用    
+
+    $(".editFormSubmit").click(function(){
+        $("input").attr("disabled",null);
+        var data = $("#editForm").serialize();
+        var url = $("#editForm").attr("action");
+        
+        var btn = $(".editFormSubmit").button('loading');
+        var sku_bak = $("#parent_sku").attr("data-bak");
+
+        if (check_form("editForm")) {
+            sendForm("editForm", url,false,function(msg){
+                btn.button('reset');
+                if(msg.status){
+                   	var tr_key = $("#tr_key").val();
+					parent.$("#tr_"+ tr_key).addClass("danger");
+					parent.$("#purchase-detail-box").hide("fast");
+					closeBox();
+					parent.window.location.reload();
+                }else{
+                    alertWarning(msg.info);
+                }
+            });
+        }else{
+            btn.button('reset');
+        }
+    });
+
+	// $("#editForm").submit(function(){
+	// 	$(this).attr("disabled",true);
+	// 	if(!checkQuantity()){
+	// 		return false;
+	// 	}
+	// 	if(check_form("editForm")){
+	// 		var data = $("#editForm").serialize();
+	// 		$.post("{:U('doPurchase')}",data,function(r){
+	// 			if(r.status){
+	// 				var tr_key = $("#tr_key").val();
+	// 				parent.$("#tr_"+ tr_key).addClass("danger");
+	// 				parent.$("#purchase-detail-box").hide("fast");
+	// 				parent.$("#bottomBox").modal("hide");
+	// 			}else{
+	// 				alert(r.info());
+	// 			}
+	// 			$(this).attr("disabled",false);
+	// 		}).error(function(){
+	// 			$(this).attr("disabled",false);
+	// 		})
+	// 	}else{
+	// 		$(this).attr("disabled",false);
+	// 	}
+	// 	return false;
+	// })
+
+	$("#quantity").change(function(){
+		var q_max=parseInt($(this).data('max'));
+		var q_bak=parseInt($(this).data('bak'));
+		var val=parseInt($(this).val());
+		if(val<1 || val >q_max){
+			alertWarning("请输入正确的数量");
+			$(this).val(q_bak);
+		}
+
+		showTotalCost();
+	});
+
+	$("#reference_cost").change(function(){
+		showTotalCost();
+	});
+
+	// $("input[name^='price']").hover(
+	// 	function(){
+	// 		sourcePrice = $(this).val();
+	// 		inputId = $(this).attr("id");
+	// 		var position = $(this).position(),
+	// 		box_top = position.top + 34,
+	// 		box_left = position.left ;
+
+
+	// 		$(".adjustPriceBox a").data("sourcePrice",sourcePrice).data("inputId",inputId);
+	// 		$(".adjustPriceBox").css({top:box_top,left:box_left}).show(); 
+	// 	}
+	// );
+
+	$(".adjustPriceBox a").click(function(){
+		var sourcePrice = parseFloat($(this).data("sourcePrice")),
+			adjustPrice = parseFloat($(this).data("price")),
+			inputId = $(this).data("inputId");
+		$("#" + inputId).val(sourcePrice + adjustPrice);
+	})
+
+	$("body").click(function(){
+		$(".adjustPriceBox").hide();	
+	})
+
+	showTotalCost();
+})
+
+function showTotalCost(){
+	var reference_cost = $("#reference_cost").val();
+	var quantity = $("#quantity").val();
+	var msg = reference_cost+" * "+quantity+" = "+reference_cost*quantity+" 元";
+	$("#total_cost").html(msg);
+}
+
+function checkQuantity(){
+	var q = parseInt($("#quantity").val());
+	var q_max=parseInt($("#quantity").attr('data-max'));
+	if(q<1 || q>q_max){
+		alertWarning("采购数量数据异常，请呼叫技术人员排错");
+		return false;
+	}else{
+		return true;
+	}
+}
+</script>

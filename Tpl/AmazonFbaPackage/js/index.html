@@ -1,0 +1,85 @@
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	//ace.settings.sidebar_collapsed(true);
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+
+
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}
+
+	//updateStock();
+})
+
+
+function submitTransportContent(){
+	$("#btn_submit_transport_content").attr("disabled","disabled");
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		//如果没有选中一个，则默认全选，省了一个点击
+		$("input[name='id[]']").click();
+		id = $("input[name='id[]']:checked").serialize();
+	}
+	data = {
+		id:id,
+		shipment_id:$("#shipment_id").val()
+	}
+
+	$.post("{:U('AmazonFbaPackage/submitTransportContent')}",data,function(r){
+		$("#btn_submit_transport_content").attr("disabled",null);
+		if(r.status){
+			alert("提交成功");
+		}else{
+			alertWarning(r.info);
+		}
+		
+	})
+
+}
+function del(id){
+	if(window.confirm("确定删除？")){
+		$("#btn_del_" + id).attr("disabled","disabled");
+		data = {
+			id:id,
+		}
+		$.post("{:U('del')}",data,function(r){
+			if(r.status){
+				$("#form_search").submit();
+			}else{
+				alertWarning(r.info);
+			}
+			$("#btn_del_" + id).attr("disabled",null);
+		})
+	}
+}
+</script>

@@ -1,0 +1,64 @@
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	//ace.settings.sidebar_collapsed(true);
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+
+
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}
+
+	//updateStock();
+})
+
+
+function return(transfer_box_id){
+	confirm = prompt("请输入return, 确认需要退货");
+	if(confirm == 'return'){
+		$("#btn_return_" + transfer_box_id).attr("disabled","disabled");
+		data = {
+			transfer_box_id : transfer_box_id
+		}
+		$.post("{:U('transferReturn')}",data,function(r){
+			$("#btn_return_" + transfer_box_id).attr("disabled",null);
+			if(r.status){
+				alert("申请退货成功，请把入库单都对整入库");
+				window.open("{:U('v2_stock_instock_plan/index')}");
+			}else{
+				alertWarning(r.info);
+			}
+		})
+	}
+}
+
+</script>

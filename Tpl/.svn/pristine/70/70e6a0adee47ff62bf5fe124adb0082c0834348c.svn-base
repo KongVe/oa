@@ -1,0 +1,29 @@
+<div class="form-group">
+	<label class="control-label">下单时间</label><br/>
+	<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="param[order_time]" id="order_time" value="<?php if($_REQUEST['param']['order_time']){ echo $_REQUEST['param']['order_time'];}?>"  placeholder="下单时间">
+</div>
+<input type="hidden" id="ajax" name="ajax" value="1">
+<input type="hidden" id="add_file" name="param[add_file]">
+
+
+<div class="form-group">
+	 下单时间 为 更新时间，未选择 时则为自动同步<!-- <input type="checkbox" name="param[speedy]" value="1" checked="checked">  -->
+</div>
+<div class="form-group">
+	 导入订单:<input type="checkbox" name="param[import_orders]" value="1" onclick="importOrders(this);">
+</div>
+ 
+<div class="form-group display-none" id="import_orders">
+	CSV文件:
+	<include file="Widget:uploader" />
+</div>
+
+<script type="text/javascript">
+	function importOrders (obj) {
+		if($(obj).prop('checked')){
+			$("#import_orders").show();
+		}else{
+			$("#import_orders").hide();
+		}
+	}
+</script>

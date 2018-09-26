@@ -1,0 +1,172 @@
+var data_list=[];
+var param_list=[];
+var jj=0;
+var detail_ii=0;
+var success=0;
+var error=0;
+var already=0;
+
+var account=$.trim($('.container-fluid .pull-right .nav').eq(0).find('li').text().toLowerCase()).replace(' ','');
+
+document.body.onbeforeunload = function (event){
+    var c = event || window.event;
+    if (/webkit/.test(navigator.userAgent.toLowerCase())) {
+        return "当前正在同步数据，确认刷新或者关闭页面？！";
+    }
+    else
+    {
+        c.returnValue = "当前正在同步数据，确认刷新或者关闭页面？";
+    }
+}
+function alertMsg(cc){
+	if($("#alertMsg").length<=0){
+		$("body").append("<div id='alertMsg'></div>");
+	}
+	$("#alertMsg").html(cc+" success:"+success+" error:"+error+" already:"+already);
+}
+
+function getList(ii,param_list,attempt,max_count) {
+	if(!account || account == undefined){
+		alert('获取当前帐号失败');
+	}
+	console.log(ii);
+	
+	if(max_count>0 && ii>max_count ){
+		alert('结束');
+		//获取列表信息结束，开始同步上传数据
+		getDetail(detail_ii,0);
+	}
+	var start=ii;
+	$.post('https://merchant.wish.com/api/merchant/transactions/get',{start:start,count:500,attention:'false',label_ready:'false',ack:'false',sort:'last_update',filter:'refunded',order:'desc',search_type:'order_id',is_wlc:'false',include_tickets:'true'},function(msg){
+		console.log(msg);
+		if(msg.code==0){
+			for (var i = 0; i < msg.data.results.length; i++) {
+				var data={
+					product_id:msg.data.results[i].product_id,
+					variation_id:msg.data.results[i].variation_id,
+					transaction_id:msg.data.results[i].transaction_id,
+				}
+				param_list.push(data);
+			};
+
+			if(ii>max_count || msg.data.results.length==0){
+				//获取列表信息结束，开始同步上传数据
+				getDetail(detail_ii,0);
+			}else{
+				ii=ii+msg.data.results.length;
+				getList(ii,param_list,attempt,max_count)
+			}
+
+		}else{
+			alert("获取列表数据失败,start:"+start);
+		}
+	}).error(function(r){
+		if(attempt>=3){
+			alert("获取列表数据失败，网络错误,start:"+start);
+		}else{
+			attempt++;
+			getList(ii,param_list,attempt,max_count);
+		}
+	});
+
+}
+
+
+function getDetail(attempt){
+	if(detail_ii>=param_list.length || param_list[detail_ii]==undefined){
+		//完成
+		alert("完成"+detail_ii+"条,更新成功:"+success+"条,重复更新："+already+"条,更新错误:"+error+"条。");
+		return;
+	}
+	console.log(detail_ii);
+	alertMsg(detail_ii);
+	var tid=param_list[detail_ii].transaction_id;
+	var cid=param_list[detail_ii].product_id;
+	var vid=param_list[detail_ii].variation_id;
+	$.ajax({
+		dataType:'json',
+		type:'POST',
+		url:'https://merchant.wish.com/api/transaction/detail',
+		data:{tid:tid,cid:cid,vid:vid},
+		success:function(msg){
+			if(msg.code==0){
+				var data={
+						ii:detail_ii,
+						account:account,
+						transaction_id:tid,
+						variation_id:vid,
+						snapshot_id:msg.data.transaction.mtid,
+						product_id:cid,
+						reason:msg.data.item.reason,
+						refund_amount:msg.data.item.refund_amount,
+						refund_reason_category:msg.data.item.refund_reason_category,
+						refund_reason_text:msg.data.item.refund_reason_text,
+						refunded_by:msg.data.item.refunded_by,
+						refunded_time:msg.data.item.refunded_time,
+						ip_address:msg.data.transaction.ip_address,
+						ticket_id:msg.data.transaction.ticket_id,
+						email:msg.data.transaction.user_info.email,
+					};
+
+				data_list.push(data);
+
+				uploadData(data);
+
+				detail_ii++;
+
+				//getDetail(detail_ii,attempt);
+				
+			}else{
+				alert(msg.msg);
+			}
+		},
+		error:function(r){
+			if(attempt=undefined){
+				attempt=0;
+			}
+			if(attempt>=3){
+				alert("获取详情数据失败，网络错误");
+			}else{
+				getDetail(detail_ii,attempt);
+			}
+		}
+	});
+}
+
+function uploadData(data){
+	if($("#uploadData").length<=0){
+		$("body").append("<div id='uploadData'></div>");
+	}
+	var div_obj=$("#uploadData");
+
+	if(data==undefined){
+		var finish=1;
+		alert("上传结束");
+		return true;
+	}
+	var upload_data=[];
+	for(var key in data){ 
+		if(data[key]==null || data[key]==undefined){
+			data[key]='';
+		}
+		upload_data.push(key+'='+data[key]);
+	}
+
+	var url=upload_data.join("&");
+	url+=("&account="+account);
+
+	if(finish==1){
+		url=url+("&finish=1&count="+jj);	
+	}
+	url="?"+encodeURI(url);
+
+	div_obj.html('<script type="text/javascript" src="{:U('AnalysisWish/addRufendedInfo','',true,false,true)}'+ url +'"></script>');
+	jj++;
+	return true;
+}
+
+if($('.locale-wrapper-user .us-col').attr('class').indexOf('selected') == '-1'){
+	alert('请先切换语言到英文再调用此脚本');
+}else{
+	getList(0,param_list,0);	
+}

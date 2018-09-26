@@ -1,0 +1,327 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" name="id" value="{$vo.id}">
+		<input type="hidden" name="ajax" id="ajax" value="1">
+		<input type="hidden" id="opmode" name="opmode" value="{$vo.opmode}" >
+		<div class="form-group">
+			<select name="website" id="website" class="form-control" check="require" msg="网站必选">
+				<option value="" website-id="">请选择网站</option>
+				<volist name="websiteList" id="website">
+					<option value="{$website.name}" website-id="{$website.id}" <?php if($vo['website'] == $website['name']){echo 'selected';} ?> >{$website.name}</option>
+				</volist>
+			</select>		
+			<input type="hidden" name="website_id" id="website_id" value="{$vo.website_id}" />	
+		</div>		
+		<div class="form-group">
+			<label class="control-label" for="store">店铺</label>
+			<select name="order_account_id" id="order_account_id" class="form-control">
+				<option>选择本地店铺</option>
+				<?php foreach($orderAccountList as $website=>$accountList){ ?>
+				<optgroup label="{$website}">
+					<volist name="accountList" id="account">
+						<option value="{$account.id}" <?php if($account['id'] == $vo['order_account_id']){ echo "selected"; } ?> >{$account.account_name} => {$account.proxy_host} </option>
+					</volist>
+				</optgroup>
+				<?php } ?>
+			</select>
+			或 
+			<input placeholder="自定义店铺" class="form-control" type="text" id="store" name="store" value="{$vo.store}">
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="product_name">产品名称</label>
+			<input class="form-control" type="text" id="product_name" name="product_name" value="{$vo.product_name}">
+		</div>
+		<div class="form-group">
+			<div class="col-sm-6">
+				<label class="control-label" for="product_url">产品链接</label>
+				<input class="form-control" type="text" id="product_url" name="product_url" value="{$vo.product_url}">
+			</div>
+			<div class="col-sm-6">
+				<label class="control-label" for="product_id">产品ID</label>
+				<input class="form-control" type="text" id="product_id" name="product_id" value="{$vo.product_id}">
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-sm-8">
+				<label class="control-label" for="product_thumbnail">产品图片</label>
+				<input class="form-control" type="text" id="product_thumbnail" name="product_thumbnail" value="{$vo.product_thumbnail}">
+			</div>
+			<div class="col-sm-4" >
+				<a href="{$vo.product_thumbnail}" target="_blank" class="thumbnail" />
+					<img src="{$vo.product_thumbnail}"  width=60/>
+				</a>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col-sm-2">
+				<label class="control-label" for="type">类型</label>
+				<select clas="form-control" name="type" id="type" check="require" msg="类型必选">
+					<!-- <option value="">请选择</option> -->
+					<option value="Order" <eq name="vo.type" value="Order">selected</eq> >Order</option>
+					<option value="Save" <eq name="vo.type" value="Save">selected</eq> >Save</option>
+					<option value="Visit" <eq name="vo.type" value="Visit">selected</eq> >Visit</option>
+				</select>
+			</div>
+			<div class="col-sm-2">
+				<label class="control-label" for="environment_type">客户端</label>
+				<select clas="form-control" name="environment_type" id="environment_type" check="require" msg="客户端必选">
+					<!-- <option  >请选择</option> -->
+					<option value="PC" <eq name="vo.environment_type" value="PC">selected</eq> >PC</option>
+					<option value="Mobile" <eq name="vo.environment_type" value="Mobile">selected</eq> >Mobile</option>
+				</select>
+			</div>
+			<div class="col-sm-2">
+				<label class="control-label" for="email_type">小号邮箱</label>
+				<select clas="form-control" name="email_type" id="email_type" check="require" msg="小号邮箱类型必选">
+					<option  >请选择</option>
+					<option value="Really" <eq name="vo.email_type" value="Really">selected</eq> >真实</option>
+					<option value="False" <eq name="vo.email_type" value="False">selected</eq> >虚假</option>
+					<option value="All" <eq name="vo.email_type" value="All">selected</eq> >所有</option>
+				</select>
+			</div>			
+		</div>
+		<div class="form-group">
+			<div class="col-sm-2">
+				<label class="control-label" for="product_price">产品价格</label>
+				<input class="form-control" type="text" id="product_price" name="product_price" value="{$vo.product_price|default='0'}">
+			</div>
+			<div class="col-sm-2">
+				<label class="control-label" for="plan_times">要刷次数</label>
+				<input class="form-control" type="text" id="plan_times" name="plan_times" value="{$vo.plan_times|default='0'}">
+			</div>
+			<div class="col-sm-4">
+				<label class="control-label" for="repeat_min_day">重复间隔天数</label>
+				<input class="form-control" type="text" id="repeat_min_day" name="repeat_min_day" value="{$vo.repeat_min_day|default='10'}">
+			</div>			
+		</div>
+		<!-- 
+		<div class="form-group">
+			<label class="control-label" for="select_action_plan">计划时间类型</label>
+			<select id="select_action_plan" class="form-control col-sm-3">
+				<option value="time_next">根据时间间隔</option>
+				<option value="crontab">根据crontab</option>
+			</select>
+		</div> -->
+		<!-- <div id="next_plan_interval_div">
+			<?php
+				$interval = D("FalsePlan")->format_next_plan_min_interval($vo['next_plan_min_interval']);
+			 ?>
+			<div class="form-group">
+				<label class="control-label" for="next_plan_min_interval">刷下一次的最小时间间隔</label>
+				<table class="table">
+					<tr>
+						<td>
+							<input type="text" id="next_plan_min_interval_hour" name="next_plan_min_interval_hour" value="{$interval.hour|default='0'}"> 小时
+						</td>
+						<td>
+							<input type="text" id="next_plan_min_interval_minute" name="next_plan_min_interval_minute" value="{$interval.minute|default='0'}"> 分钟
+						</td>
+						<td>
+							<input type="text" id="next_plan_min_interval_second" name="next_plan_min_interval_second" value="{$interval.second|default='0'}"> 秒
+						</td>
+					</tr>
+				</table>
+				<p class="help-block">刷下一次的最小时间间隔,0 代表不限制</p>
+			</div>
+			<?php
+				$interval = D("FalsePlan")->format_next_plan_max_interval($vo['next_plan_max_interval']);
+			 ?>
+			<div class="form-group">
+				<label class="control-label" for="next_plan_max_interval">刷下一次的最大时间间隔</label>
+				<table class="table">
+					<tr>
+						<td>
+							<input type="text" id="next_plan_max_interval_hour" name="next_plan_max_interval_hour" value="{$interval.hour|default='0'}"> 小时
+						</td>
+						<td>
+							<input type="text" id="next_plan_max_interval_minute" name="next_plan_max_interval_minute" value="{$interval.minute|default='0'}"> 分钟
+						</td>
+						<td>
+							<input type="text" id="next_plan_max_interval_second" name="next_plan_max_interval_second" value="{$interval.second|default='0'}"> 秒
+						</td>
+					</tr>
+				</table>
+				<p class="help-block">刷下一次的最大时间间隔,当max 和 min 都为0代表不限制</p>
+			</div>
+		</div> -->
+
+		<!-- <div class="form-group" id="crontab_div" style="display:none">
+			<label class="control-label" for="crontab">crontab</label>
+			<div>
+				<input type="text" name="crontab" class="form-control" value="{$vo['crontab']}">
+			</div>
+			<p class="help-block">自动刷的时间计划</p>
+		</div>  -->
+
+		<div class="form-group" id="ext_options">
+					
+		</div>	
+
+		<div class="form-group">
+			<div class="col-sm-12">
+				<label class="control-label" for="">关键词</label>		
+			</div>
+			<?php $vo['search_keywords'] = json_decode($vo['search_keywords'],true); 
+				if(!is_array($vo['search_keywords'])){
+					$vo['search_keywords'] = array(array('page'=>0));
+				}
+			?>
+			<table class="table table-condensed table-striped">
+				<tr>
+					<td>搜索关键词</td>
+					<td>参考页数</td>
+				</tr>
+				<volist name="vo.search_keywords" id="search_keywords">
+					<tr>
+						<td>
+							<input type="text" name="search_keywords[{$key}][keyword]" value="{$search_keywords.keyword}" onChange="addDataRow()" class="form-control input-keyword">
+						</td>
+						<td>
+							<input type="text" name="search_keywords[{$key}][page]" value="{$search_keywords.page}" onChange="addDataRow()" class="form-control input-page">
+						</td>
+					</tr>
+				</volist>
+			</table>
+			<script type="text/javascript">
+			var dataRowKey = <?php echo $key+1;?>;
+			</script>			
+		</div>	
+		<!-- <div class="form-group">
+			<div class="col-sm-6">
+				<label class="control-label" for="plan_step">刷的步骤：</label>
+			</div>
+			<div class="col-sm-12">
+				<textarea id="plan_step" name="plan_step" style="width:100%;height:300px;" >{$vo.plan_step}</textarea>
+			</div>
+		</div>	 -->	
+		<div class="form-group">
+			<label class="control-label" for="status">状态</label>
+			<select name="status" class="form-control" id="status">
+				<option value="Normal" <eq name="vo.status" value="Normal" >selected</eq> >Normal</option>
+				<option value="Suspended" <eq name="vo.status" value="Suspended" >selected</eq> >暂停</option>
+				<option value="End"  <eq name="vo.status" value="End" >selected</eq> >End</option>
+			</select>
+		</div>			
+		<div class="form-group">
+			<label class="control-label" for="memo">备注</label>
+			保存后，在列表页备注
+			<!-- <textarea name="memo" id="memo" class="form-control">{$vo.memo}</textarea> -->
+		</div>		
+		<div class="form-group text-center">
+			<a data-loading-text="正在保存..." data-close="1" data-reload="1" class="defaultEditFormSubmit btn btn-primary">保存</a>
+			<a class="btn btn-success" id="cancel">取消</a>
+			<?php /* <a class="btn btn-danger" id="delete">删除</a> */ ?>
+		</div>
+	</form>
+<script type="text/javascript">
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);
+
+	$("#cancel").click(function(){
+		parent.$("#middleBox").modal("hide");
+	})
+	$("#delete").click(function(){
+		
+		if(window.confirm("Delete? ")){
+			$(this).attr("disabled","disabled");
+			$("#opmode").val("del");
+			var data = $("#editForm").serialize();
+			var url = '{:U("del")}';
+			$.post(url,data,function(r){
+
+				if(r.status){
+
+					//parent.$("#middleBox").modal("hide");
+					parent.window.location.reload();
+
+				}else{
+					$(this).attr("disabled",null);
+					alert(r.info);
+					return false;
+				}
+			})
+		}else{
+			return false;
+		}
+
+		return false;
+	})
+
+	
+	//根据不同的类型调用不同的其它参数设置项目
+	$("#type").change(function(){
+		getEditExtHtml(this);
+	});
+	$("#website").change(function(){
+		var website_id = $("option[value='" + $(this).val() + "']",$(this)).attr("website-id");
+		$("#website_id").val(website_id);
+		return true;
+	});
+	$("#select_action_plan").change(function(){
+		var choose = $(this).val();
+		console.log(choose);
+		if(choose == "crontab"){
+			$("#next_plan_interval_div").attr("disabled",true);
+			$("#next_plan_interval_div").hide();
+			$("#crontab_div").attr("disabled",false);
+			$("#crontab_div").show();
+		}else{
+			$("#next_plan_interval_div").attr("disabled",false);
+			$("#next_plan_interval_div").show();
+			$("#crontab_div").attr("disabled",true);
+			$("#crontab_div").hide();
+		}
+	});
+})
+
+function addDataRow(){
+
+	if($(".input-keyword").length > 1){
+		for(i=0; i < $(".input-keyword").length; i++){
+			obj = $(".input-keyword")[i];
+
+			if($.trim($(obj).val()) == ''  && i < $(".input-keyword").length-1){
+				if(window.confirm("Delete? ")){
+					$(obj).parents("tr").remove();
+					break;
+				}
+			}
+		}
+	}
+
+	if($.trim($(".input-keyword:last").val()) != ''){
+		//如果最后一个name和value的值不为空, 则要新增一行
+		var newRow = $(".input-keyword:last").parents("tr").clone();
+		
+		$("input",newRow).val('');
+		$(".input-keyword",newRow).attr('name','search_keywords[' + dataRowKey + '][keyword]');
+		$(".input-page",newRow).attr('name','search_keywords[' + dataRowKey + '][page]');
+		$(".input-page",newRow).val(0);
+		dataRowKey++;
+		$(".input-keyword:last").parents("tr").after(newRow);
+	}
+}
+
+function getEditExtHtml(obj){
+	if(!$(obj).val()){
+		return false;
+	}
+	$.post("{:U('FalsePlan/getEditExtHtml')}",$('#editForm').serialize(),function(msg){
+		if(msg.status){
+			$("#ext_options").html(msg.data);
+			$("#ext_options").addClass("alert-danger").show();
+		}else{
+			$("#ext_options").html("").hide();
+			//alertWarning(msg.info);
+		}
+	}).error(function(){
+
+	});
+}
+
+</script>

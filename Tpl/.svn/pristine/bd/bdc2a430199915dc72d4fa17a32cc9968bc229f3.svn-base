@@ -1,0 +1,200 @@
+	<layout name='Layout/ace_box' />
+	{:W('PageHeader',array('name'=>'新建任务'))}
+
+	<form method='post' id="form_data" name="form_data" enctype="multipart/form-data"   class="well form-horizontal col-sm-12">
+		<input type="hidden" id="ajax" name="ajax" value="0">
+		<input type="hidden" id="add_file" name="add_file">
+		<input type="hidden" id="type" name="type" value="{$type}">
+		<input type="hidden" id="folder" name="folder" value="{$folder}">
+		<input type="hidden" id="fid" name="fid" value="{$folder}">
+		<input type="hidden" id="opmode" name="opmode" value="add">
+
+			<div class="form-group col-sm-12">
+				<div class="form-group col-sm-6">
+					<label class="col-sm-3 control-label" for="title" >标题：</label>
+					<div class="col-sm-9">
+						<input class="form-control" type="text" id="title" name="title" value=""  check="require" msg="请输入标题" placeholder="标题">
+					</div>
+				</div>
+
+				<!-- <div class="form-group col-sm-6">
+					<label class="col-sm-3 control-label" for="task_category">标题分类：</label>
+					<div class="col-sm-9">
+
+						<select name="task_category" onchange="changeTitle(this);">
+							<option value="">选择标题</option>
+							<volist name="task_category_list" id="vv">
+								<option value="{$vv}">{$vv}</option>
+							</volist>
+						</select>
+
+					</div>
+				</div> -->
+			</div>
+
+			<div class="form-group col-sm-6">
+				<label class="col-sm-3 control-label" >设计人：</label>
+				<div class="col-sm-9">
+					<span><b>{$_SESSION['user_name']}</b></span>
+					<input type="hidden" name="designer" value="{$_SESSION['user_name']}">
+				</div>
+			</div>
+
+			<div class="form-group col-sm-6">
+				<label class="col-sm-3 control-label" for="performer">执行人：</label>
+				<div class="col-sm-9">
+					<select name="performer">
+						<option value="" >请选择执行人</option>
+						<volist name="user_list" id="user">
+							<option value="{$user.emp_name}" <eq name="$vo.performer" value="$user.emp_name">selected</eq> >{$user.emp_name}</option>
+						</volist>
+					</select>
+				</div>
+			</div>
+
+			<div class="form-group col-sm-12">
+				<div class="form-group col-sm-6">
+					<label class="col-sm-3 control-label" for="checker">检查员：</label>
+					<div class="col-sm-9">
+						<select name="checker">
+							<option value="" >请选择检查员</option>
+							<volist name="user_list" id="user">
+								<option value="{$user.emp_name}" <if condition="$user['emp_name'] eq $_SESSION['user_name']" > selected</if>	>{$user.emp_name}</option>
+							</volist>
+						</select>
+					</div>
+				</div>
+			</div>
+			
+			
+
+			<div class="form-group col-sm-6">
+				<label class="col-sm-3 control-label" for="task_type">必选做：</label>
+				<div class="col-sm-9">
+					<label class="col-sm-3 control-label" for="task_type1">
+						<b>必做 </b><input type="radio" class="control-label" name="task_type" id="task_type1" value="必做" checked="checked" >
+					</label>
+					<label class="col-sm-3 control-label" for="task_type2">
+						<b>选做 </b><input type="radio" class="control-label" name="task_type" id="task_type2" value="选做" >
+					</label>				
+				</div>
+			</div>
+			<div class="form-group col-sm-6">
+				<label class="col-sm-3 control-label" for="priority">优先级：</label>
+				<div class="col-sm-9">
+					<select name="priority">
+						<volist name="priority_list" id="vv">
+							<option value="{$vv}">{$vv}</option>
+						</volist>
+					</select>
+				</div>
+			</div>
+			<?php 
+				$now_time=time();
+			?>
+			<div class="form-group col-sm-12">
+				<div class="form-group col-sm-6">
+					<label class="col-sm-3 control-label" for="time_length">任务时长：</label>
+					<div class="col-sm-9">
+						<span class="col-sm-6">
+							<input type="text" id="time_length_hours" name="time_length_hours" msg="任务时长 小时" placeholder="任务时长 小时" class="col-sm-7" value="">
+							<span class="col-sm-5">小时</span>
+						</span>
+						<span class="col-sm-6">
+							<input type="text" id="time_length_minutes" name="time_length_minutes" msg="分钟" placeholder="分钟" value="0" class="col-sm-6">
+							<span class="col-sm-6">分钟</span>
+						</span>
+						
+						
+					</div>
+				</div>
+				<div class="form-group col-sm-6">
+					<label class="col-sm-3 control-label" for="name" >截止日期：</label>
+					<div class="col-sm-9">
+						<input data-date-format="yyyy-mm-dd" class="form-control input-date" type="text" id="end_date" name="end_date" check="require" msg="请输入结束日期" placeholder="请输入结束日期" value="{$now_time+172800|date="Y-m-d",###}">
+						<input type="time" name="end_time" value="{$now_time+172800|date="H:i",###}" >
+					</div>
+				</div>
+				
+			</div>
+
+			<!-- 
+			<div>
+				<label class="col-sm-3 control-label" for="start_end_time">起止时间：</label>
+				<div class="col-sm-4">
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="start_end_time" id="start_end_time" value="{$Think.request.start_end_time}"     placeholder="任务起止时间">
+				</div>
+			</div> -->
+
+			<div class="form-group col-sm-6">
+				<label class="col-sm-3 control-label" for="reward">奖励米粒：</label>
+				<div class="col-sm-9">
+					<select name="reward">
+						<?php
+							for ($i=10; $i >=1 ; $i--) { 
+								echo "<option value='$i'>$i 米粒</option>";
+							}
+						?>
+					</select>
+				</div>
+			</div>
+
+			<!-- <div class="form-group col-sm-6">
+				<label class="col-sm-4 control-label" for="task_plan">每天生成该任务：</label>
+				<div class="col-sm-8">
+					<input type="checkbox" class="form-group" name="task_plan" id="task_plan" value="86400">
+				</div>
+			</div> -->
+
+			<div class="form-group col-sm-6">
+				<label class="col-sm-3 control-label" for="name">附件：</label>
+				<div class="col-sm-9">
+					<include file="Widget:uploader" />
+				</div>
+			</div>
+
+
+		<div class="form-group col-sm-12">
+			<div class="col-xs-6">
+				
+				<label class="col-sm-3 control-label" for="name">任务内容：</label>
+			</div>
+			<div class="col-xs-12">
+				<textarea id="content" name="content" style="width:100%;height:300px;" check="require" msg="请输入内容"></textarea>
+			</div>
+		</div>
+
+		<div class="col-sm-12">
+			<div class="action">
+				<input class="btn btn-sm btn-primary" type="button" value="保存" onclick="add();">
+				<input class="btn btn-sm btn-default" type="button" value="关闭" onclick="parent.closeBox();">
+			</div>
+		</div>
+	</form>
+
+	<script type="text/javascript">
+		function add() {
+			var hours=parseInt($("#time_length_hours").val(),10);
+			var minutes=parseInt($("#time_length_minutes").val(),10);
+
+			if( (minutes>60) ||(minutes<=0 && hours <=0) || ( $("#time_length_hours").val() == '' || $("#time_length_minutes").val() == '')){
+				alertWarning("请输入正确的任务时长");
+				return;
+			}
+
+			$("#ajax").val(1);
+			editor.sync();
+			if (check_form("form_data")) {
+				sendForm("form_data", "{:U('add')}",'',function(msg){
+					alert(msg.info);
+					if(msg.status){
+						parent.location.reload();	
+					}
+				});
+			}
+		}
+
+		function changeTitle(obj){
+			$('#title').val($(obj).val());
+		}
+	</script>

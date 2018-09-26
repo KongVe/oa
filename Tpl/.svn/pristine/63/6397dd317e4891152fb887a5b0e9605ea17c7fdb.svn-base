@@ -1,0 +1,526 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" action="{:U()}" id="form_search" method="post" class="form-inline">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+<div class="page-header clearfix">
+	<h1 class="col-xs-2">{$title}</h1>
+	<div class="col-xs-9">
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					下单时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="order_time" id="order_time" value="{$Think.request.order_time}" placeholder="下单时间">
+			</div>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					付款时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="pay_time" id="pay_time" value="{$Think.request.pay_time}" placeholder="添加时间">
+			</div>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					发货时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="send_time" id="send_time" value="{$Think.request.send_time}" placeholder="添加时间">
+			</div>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					签收时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="sign_time" id="sign_time" value="{$Think.request.sign_time}" placeholder="添加时间">
+			</div>
+		</div>
+	</div>
+
+	<div class="col-xs-2">
+	</div>
+
+	<div class="col-xs-9">
+
+		
+		<div class="form-group col-xs-3">
+			<label>
+                <input type="checkbox" class="ace input-lg" name="without_relate" value="1" <notempty name="Think.request.without_relate">checked="checked"</notempty> />
+                <span class="lbl">
+                    已免关联
+                </span>
+            </label>
+
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					订单序号
+				</span>
+				<input class="form-control" type="text" id="id" name="id" value="{$Think.request.id}"  placeholder="订单序号, 英文逗号分隔" />
+			</div>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					快递单号
+				</span>
+				<input class="form-control" type="text" id="tracking_number" name="tracking_number" value="{$Think.request.tracking_number}"  placeholder="快递单号" />
+			</div>
+		</div>
+
+		<div class="input-group col-sm-3">
+			<div class="input-group">
+				<input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="1688订单号，线上备注，留言"/>
+				<span class="input-group-btn">
+					<button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="message-container" id="container_table" style="width:100%;overflow:scroll;">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="btn-group">
+				<!-- <a data-url="{:U('edit')}" class="showBox btn btn-primary">添加计划</a> -->
+			</div>
+			<div class="btn-group">
+				<div class="input-group" style="width: 300px;">
+					<select class="form-control" id="alibaba_cn_account_id">
+						<option value="">选择1688帐号</option>
+						<volist name="alibaba_cn_account_list" id="alibaba_cn_account">
+							<option value="{$alibaba_cn_account.id}">{$alibaba_cn_account.account_name}</option>
+						</volist>
+					</select>
+					<span class="input-group-btn">
+						<a class="execSynch1688OrderPlan btn btn-primary btn-sm">快速同步1688订单</a>
+					</span>
+				</div>
+			</div>
+
+
+			<div class="btn-group">
+				<a class="showSynch1688OrderPlan btn btn-info btn-sm">查看同步</a>
+			</div>
+
+			<div class="btn-group">
+				<label>
+	                <input type="radio" class="ace input-lg" name="fast_choose" value="0" <empty name="Think.request.fast_choose">checked="checked"</empty> />
+	                <span class="lbl">
+	                    无操作模式
+	                </span>
+	            </label>
+	            <label>
+	                <input type="radio" class="ace input-lg" name="fast_choose" value="1" <eq name="Think.request.fast_choose" value="1">checked="checked"</eq> />
+	                <span class="lbl">
+	                    发货5天未入库完成的订单
+	                </span>
+	            </label>
+	            <label>
+	                <input type="radio" class="ace input-lg" name="fast_choose" value="2" <eq name="Think.request.fast_choose" value="2">checked="checked"</eq> />
+	                <span class="lbl">
+	                    所有部分入库的订单
+	                </span>
+	            </label>
+	            <label>
+	                <input type="radio" class="ace input-lg" name="fast_choose" value="3" <eq name="Think.request.fast_choose" value="3">checked="checked"</eq> />
+	                <span class="lbl">
+	                    未关联采购批次的订单
+	                </span>
+	            </label>
+
+	            <label>
+	                <input type="radio" class="ace input-lg" name="fast_choose" value="4" <eq name="Think.request.fast_choose" value="4">checked="checked"</eq> />
+	                <span class="lbl">
+	                    金额不对应订单
+	                </span>
+	            </label>
+	            <label>
+	                当前页面总付款金额 {$total_data.payment_total} 元
+	            </label>
+
+	            
+			</div>
+
+		</div>
+	</div>
+
+	<table class="table table-hover table-bordered">
+		<include file="Layout:title_v2"/>
+
+			<volist name="list" id="pvo" key="tr_key">
+				<tbody style="">
+		      		<tr  class="success tr_show">
+						<td style="">
+							<label class="inline pull-left">
+								<input class="ace" type="checkbox" name="id[]" value="{$pvo.id}" />
+								<span class="lbl"></span>
+								{$pvo.id}
+							</label>
+						</td>
+		  				<td  style="min-width:200px;">
+		  					<a href="https://trade.1688.com/order/buyer_order_list.htm?orderIdSearch={$pvo.order_id}" target="_blank">{$pvo.order_id}</a>
+		  					<br>
+		  					付款：{$pvo.pay_time|default="无"|date="Y-m-d H:i",###}
+							<br>
+							发货：{$pvo.send_time|default="无"|date="Y-m-d H:i",###}
+		  				</td>
+		  				<td style="min-width:120px;">
+		  					<notempty name="pvo.related_sku_list">
+		  						<b>相关SKU</b>
+			  					<volist name="pvo.related_sku_list" id="sku">
+			  						<br>
+			  						<notempty name="sku.related_a">
+			  							{$sku.related_a}
+			  						<else />
+			  							<a href="{$sku.related_link}" title="{$sku.sku_name}" target="_blank">{$sku.sku}</a>
+			  						</notempty>
+			  						<br>
+			  						<a class="red bold" href="{:U('V2Stock/index')}?q={$sku.sku}" target="_blank">{$sku.purchasing_quantity}</a> 个 <a href="{$sku.thumbnail}" target="_blank" class="thumbnail" style="display:inline-block;"><img src="{$sku.thumbnail}" width=20 /></a>
+			  					</volist>
+		  					</notempty>
+		  				</td>
+		  				<td  style="min-width:100px;">
+		  					<b>{$pvo.account_name}</b>
+		  				</td>
+		  				<td>
+		  					{$pvo.order_status|L}
+		  				</td>
+		  				<td style="min-width:85px;">
+		  					{$pvo.order_time|default="无"|date="y-m-d<\bR>H:i",###}
+		  				</td>
+		  				<td>
+		  					{$pvo.price}元
+		  				</td>
+		  				<td style="min-width:80px;" >
+		  					<if condition="$pvo.shipping_fee gt 0">
+		  						{$pvo.shipping_fee}元
+		  					<else/>
+		  						包邮
+		  					</if>
+		  				</td>
+		  				<td>
+		  					<b>{$pvo.payment}</b> 元
+		  					<notempty name="pvo.refund_payment">
+		  						<br>
+		  						退:<b>{$pvo.refund_payment}</b>元
+		  					</notempty>
+		  					<br>
+		  					采购批次: 
+		  					<br>
+		  					<b class="blue">{$pvo.purchase_detail_real_cost_total}</b>/<b>{$pvo.purchase_detail_cost_total}</b>元
+
+		  				</td>
+
+		  				<td style="min-width:100px;" >
+		  					{$pvo.seller_company_name}
+		  				</td>
+		  				<td>
+		  					{$pvo.seller_login_id}
+		  				</td>
+		  				<td>
+		  					{$pvo.seller_contacts}
+		  				</td>
+		  				<td>
+		  					<b>{$pvo.shipping_name}</b>
+		  				</td>
+		  				<td style="width:180px;">
+		  					<volist name="pvo.package_data" id="package">
+		  						<b>{$package.tracking_company}</b><br> 
+		  						单号: <a href="https://www.baidu.com/s?wd={$package.tracking_company} {$package.tracking_number}" target="_blank">{$package.tracking_number}</a><br>
+		  					</volist>
+		  				</td>
+		  				<td style="max-width:200px;word-break: break-word;">
+		  					<notempty name="pvo.buyer_feed_back">
+			  					<div data-toggle="popover" class="popover_show"  data-content="<pre>{$pvo.buyer_feed_back}</pre>"><pre><?php echo substr($pvo['buyer_feed_back'], 0,100) . "..."; ?></pre></div>
+			  				</notempty>
+		  				</td>
+		  				<td style="max-width:200px;word-break: break-word;">
+		  					<notempty name="pvo.order_memo_data.0.remarkIcon">
+		  						<span class="lbl">&nbsp;{$pvo.order_memo_data.0.remarkIcon|toFlagName}&nbsp;</span>
+		  					</notempty>
+		  					<notempty name="pvo.order_memo">
+			  					<div data-toggle="popover" class="popover_show"  data-content="<pre>{$pvo.order_memo}</pre>"><pre><?php echo substr($pvo['order_memo'], 0,100) . "..."; ?></pre></div>
+			  				</notempty>
+		  				</td>
+		  				<td style="max-width:200px;">
+		  					<!-- <div data-id="{$pvo.id}" class="local_flag_edit">
+			  					<a class="btn btn-link btn-xs">
+									{$pvo.local_flag|toFlagName}
+								</a>
+		  					</div>
+		  					<div id="local_flag_list_{$pvo.id}" style="display:none;">
+								<?php
+									for ($i=0; $i <= 4; $i++) { 
+										
+								?>
+									<label class="radio inline">
+										<input type="radio" name="local_flag[]" data-id="{$pvo.id}" class="local_flag_radio ace" value="{$i}" <eq name="pvo.local_flag" value="$i">checked</eq> />
+										<span class="lbl">&nbsp;{$i|toFlagName}&nbsp;</span>
+									</label>
+								<?php
+									}
+								?>
+							</div> -->
+		  					<span class="V2EditMemo" data-field="memo" data-table-name="v2_online_1688_order" data-field-value="{$pvo.id}"><pre>{$pvo.memo}</pre></span>
+		  				</td>
+						<td style="">
+							<notempty name="pvo.purchase_detail_data">
+
+								<a data-id="{$pvo.id}" class="cancelBind1688 btn btn-danger btn-sm">取消关联</a>
+								<br>
+								<a href="{:U('V2PurchaseDetail/index')}?id={$pvo.purchase_detail_id_list|implode=",",###}" class="btn btn-info btn-sm" target="_blank">查看采购批次</a>
+								<br>
+								<a href="{:U('V2StockInstockPlan/index')}?id={$pvo.instock_plan_id_list|implode=",",###}" class="btn btn-primary btn-sm" target="_blank">查看入库单</a>
+								<a href="{:U('V2PurchasePlan/index')}?ids={$pvo.plan_ids|implode=",",###}" class="btn btn-success btn-sm" target="_blank">查看采购计划</a>
+							<else/>
+								<?php
+									if($pvo['order_status'] != "CANCEL" && $pvo['without_relate'] == "No"){
+								?>
+									<a data-url="{:U('V2PurchaseDetail/bind1688OrderView')}?order_1688_auto_id={$pvo.id}" class="showBox btn btn-primary btn-sm">关联采购</a>
+									
+									<a data-id="{$pvo.id}" class="withoutRelate1688 btn btn-danger btn-sm">申请免关联</a>
+									
+								<?php
+									}
+								?>
+								<eq name="pvo.without_relate" value="Yes">
+									<b>已免关联</b>
+								</eq>
+
+							</notempty>
+
+							<br>
+
+							<a data-url="{:U('packageEdit')}?id={$pvo.id}" class="showBox btn btn-inverse btn-sm">单号编辑</a>
+		  				</td>
+		       		</tr>
+				
+				<!-- 	<tr class="tr_box">
+						<th style="border:none;text-align:right;">货源ID</th>
+						<th>添加用户</th>
+						<th>货源状态</th>
+						<th colspan="2">货源名称</th>
+						<th>价格</th>
+						<th>供应商</th>
+						<th>联系人</th>
+						<th>备注</th>
+						<th>操作</th>
+					</tr> -->
+	      			<volist name="pvo.product_data" id="vo" key="vo_key">
+	            		<tr class="tr_box">
+							<td  style="border:none;text-align:right;" >
+								<!-- <label class="inline pull-left">
+									<input class="ace" type="checkbox" name="sku_id[]" value="{$vo.id}" />
+									<span class="lbl"></span>
+									{$vo.id}
+								</label> -->
+								<!-- {$vo.id} -->
+							</td>
+							<td colspan="3">
+								{$vo.product_order_id}
+								<br>
+		  						<a href="http://detail.1688.com/offer/{$vo.product_id}.html" target="_blank">{$vo.product_name}</a>
+							</td>
+							<td >
+								<a href="{$vo.thumbnail}" class="thumbnail" target="_blank" style="width:80px;"><img src="{$vo.thumbnail}" style="width:80px;"/></a>
+							</td>
+							<td colspan="3">
+								<notempty name="vo.variation_data">
+									<volist name="vo.variation_data.specItems" id="variation">
+										<b>{$variation.specName}</b> : {$variation.specValue} &nbsp;
+									</volist>
+								</notempty>
+							</td>
+							<td colspan="2" >
+								单价
+								<br>
+								<b class="red">{$vo.price}</b> 元
+							</td>
+							<td colspan="2">
+								折后价
+								<br>
+								<b class="red">{$vo.discount_price}</b> 元
+							</td>
+							<td colspan="2">
+								<b>分摊运费</b>
+								<br>
+								<if condition="$vo.per_shipping_fee gt 0">
+									<?php echo ceil($vo['per_shipping_fee']*1000)/1000;?> * {$vo.quantity} = <b class="red">{$vo.products_shipping_fee}</b> 元
+								<else/>
+									无
+								</if>
+							</td>
+							<td colspan="4">
+								<b>产品数量:</b>
+								<br>
+								<b class="red">{$vo.quantity}</b>
+							</td>
+						</tr>
+					</volist>
+	    		</tbody>	
+			</volist>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+
+</div>
+</form>
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+<script type="text/javascript">
+$(function($){
+
+	$('.popover_show').popover({
+		trigger:'focus click',
+		html:true,
+		placement:'left'
+	});
+
+	$(".local_flag_edit").click(function(){
+		var id = $(this).data("id");
+		
+		
+		if(!$(this).data("popover")){
+			var dd = $("#local_flag_list_"+id).show();
+			$(this).popover({
+				html:true,
+				placement:'left',
+				content:dd,
+			});
+			$(this).data("popover",1);
+		}
+
+		if(!$(this).data("popover_show")){
+			$(this).data("popover_show",1);
+			$(this).popover('show');
+		}else{
+			$(this).data("popover_show",false);
+			$(this).popover('hide');
+		}
+
+		return 1;
+	});
+
+	$(".local_flag_raido").change(function(){
+		var id = $(this).data("id");
+		var data = $("#local_flag_list_"+id+" input").serialize();
+		console.log(id);
+		console.log(data);
+	});
+
+	$(".cancelBind1688").click(function(){
+		var order_1688_auto_id = $(this).data("id");
+		if(!order_1688_auto_id){
+			alertWarning("参数错误");
+			return false;
+		}
+		if(!confirm("确认取消？")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('AlibabaCn/cancelBindPurchase')}",{id:order_1688_auto_id},function(msg){
+			btn.button('reset');
+			if(msg.status == 2){
+				var title = "取消1688订单:"+order_1688_auto_id+" 与采购批次的关联";
+		        var param_data = {order_1688_auto_id:order_1688_auto_id}
+		        var form_data = {
+		            title:title,
+		            content: '<a href="{:U('AlibabaCn/index')}?id='+order_1688_auto_id+'" class="btn btn-primary" target="_blank">查看1688订单</a>',
+		            thumbnail:'',
+		            audit_action_id:12,
+		            param_json:$.param(param_data),
+		        };
+		        showBox();
+		        tmpSendForm("{:U('V2AuditFlow/addView')}",form_data,"middleBoxIframe");
+			}else if(msg.status == 1){
+				alertWarning(msg.info,1);
+			}else{
+				alertWarning(msg.info);
+			}
+			return false;
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+        return false;
+	});
+	
+
+	$(".withoutRelate1688").click(function(){
+		var order_1688_auto_id = $(this).data("id");
+		if(!order_1688_auto_id){
+			alertWarning("参数错误");
+			return false;
+		}
+		
+		var title = "申请不用关联，1688订单:"+order_1688_auto_id;
+        var param_data = {order_1688_auto_id:order_1688_auto_id}
+        var form_data = {
+            title:title,
+            content: '<a href="{:U('AlibabaCn/index')}?id='+order_1688_auto_id+'" class="btn btn-primary" target="_blank">查看1688订单</a>',
+            thumbnail:'',
+            audit_action_id:24,
+            param_json:$.param(param_data),
+        };
+
+        showBox();
+        tmpSendForm("{:U('V2AuditFlow/addView')}",form_data,"middleBoxIframe");
+
+	});
+
+
+
+	$(".execSynch1688OrderPlan").click(function(){
+		var id = $("#alibaba_cn_account_id").val();
+		if(!id){
+			alertWarning("请选择1688帐号");
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('AlibabaCn/execSynch1688OrderPlan')}",{account_id:id},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".showSynch1688OrderPlan").click(function(){
+		var id = $("#alibaba_cn_account_id").val();
+		if(!id){
+			alertWarning("请选择1688帐号");
+			return false;
+		}
+		var url = "{:U('AlibabaCn/showSynch1688OrderPlan')}?account_id="+id;
+		
+		showMiddleBox(url);	
+		
+	});
+
+	
+});
+
+</script>

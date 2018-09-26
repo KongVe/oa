@@ -1,0 +1,133 @@
+<layout name='Layout/ace_box' />
+
+<script type="text/javascript" src="__PUBLIC__/js/echarts/build/dist/echarts.js"></script>
+<!-- 
+<script type="text/javascript" src="__PUBLIC__/js/ichart.1.2.min.js"></script> -->
+
+<form action="__SELF__" id="detail_form" method="POST">
+	<input type="hidden" name="account_id" value="{$Think.request.account_id}"> 
+	<input type="hidden" name="website_id" value="{$Think.request.website_id}"> 
+	<input type="hidden" name="sku_ids" value="{$sku_ids}"> 
+
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="col-sm-12">
+				<div class="input-group col-sm-3">
+					<a class="btn btn-danger btn-sm"  onclick="closeDetailBox()">关闭</a>
+					<a class="showInNewWindow btn btn-info btn-sm">在新窗口中查看</a>
+				</div>
+				
+				<div class="input-group col-sm-2">
+					<select name="cycle" id="cycle" style="display:none;">
+						<option value="day">请选择周期</option>
+						<option value="day" <eq name="Think.request.cycle" value="day">selected</eq>>每天</option>
+						<option value="week" <eq name="Think.request.cycle" value="week">selected</eq>>每周</option>
+						<option value="month" <eq name="Think.request.cycle" value="month">selected</eq>>每月</option>
+					</select>
+				</div>
+
+				<div class="input-group col-sm-4">
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="input-date-range form-control" type="text" name="order_time" id="order_time" value="{$Think.request.order_time}"  placeholder="订单时间默认最近14天">
+			      	<span class="input-group-btn">
+			        	<button type="submit" class="btn btn-danger btn-sm">确定</button>
+			      	</span>
+				</div>	
+			</div>
+			<div class="col-sm-12 align-center">
+				<div id="canvasDiv" style="height:600px;width:100%;">
+					<!-- <div class="col-sm-12 chart_list" id='canvasDiv'></div>		 -->
+				</div>		
+			</div>
+		</div>
+	</div>
+</form>
+
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+
+<script type="text/javascript">
+//PUBLIC
+var label_list=<?php echo json_encode($label_list); ?>;
+
+var variation_legend_list=<?php echo json_encode($variation_name_list); ?>;
+var variation_data= <?php echo json_encode($chartByVariation); ?>	
+var variation_option  = {
+	    tooltip : {
+	        trigger: 'axis'
+	    },
+	    legend: {
+	        data:variation_legend_list,
+	        orient:"vertical",
+	        x:"left",
+	    },
+	    toolbox: {
+	        show : true,
+	        feature : {
+	            mark : {show: true},
+	            dataView : {show: true, readOnly: false},
+	            magicType : {show: true, type: ['bar', 'line']},
+	            restore : {show: true},
+	            saveAsImage : {show: true}
+	        }
+	    },
+	    calculable : true,
+	    xAxis : [
+	        {
+	            type : 'category',
+	            boundaryGap : true,
+
+	            data : label_list,
+	        }
+	    ],
+	    yAxis : [
+	        {
+	            type : 'value',
+	            
+	        }
+	    ],
+
+	    series :variation_data,
+	};           
+
+var variationChart = function(){
+	// 路径配置
+	require.config({
+	    paths: {
+	        echarts: '__PUBLIC__/js/echarts/build/dist'
+	    }
+	});
+	// 使用
+    require(
+        [
+            'echarts',
+            'echarts/chart/bar',
+            'echarts/chart/line',
+        ],
+        function (ec) {
+            // 基于准备好的dom，初始化echarts图表
+            var myChart = ec.init(document.getElementById('canvasDiv')); 
+              // 为echarts对象加载数据 
+	        myChart.setOption(variation_option); 
+	    }
+    );
+}
+
+// 关闭悬浮框
+function closeDetailBox(){
+	if(parent.$("#order-detail-box").length>0){
+		parent.$("#order-detail-box").css({display:"none"});
+	}else{
+		window.close();
+	}
+}
+
+$(function($){
+	variationChart();
+
+	$(".showInNewWindow").click(function(){
+		$("#detail_form").attr("target","_blank").submit();
+		$("#detail_form").attr("target","")
+	});
+})
+</script>

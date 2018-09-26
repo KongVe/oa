@@ -1,0 +1,268 @@
+<layout name='Layout/ace_popup' />
+
+{:W('PageHeader',array('name'=>'<b>拆分库存</b> -> 分配成本'))}
+
+<form method='post' action="{:U('V2Stock/splitStockChooseCostView')}" id="editForm" class="well form-horizontal clearfix">
+	<input type="hidden" id="ajax" value="1"/>
+	<input type="hidden" id="id" name="id" value="{$Think.request.id}">
+	<input type="hidden" id="virtual_sku_id" name="virtual_sku_id" value="{$virtual_sku_data.id}">
+	<input type="hidden" id="warehouse_id" name="warehouse_id" value="{$warehouse_id}">
+
+
+	<div class="panel panel-info">
+		<div class="panel panel-heading">
+			<span>当前已有的库存</span>
+		</div>
+		<div class="panel-body">
+
+			<div class="form-group col-xs-12">
+				<table class="table table-hover table-bordered">
+					<tr>
+						<th class="text-center" colspan="5">当前已有的库存</th>
+					</tr>
+					<tr>
+						<th>SKU序号</th>
+						<th>规格SKU</th>
+						<th>SKU名称</th>
+						<th>图片</th>
+						<th>
+							货架位数量
+						</th>
+					</tr>
+					<volist name="stock_list" id="stock">
+						<tr>
+							<td>
+								{$stock.sku_id}
+							</td>
+							<td>
+								{$stock.sku}
+
+								<input type="hidden" name="stock_id[]" value="{$stock.id}">
+
+							</td>
+							<td>
+								{$stock.sku_name}
+							</td>
+							<td>
+								<a class="thumbnail"  href="{$stock.thumbnail}" target="_blank">
+			  						<img src="{$stock.thumbnail}" width="60" />
+			  					</a>
+							</td>
+							<td>
+								<table class="table" id="split_table_{$stock.id}">
+									<tr>
+										<th>货架位</th>
+										<th>系统数量</th>
+										<th>可用数量</th>
+										<th>预留数量</th>
+									</tr>
+									<volist name="stock.map_place_list" id="map_place">
+										<tr>
+											<td>
+												{$map_place.place_name}
+											</td>
+											<td>
+												{$map_place.quantity}
+											</td>
+											<td>
+												{$map_place.available_quantity}
+											</td>
+											<td>
+												{$map_place.reserved_quantity}
+											</td>
+										</tr>
+									</volist>
+								</table>
+							</td>
+						</tr>
+					</volist>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<div class="panel panel-primary">
+		<div class="panel panel-heading">
+			<span>拆分库存</span>
+		</div>
+		<div class="panel-body">
+
+			<div class="form-group col-xs-12">
+				<table class="table table-hover table-bordered">
+					<tr>
+						<th class="text-center" colspan="4">虚拟SKU映射关系</th>
+					</tr>
+					<tr>
+						<th>虚拟规格SKU</th>
+						<th>SKU名称</th>
+						<th>图片</th>
+						<th>拆分数量</th>
+					</tr>
+					<tr class="success">
+						<td>
+							{$virtual_sku_data.sku}
+						</td>
+						<td>
+							{$virtual_sku_data.sku_name}
+						</td>
+						<td>
+							<a class="thumbnail" style="width:80px;" href="{$virtual_sku_data.thumbnail}" target="_blank">
+		  						<img src="{$virtual_sku_data.thumbnail}" width="80" />
+		  					</a>
+						</td>
+						<td style="width:500px;">
+							<table class="table">
+								<tr>
+									<th>货架位</th>
+									<th>数量</th>
+									<th>拆分数量</th>
+								</tr>
+								<volist name="virtual_sku_data.stock_data.map_place_list" id="map_place">
+									<tr>
+										<td>
+											{$map_place.place_name}
+										</td>
+										<td>
+											<b>系统:</b> {$map_place.quantity} 个<br>
+											<b>可用:</b> {$map_place.available_quantity} 个<br>
+											<b>预留:</b> {$map_place.reserved_quantity} 个
+										</td>
+										<td style="width:120px;">
+											<div class="input-group">
+												<input type="number" data-id="{$map_place.place_id}" class="split_quantity_input form-control" name="split_quantity[{$map_place.place_id}]" value="{$stock_data.available_quantity}" check="require" msg="请输入拆分数量">
+												<span class="input-group-addon">
+													个
+												</span>
+											</div>
+										</td>
+									</tr>
+								</volist>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="4">
+							<table class="table">
+								<tr>
+									<th class="text-center" colspan="5">
+										绑定的规格SKU及数量
+									</th>
+								</tr>
+								<tr>
+									<th>SKU序号</th>
+									<th>SKU</th>
+									<th>图片</th>
+									<th>数量</th>
+									<th>选择货架位</th>
+								</tr>
+								<volist name="virtual_sku_data.sku_product_list" id="vo">
+									<tr>
+										<td>
+											{$vo.id}
+										</td>
+										<td>
+											<b>规格SKU:</b> {$vo.sku}
+											<br>
+											<br>
+											<b>SKU名称:</b> {$vo.sku_name}											
+										</td>
+										<td>
+											<a class="thumbnail"  href="{$vo.thumbnail}" target="_blank" style="width:80px;">
+						  						<img src="{$vo.thumbnail}" width="80" />
+						  					</a>
+										</td>
+										<td style="width:110px;">
+											绑定: <b>{$vo.quantity}</b> 个
+											<br>
+											<br>
+											生成: <b class="red" id="new_quantity_{$vo.id}"></b> 个
+											<input type="hidden" id="new_quantity_val_{$vo.id}" name="sku_quantity[{$vo.id}]" value="0" check="require" msg="请输入拆分数量">
+										</td>
+										<td style="width:400px;">
+											<div class="form-group col-xs-12">
+												<div class="col-xs-6">
+													仓库: {$warehouse_data.warehouse_name} 
+												</div>
+												<div class="col-xs-6 input-group">
+													<span class="input-group-addon">
+														区域:
+													</span>
+													<select class="form-control" id="region_select{$vo.id}" name="region_id[{$vo.id}]" onchange="ajaxGetChildrenList($(this).val(),'shelf','region',false,{$vo.id});"></select>
+												</div>
+											</div>
+											<div class="form-group col-xs-12">
+												<div class="col-xs-6 input-group">
+													<span class="input-group-addon">
+														货架:
+													</span>
+													<select class="form-control" id="shelf_select{$vo.id}" name="shelf_id[{$vo.id}]" onchange="ajaxGetChildrenList($(this).val(),'place','shelf',false,{$vo.id});"></select>
+												</div>
+												<div class="col-xs-6 input-group">
+													<span class="input-group-addon">
+														货架位:
+													</span>
+													<select class="form-control" id="place_select{$vo.id}" name="place_id[{$vo.id}]" check="require" msg="请选择货架位"></select>
+												</div>
+											</div>
+										</td>
+									</tr>
+								</volist>
+							</table>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12 text-center">
+		<div class="col-sm-2">
+		</div>
+		<div class="col-sm-4">
+			<input class="btn btn-primary" type="submit" value="确认拆分">
+		</div>
+		<div class="col-sm-4">
+			<input class="close_box_button btn btn-default" type="button" value="关闭">
+		</div>
+	</div>
+</form>
+
+<script type="text/javascript">
+var sku_map = {$virtual_sku_data.sku_product_list|default=""|json_encode}
+
+//货架位
+<include file="V2StockPlace:getchildrenlistjs" />
+
+$(function(){
+
+	var choose_warehouse = {$warehouse_id|default="false"};
+
+	for (var i = 0; i < sku_map.length; i++) {
+		var sku_id = sku_map[i].id;
+		ajaxGetChildrenList(choose_warehouse,'region','warehouse',false,sku_id);
+	};
+
+	$(".split_quantity_input").change(function(){
+		showSplitQuantity();
+	}).change();
+});
+
+function showSplitQuantity(){
+	var quantity_total = 0;
+	for (var i = 0; i < $(".split_quantity_input").length; i++) {
+		var tmp = parseInt($(".split_quantity_input").eq(i).val());
+		if(isNaN(tmp)){
+			tmp = 0;
+		}
+		quantity_total += tmp;
+	};
+
+	for (var i = 0; i < sku_map.length; i++) {
+		var sku_quantity = quantity_total * sku_map[i].quantity;
+		$("#new_quantity_" + sku_map[i].id).html(sku_quantity);
+		$("#new_quantity_val_" + sku_map[i].id).val(sku_quantity);
+		
+	};
+}
+</script>
+

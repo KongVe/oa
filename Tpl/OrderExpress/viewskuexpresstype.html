@@ -1,0 +1,65 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'查看SKU物流去渠道绑定'))}
+
+<form method='post' id="form_data" name="form_data" enctype="multipart/form-data"   class="clearfix well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="0">
+	<input type="hidden" id="type" name="type" value="{$type}">
+	<input type="hidden" id="folder" name="folder" value="{$folder}">
+	<input type="hidden" id="fid" name="fid" value="{$folder}">
+	<if condition="$_REQUEST['id'] neq ''">
+		<input type="hidden" id="id" name="id" value="{$vo.id}">
+		<input type="hidden" id="opmode" name="opmode" value="edit">
+	<else/>
+		<input type="hidden" id="opmode" name="opmode" value="add">
+	</if>
+
+	<div class="form-group col-sm-12">
+		<table class="table ">
+			<tr>
+				<th>SKU</th>
+				<th>国家</th>
+				<th>申报名称</th>
+				<th>网站</th>
+				<th>帐号</th>
+				<th>物流方式</th>
+				<th>操作</th>
+			</tr>
+			<volist name="list" id="vo">
+				<tr>
+					<td>{$vo.sku}</td>
+					<td>{$vo.country_code|default="全部国家"}</td>
+					<td>{$vo.product_type}</td>
+					<td>{$vo.website}</td>
+					<td>{$vo.account_name}</td>
+					<td>{$vo.express_type}</td>
+					<td>
+						<a class="del btn btn-danger btn-sm" data-id="{$vo.id}">删除</a>
+					</td>
+				</tr>
+			</volist>
+			
+		</table>
+	</div>
+	
+</form>
+
+<script type="text/javascript">
+	$(function($){
+		$(".del").click(function(){
+			if(!confirm("确认删除？")){
+				return false;
+			}
+			var id = $(this).data("id");
+			$.post("{:U('delSkuExpressType')}",{id:id},function(msg){
+				if(msg.status){
+					alertWarning(msg.info,1);
+					window.location.reload();
+				}else{
+					alertWarning(msg.info);
+				}
+			}).error(function(){
+				alertWarning("网络错误，请重试");
+			});
+		});
+	});
+</script>

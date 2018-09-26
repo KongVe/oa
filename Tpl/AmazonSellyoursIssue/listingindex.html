@@ -1,0 +1,160 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo intval(!$sort); ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="id" value="{$Think.request.id}" />
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">Listing</h1>
+	<div class="col-sm-10 pull-right">
+			<div class="form-group col-xs-2 pull-left">
+				<select name="instock_status" id="instock_status" class="form-control ">
+					<option value="">库存状态</option>
+					<option value="Instock" <?php if($_REQUEST['instock_status'] === 'Instock'){ echo "selected"; } ?> >Instock</option>
+					<option value="Outstock" <?php if($_REQUEST['instock_status'] === 'Outstock'){ echo "selected"; } ?> >Outstock</option>
+				</select>
+			</div>
+
+			<div class="form-group col-xs-2 pull-left">
+				<select name="has_price_lowest" id="has_price_lowest" class="form-control ">
+					<option value="">最低售价</option>
+					<option value="true" <?php if($_REQUEST['has_price_lowest'] === 'true'){ echo "selected"; } ?> >已设置</option>
+					<option value="false" <?php if($_REQUEST['has_price_lowest'] === 'false'){ echo "selected"; } ?> >未设置</option>
+				</select>
+			</div>						
+
+			<div class="form-group col-sm-2 pull-left">
+				<div class="col-sm-12">
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="issue_time" id="issue_time" value="{$Think.request.issue_time}"    readonly="readonly" placeholder="寻找时间">
+				</div>
+			</div>				
+			<div class="input-group col-sm-6">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索 ASIN，产品名称，商标"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div>
+	</div>
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a class="btn btn-sm btn-warning" onclick="generateSKU()" >生成SKU</a>
+		</div>
+		<div class="btn-group">
+			<a class="btn btn-sm btn-danger" id="btn_ship_invoice" onclick="generateShipPlan()" >生成发货单</a>
+		</div>
+	</div>
+
+</div>
+<div class="message-container">
+	<table class="table table-striped table-hover">
+		 	<include file="Layout:title"/>
+			<tbody class="tbody">
+			<volist name="list" id="vo">
+				<tr>
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td>
+						{$vo.asin}<br>
+						{$vo.sku}<br>
+						{$vo.fnsku}
+					</td>
+					<td>
+						<a href="{$vo.source_link}" target="_blank" class="thumbnail"><img src="{$vo.thumbnail}" width="60" /></a>
+						<a href="http://www.amazon.com/gp/product/{$vo.asin}" target="_blank" title="{$vo.product_name}"><?php echo substr($vo['product_name'], 0,10) . "..."; ?></a>
+					</td>
+					<td>
+						<a href="javascript:void(0)" onclick="getStockMapList({$vo.sellyours_id})" title="库存：{$vo.instock_quantity}" >{$vo.instock_status} : {$vo.instock_quantity}</a>
+						<br>
+						<?php if($vo['purchase_status'] == 'Purchasing'){ ?>
+						<a title="采购中: {$vo.purchasing_quantity}" >{$vo.purchase_status} : {$vo.purchasing_quantity}</a>
+						<br>
+						<?php } ?>
+					</td>
+					<td>
+						<span class="blue">
+							<input style="max-width:60px;" data-issue-id="{$vo.id}" value="{$vo.plan_transfer_quantity|default=0}" class="createTransferPlanQuantity">		
+						</span>
+						<notempty name="vo.planed_transfer_quantity">
+						<br>
+						<br>
+						已计划：
+						<b class="green">
+							{$vo.planed_transfer_quantity}
+						</b>
+						 个
+						</notempty>
+					</td>
+					<td>{$vo.account_name}</td>
+					<td>{$vo.status}</td>
+					<td>{$vo.fulfill_by}</td>
+					<td>{$vo.day_sessions}</td>
+					<td>{$vo.month_order_units}</td>
+					<td><a data-toggle="popover"  data-content="Reserved: {$vo.fba_reserved_quantity} <BR> Fulfillable: {$vo.fba_fulfillable_quantity} <BR> Unfulfillable: {$vo.fba_unfulfillable_quatity}"> {$vo.fba_stock_quantity}</a></td>
+					<td>
+						<neq name="vo.last_order_cost" value="0">
+							利润: ￥<b class="red">{$vo.last_order_profit}</b><br>
+							成本: ￥{$vo.last_order_cost}<br>
+							利润率: <?php echo ($vo['last_order_profit_rate'] * 100) . "%"; ?><br>
+							<?php echo date("Y-m-d", $vo['last_order_time']); ?>
+						</neq>
+					</td>
+					<td>{$vo.issue_empname}</td>
+					<td>{$vo.product_price}</td>
+					
+					<td><span class="V2EditMemo" data-table-name="amazon_sellyours_issue" data-field-value="{$vo.id}"><pre>{$vo.memo}</pre></span>
+					</td>
+					
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" height="300px" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+
+<div class="modal fade" id="editProduct" role="dialog"  tabindex="-1" aria-labelledby="editProductLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="editProductIframe" name="editProductIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<div class="business-report-box col-lg-12" id="business-report-box" style="position:fixed;top:138px;width:71%;z-index:1000;height:300px;left:30%;display:none;">
+	<iframe src="" id="business-report-iframe" frameborder="0" name="business-report-iframe" srolling="auto"  width="100%"></iframe>
+</div>
+
+
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox1" role="dialog"  tabindex="-1" aria-labelledby="bottomBox1Label" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBox1Iframe" name="bottomBox1Iframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<style>
+.showBottomBox{cursor: pointer;}
+</style>

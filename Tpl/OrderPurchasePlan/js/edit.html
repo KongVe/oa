@@ -1,0 +1,74 @@
+<script type="text/javascript">
+	function save() {
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('save')}",false,function(msg){
+				if(msg.status){
+					if(parent.$("#middleBox").length>0){
+						parent.window.location.reload();
+						parent.$("#middleBox").modal('hide');
+
+					}else{
+						alertWarning(msg.info,1);
+					}
+				}else{
+					alertWarning(msg.info);
+				}
+			});
+		}
+	}
+
+	
+
+	function showRelate(r){
+		if(r.status){
+			if(r.data.referenceHtml){
+				$("#reference").html(r.data.referenceHtml);
+			}else{
+				$("#reference").html('无');
+			}
+			if(r.data.relateHtml){
+				$("#relateStock").html(r.data.relateHtml);
+			}else{
+				$("#relateStock").html('无');
+			}
+		}else{
+			$("#reference").html('无');
+			$("#relateStock").html('无');
+		}
+	}
+
+	function setCheckVariation(obj){
+		var sku = $(obj).attr("data-sku");
+		var variation = $(obj).attr("data-variation");
+		$("#sku").val(sku);
+		$("#variation").val(variation);
+		var img = $(obj).parent().parent().parent().find('img').attr("src");
+		$("#thumbnail").val(img);
+		showThumbnail();
+		$(obj).removeClass("btn-primary");
+		$(obj).addClass("btn-danger");
+	}
+
+	function showThumbnail(){
+		var src=$("#thumbnail").val();
+		$('#thumbnail_show').attr('href',src);
+		$('#thumbnail_show img').attr('src',src);
+	}
+
+	$(function() {
+		set_val('is_del', "{$vo.is_del}");
+
+		$("#sku").change(function(){
+			$.post("{:U('check')}",'sku=' + $(this).val(),showRelate)
+		})
+
+		if($("#sku").val() != ''){
+			$.post("{:U('check')}",'sku=' + $("#sku").val(),showRelate)
+		}
+	}); 
+
+	//货架位
+	<include file="OrderStock:js/chooseshelfjs"/>
+
+	ajaxGetChildrenList(false,false,false,1);
+</script>

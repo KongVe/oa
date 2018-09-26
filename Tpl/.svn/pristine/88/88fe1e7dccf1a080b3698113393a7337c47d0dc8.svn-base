@@ -1,0 +1,526 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" action="{:U()}" id="form_search" method="post" class="form-inline">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+
+	<input type="hidden" name="instock_by_purchase_list" id="instock_by_purchase_list" value="{$Think.request.instock_by_purchase_list}">
+	<input type="hidden" name="purchase_list_id_bak" id="purchase_list_id_bak" value="{$Think.request.purchase_list_id_bak}">
+
+<div class="page-header clearfix">
+	<h1 class="col-xs-2">{$title}
+		<br>入库每批都要抽检, <b class="red">色差大</b>, <b class="red">与图片不符</b>, <b class="red">材质不好</b> 都要反馈给采购</b>
+	</h1>
+	<div class="col-xs-10">
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					添加时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}" placeholder="添加时间">
+			</div>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					最后入库时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="instock_time" id="instock_time" value="{$Think.request.instock_time}" placeholder="最后入库时间">
+			</div>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					关闭时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="close_time" id="close_time" value="{$Think.request.close_time}" placeholder="关闭时间">
+			</div>
+		</div>
+
+		
+	</div>
+
+	<div class="form-group col-sm-2">
+       
+    </div>
+
+	<div class="col-xs-10">
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					添加用户
+				</span>
+				<select name="add_uid[]" id="add_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+					<option value="">选择用户</option>
+					<volist name="user_list" id="user">
+						<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['add_uid'])){echo 'selected="selected"';} ?> >{$user.show_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					最后入库用户
+				</span>
+				<select name="instock_uid[]" id="instock_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+					<option value="">选择用户</option>
+					<volist name="user_list" id="user">
+						<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['instock_uid'])){echo 'selected="selected"';} ?> >{$user.show_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					关闭用户
+				</span>
+				<select name="close_uid[]" id="close_uid" size="1" multiple="multiple"  style="width:100%;" placeholder="选择用户">
+					<option value="">选择用户</option>
+					<volist name="user_list" id="user">
+						<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['close_uid'])){echo 'selected="selected"';} ?> >{$user.show_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group col-sm-2">
+       
+    </div>
+
+	<div class="col-xs-10">
+		<div class="form-group col-sm-3">
+       		<div class="input-group">
+	            <span class="input-group-addon">
+	                采购清单序号:
+	            </span>
+	            <input class="form-control " type="text" name="purchase_list_id" id="purchase_list_id" value="{$Think.request.purchase_list_id}"  placeholder="采购清单序号,英文逗号分隔">
+	        </div>
+    	</div>
+		 
+		<div class="form-group col-sm-3">
+	        <div class="input-group">
+	            <span class="input-group-addon">
+	                入库单序号
+	            </span>
+	            <input class="form-control " type="text" name="id" id="id" value="{$Think.request.id}"  placeholder="入库单序号,英文逗号分隔">
+	        </div>
+	    </div>	
+
+	    <div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					相关单号
+				</span>
+				<input class="form-control" type="text" id="alibaba_tracking_number" name="alibaba_tracking_number" value="{$Think.request.alibaba_tracking_number}"  placeholder="淘宝,1688快递单号 或 订单号" />
+			</div>
+		</div>
+		
+	    <div class="input-group col-sm-3">
+			<div class="input-group">
+				<input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="规格SKU，SKU名称"/>
+				<span class="input-group-btn">
+					<button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+				</span>
+			</div>
+		</div>
+	</div>
+	
+</div>	
+<div class="message-container" id="container_table" style="width:100%;overflow:scroll;">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="btn-group col-xs-3">
+				<a data-url="{:U('edit')}" class="showBox btn btn-primary">添加入库单</a>
+				<a href="{:U('instockIndex')}" class="btn btn-inverse" target="_blank">入库记录列表</a>
+			</div>
+
+			<!-- <div class="btn-group col-xs-3">
+				<div class="input-group" style="width: 300px;">
+					<select class="form-control" id="alibaba_cn_account_id">
+						<option value="">选择1688帐号</option>
+						<volist name="alibaba_cn_account_list" id="alibaba_cn_account">
+							<option value="{$alibaba_cn_account.id}">{$alibaba_cn_account.account_name}</option>
+						</volist>
+					</select>
+					<span class="input-group-btn">
+						<a class="execSynch1688OrderPlan btn btn-primary btn-sm">快速同步1688订单</a>
+					</span>
+				</div>
+			</div> -->
+
+			<div class="btn-group col-xs-3">
+				<a class="doPlanOrderAutoProcess btn btn-inverse btn-sm">入库完成，执行自动配货</a>
+			</div>
+
+			
+			<div class="btn-group col-xs-2">
+				<a data-url="{:U('instockSearchNumberIndex')}" class="showBox btn btn-primary">物流单号搜索记录</a>
+			</div>
+
+			<notempty name="Think.request.purchase_list_id_bak">
+				<div class="btn-group col-xs-3">
+					<b class="red">当前根据清单 <a href="{:U('v2_purchase_list/index')}?ids={$Think.request.purchase_list_id_bak}" target="_blank">{$Think.request.purchase_list_id_bak}</a> 入库 请勿更改 采购清单序号 搜索条件</b>
+				</div>
+			<else/>
+				<div class="btn-group col-xs-3">
+					<b>当前未根据清单入库，请搜索快递单号进行入库</b>
+				</div>
+			</notempty>
+			
+
+			
+		</div>
+	</div>
+
+	<table class="table table-hover table-bordered">
+		<include file="Layout:title_v2"/>
+		
+		<tbody class="tbody">
+		<volist name="list" id="vo" key="tr_key">
+			<tr id="tr_{$vo.id}" >
+				<td>
+					<label class="inline pull-left">
+						<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+						<span class="lbl"></span>
+						{$vo.id}
+					</label>
+				</td>
+				<td >
+					<a href="{$vo.thumbnail}" class="thumbnail" target="_blank"><img src="{$vo.thumbnail}" data-src="{$vo.thumbnail}" width="60" /></a>
+					<a href="{:U('V2SkuProduct/index')}?id={$vo.sku_id}" target="_blank">{$vo.sku}</a>
+				</td>
+				<td style="width:150px;">
+					{$vo.sku_name}
+
+					<br>
+					<br>
+					<br>
+
+					<div class="input-group">
+						<input type="number" class="form-control" id="print_sku_quantity_{$vo.id}" value="{$vo.print_quantity}">
+						<div class="input-group-btn">
+							<a data-id="{$vo.id}" data-sku_id="{$vo.sku_id}" class="printSku btn btn-primary btn-sm">打印SKU</a>
+						</div>
+					</div>
+				</td>
+				<td >
+					<switch name="vo.key_type" >
+					<case value="Purchase">
+						<a href="{:U('V2PurchaseDetail/index')}?id={$vo.key_id}" target="_blank">{$vo.key_type|L}</a>
+					</case>
+					<case value="Returned">
+						<a href="{:U('V2OrderDetail/index')}?order_auto_id={$vo.order_auto_id}" target="_blank">{$vo.key_type|L}</a>
+					</case>
+					<case value="Manual" break="0"></case>
+					<case value="Overflow">
+						<b>{$vo.key_type|L}</b>
+
+						<notempty name="vo.owner_user_name">
+							<br>
+							<br>
+							<b>所属用户:</b>
+							<br>
+							{$vo.owner_user_name}
+						</notempty>
+					</case>
+					<default />
+						<b>{$vo.key_type|L}</b>
+					</switch>
+				</td>
+				<td >
+					{$vo.warehouse_name}
+				</td>
+				<td style="min-width:120px;">
+					<b>{$vo.cost}</b> 元
+
+					<notempty name="vo.have_change_cost">
+						<br>
+						<br>
+
+						<b>实际入库成本:</b>
+						<br>
+
+						<volist name="vo.instock_list" id="instock">
+							<b>{$instock.instock_time|default=""|date="m-d",###}</b> {$instock.instock_cost} 元<br>
+						</volist>
+					</notempty>
+				</td>
+
+				<td >
+					<b>{$vo.instock_status|L}</b>
+					<eq name="vo.is_close" value="Yes">
+						<br>
+						<b>(已关闭)</b>
+					</eq>
+				</td>
+				<td >
+					<eq name="vo.is_close" value="Yes">
+						<b>(已关闭)</b>
+					<else/>
+						正常
+					</eq>
+				</td>
+				<td style="width:80px;">
+					<?php 
+						$day_after = (time()-$vo['add_time'])/(3600*24);
+						$day_after = ceil($day_after);
+					?>
+					{$vo.add_time|default=""|date="y-m-d<bR>H:i:s",###}
+					<if condition="$vo.day_after gt 4">
+						<br><i><span class="label label-danger">{$day_after}天</span></i> 
+					</if>
+					<br>
+					<b>{$vo.add_user_name}</b>
+				</td>
+				<td >
+					<span class="red">{$vo.plan_instock_quantity}</span>
+
+					<notempty name="vo.purchase_detail_data.source_data.item_number">
+						<br>
+						<br>货号:
+						<b>{$vo.purchase_detail_data.source_data.item_number}</b>
+					</notempty>
+				</td>
+				<td >
+					<eq name="vo.instock_status" value="Partial instock">
+						<b class="blue" style="font-size:16px;">{$vo.instock_quantity|default="数据错误"}</b>
+					<else/>
+						<b>{$vo.instock_quantity|default="未入库"}</b>
+					</eq>
+				</td>
+				<td style="width:80px;">
+					<empty name="vo.instock_user_name">
+						未入库
+					<else/>
+						{$vo.instock_time|default=""|date="y-m-d<bR>H:i:s",###}
+						<br>
+						<b>{$vo.instock_user_name}</b>
+					</empty>
+				</td>
+				<td style="width:80px;">
+					<b>{$vo.close_user_name|default="无"}</b>
+					<br>
+					{$vo.close_time|default=""|date="y-m-d<bR>H:i:s",###}
+				</td>
+				<td>
+					<span class="V2EditMemo" data-field="memo" data-table-name="v2_stock_instock_plan" data-field-value="{$vo.id}"><pre>{$vo.memo}</pre></span>
+
+					<notempty name="vo.purchase_detail_memo">
+						<br>
+						<br>
+						<b>采购批次备注：</b>
+						<br>
+						<span style="display:block;max-width:200px;word-break:break-all;">
+							{$vo.purchase_detail_memo}
+						</span>
+					</notempty>
+					<notempty name="vo.alibaba_package_list">
+						<br>
+						<br>
+						<b>1688物流信息:</b>
+						<br>
+						<volist name="vo.alibaba_package_list" id="alibaba_package">
+							<b>{$alibaba_package.tracking_company}</b>: {$alibaba_package.tracking_number}
+						</volist>
+					</notempty>
+				</td>
+				<td>
+					<div class="col-sm-12">
+						<?php
+							if(in_array($vo['instock_status'], array("Waiting instock","Partial instock")) && $vo['is_close'] == "No" ){
+								
+								if( $vo['purchase_detail_data']['source_platform_id'] == 1 && (in_array($vo['purchase_detail_data']['order_status'], array("CANCEL")) || !isset($vo['purchase_detail_data']['order_status'])) ){
+
+								}else{
+
+						?>
+
+							<a data-id="{$vo.id}" class="showInstockBox btn btn-primary btn-sm">入库</a>
+							<br>
+
+						<?php
+								}
+							}
+						?>
+						
+						<?php
+							if(in_array($vo['instock_status'], array("Instock","Partial instock")) && $vo['is_close'] == "No" && $vo['warehouse_type'] == "Local"){
+						?>
+							
+							<a data-id="{$vo.id}" class="showCancelInstockBox btn btn-danger btn-sm">取消入库</a>
+							<br>
+						<?php
+							}
+						?>
+						
+						<?php
+							if(in_array($vo['instock_status'], array("Waiting instock","Partial instock")) && $vo['is_close'] == "No" && $vo['warehouse_type'] == "Local" && in_array($vo['key_type'], array("Manual","Overflow"))){
+						?>
+							<a data-id="{$vo.id}" class="closeInstockPlan btn btn-warning btn-sm">关闭</a>
+							<br>
+						<?php
+							}
+						?>
+
+						<?php 
+							if($vo['instock_quantity'] > 0 && ($vo['is_close'] == "Yes" || $vo['instock_status'] == "Instock")){
+						?>
+							
+							<a data-url="{:U('changeCostByInstockPlanView')}?id={$vo.id}" class="showBox btn btn-inverse btn-sm">成本调节</a>
+							<br>
+						<?php
+							}
+						?>
+						
+						<a data-url="{:U('detail')}?id={$vo.id}" class="showBox btn btn-success btn-sm">详情</a>
+						<br>
+						<a data-url="{:U('OperateLog/view')}?id={$vo.id}&table_name=v2_stock_instock_plan" class="showBox btn btn-info btn-sm">日志</a>
+					</div>
+				</td>
+			</tr>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+
+<div id="tmp" class="display-none">
+	<form name="form_tmp" id="form_tmp" method="post" class="form-inline">
+	</form>
+</div>
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+<script type="text/javascript">
+$(function($){
+	$("#add_uid").select2();
+	$("#instock_uid").select2();
+	$("#close_uid").select2();
+
+	$(".doPlanOrderAutoProcess").click(function(){
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('V2OrderDetail/doPlanOrderAutoProcess')}",{},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".closeInstockPlan").click(function(){
+		var id = $(this).attr("data-id");
+		if(!id){
+			return false;
+		}
+		if(!confirm("请确认关闭手工入库单？已入库的数量不受影响，未入库的将不能再入库")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('closeInstockPlan')}",{id:id},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	
+	$(".printSku").click(function(){
+		var id = $(this).data("id");
+		var sku_id = $(this).data("sku_id");
+		var quantity = $("#print_sku_quantity_"+id).val();
+		if(quantity <= 0 || !quantity){
+			alertWarning("请输入正确的数量");
+			return false;
+		}
+		var url = "{:U('V2SkuProduct/printSku')}?id="+sku_id+"&quantity="+quantity+"&instock_plan_id="+id;
+		window.open(url).print();
+	});
+
+	$(".finishInstock").click(function(){
+		var id = $(this).attr("data-id");
+		if(!id){
+			return false;
+		}
+		if(!confirm("确认完成入库? 入库数量需要大于或等于计划数量")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('finishInstock')}",{id:id},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+
+	$(".showInstockBox").click(function(){
+		var id = $(this).attr("data-id");
+		
+		var url = "{:U('instockView')}?id="+id;
+
+		var instock_by_purchase_list = $("#instock_by_purchase_list").val();
+		var purchase_list_id_bak = $("#purchase_list_id_bak").val();
+
+		if(instock_by_purchase_list && purchase_list_id_bak){
+			url += ("&instock_by_purchase_list="+instock_by_purchase_list+"&purchase_list_id_bak="+purchase_list_id_bak);
+		}
+		
+		showMiddleBox(url);
+		
+	});
+
+	$(".showCancelInstockBox").click(function(){
+		var id = $(this).attr("data-id");
+		
+		var url = "{:U('cancelInstockView')}?id="+id;
+
+		var instock_by_purchase_list = $("#instock_by_purchase_list").val();
+		var purchase_list_id_bak = $("#purchase_list_id_bak").val();
+
+		if(instock_by_purchase_list && purchase_list_id_bak){
+			url += ("&instock_by_purchase_list="+instock_by_purchase_list+"&purchase_list_id_bak="+purchase_list_id_bak);
+		}
+		
+		showMiddleBox(url);
+		
+	});
+
+	
+});
+
+</script>

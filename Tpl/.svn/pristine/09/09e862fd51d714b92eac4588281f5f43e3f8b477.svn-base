@@ -1,0 +1,72 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'编辑区域'))}
+
+<form method='post' action="{:U('layoutSave')}" id="editForm" name="editForm" class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	<notempty name="vo.id">
+		<input type="hidden" id="id" name="id" value="{$vo.id}">	
+	</notempty>
+	
+	<input type="hidden" id="opmode" name="opmode" value="<notempty name="_REQUEST['id']">edit<else/>add</notempty>">
+
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="region_name">区域名称：</label>
+		<div class="col-sm-10">
+			<input class="form-control" type="text" id="region_name" name="region_name" value="{$vo.region_name}"  check="require" msg="请输入区域名称">
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="memo">所属仓库：</label>
+		<div class="col-sm-10">
+			<select name="warehouse_id" id="warehouse_select" check="require" msg="请选择仓库">
+				
+			</select>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for=""></label>
+		<div class="col-sm-10">
+			<div class="action">
+				<input type="hidden" name="model_name" value="region">
+				<a class="editFormSubmit btn btn-sm btn-primary">保存</a>
+				<input class="close_box_button btn btn-sm btn-default" type="button" value="取消" >
+			</div>
+		</div>
+	</div>
+	
+</form>
+
+<script type="text/javascript">
+
+<include file="V2StockPlace:getchildrenlistjs" />
+
+
+$(function() {
+	$(".editFormSubmit").click(function(){
+        $("input").attr("disabled",null);
+        var data = $("#editForm").serialize();
+        var url = $("#editForm").attr("action");
+        
+        var btn = $(".editFormSubmit").button('loading');
+        if (check_form("editForm")) {
+            sendForm("editForm", url,false,function(msg){
+                btn.button('reset');
+                if(msg.status){
+					closeBox();
+					parent.window.location.reload();
+                }else{
+                    alertWarning(msg.info);
+                }
+            });
+        }else{
+            btn.button('reset');
+        }
+    });
+
+    ajaxGetChildrenList(false,false,false,{$vo.warehouse_id|default=1});
+
+});
+	
+</script>

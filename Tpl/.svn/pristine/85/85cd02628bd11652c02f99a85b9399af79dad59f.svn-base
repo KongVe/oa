@@ -1,0 +1,158 @@
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	// ace.settings.sidebar_collapsed(true);
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}	
+
+	<?php
+	if($_REQUEST['showDetail'] == '1'){
+		echo "detail(" . $list[0]['id'] . ");";
+	}
+	?>		
+
+})
+ 
+
+
+function detail(id){
+	$("#middleBoxIframe").attr("src","<?php echo U("detail"); ?>?id=" + id + "&_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal("show");	
+}
+
+
+
+function corrected(id){
+	if(window.confirm("确认已经修正程序错误?")){
+		if(window.confirm("继续执行？ 选择确定继续执行，选择取消则初始化缓存重新执行。")){
+			restart = 0;
+		}else{
+			restart = 1;
+		}
+		$.get("{:U('corrected')}?id=" + id + "&restart=" + restart,function(r){
+			if(r.status){
+				alert(r.info);
+				$("#btn-corrected-" + id).parent('td').html("New");
+
+			}else{
+				alert(r.info);
+			}
+		});
+	}else{
+		return false;
+	}
+}
+
+function executeFront(id){
+	$("#executeFront_" + id).attr("disabled","disabled");
+	$.get("{:U('executeFront')}?id=" + id,function(r){
+		$("#executeFront_" + id).attr("disabled",null);
+		if(r.status){
+			var url = "{:U('controlView')}?exec_log_id="+id;
+			showBox("",url);
+		}else{
+			alertWarning(r.info);
+		}
+	});
+}
+
+function pauseExec(id,type){
+	if(!confirm("确认操作")){
+		return false;
+	}
+	if(type){
+		//暂停
+		type = "Yes";
+	}else{
+		//开启
+		type = "No";
+	}
+	$.get("{:U('pauseExec')}?type=" + type + "&id=" + id,function(r){
+		if(r.status){
+			alertWarning(r.info,1);	
+		}else{
+			alertWarning(r.info);
+		}
+	}).error(function(){
+		alertWarning("网络错误，请重试");
+	});
+}
+
+
+function stopExec(id,type){
+	if(!confirm("确认操作")){
+		return false;
+	}
+	if(type){
+		//停止
+		type = "Yes";
+	}else{
+		//取消停止
+		type = "No";
+	}
+	$.get("{:U('stopExec')}?type=" + type + "&id=" + id,function(r){
+		if(r.status){
+			alertWarning(r.info,1);	
+		}else{
+			alertWarning(r.info);
+		}
+	}).error(function(){
+		alertWarning("网络错误，请重试");
+	});
+}
+
+function wishDelCardCache(id,del_card){
+	if(!confirm("确认操作")){
+		return false;
+	}
+	if(del_card){
+		//停止
+		del_card = 1;
+	}else{
+		//取消停止
+		del_card = 0;
+	}
+	$.get("{:U('wishDelCardCache')}?del_card=" + del_card + "&id=" + id,function(r){
+		if(r.status){
+			alertWarning(r.info,1);
+		}else{
+			alertWarning(r.info);
+		}
+	}).error(function(){
+		alertWarning("网络错误，请重试");
+	});
+}
+
+// function stopExec(id){
+// 	if(!confirm("确认停止线程？该线程将不能再开启")){
+// 		return false;
+// 	}
+// 	$.get("{:U('stopExec')}?id=" + id,function(r){
+// 		if(r.status){
+// 			alertWarning(r.info,1);	
+// 		}else{
+// 			alertWarning(r.info);
+// 		}
+// 	});
+// }
+
+
+</script>

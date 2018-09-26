@@ -1,0 +1,217 @@
+<script type="text/javascript">
+
+var uploader_img;
+uploader_img = uploader;
+function uploader_img_init(){
+	var settings={
+		runtimes : 'html5,flash',
+		browse_button : 'pickimgs',
+		container: 'uploader_img',
+		max_file_size : '10mb',
+		url :  root_path+upload_url,
+		flash_swf_url : root_path+'/Public/js/plupload/plupload.flash.swf',
+		filters : [
+			// {title : "Office Files", extensions : "doc,dox,xls,xlsx,ppt,pptx,pdf,csv,tsv,txt"},
+			{title : "Image Files", extensions : "jpg,gif,png,jpeg,bmp"},
+			// {title : "Zip Files", extensions : "zip,rar"},
+			// {title : "Video Files", extensions : "mp4,avi"}	
+		]
+	};
+
+	uploader_img = new plupload.Uploader(settings);
+	uploader_img.init();
+	if($("#uploader_img .tbody").length>0){
+		$("#uploader_img .tbody .loading").css("width","100%");
+		$("#uploader_img .thead").show();
+		$("#uploader_img .tbody").each(function(){
+			id=$(this).attr("filename");
+			filename=$(this).attr("filename");
+			size=$(this).attr("size");
+			file=new plupload.File(id,filename,size);
+			file.status=plupload.DONE;
+			count=uploader_img.files.length;
+			uploader_img.files[count]=file;
+		})		
+	}
+	uploader_img.bind('FilesAdded', function(up, files) {
+		$("#uploader_img li.thead").show();
+		// console.log(files);
+		
+
+		
+		uploader_img.start();
+	});
+
+	uploader_img.bind('UploadProgress', function(up, file){
+		$("#"+file.id).find("a.del").hide();
+		$("#"+file.id).find('.loading').css("width",file.percent+"%");
+	});
+
+	uploader_img.bind('FileUploaded', function(up,file,data){
+		console.log(up);
+		console.log(file);
+		console.log(file.response);
+		console.log(data);
+		
+		var myObject = eval('(' + data.response + ')');
+		console.log(myObject);
+		
+		if(!myObject.id){
+			for (var i = 0; i < $("#file_img_list li").length; i++) {
+				$("#file_img_list li").eq(i);
+				if($("#file_img_list li").eq(i).attr('add_gallery')==null){
+					$("#file_img_list li").eq(i).remove();
+				}
+			};
+			alert(data.response);
+			return;
+		}
+
+		html='<li class="tbody file_li" data-id="'+myObject.id+'" id="'+file.id+'" add_gallery>\n';
+		html+='<div class="loading"></div>\n';
+		html+='<div class="data">\n';
+		if(myObject.action){
+			html+='<span class="del text-center"><a class="link" onclick="doImgActionFromUpload(this,'+myObject.id+',&quot;'+myObject.url+'&quot;);">选择</a> <a class="link del">删除</a></span>\n';
+		}else{
+			html+='<span class="del text-center"><a class="link del">删除</a> <div class="btn-group btn-group-vertical"><a class="btn btn-primary btn-xs" onclick="changeFilePlace(1,this);">↑</a><a class="btn btn-info btn-xs" onclick="changeFilePlace(0,this);">↓</a></div></span>\n';
+		}
+
+		html+='<span class="size text-right">'+plupload.formatSize(myObject.size)+'</span>';
+
+		if(myObject.showImg){
+			html+='<span class="text-right"><a href="/'+myObject.url+'" target="_blank"><img src="/'+myObject.url+'" style="height:40px"/></a></span>\n';
+		}
+
+		html+='<span class="auto autocut" style="width:60%;position: absolute;" title="'+myObject.name+'">'+myObject.name+'</span>';
+		html+='</li>';
+		html+='</div>\n';
+
+		$('#file_img_list').append(html);
+
+		if($("#add_gallery").length!=0){
+			$("#add_gallery").val($("#add_gallery").val()+myObject.id+";")
+		}
+		$("#"+file.id).attr("add_gallery",myObject.id);
+		if($("#save_name").length!=0){
+			$("#save_name").val($("#save_name").val()+myObject.savename+";")
+		}
+		$("#"+file.id).find("a.del").show();
+
+		//重新注册删除监听器
+		if($._data($("#uploader_img a.del")[0], "events") !=undefined){
+			$("#uploader_img a.del").unbind('click');
+		}
+		$("#uploader_img a.del").on('click',function(){
+			if (confirm("确定要删除吗？")){
+				id=$(this).parents("li").attr("id");
+				file=uploader_img.getFile(id);
+				add_gallery=$(this).parents("li").attr("add_gallery");
+				$("#add_gallery").val($("#add_gallery").val().replace(add_gallery + ";", ""));			
+				if(add_gallery.length>0){
+					$(this).parents("li").remove();
+					sendAjax(del_url, 'id=' + $(this).attr("id"));
+				}else{
+					uploader_img.removeFile(file);
+					$(this).parents("li").remove();
+				}
+			}
+		});
+	
+
+	});
+
+	$('#uploadfiles').click(function(){
+		uploader_img.start();
+		return false;
+	});
+
+}
+uploader_img_init();
+
+//重新注册删除监听器
+if($._data($("#uploader_img a.del")[0], "events") !=undefined){
+	$("#uploader_img a.del").unbind('click');
+}
+$("#uploader_img a.del").on('click',function(){
+	if (confirm("确定要删除吗？")){
+		id=$(this).parents("li").attr("id");
+		file=uploader_img.getFile(id);
+		add_gallery=$(this).parents("li").attr("add_gallery");
+		$("#add_gallery").val($("#add_gallery").val().replace(add_gallery + ";", ""));			
+		if(add_gallery.length>0){
+			$(this).parents("li").remove();
+			sendAjax(del_url, 'id=' + $(this).attr("id"));
+		}else{
+			uploader_img.removeFile(file);
+			$(this).parents("li").remove();
+		}
+	}
+});
+function updateFileValuePlace(file_id){
+	var obj_list = $("#file_img_list li");
+	var id_list = [];
+	for (var i = 0; i < obj_list.length; i++) {
+		var tmp_id = obj_list.eq(i).attr("data-id");
+		if(tmp_id != null && tmp_id != undefined && tmp_id != ''){
+			id_list.push(tmp_id);
+		}
+	};
+	var id_str = id_list.join(";") + ";";
+	if(file_id == undefined){
+		file_id="add_gallery";
+	}
+	$("#"+file_id).val(id_str);
+}
+
+function changeFilePlace(type,obj){
+	var obj_list = $("#file_img_list .file_li");
+	if(obj_list.length<=0){
+		return false;
+	}
+	var li_obj = $(obj).parent().parent().parent().parent();
+	if(type){
+		//上移
+		if(obj_list.eq(0).attr('data-id') == li_obj.attr('data-id')){
+			return false;
+		}
+	}else{
+		if(obj_list.eq(obj_list.length-1).attr('data-id') == li_obj.attr('data-id')){
+			return false;
+		}
+	}
+
+	for (var i = 0; i < obj_list.length; i++) {
+		if(obj_list.eq(i).attr('data-id') == li_obj.attr('data-id')){
+			if(type){
+				var tmp_obj = li_obj.detach();
+				obj_list.eq(i-1).before(tmp_obj);
+
+				updateFileValuePlace();
+
+				return true;
+			}else{
+				var tmp_obj = li_obj.detach();
+				obj_list.eq(i+1).after(tmp_obj);
+
+				updateFileValuePlace();
+				return true;
+			}
+		}
+	};
+}
+
+
+function getNewSku(){
+	$.post("{:U('getNewSku')}",{},function(msg){
+		if(msg.status){
+			$("#sku").val(msg.data.sku);
+		}else{
+			alertWarning(msg.status);
+		}
+	}).error(function(){
+		alertWarning("网络错误，请重试");
+	})
+}
+
+setTimeout('$(".ke-container-default").css({width:"100%"});',1000);
+</script>

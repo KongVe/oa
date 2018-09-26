@@ -1,0 +1,44 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('doReject')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix" role="form">
+        <input type="hidden" name="ajax" id="ajax" value='1'/>
+        <input type="hidden" name="id" value='{$Think.request.id}'/>    
+		<div class="form-group col-sm-12">
+			<label class="col-sm-2" for="reject_reason">Reject Reason</label>
+            <div class="col-sm-12">{$vo.reject_reason}</div>
+			<textarea class="form-control col-sm-12" id="reject_reason" name="reject_reason"></textarea>
+		</div>
+        <div class="from-group col-sm-12">
+        <?php for($key=0;$key<20;$key++){ ?>
+        	<?php if($vo['reject_related_pictures'][$key-1] || $vo['reject_related_pictures'][$key] || $key==0){ ?>
+			<div class="reject_related_pictures_wrap col-sm-6">
+        	<?php }else{ ?> 
+			<div class="reject_related_pictures_wrap col-sm-6 hidden">
+        	<?php } ?>
+	            <div class=" col-sm-4">
+	                <input class="form-control thumbnail_clipboard" data-target="reject_related_pictures_show_{$key}" type="text" id="reject_related_pictures_{$key}" name="reject_related_pictures[{$key}]"  value="<?php echo $vo['reject_related_pictures'][$key]; ?>"    placeholder="理由相关图片" >
+	            </div>
+	            <div class="col-sm-2">
+	                <a href="{$vo.reject_related_pictures.key}" id="reject_related_pictures_show_{$key}" class="thumbnail" target="_blank" ><img src="<?php echo $vo['reject_related_pictures'][$key]; ?>"  height=60/></a>
+	            </div>
+        	</div>
+        <?php } ?>
+        </div>
+
+		<div class="form-group col-sm-12 text-center">
+			<a id="editFormSubmit" data-close="true" data-reload="true" data-loading-text="正在保存..." class="btn btn-primary defaultEditFormSubmit">保存</a>
+		</div>
+	</form>
+
+<style>
+.reject_related_pictures_wrap{padding:5px;}
+</style>
+
+<script type="text/javascript">
+$(function(){
+	$(".thumbnail_clipboard").click(function(){
+		$(this).parents('.reject_related_pictures_wrap').next().removeClass("hidden");
+	}) 
+})
+
+
+</script>

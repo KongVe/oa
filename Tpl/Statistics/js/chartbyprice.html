@@ -1,0 +1,134 @@
+<script type="text/javascript">
+	jQuery(function($){
+		//close sidebar
+		// ace.settings.sidebar_collapsed(true);
+
+
+		$(".filter_checkbox").click(function(){
+			$("#form_search").submit();
+		})
+		$(".sort_button").click(function(){
+			$("#order").val($(this).attr("name"));
+			if($("#sort").val() == "1"){
+				$("#sort").val("0");
+			}else{
+				$("#sort").val("1");
+			}		
+			$("#form_search").submit();
+		})
+
+		$("tbody.tbody tr").click(function(){
+			$("tbody.tbody tr").removeClass("success");
+			$(this).addClass("success");
+			var order_detail_box = $("div.order-detail-box");
+			var id = $(this).find("input[name='id[]']").val();
+			if($("#order-detail-iframe").attr("src").indexOf(id) > 0 ){
+				order_detail_box.show();
+				return true;
+			}
+				
+			
+			var box_top = document.documentElement.clientHeight - order_detail_box.height();
+			var box_width = window.screen.availWidth;
+			order_detail_box.css({display:"block",top:box_top + "px",width:box_width + "px"});
+			$("#order-detail-iframe").attr("src","{:U('orderDetail/detail')}?id=" + id + "&_"+  Math.round(new Date().getTime()/1000));
+		});
+
+
+		//如果有搜索值，默认全选了搜索值
+		if($("#q").val() != ''){
+			$("#q").focus().select();
+		}
+		if($("#oaid").val() != ''){
+			$("#oaid").focus().select();
+		}
+		$("#oaid").click(function(){
+			$(this).select();
+		})
+	});
+
+
+	///销售额统计
+	var price_data = <?php echo json_encode($chartByPrice); ?>;
+	var price_labels = <?php echo json_encode($price_label_list); ?>;
+	var price_time_list=<?php echo json_encode($price_time_list); ?>;
+
+	var chartByPrice  = new iChart.LineBasic2D({
+		render : 'canvasDiv',
+		data: price_data,
+		align:'center',
+		title : '销售额统计',
+		subtitle : '(单位：美元)',
+		footnote : '搜索结果总销售额:${$Price_total}',
+		width : 1200,
+		height : 800,
+		background_color:'#FEFEFE',
+		tip:{
+			enable:true,
+			shadow:true,
+			move_duration:400,
+			border:{
+				 enable:true,
+				 radius : 5,
+				 width:2,
+				 color:'#3f8695'
+			},
+			listeners:{
+				 //tip:提示框对象、name:数据名称、value:数据值、text:当前文本、i:数据点的索引
+				parseText:function(tip,name,value,text,i){
+					return name+"销售额:"+value+"美元";
+				}
+			}
+		},
+		tipMocker:function(tips,i){
+			return "<div style='font-weight:600'>"+
+					price_time_list[i]+" "+//日期
+					//(((i%12)*2<10?"0":"")+(i%12)*2)+":00"+//时间
+					"</div>"+tips.join("<br/>");
+		},
+		legend : {
+			enable : true,
+			row:1,//设置在一行上显示，与column配合使用
+			column : 'max',
+			valign:'top',
+			sign:'bar',
+			background_color:null,//设置透明背景
+			offsetx:0,//设置x轴偏移，满足位置需要
+			border : true
+		},
+		crosshair:{
+			enable:true,
+			line_color:'#62bce9'//十字线的颜色
+		},
+		sub_option : {
+			label:false,
+			point_size:10
+		},
+		coordinate:{
+			width:960,
+			height:600,
+			axis:{
+				color:'#dcdcdc',
+				width:1
+			},
+			scale:[{
+				 position:'left',	
+				 start_scale:0,
+				 end_scale:100,
+				 scale_space:500,
+				 scale_size:2,
+				 scale_color:'#9f9f9f'
+			},{
+				 position:'bottom',	
+				 labels:price_labels
+			}]
+		}
+	});
+	
+	$(function(){
+		
+		chartByPrice.draw();
+		
+	});
+
+</script>

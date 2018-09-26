@@ -1,0 +1,65 @@
+<layout name='Layout/ace_popup' />
+<form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+	<input type="hidden" id="ajax" value="1">
+	<input type="hidden" name="issue_id" value="{$Think.request.issue_id}" />
+	<input type="hidden" name="blocked_date" value="<?php echo time(); ?>" />
+	<input type="hidden" name="add_uid" value="<?php echo $_SESSION['authId'] ?>" />
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			<h4 class="panel-title">产品信息</h4>
+		</div>
+		<div class="panel-body">
+			<table class="table table-striped table-condensed table-bordered">
+				<tr>
+					<td>ASIN:</td>
+					<td>{$sellyours.asin}</td>
+					<td><a href="{$sellyours.thumbnail}" target="_blank"><img src="{$sellyours.thumbnail}" width=60 class="thumbnail" /></a</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>SKU:</td>
+					<td>{$issue.sku}</td>
+					<td>FNSKU:</td>
+					<td>{$issue.fnsku}</td>
+				</tr>
+				<tr>
+					<td>账号:</td>
+					<td>{$account.show_name}</td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div class="panel panel-danger">
+		<div class="panel-heading">
+			<h4 class="panel-title">投诉信息</h4>
+		</div>
+		<div class="panel-body message-container">
+			<div class="form-group">
+				<label class="control-label" for="merchant_id">商家ID</label>
+				<input type="text" class="form-control" name="merchant_id" value='' >
+				<p class="help-block">不是商家名称,商家名称可以填到原因里</p>
+			</div>
+			<div class="form-group">
+				<label class="control-label" for="blocked_type">警告类型</label>
+				<select class="form-control" id="blocked_type" name="blocked_type">
+					<option value="">请选择账号</option>
+					<option value="Warning">警告</option>
+					<option value="Blocked">Blocked</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label class="control-label" for="thumbnail">相关图片</label>
+				 <input class="form-control thumbnail_clipboard" type="text" id="thumbnail" name="thumbnail" value='' >
+				 <p class="help-block">支持截图后直接粘贴</p>
+			</div>
+			<div class="form-group">
+				<label class="control-label" for="reason">原因</label>
+				<textarea class="from-control col-sm-12" name="reason"></textarea>
+			</div>
+  			<div class="form-group text-center">
+				<a id="editFormSubmit" data-close="true" data-reload="true" data-loading-text="正在保存..."  class="btn btn-primary defaultEditFormSubmit"  />保存</a>
+				<a class="btn btn-success close_box_button" id="cancel">取消</a>
+            </div>					
+		</div>
+	</div>
+</form>

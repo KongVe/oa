@@ -1,0 +1,211 @@
+<layout name='Layout/ace_layout' />
+<style type="text/css">
+.message-container table tbody.tbody tr{border-top-style:inset;}
+</style>
+<form name="form_search" id="form_search" method="post">
+
+<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+<input type="hidden" name="_order" id="order" value="{$order}">
+<input type="hidden" name="id" value="{$Think.request.id}" />
+<input type="hidden" name="ids" value="{$Think.request.ids}" />
+
+<div class="page-header clearfix">
+	<h1 class="col-sm-4">{$title}</h1>
+	
+	<div class="col-sm-8 pull-right">
+		<div class="col-sm-6">
+			<div class="input-group">
+				<input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="搜索订单ID" onchange="$(this).val($.trim($(this).val()))"/>
+				<div class="input-group-btn">
+					<button class="btn btn-sm btn-info" type="submit"> <i class="bigger-125 icon-search"></i> </button>
+					<a class="roload_form_action btn btn-sm btn-danger" title="重新载入"><i class="bigger-125 icon-rotate-right"></i> </a>
+					<a class="btn btn-sm btn-success" onclick="toggle_adv_search();"><i id="toggle_adv_search_icon" class="bigger-125 icon-chevron-up"></i></a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<a class="showBox btn btn-primary" data-url="{:U('V2OrderDetail/needManualListHelp')}">各状态说明</a>
+<div>
+	<ul class="nav nav-tabs">
+		<volist name="manual_process_status_list" id="manual_process_status">
+			<li <eq name="Think.request.manual_type" value="$manual_process_status.key"> class="active" </eq> >
+	    		<a href="{:U('needManualList')}?manual_type={$manual_process_status.key}">
+	    			{$manual_process_status.name_cn} 
+	    			<notempty name="manual_process_status.counts">
+	    				<span class="badge badge-important">{$manual_process_status.counts|default="0"}</span>
+	    			</notempty>
+	    		</a>
+	  		</li>
+		</volist>
+	</ul>
+</div>
+
+<!-- 导入高级订单搜索div -->
+<include file="V2OrderDetail:ordersearchdiv"/>
+
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a class="orderAutoProcess btn btn-sm btn-inverse">自动处理</a>
+		</div>
+		
+		<switch name="Think.request.manual_type">
+			<case value="Exceed time risk">
+				<div class="btn-group">
+					<a class="reActivate btn btn-sm btn-primary">重新激活</a>
+				</div>
+			</case>
+			<case value="Need manual review">
+				<div class="btn-group">
+					<a class="finishManualReview btn btn-sm btn-primary">处理完成</a>
+				</div>
+			</case>
+			<case value="Package submit error">
+				<div class="btn-group">
+					<a class="confirmPackageNormal btn btn-sm btn-primary">确认地址或包裹正确</a>
+				</div>
+			</case>
+			<case value="Stockout">
+				<div class="btn-group">
+					<a class="advancePicking btn btn-sm btn-primary">提前拣货</a>
+				</div>
+			</case>
+			<case value="Exception">
+				<div class="btn-group">
+					<a class="cancelExceptionState btn btn-sm btn-danger">取消异常</a>
+				</div>
+			</case>
+			<default />
+			
+		</switch>
+		
+	</div>
+</div>
+<script type="text/javascript">
+$(function($){
+	$(".orderAutoProcess").click(function(){
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择订单");
+			return false;
+		}
+		if(!confirm("确认自动处理所选的订单？")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('orderAutoProcess')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				parent.frames['order-detail-iframe'].window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".reActivate").click(function(){
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择订单");
+			return false;
+		}
+		if(!confirm("确认重新激活所选的订单？")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('reActivate')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".confirmPackageNormal").click(function(){
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择订单");
+			return false;
+		}
+		if(!confirm("确认地址或包裹修正完成？")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('confirmPackageNormal')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".advancePicking").click(function(){
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择订单");
+			return false;
+		}
+		if(!confirm("确认提前拣货？只对")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('advancePicking')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".cancelExceptionState").click(function(){
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择订单");
+			return false;
+		}
+		if(!confirm("确认取消 订单异常 状态？将会自动进行一次 自动处理")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('cancelExceptionState')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+});
+</script>
+<include file="V2OrderDetail:indexbody"/>

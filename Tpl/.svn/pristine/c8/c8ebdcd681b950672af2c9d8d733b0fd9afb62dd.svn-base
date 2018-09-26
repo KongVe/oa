@@ -1,0 +1,23 @@
+<layout name='Layout/m_ace_layout' />
+
+<style>
+.showBottomBox{cursor: pointer;}
+</style>
+<div class="page">
+
+</div>
+<script type="text/javascript">
+	var filter_list = {$filter_list|default=""};
+	function init(){
+		$.ajax({
+
+		})
+	}
+	function serch_list(){
+
+	}
+	$(function(){
+		init();
+		serch_list();
+	})
+</script>

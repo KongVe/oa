@@ -1,0 +1,15 @@
+<!-- <ul class="nav nav-list">
+	<li>
+		<a href="index.html"> <i class="icon-dashboard"></i> <span class="menu-text"> Dashboard </span> </a>
+	</li>
+</ul> -->
+<ul class="nav nav-list">
+	<li>
+		<a node="id" href="./index.html" >
+			<i class="menu-icon fa fa-caret-right"></i>
+			<span class="menu-text"></span>
+		name
+	</a>
+	<b class="arrow"></b>
+</li>
+</ul>

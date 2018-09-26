@@ -1,0 +1,60 @@
+<layout name='Layout/ace_popup' />
+
+
+<div class="col-sm-12">
+	<form  action="{:U('getSkuBySkuId')}" name="data_form" id="data_form" method="POST" enctype="multipart/form-data" class="well form-horizontal clearfix">
+		<input type="hidden" id="ajax" value="1"> 
+
+		<div class="col-sm-12">
+			<h2 style="font-size:24px;">产品SKU生成</h2>
+			<h5 style="font-size:24px;">根据sku_id和帐号对应的 sku 模板生成SKU</h5>
+		</div>
+		<div class="col-sm-12">
+			
+
+			<div class="col-sm-12">
+				&nbsp;&nbsp;sku_id: &nbsp;<input type="text" id="sku_id" name="sku_id" >
+				<span id="main_sku_info" style="color:red;"></span>
+			</div>
+			<br>
+			<br>
+			<div class="col-sm-12">
+				适用帐号: 
+				<select name="account_id" id="account_id">
+					<foreach name="account_list" key="website" item="accounts">
+						<optgroup label="{$website}">
+							<volist name="accounts" id="vo">
+								<option value="{$vo.id}" <?php if($_REQUEST['account_id'] == $vo['id']){
+									echo "selected";
+								}
+								?>
+								>{$vo.account_name}</option>
+							</volist>
+						</optgroup>
+					</foreach>
+				</select>
+			</div>
+			<br>
+			<br>
+			<a class="btn btn-primary" onclick="sendForm('data_form', '{:U('getSkuBySkuId')}', '',callback);">生成</a>
+			<a class="btn close_box_button" >取消</a>
+			<div  id="sku"></div>
+			<div  id="sku_template"></span>
+
+	</form>
+</div>
+
+
+
+<script type="text/javascript">
+
+	function callback (msg) {
+		if(msg.status){
+			$("#sku").html("SKU: "+msg.data.sku);
+			$("#sku_template").html("对应的sku模板: "+msg.data.rule);
+		}else{
+			alertWarning(msg.info);
+		}
+	}
+</script>
+

@@ -1,0 +1,14 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('verifyBoxLabel')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" id="ajax" value="1">
+		<div class="from-group">
+			<label class="control-label">校验箱子标签</label>
+			<textarea class="form-control" style="width:100%;height:300px;" name="box_label"></textarea>
+		</div>
+		<div class="form-group text-center">
+			<a id="editFormSubmit" data-close="true" data-reload="true" data-loading-text="正在保存..."  class="btn btn-primary defaultEditFormSubmit" />保存</a>
+		</div>
+	</form>
+<script type="text/javascript">
+		
+</script>

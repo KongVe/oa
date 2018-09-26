@@ -1,0 +1,118 @@
+<layout name='Layout/ace_popup'/>	
+
+	{:W('PageHeader',array('name'=>"取消入库"))}
+
+	<form action="{:U('')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" id="ajax" name="ajax" value="1"/>
+		<input type="hidden" id="id" name="id" value="{$_REQUEST.id}">
+
+		<input type="hidden"  id="instock_by_purchase_list" name="instock_by_purchase_list" value="{$_REQUEST['instock_by_purchase_list']}">
+		<input type="hidden"  id="purchase_list_id_bak" name="purchase_list_id_bak" value="{$_REQUEST['purchase_list_id_bak']}">
+
+
+		<div class="panel panel-primary">
+			<div class="panel panel-heading">
+				<span>基本信息</span>
+			</div>
+			<div class="panel-body">
+
+				<div class="form-group">
+					<div class="col-sm-12">
+						<label class="text-right col-sm-2">规格SKU：</label>
+						<div class="col-sm-6">
+							<span>{$sku_data.sku}</span>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-12">
+						<label class="text-right col-sm-2">SKU名称：</label>
+						<div class="col-sm-6">
+							<span>{$sku_data.sku_name}</span>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-12">
+						<label class="text-right col-sm-2">SKU图片：</label>
+						<div class="col-sm-6">
+							<a href="{$sku_data.thumbnail}" target="_blank">
+	      						<img src="{$sku_data.thumbnail}" height="150" />
+	      					</a>
+						</div>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<div class="col-sm-12">
+						<label class="text-right col-sm-2">入库记录：</label>
+						<div class="col-sm-10">
+							<div class="col-sm-12">
+								<table class="table">
+									<tr>
+										<th>入库序号</th>
+										<th>时间</th>
+										<th>货架位</th>
+										<th>入库数量</th>
+										<th>操作</th>
+									</tr>
+									<volist name="instock_list" id="instock_data">
+										<tr>
+											<td>{$instock_data.id}</td>
+											<td>{$instock_data.instock_time|default=" "|date="Y-m-d H:i:s",###}</td>
+											<td>{$instock_data.place_name}</td>
+											<td>{$instock_data.instock_quantity}</td>
+											<td>
+												<a data-id="{$instock_data.id}" class="cancelInstock btn btn-danger btn-sm">取消入库</a>
+											</td>
+										</tr>	
+									</volist>
+								</table>
+							</div>
+							<span class="col-sm-12 help-block red"></span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	  
+		<div class="panel-default">
+			<div class="form-group text-center">
+				<a class="close_box_button btn btn-warning">取消</a>
+			</div>
+		</div>
+	
+	</form>
+
+
+<script type="text/javascript">
+$(function(){     
+	$(".cancelInstock").click(function(){
+		var id = $(this).data("id");
+		if(!id){
+			return false;
+		}
+		if(!confirm("确认取消入库？如果该入库对应的库存有被使用或预留了，将会取消失败。")){
+			return false;
+		}
+		var instock_by_purchase_list = $("#instock_by_purchase_list").val();
+		var purchase_list_id_bak = $("#purchase_list_id_bak").val();
+
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('cancelInstock')}",{id:id,purchase_list_id_bak:purchase_list_id_bak,instock_by_purchase_list:instock_by_purchase_list},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+});
+</script>

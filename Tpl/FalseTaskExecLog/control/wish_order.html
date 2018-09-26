@@ -1,0 +1,542 @@
+<div class="form-group col-xs-12">
+	<div class="well">
+		服务器: 
+		<b>{$false_proxy_server_data.proxy_server_address}</b>
+	</div>
+
+	<notempty name="cache.action_step.order.1">
+		<form action="{:U('doFunction')}?function_name=addImei008OrDeviceId" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+
+			<input type="hidden" id="ajax" name="ajax" value="1"/>
+			<input type="hidden" id="exec_log_id" name="exec_log_id" value="{$_REQUEST.exec_log_id}"/>
+			<input type="hidden" id="false_account_id" name="false_account_id" value="{$false_account_data.id}"/>
+
+			<div class="col-xs-12">
+				<b><a class="reGetAccountAndIpEmulator btn btn-danger btn-sm">重新更换小号和IP</a></b>
+				<hr>
+			</div>
+
+			<script type="text/javascript">
+				$(".reGetAccountAndIpEmulator").click(function(){
+                	if(!confirm("确认重新获取？")){
+                		return false;
+                	}
+                	var data = $("#editForm").serialize();
+                	var url = "{:U('doFunction')}?function_name=reGetAccountAndIpEmulator";
+                	$.post(url,data,function(msg){
+                		if(msg.status){
+                			alertWarning(msg.info,1);
+                			window.location.reload();
+                		}else{
+                			alertWarning(msg.info);
+                		}
+                	}).error(function(){
+                		alertWarning("网络错误，请刷新后重试");
+                	});
+                });
+			</script>
+
+			<notempty name="false_account_data.imei_008">
+				<div class="col-xs-12">
+					<b>当前模拟器已经有008环境数据备份，请用ES文件管理器复制环境数据。并在008中还原</b>
+					<br>
+					<b>IMEI: </b>{$false_account_data.imei_008}
+					<br>
+					
+					<a data-loading-text="处理中..." class="set008HistoryData btn btn-inverse btn-sm">还原008数据</a>
+
+					<a data-loading-text="处理中..." class="resetImei008 btn btn-primary btn-sm">重新生成008数据</a><br>
+				</div>
+
+				<script type="text/javascript">
+
+					$(".set008HistoryData").click(function(){
+	                	if(!confirm("确认还原？")){
+	                		return false;
+	                	}
+	                	var data = $("#editForm").serialize();
+	                	var url = "{:U('doFunction')}?function_name=set008HistoryData";
+	                	$.post(url,data,function(msg){
+	                		if(msg.status){
+	                			alertWarning(msg.info,1);
+	                			window.location.reload();
+	                		}else{
+	                			alertWarning(msg.info);
+	                		}
+	                	}).error(function(){
+	                		alertWarning("网络错误，请刷新后重试");
+	                	});
+	                });
+
+	                $(".resetImei008").click(function(){
+	                	if(!confirm("确认重置关联的008数据？ 将需要重新 执行008 一件操作")){
+	                		return false;
+	                	}
+	                	var data = $("#editForm").serialize();
+	                	var url = "{:U('doFunction')}?function_name=resetImei008";
+	                	$.post(url,data,function(msg){
+	                		if(msg.status){
+	                			alertWarning(msg.info,1);
+	                			window.location.reload();
+	                		}else{
+	                			alertWarning(msg.info);
+	                		}
+	                	}).error(function(){
+	                		alertWarning("网络错误，请刷新后重试");
+	                	});
+	                });
+				</script>
+			<else/>
+				<div class="col-xs-12">
+					<b>当前模拟器没有008环境数据备份,请使用008 快捷操作 的 一键操作 创建新的模拟器环境</b>
+				</div>
+			</notempty>
+
+			<div class="col-xs-12">
+				<hr>
+			</div>
+
+			<empty name="false_account_data.environment_data.android_options.agent">
+				<div class="col-xs-12">
+					系统未获取到该小号的user-agent，请复制以下链接在模拟器的浏览器中打开
+					<br>
+					地址：
+					<br>
+					<span><b>{:U('doFunction','',true,false,true)}?admin=623&function_name=setUserAgent&exec_log_id={$_REQUEST.exec_log_id}</b></span>
+					<br>
+					<hr>
+				</div>
+			<else/>
+				<?php 
+					if(!$false_account_data['imei_008'] || !$false_account_data['environment_data']['android_options']['app_device_id']){
+				?>
+
+				<div class="form-group col-xs-12">
+					<input type="button" data-loading-text="正在保存..." data-reload="1" class="defaultEditFormSubmit btn btn-primary" value="保存" />
+				</div>
+
+				<empty name="false_account_data.environment_data.android_options.app_device_id">
+					<input type="hidden" id="device_id_save" name="device_id_save" value="1"/>
+
+					<div class="col-xs-12">
+						该帐号没有绑定设备ID，请输入当前设备ID。
+					</div>
+
+					<div class="col-xs-12">
+						<a class="getAppDeviceId btn btn-info btn-sm">自动获取设备ID</a>
+					</div>
+
+					<div class="col-xs-12">
+						<label class="control-label" for="device_id">请输入设备ID</label>
+						<input type="text" class="form-control" id="device_id" name="device_id" value="">
+					</div>
+
+					<div class="col-xs-12">
+						<label class="control-label" for="device_id_re">确认设备ID</label>
+						<input type="text" class="form-control" id="device_id_re" name="device_id_re" value="">
+						<hr>
+					</div>
+
+					<script type="text/javascript">
+						$(document).ready(function(){
+		                    $(document).ready(function() {  
+		                        $('#device_id').bind("cut copy", function(e) {  
+		                            alertWarning('禁用复制');  
+		                            e.preventDefault();  
+		                        });  
+		                        $('#device_id_re').bind("cut copy", function(e) {  
+		                            alertWarning('禁用复制');   
+		                            e.preventDefault();  
+		                        });
+		                        $('#device_id').focus(function(){
+		                        	$(this).attr("type","text");
+		                        }).blur(function(){
+		                        	$(this).attr("type","password");
+		                        });
+		                        $(".getAppDeviceId").click(function(){
+			                    	var data = $("#editForm").serialize();
+			                    	var url = "{:U('doFunction')}?function_name=getAppDeviceId";
+			                    	$.post(url,data,function(msg){
+			                    		if(msg.status){
+			                    			$("#device_id").val(msg.data);
+			                    			$("#device_id_re").val(msg.data);
+			                    		}else{
+			                    			alertWarning(msg.info);
+			                    		}
+			                    	}).error(function(){
+			                    		alertWarning("网络错误，请刷新后重试");
+			                    	});
+			                    });
+		                    });
+		                });  
+					</script>
+				</empty>
+				
+				<empty name="false_account_data.imei_008">
+					<input type="hidden" id="imei_008_save" name="imei_008_save" value="1"/>
+					<div class="col-xs-12">
+						该帐号没有绑定IMEI，请输入当前模拟器的IMEI
+					</div>
+
+					<div class="form-group col-xs-12">
+						<label class="control-label" for="imei_008">请输入Imei</label>
+						<input type="text" class="form-control" id="imei_008" name="imei_008" value="">
+					</div>
+
+					<div class="form-group col-xs-12">
+						<label class="control-label" for="imei_008_re">确认imei</label>
+						<input type="text" class="form-control" id="imei_008_re" name="imei_008_re" value="">
+						<hr>
+					</div>
+
+					<script type="text/javascript">
+						$(document).ready(function(){
+		                    $(document).ready(function() {  
+		                        $('#imei_008').bind("cut copy", function(e) {  
+		                            alertWarning('禁用复制');  
+		                            e.preventDefault();  
+		                        });  
+		                        $('#imei_008_re').bind("cut copy", function(e) {  
+		                            alertWarning('禁用复制');   
+		                            e.preventDefault();  
+		                        });
+		                        $('#imei_008').focus(function(){
+		                        	$(this).attr("type","text");
+		                        }).blur(function(){
+		                        	$(this).attr("type","password");
+		                        });
+		                    });  
+		                });  
+					</script>
+				</empty>
+
+				<div class="form-group col-xs-12">
+					<input type="button" data-loading-text="正在保存..." data-reload="1" class="defaultEditFormSubmit btn btn-primary" value="保存" />
+				</div>
+
+				<?php
+					}else{
+				?>
+					<div class="col-xs-12">
+						<a class="readyEnvironment btn btn-primary btn-sm">环境部署完毕，继续执行</a>
+					</div>
+
+					<script type="text/javascript">
+						$(document).ready(function(){
+		                    $(document).ready(function() {  
+		                        $(".readyEnvironment").click(function(){
+			                    	if(!confirm("确认环境部署完毕？")){
+			                    		return false;
+			                    	}
+			                    	var data = $("#editForm").serialize();
+			                    	var url = "{:U('doFunction')}?function_name=readyEnvironment";
+			                    	$.post(url,data,function(msg){
+			                    		if(msg.status){
+			                    			window.location.reload();
+			                    		}else{
+			                    			alertWarning(msg.info);
+			                    		}
+			                    	}).error(function(){
+			                    		alertWarning("网络错误，请刷新后重试");
+			                    	});
+			                    });
+		                    });
+		                });  
+					</script>
+				<?php
+					}
+				?>
+			</empty>
+			
+		</form>
+	</notempty>
+
+	
+	<notempty name="cache.action_step.order.2">
+		
+		<form action="{:U('doFunction')}?function_name=addEmulatorFinishOrder" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+			<input type="hidden" id="ajax" name="ajax" value="1"/>
+			<input type="hidden" id="exec_log_id" name="exec_log_id" value="{$_REQUEST.exec_log_id}"/>
+			<input type="hidden" id="plan_id" name="plan_id" value="{$false_plan_data.id}"/>
+			<input type="hidden" id="stop_type" name="stop_type" value="1"/>
+
+			<div class="col-xs-12">
+				<a data-loading-text="正在保存..." class="reRegisterPaypal btn btn-danger btn-sm">重新注册Paypal</a>
+				禁用该Paypal帐号并重新注册
+				<br>
+				<br>
+				<a data-loading-text="正在保存..." data-stop_type="1" class="stopEmulatorOrder btn btn-danger btn-sm">刷单失败</a>
+				刷单失败,结束线程,并建立新线程重新开始
+				<br>
+				<br>
+				<a data-loading-text="正在保存..." data-stop_type="3" class="stopEmulatorOrder btn btn-danger btn-sm">刷单失败，禁用包裹地址</a>
+				刷单失败,禁用绑定的包裹地址,结束线程,并建立新线程重新开始
+				<br>
+				<br>
+				<a data-loading-text="正在保存..." data-stop_type="2" class="stopEmulatorOrder btn btn-danger btn-sm">刷单失败,禁用小号</a>
+				刷单失败,禁用小号,结束线程,并建立新线程重新开始
+				<hr>
+			</div>
+			<div class="col-xs-12">
+				请在模拟器登录小号，执行随机前置动作,并在收藏里找到产品进行刷单<br>
+				本次刷单信息<br>
+			</div>
+			<div class="col-xs-12">
+				<table class="table col-xs-8">
+					<tr>
+						<th>服务器</th>
+						<td>{$false_proxy_server_data.proxy_server_address}</td>
+					</tr>
+					<tr>
+						<th>IMEI</th>
+						<td>{$false_account_data.imei_008}</td>
+					</tr>
+					<tr>
+						<th>帐号</th>
+						<td>{$false_account_data.username}</td>
+					</tr>
+					<tr>
+						<th>密码</th>
+						<td>{$false_account_data.password}</td>
+					</tr>
+					<tr>
+						<th>first_name</th>
+						<td>{$false_account_data.environment_data.account_data.first_name}</td>
+					</tr>
+					<tr>
+						<th>last_name</th>
+						<td>{$false_account_data.environment_data.account_data.last_name}</td>
+					</tr>
+					<tr>
+						<th>产品ID</th>
+						<td>{$false_plan_data.product_id}</td>
+					</tr>
+					<tr>
+						<th>产品名称</th>
+						<td><a href="https://www.wish.com/c/{$false_plan_data.product_id}" >{$false_plan_data.product_name}</a></td>
+					</tr>
+					<tr>
+						<th>产品图片</th>
+						<td>
+							<a href="{$false_plan_data.product_thumbnail}" class="thumbnail" style="width:100px;" target="_blank"><img src="{$false_plan_data.product_thumbnail}" width="60" /></a>
+						</td>
+					</tr>
+					<tr>
+						<th>Paypal帐号</th>
+						<td>{$false_pay_data.username}</td>
+					</tr>
+					<tr>
+						<th>Paypal密码</th>
+						<td>{$false_pay_data.password}</td>
+					</tr>
+					<tr>
+						<th>收货地址</th>
+						<td>
+							<table class="table">
+								<!-- <tr>
+									<th>first_name</th>
+									<td>{$cache.order_bind_data.shipping_first_name}</td>
+								</tr>
+								<tr>
+									<th>last_name</th>
+									<td>{$cache.order_bind_data.shipping_last_name}</td>
+								</tr> -->
+								<tr>
+									<th>国家</th>
+									<td>{$cache.order_bind_data.shipping_country} ({$cache.order_bind_data.country_code})</td>
+								</tr>
+								<tr>
+									<th>省份</th>
+									<td>{$cache.order_bind_data.shipping_state}</td>
+								</tr>
+								<tr>
+									<th>城市</th>
+									<td>{$cache.order_bind_data.shipping_city}</td>
+								</tr>
+								<tr>
+									<th>地址1</th>
+									<td>{$cache.order_bind_data.shipping_street_address_1}</td>
+								</tr>
+								<tr>
+									<th>地址2</th>
+									<td>{$cache.order_bind_data.shipping_street_address_2}</td>
+								</tr>
+								<tr>
+									<th>邮编</th>
+									<td>{$cache.order_bind_data.shipping_zipcode}</td>
+								</tr>
+								<tr>
+									<th>电话(可以改后面几位)</th>
+									<td>{$cache.order_bind_data.shipping_phone}</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<th>订单ID</th>
+						<td>
+							<input type="text" class="form-control" id="order_id" name="order_id" value="" placeholder="请输入订单ID，“Order #”">
+						</td>
+					</tr>
+					<tr>
+						<th>确认订单ID</th>
+						<td>
+							<input type="text" class="form-control" id="order_id_re" name="order_id_re" value="">
+						</td>
+					</tr>
+					<tr>
+						<th></th>
+						<td>
+							<input type="button" data-loading-text="正在保存..." data-reload="1" class="defaultEditFormSubmit btn btn-primary" value="提交" />
+
+						</td>
+					</tr>
+				</table>
+			</div>
+		</form>
+
+		<script type="text/javascript">
+			$(document).ready(function() {  
+                $(document).ready(function() {  
+                    $('#order_id').bind("cut copy paste", function(e) {  
+                        alertWarning('禁用复制');  
+                        e.preventDefault();  
+                    });  
+                    $('#order_id_re').bind("cut copy paste", function(e) {  
+                        alertWarning('禁用复制');   
+                        e.preventDefault();  
+                    });
+                    $('#order_id').focus(function(){
+                    	$(this).attr("type","text");
+                    }).blur(function(){
+                    	$(this).attr("type","password");
+                    });
+
+                    $(".reRegisterPaypal").click(function(){
+                    	if(!confirm("确认重新注册Paypal？")){
+							return false;
+						}
+						var form_id = "editForm";
+						var data = $("#"+form_id).serialize();
+						var url = "{:U('doFunction')}?function_name=reRegisterPaypal";
+						
+						var btn = $(this);
+						btn.button('loading');
+						$.post(url,data,function(msg){
+							btn.button('reset');
+							if(msg.status){
+								alertWarning(msg.info,1);
+								window.location.reload();
+							}else{
+								alertWarning(msg.info);
+							}
+						}).error(function(){
+							btn.button('reset');
+							alertWarning("网络错误，请刷新后重试");
+						});
+                    });
+
+                    $(".stopEmulatorOrder").click(function(){
+                    	if(!confirm("确认刷单失败？")){
+							return false;
+						}
+						var form_id = "editForm";
+						var stop_type = $(this).data("stop_type");
+						$("#stop_type").val(stop_type);
+						var data = $("#"+form_id).serialize();
+						var url = "{:U('doFunction')}?function_name=stopEmulatorOrder";
+						
+						var btn = $(this);
+						btn.button('loading');
+						$.post(url,data,function(msg){
+							btn.button('reset');
+							if(msg.status){
+								alertWarning(msg.info,1);
+								window.location.reload();
+							}else{
+								alertWarning(msg.info);
+							}
+						}).error(function(){
+							btn.button('reset');
+							alertWarning("网络错误，请刷新后重试");
+						});
+                    });
+
+                    
+                });  
+            });  
+		</script>
+
+		<div class="thumbnailBox">
+			<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+		</div>
+	</notempty>
+	
+	<notempty name="cache.action_step.order.3">
+		<form action="{:U('doFunction')}?function_name=doOrderFinish" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+			<input type="hidden" id="ajax" name="ajax" value="1"/>
+			<input type="hidden" id="exec_log_id" name="exec_log_id" value="{$_REQUEST.exec_log_id}"/>
+			当前imei:
+			<b>{$false_account_data.imei_008}</b>
+			<br>
+			请执行<br>
+			<b>
+			1、刷单后置随机动作，<br>
+			2、打开 008，点击 工具箱，点击 备份程序数据，备份<br>
+			3、打开 008，点击 中间的 修改数据，点击 保存到历史记录中 <br>
+			4、然后<a data-loading-text="正在获取..." class="get008HistoryData btn btn-inverse btn-sm">上传008数据</a><br>
+			5、打开 008，点击 工具箱，点击 一件数据清除(同时关闭应用) 选中 wish 再点下面的 一键清除数据 <br>
+			6、按 home 键返回桌面,鼠标左键按住模拟器,拖动到 info 那里，<br>
+			在弹出的页面点 <b>force stop</b> 和 <b>clear data</b><br>
+			7、操作完毕后点击 完成刷单<br>
+			</b>
+			<a data-loading-text="正在保存..." class="doOrderFinish btn btn-danger btn-sm">完成刷单</a>
+		</form>
+
+		<script type="text/javascript">
+            $(".get008HistoryData").click(function(){
+				var form_id = "editForm";
+				var data = $("#"+form_id).serialize();
+				var url = "{:U('doFunction')}?function_name=get008HistoryData";
+				
+				var btn = $(this);
+				btn.button('loading');
+				$.post(url,data,function(msg){
+					btn.button('reset');
+					if(msg.status){
+						alertWarning(msg.info,1);
+					}else{
+						alertWarning(msg.info);
+					}
+				}).error(function(){
+					btn.button('reset');
+					alertWarning("网络错误，请刷新后重试");
+				});
+            });
+
+            $(".doOrderFinish").click(function(){
+            	if(!confirm("确认完成？")){
+					return false;
+				}
+				var form_id = "editForm";
+				var data = $("#"+form_id).serialize();
+				var url = "{:U('doFunction')}?function_name=doOrderFinish";
+				
+				var btn = $(this);
+				btn.button('loading');
+				$.post(url,data,function(msg){
+					btn.button('reset');
+					if(msg.status){
+						alertWarning(msg.info,1);
+						window.location.reload();
+					}else{
+						alertWarning(msg.info);
+					}
+				}).error(function(){
+					btn.button('reset');
+					alertWarning("网络错误，请刷新后重试");
+				});
+            });
+		</script>
+	</notempty>
+</div>

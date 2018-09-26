@@ -1,0 +1,25 @@
+<layout name='Layout/ace_popup' />
+
+<form  action="{:U('checkshipresult')}" name="data_form" id="data_form" method="POST" class="well form-horizontal clearfix">
+	<h2 style="font-size:24px;">出库检查</h2>
+	<textarea name="tracking_number"  style="width:645px;height:400px;"></textarea>
+	<span class="help-block">填入包裹号或者跟踪号，多条记录请换行</span>
+	<input type="submit" class="btn btn-primary" value="开始检查" />
+</form>
+	
+
+
+
+
+<script type="text/javascript">
+
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#bottomBoxIframe").css("height",height);
+
+})
+</script>

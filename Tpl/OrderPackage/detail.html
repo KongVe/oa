@@ -1,0 +1,420 @@
+<layout name='Layout/ace_popup' />
+<notempty name="waitPackProductList">
+	<div class="alert alert-danger" id="addPackageAlert">
+		还有产品未发！ <input type="button"  onclick="addPackage({$Think.request.order_auto_id})" class="btn btn-primary" value="新增包裹" />
+	</div>
+</notempty>
+<foreach name="packageList" item="package">
+	<form action="{:U('ship')}" method="POST" class="well form-horizontal clearfix">
+		<input type="hidden" name="package_id" value="{$package.package_id}" >
+		
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<span>
+					包裹号：<span id="package_code_{$package.package_id}" class="editStatic" field="package_code" onclick="editStatic(this,'{:U('OrderPackage/save')}?id={$package.package_id}','',[{'save_data':{memo:'上次使用的包裹号：<?php echo $package[package_code].' 更改时间:'.date('Y-m-d H:i:s',time());?>' } ,'keyword':'{$package.package_code}'}] )">{$package.package_code}</span>
+				</span>
+				<span class="pull-right">
+					物流方式：{$package.express_type} &nbsp;&nbsp;承运商：{$package.forwarder}
+				</span>
+			</div>
+			<div class="panel-heading">
+			
+				<a onclick="printLabel({$package.package_id})"   class="btn btn-success btn-sm"  style="margin:0 10px;">打印标签</a>  
+				包裹状态：{$package.package_state}
+				<span>
+					<a class="btn btn-xs btn-danger" onclick="reDownloadPDF({$package.package_id},1);">重新下载标签</a>
+				</span>
+			</div>
+
+			<notempty name="package.noDownloadPDF">
+				<div class="alert alert-danger" id="checkDownloadPDF{$package.package_id}">
+					该包裹打印标签未下载，当前正在下载中...<br>
+					<div id="package{$package.package_id}"></div>
+				</div>
+
+				<script type="text/javascript">
+					downloadPDF('{$package.package_id}');
+				</script>
+
+			</notempty>
+
+			<notempty name="package.noConfirmedMoney">
+				<div class="alert alert-danger">
+					注意，该订单仍未通过风险控制，还不能发货。需确认是否可以发货，请先同步该订单。
+				</div>
+			</notempty>
+
+			<notempty name="package.hasSameTrackingOrder">
+				<div class="alert alert-danger">
+					注意，还有另一个订单<b style="color:red;">线上跟踪号</b>使用了相同的跟踪号，请使用跟踪号查询！！！
+				</div>
+			</notempty>
+
+			<notempty name="package.hasSameForwarderTrackingOrder">
+				<div class="alert alert-danger">
+					注意，还有另一个订单<b style="color:red;">货代跟踪号</b>使用了相同的跟踪号，请检查是否打印新标签！！！
+				</div>
+			</notempty>
+			
+			<notempty name="package.noDownloadPDF">
+				<!-- <div class="alert alert-danger">
+					该美国订单未下载PDF，请等E邮宝操作人员下载好PDF再发货！！！
+				</div> -->
+			</notempty>
+
+			<notempty name="hasOtherOrder">
+				<if condition="$cannotCombine eq true">
+						<div class="alert alert-danger">
+							注意，还有其它订单是属于同一个客户：{$hasOtherOrder.shipping_first_name}&nbsp;{$hasOtherOrder.shipping_last_name}"，但是属于不同帐号且代理ip不一样,不能合成同一个包裹, 
+							<br>
+							<b>注意检查申报名称！</b>
+						</div>
+				<else/>
+					<div class="alert alert-danger">
+						注意，还有其它订单是属于同一个客户：<input value="{$hasOtherOrder.shipping_first_name}&nbsp;{$hasOtherOrder.shipping_last_name}"/><a href='{:U("OrderDetail/index?q=".$hasOtherOrder[shipping_first_name]." ".$hasOtherOrder[shipping_last_name])}' class='btn btn-danger btn-xs' target="_blank">搜索</a>，可以合成同一个包裹, 
+						<br>
+						<b>注意检查申报名称！</b>
+					</div>
+				</if>
+
+			
+			</notempty> 
+
+			<table class="table table-hover table-bordered table-condensed">
+				<tr>
+					<th>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id-toggle-all" id="id-toggle-all" checked />
+							<span class="lbl"></span>
+						</label>
+					</th>
+					<th>数量</th>
+					<th>图片</th>
+					<th>规格</th>
+					<th>备注</th>
+				</tr>
+				<tbody class="tbody">
+					<foreach name="package.productList" item="product">
+						<tr>
+							<th>
+								<eq  name="product.local_state"  value="Shipped">
+
+								 	已发
+
+								<else />
+									<eq name="product.product_state" value="Refunded">
+										<div>
+											<div>线上已Refunded</div>
+											<a onclick="if(confirm('线上状态已为 Refunded 状态，确认需要发货？')){$(this).parent().html('<label class=&quot;inline pull-left col-3&quot;><input class=&quot;ace&quot; type=&quot;checkbox&quot; name=&quot;productList[{$product.id}][product_auto_id]&quot; value=&quot;{$product.id}&quot; checked /><span class=&quot;lbl&quot;></span></label>');}" class="btn btn-xs btn-danger">强制发货</a>
+										<br>
+										</div>
+									<else/>
+										<notempty  name="product.shipped">
+									 		Shipped
+										<else />
+										 	<label class="inline pull-left col-3">
+											 	<input class="ace" type="checkbox" name="productList[{$product.id}][product_auto_id]" value="{$product.id}" <eq name="package.package_state" value="Really ship">disabled<else /><eq name="product.local_state" value="Waiting ship"> checked <else/> </eq></eq>  />
+											 	<span class="lbl"></span>
+									 		</label>
+										</notempty>
+										
+									</eq>
+								</eq>
+								
+								<span>订单序号<br>{$product.order_auto_id}</span>
+							</th>
+							<td>
+								<eq  name="product.local_state"  value="Shipped">
+								 	总 {$product.quantity} 件，已发{$product.shipped_quantity}件
+								<else />
+
+									<input class="form-control" style="width:50px;" name="productList[{$product.id}][quantity]" value="{$product.quantity}" <eq name="package.package_state" value="Really ship">disabled</eq> />
+								</eq>
+							</td>
+							<td><a href="{$product.thumbnail}" class="thumbnail" target="_blank"><img src="{$product.thumbnail}" width="60" /></a></td>
+							<td>{$product.variation}</td>
+							<td>
+								<span class="editStatic" field="memo" onclick="editStatic(this,'{:U('OrderProduct/save')}?id={$product.id}','textarea')">{$product.memo}</span>
+							</td>								
+						</tr>
+					</foreach>
+				</tbody>
+			</table>
+			<table class="table table-hover table-bordered table-condensed">
+				<tr>
+					<th></th><th>物流渠道</th><th>跟踪号</th><th>发货时间</th><th>货代公司</th>
+				</tr>
+				<tr>
+					<td>线上</td>
+					<td>{$package.online_provider}</td>
+					<td><a href="{$package.online_tracking_url}" target="_blank">{$package.online_tracking_number}</a></td>
+					<td>{$package.online_send_time}</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>实际</td>
+					<td>
+						<select name="package[local_provider_id]" class="form_control">
+							<foreach name="providerList" item="provider"> //in_array($provider,array($package['local_provider'],$package['online_provider']))
+								<option value="{$key}" <?php if($provider == $package['local_provider']){echo "selected";}elseif($provider == $package['online_provider'] && empty($package['local_provider'])){echo "selected";} ?> >{$provider}</option>
+							</foreach>
+						</select>
+
+					</td>
+					<td><input type="text" name="package[local_tracking_number]" data-id="{$package.id}" style="color:red;" class="form-control" value='<empty name="package.local_tracking_number">{$package.online_tracking_number}<else />{$package.local_tracking_number}</empty>' /></td>
+					<td><input type="text" name="package[local_send_time]" class="form-control" value="{$package.local_send_time}" /></td>
+					<td>
+						<!-- <select name="package[forwarder]" class="form-control">
+							<foreach name="forwarderList" item="forwarder" key="fKey">
+								<option value="{$fKey}">{$forwarder}</option>
+							</foreach>
+						</select> -->
+					</td>
+				</tr>
+			</table>	
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					客户信息
+				</div>
+				<div class="panel-body">
+					<div class="col-sm-5">
+						<span class="editStatic" field="shipping_first_name" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$package.order_auto_id}')">{$order.shipping_first_name}</span> <span class="editStatic" field="shipping_last_name" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$package.order_auto_id}')">{$order.shipping_last_name}</span><br>
+						<span class="editStatic" field="shipping_street_address_1" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$package.order_auto_id}')">{$order.shipping_street_address_1}</span><br>
+						<span class="editStatic" field="shipping_street_address_2" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$package.order_auto_id}')">{$order.shipping_street_address_2}</span><br>
+						<span class="editStatic" field="shipping_city" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$package.order_auto_id}')">{$order.shipping_city}</span>, <span class="editStatic" field="shipping_state" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$package.order_auto_id}')">{$order.shipping_state}</span>, <span class="editStatic" field="shipping_zipcode" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$package.order_auto_id}')">{$order.shipping_zipcode}</span><br>
+						<span class="editStatic" field="shipping_country" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$package.order_auto_id}')">{$order.shipping_country}</span><br>
+						<span class="editStatic" field="shipping_phone" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$package.order_auto_id}')">{$order.shipping_phone}</span>				
+					</div>
+					<div class="col-sm-5">
+						<div class="form-group">
+							<label class="control-label" for="declare_name">申报名称</label>
+							<select name="declare_name" id="declare_name" class="form-control">
+								<volist name="declare_name_list" id="declareName">
+									<option value="{$declareName['product_type']}" <eq name="products_declare_name" value="$declareName['product_type']">selected</eq> >{$declareName['product_type']}</option>
+								</volist>
+							</select>
+						</div>
+						<div class="form-group <eq name="expressType" value="false">has-error</eq> ">
+							<label class="control-label" for="express_type">物流渠道</label>
+							<select name="express_type" id="express_type" data-country="{$order.shipping_country}" class="form-control"  >
+								<option value="" >该国还没选</option>
+								<volist name="expressTypeList" id="expressTypes">
+									<option value="{$expressTypes.express_type}"  <eq name="expressType" value="$expressTypes['express_type']">selected</eq> >{$expressTypes.express_type} {$expressTypes.express_name}</option>
+								</volist>
+							</select>
+						</div>						
+						<a onclick="getFowarderDetail({$package.package_id})"   class="forwarder-btn btn btn-success btn-sm"  style="margin:0 10px;">打印新标签</a>
+					</div>
+
+					
+				</div>
+			</div>	
+			
+				<div class="form-group text-center" style="margin-top:10px;">
+					<neq name="package.package_state" value="Really ship" >
+						<if condition="$package.noConfirmedMoney eq 1">
+							<input type="button"   class="FormSubmit btn btn-primary" value="风险控制，不能发货" disabled='disabled'/>
+						<else/>
+							<input type="submit"   class="FormSubmit btn btn-primary" value="发货" />
+						</if>
+					<else/>
+						<input type="button" class="btn btn-warning" value="取消发货" onclick="cancelShip({$package.package_id})" />
+					</neq>			
+					<input type="button" class="btn btn-danger" value="关闭" onclick="closeBox()" />
+
+					
+				</div>	
+							
+			
+			
+		</div>
+		
+	</form>
+	
+</foreach>
+
+
+<script type="text/javascript">
+var labelWindow;
+
+function getFowarderDetail(package_id){
+	$(".forwarder-btn").hide();
+	var declare_name = $("#declare_name").val(),
+		express_type = $("#express_type").val(),
+		data = {'package_id':package_id,'declare_name':declare_name,'express_type':express_type};
+
+	$.post("{:U('get_forwarder_detail')}",data,function(r){
+		if(r.status){
+			printLabel(package_id);
+			$("#package_code_" + package_id).hide("fase").html(r.data.package_code).show('fast');
+			
+		}else{
+			alert(r.info);
+			$(".forwarder-btn").show();
+		}
+		
+	})
+
+	return false;
+}
+
+function addPackage(order_auto_id){
+	
+	$.post("{:U('add')}?order_auto_id=" + order_auto_id,function(r){
+		if(r.status){
+			window.location.reload(true);
+			return false;
+			$("#addPackageAlert").remove();			
+			$("#waitPack #package_id").val(r.data.package_id);
+			$("#waitPack").show();
+		}else{
+			alert(r.info);
+		}
+	})
+
+}
+
+function cancelShip(id){
+	if(!confirm("确认取消？")){
+		return false;
+	}
+	$.post("{:U('OrderPackage/cancalShip')}",{ids:[id]},function(msg){
+		if(msg.status){
+			alertWarning(msg.info,1);
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alertWarning("网络错误，请重试");
+	})
+	
+}
+function closeBox(){
+	if(labelWindow){
+		labelWindow.close();
+	}
+	parent.$("#bottomBox").modal({backdrop:true}).modal("hide");
+	parent.$("#bottomBoxIframe").attr("src","");
+	return false;
+}
+
+function printLabel(package_id){
+	$.post("{:U('OrderPackage/savePrintTime')}",{package_id:package_id},function(msg){
+		if(msg.status){
+			labelWindow = window.open('{:U("printLabel")}?package_id=' + package_id,'','width=600,height=400');
+			print(labelWindow);
+			return false;
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alertWarning("网络错误，请重试");
+	})
+	
+}
+
+function print(labelWindow){
+	labelWindow.onload=function(){
+		//console.log(labelWindow.document.getElementsByTagName('embed'));
+        if(labelWindow.document.readyState=="complete"){     
+        	if(labelWindow.document.getElementsByTagName('embed').length!=0){
+				labelWindow.window.print();
+				return false;
+			}else{
+				print(labelWindow);
+			} 
+        }   
+	}
+}
+
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#bottomBoxIframe").css("height",height);
+
+	$(".FormSubmit").click(function(){
+		var form = $(this.form),
+			data = form.serialize();
+			url = form.attr("action");
+
+		$.ajax({
+			url:url,
+			type:"POST",
+			async:false,
+			cache:false,
+			data:data,
+			error:function(r){
+				console.log(r);
+				alert(r + " 没有发货成功，请联系技术人员。。。");
+			},
+			success:function(r){
+				if(r.status){
+					if(labelWindow){
+						labelWindow.close();
+					}
+					parent.frames['order-detail-iframe'].location.reload(true);
+					parent.$("#bottomBox").modal({backdrop:true}).modal("hide");
+					parent.$("#bottomBoxIframe").attr("src","");
+					var tmp_top=parent.document.body.scrollTop;
+					//如果有搜索值，默认全选了搜索值
+					if(parent.$("#q").val() != ''){
+						parent.$("#q").focus().select();
+					}
+					if(parent.$("#oaid").val() != ''){
+						parent.$("#oaid").focus().select();
+					}
+ 
+				    parent.document.body.scrollTop=tmp_top;
+
+					parent.window.frames['order-detail-iframe'].location.reload();
+
+				}else{
+					alert(r.info + " 没有发货成功，请联系技术人员。。。");
+
+				}
+			}
+		});
+		return false;
+	})
+
+
+	//如果所有商品都没有包裹号，则自动新增包裹
+	<?php if($allNotPackage === true):?>
+		$("#addPackageAlert input").click();
+	<?php endif; ?>
+
+
+	$("input[name='package[local_tracking_number]']").change(function(){
+		var local_tracking_number = $(this).val(),
+			id = $(this).data("id"),
+			data = {'local_tracking_number':local_tracking_number, 'id':id,'opmode':'edit'};
+			$.post("{:U('save')}",data,function(r){
+				if(r.status){
+					$(this).parent().addClass("has-success")
+				}else{
+					alert(r.info);
+				}
+			});
+	});
+
+	// $("#express_type").change(function(){
+	// 	var country = $(this).data('country'),
+	// 		express_type = $(this).val(),
+	// 		data = {'country':country,'express_type':express_type};
+
+	// 	$.post("{:U('OrderExpress/save')}",data,function(r){
+	// 		if(r.status){
+	// 			$(this).parent("div.form-group").addClass("has-success");
+	// 		}else{
+	// 			alert(r.info);
+	// 		}
+	// 	})
+	// })
+
+})
+
+</script>

@@ -1,0 +1,38 @@
+<layout name='Layout/m_ace_layout' />
+
+<style>
+.showBottomBox{cursor: pointer;}
+</style>
+<link rel="stylesheet" type="text/css" href="__PUBLIC__/pagination/common/pagination.css">
+<script type="text/javascript" src="__PUBLIC__/pagination/common/jquery.pagination.js"></script>
+<link rel="stylesheet" type="text/css" href="__PUBLIC__/css/boostarap.min.css">
+<link rel="stylesheet" type="text/css" href="__PUBLIC__/boostarap-select"/>
+<script type="text/javascript" src="__PUBLIC__/js/boostarap.min.js"></script>
+<script type="text/javascript" src="__PUBLIC__/boostarap-select/js/boostarap-select.min.js"></script>
+<script type="text/javascript" src="__PUBLIC__/boostarap-select/js/i18n/default-zh_CN.min.js"></script>
+<div class="page">
+
+</div>
+<script type="text/javascript">
+	var filter_list = {$filter_list|default=""};
+	function init(){
+		$.ajax({
+			url:'{:U('V2TransferShipment/getTransferShipmentList')}',
+			type:'GET',
+			dataType:'json',
+			success:function(data){
+
+			},error:function(){
+
+			},beforeSend:function(){
+				$.showIndicator() 
+			}
+		})
+	}
+	function serch_list(){
+	}
+	$(function(){
+		init();
+		serch_list();
+	})
+</script>

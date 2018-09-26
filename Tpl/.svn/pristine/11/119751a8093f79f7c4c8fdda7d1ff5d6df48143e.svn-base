@@ -1,0 +1,61 @@
+<layout name='Layout/m_ace_layout' />
+
+<style>
+.showBottomBox{cursor: pointer;}
+</style>
+<link rel="stylesheet" type="text/css" href="__PUBLIC__/pagination/common/pagination.css">
+<script type="text/javascript" src="__PUBLIC__/pagination/common/jquery.pagination.js"></script>
+<link rel="stylesheet" type="text/css" href="__PUBLIC__/css/boostarap.min.css">
+<link rel="stylesheet" type="text/css" href="__PUBLIC__/boostarap-select"/>
+<script type="text/javascript" src="__PUBLIC__/js/boostarap.min.js"></script>
+<script type="text/javascript" src="__PUBLIC__/boostarap-select/js/boostarap-select.min.js"></script>
+<script type="text/javascript" src="__PUBLIC__/boostarap-select/js/i18n/default-zh_CN.min.js"></script>
+<div class="page">
+<div id="Pagination" class="pagination"></div>
+</div>
+<script type="text/javascript">
+	var filter_list = {$filter_list|default=""};
+	function init(){
+		$.ajax({
+			url:'{:U('V2TransferShipment/getTransferShipmentList')}',
+			type:'GET',
+			dataType:'json',
+			success:function(msg){
+				var total = msg.data.list_count;  
+            var html = '<table><tr><th>姓名</th><th>工作时间</th><th>籍贯</th><th>职务</th><th>生卒年</th><th>操作</th></tr>';  
+            $.each(msg.data.result,function(i,n){      
+                html += '<tr><td>'+n[0]+'</td><td>'+n[1]+'</td><td>'+n[2]+'</td><td>'+n[3]+'</td><td>'+n[4]+'</td>'  
+                html += '<td><a href=#>删除</a></td></tr>';  
+            });  
+            html += '</table>';  
+            $('#Searchresult').html(html);
+            //分页-只初始化一次  
+            if($("#Pagination").html().length == ''){  
+                $("#Pagination").pagination(total, {  
+                    'items_per_page'      : msg.data.list_page,  
+                    'num_display_entries' : msg.data.list_rows,  
+                    'num_edge_entries'    : 2,  
+                    'prev_text'           : "上一页",  
+                    'next_text'           : "下一页",  
+                    'callback'            : pageselectCallback  
+                });   
+			},error:function(){
+
+			},beforeSend:function(){
+				$.showIndicator() 
+			}
+		})
+	}
+	 function pageCallback(api) {
+2     var pageNo=1 //当前页码
+3     if(api){
+4         pageNo=api.getCurrent()  //获取当前代码
+5     }
+6 }
+	function serch_list(){
+	}
+	$(function(){
+		init();
+		serch_list();
+	})
+</script>

@@ -1,0 +1,124 @@
+<!-- <layout name='Layout/m_ace_layout' />
+<style type="text/css">
+  .content .media-list
+  {
+    margin-top: .4rem;
+  }
+</style>
+<div class="list-block media-list">
+    <ul>
+      <li>
+        <a href="#" class="item-link item-content">
+          
+          <div class="item-inner">
+            <div class="item-title-row">
+              <div class="item-title">标题</div>
+              <div class="item-after">$15</div>
+            </div>
+            
+            <div class="item-text">此处是文本内容...</div>
+          </div>
+        </a>
+      </li>
+       <li>
+        <a href="#" class="item-link item-content">
+          
+          <div class="item-inner">
+            <div class="item-title-row">
+              <div class="item-title">标题</div> 
+              <div class="item-after">$15</div>
+            </div>
+            
+            <div class="item-text">此处是文本内容...</div>
+          </div>
+        </a>
+      </li>
+       <li>
+        <a href="#" class="item-link item-content">
+          
+          <div class="item-inner">
+            <div class="item-title-row">
+              <div class="item-title">标题</div>
+              <div class="item-after">$15</div>
+            </div>
+            
+            <div class="item-text">此处是文本内容...</div>
+          </div>
+        </a>
+      </li>
+       <li>
+        <a href="#" class="item-link item-content">
+          
+          <div class="item-inner">
+            <div class="item-title-row">
+              <div class="item-title">标题</div>
+              <div class="item-after">$15</div>
+            </div>
+            
+            <div class="item-text">此处是文本内容...</div>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <script type="text/javascript">
+    $(function(){
+      $('.media-list a').click(function(){
+       window.location.href = '{:U('V2TransferShipment/service_list')}'
+      })
+    })
+    function page_list(){
+      $.ajax({
+        url:'',
+        data:{},
+        type:'GET',
+        dataType:'json',
+        success:function(data){
+
+        }
+      })
+    }
+  </script> -->
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>vue</title>
+    <style>
+        *, *:before, *:after {
+            box-sizing: border-box;
+        }
+        body, html {
+            height: 100%;
+            overflow: hidden;
+        }
+        body, ul {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            color: #4d4d4d;
+            font: 14px/1.4em 'Helvetica Neue', Helvetica, 'Microsoft Yahei', Arial, sans-serif;
+            background: #f5f5f5 url('/Pulic/service/vue/dist/images/bg.jpg') no-repeat center;
+            background-size: cover;
+            font-smoothing: antialiased;
+        }
+        ul {
+            list-style: none;
+        }
+        #chat {
+            margin: 20px auto;
+            width: 800px;
+          height: 600px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="chat"></div>
+<script src="/Pulic/service/vue/dist/vue.js"></script>
+<script src="/Pulic/service/vue/dist/main.js"></script>
+
+
+</body>
+</html>

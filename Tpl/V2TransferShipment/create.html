@@ -1,0 +1,47 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('doCreate')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" id="ajax" value="1">
+		<div class="form-group">
+			<label class="control-label" for="from_account_id">发货仓库和账号</label>
+			<select class="form-control" id="from_account_id" name="from_account_id">
+				<option value="">请选择仓库和账号</option>
+				<volist name="warehouse_list" id="warehouse">
+					<optgroup label="{$warehouse.warehouse_type}: {$warehouse.warehouse_name}">
+					<volist name="warehouse.account_list" id="account">
+						<option value="{$warehouse.id}_{$account.id}">{$account.show_name}</option>
+					</volist>
+				</volist>
+			</select>
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="target_account_id">目标仓库和账号</label>
+			<select class="form-control" id="target_account_id" name="target_account_id">
+				<option value="">请选择仓库和账号</option>
+				<volist name="warehouse_list" id="warehouse">
+					<optgroup label="{$warehouse.warehouse_type}: {$warehouse.warehouse_name}">
+					<volist name="warehouse.account_list" id="account">
+						<option value="{$warehouse.id}_{$account.id}">{$account.show_name}</option>
+					</volist>
+				</volist>
+				<optgroup label="特殊操作">
+					<option value="Disposal">销毁</option>
+				</optgroup>
+			</select>
+			<p class="help-block">发货仓库和目标仓库不能为同一个仓库</p>
+		</div>
+		<!-- <div class="form-group">
+			<label class="control-label" for="forwarder">发货渠道</label>
+			<select class="form-control" id="forwarder" name="forwarder">
+				<option value="">请选择</option>
+				<option value="DHL">DHL(38/kg, 3-5天，除5000)</option>
+				<option value="Chukou1_Fedex">Chukou1 空运(27/kg,8-12天, 除6000, 带电)</option>
+			</select>
+		</div> -->
+		<div class="form-group text-center">
+			<a id="editFormSubmit" data-close="true" data-reload="true" data-loading-text="正在保存..."  class="btn btn-primary defaultEditFormSubmit"  />保存</a>
+			<a class="btn btn-success close_box_button" id="cancel">取消</a>
+		</div>
+	</form>
+<script type="text/javascript">
+
+</script>

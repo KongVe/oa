@@ -1,0 +1,32 @@
+
+<a href="{:U('V2OnlineProductMapSku/index')}?q={$old_data.online_product_id}" class="btn btn-primary btn-sm" target="_blank">查看规则</a>
+<br>
+<b>原数据:</b>
+<br>
+线上Product Id: <b>{$old_data.online_product_id}</b> <a href="{:U('V2OrderDetail/index')}?online_product_id={$old_data.online_product_id}" class="btn btn-primary btn-xs" target="_blank">搜索订单</a>
+<br>
+线上规格 Id: <b>{$old_data.online_variation_id}</b>
+<br>
+映射本地SKU: <a href="{:U('V2SkuProduct/index')}?id={$old_sku_data.id}" target="_blank"><b>{$old_sku_data.sku}</b></a>
+<br>
+规格名称: <b>{$old_sku_data.sku_name}</b>
+<br>
+SKU图片: <a class="thumbnail" href="{$old_sku_data.thumbnail}" target="_blank" style="width:100px;"><img src="{$old_sku_data.thumbnail}" width="100" /></a>
+<br>
+规则说明: <b>{$old_data.map_sku_memo}</b>
+
+<hr>
+
+<b>新数据:</b>
+<br>
+线上Product Id: <b>{$new_data.online_product_id}</b> <a href="{:U('V2OrderDetail/index')}?online_product_id={$new_data.online_product_id}" class="btn btn-primary btn-xs" target="_blank">搜索订单</a>
+<br>
+线上规格 Id: <b>{$new_data.online_variation_id}</b>
+<br>
+映射本地SKU: <a href="{:U('V2SkuProduct/index')}?id={$new_sku_data.id}" target="_blank"><b>{$new_sku_data.sku}</b></a>
+<br>
+规格名称: <b>{$new_sku_data.sku_name}</b>
+<br>
+SKU图片: <a class="thumbnail" href="{$new_sku_data.thumbnail}" target="_blank" style="width:100px;"><img src="{$new_sku_data.thumbnail}" width="100" /></a>
+<br>
+规则说明: <b>{$new_data.map_sku_memo}</b>

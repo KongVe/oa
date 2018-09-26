@@ -1,0 +1,86 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'编辑仓库'))}
+
+<form method='post' action="{:U('layoutSave')}" id="editForm" name="editForm" class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	<notempty name="vo.id">
+		<input type="hidden" id="id" name="id" value="{$vo.id}">	
+	</notempty>
+	
+	<input type="hidden" id="add_file" name="add_file" value="{$vo.add_file}">
+	<input type="hidden" id="opmode" name="opmode" value="<notempty name="_REQUEST['id']">edit<else/>add</notempty>">
+
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="warehouse_name">仓库名称：</label>
+		<div class="col-sm-9">
+			<input class="form-control" type="text" id="warehouse_name" name="warehouse_name" value="{$vo.warehouse_name}"  check="require" msg="请输入仓库名称">
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="memo">仓库类型：</label>
+		<div class="col-sm-9">
+			<select name="warehouse_type">
+				<option value="local" <eq name="vo.warehouse_type" value="local"> selected</eq> >自有仓</option>
+				<option value="oversea" <eq name="vo.warehouse_type" value="oversea"> selected</eq> >海外仓</option>
+			</select>
+		</div>
+	</div>
+
+	<div class="form-group">
+        <label class="col-sm-2 control-label">所在国家: </label>
+        <div class="col-sm-9">
+        	<?php
+        		$country_code_select = false;
+        		if($vo['country_code']){
+        			$country_code_select = $vo['country_code'];
+        		}
+        	?>
+			<select name="country_code" id="country_code" style="width:350px;" check="require" msg="请选择目的国">
+				<option value="">请选择国家</option>
+                <option value="All">所有国家</option>
+				<volist name="country_list" id="country">
+					<option value="{$country.country_code}" <eq name="country.country_code" value="$country_code_select">selected="selected"</eq> >{$country.country} {$country.name_cn}( {$country.country_code} )</option>
+				</volist>
+			</select>
+        </div>
+    </div>
+
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for=""></label>
+		<div class="col-sm-10">
+			<div class="action">
+				<input type="hidden" name="model_name" value="warehouse">
+				<a class="editFormSubmit btn btn-sm btn-primary">保存</a>
+				<input class="close_box_button btn btn-sm btn-default" type="button" value="取消" >
+			</div>
+		</div>
+	</div>
+	
+</form>
+<script type="text/javascript">
+$(function() {
+	$("#country_code").select2();
+
+	$(".editFormSubmit").click(function(){
+        $("input").attr("disabled",null);
+        var data = $("#editForm").serialize();
+        var url = $("#editForm").attr("action");
+        
+        var btn = $(".editFormSubmit").button('loading');
+        if (check_form("editForm")) {
+            sendForm("editForm", url,false,function(msg){
+                btn.button('reset');
+                if(msg.status){
+					closeBox();
+					parent.window.location.reload();
+                }else{
+                    alertWarning(msg.info);
+                }
+            });
+        }else{
+            btn.button('reset');
+        }
+    });
+});
+</script>

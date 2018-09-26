@@ -1,0 +1,267 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" action="{:U("")}" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ;?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="id" value="{$Think.request.id}" />
+
+<div class="page-header clearfix">
+	<h1 class="col-sm-4">称重发货</h1>
+	<div class="col-sm-8 pull-right">
+		<!-- <div class="input-group col-sm-2">
+			<input  class="form-control" type="text" name="sku" id="sku" value="{$Think.request.sku}" placeholder="请输入SKU"/>
+		</div> -->
+		<div class="input-group col-sm-4">
+				
+			<input  class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="请扫描 包裹号、跟踪号或SKU"/>
+		<!-- 	<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="forwarder_tracking_number" id="forwarder_tracking_number" value="{$Think.request.forwarder_tracking_number}" placeholder="请扫描跟踪号"/> -->
+			<div class="input-group-btn">
+				<button type="submit" class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- 
+<div class="operate panel panel-default">
+	<div class="panel-body">
+
+	
+
+	</div>
+</div>
+ -->
+<div class="message-container" style="width:100%;overflow:scroll;">
+	<table class="table table-striped table-bordered">
+		
+
+			<tbody class="tbody ">
+			<volist name="list" id="package" key="package_key">
+				
+				<volist name="package.order_data" id="order_list" key="order_key">
+					
+					<volist name="order_list" id="vo" key="product_key">
+						<tr>
+							<eq name="product_key" value="1">
+								<td rowspan="4">
+									<b style="font-size:15px;">产品信息</b>	
+								</td>
+							<else/>
+								<td rowspan="4"></td>
+							</eq>
+							
+							<td rowspan="4" style="width:100px;">
+								<a href="{$vo.thumbnail}" class="thumbnail" target="_blank">
+									<img src="{$vo.thumbnail}" height="130" />
+								</a>
+							</td>
+
+							<td style="width:300px;">
+								SKU：<b style="color:blue;font-size:20px;">{$vo.sku}</b>
+							</td>
+							<td>
+								规格：<b style="color:blue;font-size:20px;">{$vo.variation}</b>
+							</td>
+							<eq name="product_key" value="1">
+								
+								<eq name="order_key" value="1">
+									<td  rowspan="10" style="width:300px;">
+										<eq name="package.package_data.package_state" value="Really ship">
+											<a class="btn btn-large" href="#" title="确定" style="width: 100%;height: 80%;font-size: 400%;">已发货</a>
+											<br>
+											<br>
+											<a class="btn btn-large btn-danger" href="#" onclick="cancelShip({$package['package_data']['package_id']});" style="width: 100%;height: 25%;font-size: 200%;">取消发货</a>
+										<else/>
+											<a class="btn btn-large btn-danger" id="click_ship" onclick="submit_weight('<?php echo $package['package_data']['package_id'];?>','<?php echo $package_key;?>');" title="确定" style="width: 100%;height: 100%;font-size: 500%;">发 货</a>
+											
+										</eq>	
+									</td>
+								</eq>
+							</eq>
+						</tr>
+
+						<tr>
+							<td>
+								本地状态：<b style="color:red;font-size:20px;">{$vo.local_state}</b>
+							</td>
+							<td>
+								线上状态：<b style="color:red;font-size:20px;">{$vo.product_state}</b>
+							</td> 	
+						
+						</tr>
+
+						<tr>
+							<td>
+								已发数量：<b style="color:red;font-size:20px;">{$vo.shipped_quantity}</b>
+							</td>
+							<td >
+								下单数量：<b style="color:blue;font-size:20px;">{$vo.product_quantity}</b>
+							</td>
+						</tr>
+
+						<tr>
+							<td colspan="3">
+								备注：<b>{$vo.product_memo|default="无"}</b>
+							</td> 	
+						</tr>
+						
+					</volist>
+				</volist>
+
+				<tr class="danger">
+						<td>
+							<b style="font-size:16px;">订单信息</b>	
+						</td>
+						<td>
+							订单ID：<a href="{:U('OrderDetail/staffindex')}?oaid={$order_list[0]['order_auto_id']}" target="_blanK" class="link">{$order_list[0]['order_id']}</a>
+							
+						</td>
+						<td>
+							本地状态：<b style="color:red;">{$order_list[0].local_state}</b>
+						</td>
+						<td>
+							线上状态：<b style="color:red;">{$order_list[0].order_state}</b>
+						</td> 	
+					</tr>
+					<tr class="danger">
+						<td></td>
+						<td>
+							平台：{$order_list[0].website}
+						</td>	
+						<td>
+							帐号：{$order_list[0].account}
+						</td>
+						<td>
+							下单时间：
+							<notempty name="order_list[0].order_time">
+								{$order_list[0].order_time|date="y-m-d H:i:s",###}
+							<else/>
+								无
+							</notempty>
+						</td>
+					</tr>
+					<tr class="danger">
+						<td></td>
+						<td>
+							姓名：<b>{$order_list[0].shipping_first_name} {$order_list[0].shipping_last_name}</b>
+						</td>
+						<td>
+							国家：<b>{$order_list[0].shipping_country}</b>
+						</td>
+						<td>
+							备注：<b>{$order_list[0].detail_memo|default="无"}</b>
+						</td> 
+					</tr>
+				<tr class="success">
+					<td style="width:100px;">
+						<b style="font-size:17px;">包裹信息</b>	
+					</td>
+				
+					
+					<notempty name="package.package_data.local_send_time">
+						<td>
+							称重：
+							<span class="editStatic" field="local_weight" onclick="editStatic(this,'{:U('OrderPackage/save')}?id={$package['package_data']['package_id']}')">{$package.package_data.local_weight}</span>
+							<i style="font-size:13px;">点击修改</i>
+							
+						</td>
+						<td>
+							发货员：{$package.package_data.ship_user_name}
+						</td>
+						<td >
+							发货时间：
+							<b>
+								<notempty name="package.package_data.local_send_time">
+									{$package.package_data.local_send_time|date="y-m-d H:i:s",###}
+								<else/>
+									无
+								</notempty>
+							</b>
+						</td>
+					<else/>
+						<td  colspan="3">
+							<div class="col-sm-3">
+								<b style="font-size:16px;">称重发货：</b>
+							</div> 
+							<div class="input-group  col-sm-6">
+								<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_weight('<?php echo $package['package_data']['package_id'];?>','<?php echo $package_key;?>');return false;}" type="text" name="package_weigth" id="package_weigth_{$package_key}" value="{$package.package_data.local_weight|default="1暂时不需要称重"}" placeholder="请点击后称重"/>
+								<div class="input-group-btn">
+									<!-- <a class="btn btn-sm btn-danger" onclick="submit_weight('<?php echo $package['package_data']['package_id'];?>','<?php echo $package_key;?>');" title="确定">发货</a> -->
+								</div>
+							</div>
+							<div class="col-sm-3" id="package_weigth_alert_{$package_key}">
+
+							</div>
+						</td> 
+					</notempty>
+
+				
+				</tr>
+				<tr class="success">
+					<td>
+
+					</td>
+
+				<!-- 	<td>
+						包裹ID: <b>{$package.package_data.package_id}</b>	
+					</td> -->
+					<td style="min-width:290px;">
+						包裹号：<b>{$package.package_data.package_code}</b>
+					</td>	
+					<td style="min-width:100px;">
+						跟踪号：<b>{$package.package_data.forwarder_tracking_number}</b>
+					</td>	
+					<td>
+						包裹状态: <b>{$package.package_data.package_state}</b>	
+					</td>
+				</tr>
+				<tr class="success">
+					<td>
+						
+					</td>
+					<td>
+						物流方式：<b>{$package.package_data.express_type}</b>&nbsp;&nbsp;
+						承运商：<b>{$package.package_data.forwarder}</b>
+					</td>
+					<td>
+						打单员：{$package.package_data.print_user_name|default="无"}
+					</td> 
+					<td>
+						打印时间：
+						<notempty name="package.package_data.local_print_time">
+							{$package.package_data.local_print_time|date="y-m-d H:i:s",###}
+						<else/>
+							未打印
+						</notempty>
+					</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:500px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" height="300px" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+<div class="modal fade" id="editProduct" role="dialog"  tabindex="-1" aria-labelledby="editProductLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="editProductIframe" name="editProductIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox1" role="dialog"  tabindex="-1" aria-labelledby="bottomBox1Label" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBox1Iframe" name="bottomBox1Iframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>

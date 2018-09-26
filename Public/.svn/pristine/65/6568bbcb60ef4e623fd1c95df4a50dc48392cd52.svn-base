@@ -1,0 +1,66 @@
+	// 手机公用函数
+
+function openleft(){
+	$.openPanel('#left');
+
+}
+
+function openright(){
+	$.openPanel('#panel-right');
+
+}
+function nav_show(){
+	$('#nav-overlady').removeClass('hide');
+	$('#nav-menu-list').show();
+
+}
+function Get_menu_list (data){
+	var list = "";
+	var list_list = '';
+	var len = data.menu_tree.length;
+	$.each(data.menu_tree,function(i,e){
+		var list_tree2 = '';
+		var list_tree = '';
+		if(e._child.length > 0){
+			for(var j = 0; j<e._child.length;j++){
+				if(j == 0){
+					list_tree2 += '<ul class="dropdown-menu">'
+				}
+				list_tree2 += 
+				'<li>'+
+				'<a  id="'+e._child[j].id+'" data-pid="'+e._child[j].pid+'" href="'+e._child[j].url+'">'+e._child[j].name+'</a>'+
+				'</li>'
+				
+					
+				
+			}
+			list_tree2+= '</ul>'
+
+		}
+		if(e._child.length > 0){
+		list_tree += '<li><a href="#" class="dropdown-toggle" data-toggle="dropdown" data-pid="'+e.pid+'">'+e.name+'<b class="caret"/></a>'+
+		list_tree2+
+		'</li>';
+	}else{
+		list_tree += '<li><a href="'+e.url+'"  data-pid="'+e.pid+'">'+e.name+'</a></li>'+
+		list_tree2;
+	}debugger
+		list_list +=list_tree
+	});
+	list +=
+		// '<a class="nav-level-1-back" onclick="menu_hide()"></a>'+
+		list_list
+		
+	$('#nav-menu-list .navbar-nav').append(list)
+	// $('a[data-toggle="dropdown"]').click(function(){
+	// 	if($(this).parent().hasClass('open')){
+	// 		$(this).parent().removeClass('open');
+	// 	}else{
+	// 		$(this).parent().addClass('open')
+	// 	}
+	// })
+}
+function menu_hide(){
+	$('#nav-overlady').addClass('hide');
+	$('#nav-menu-list').hide();
+}

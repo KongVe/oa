@@ -1,0 +1,198 @@
+<layout name='Layout/ace_layout' />
+
+<script type="text/javascript" src="__PUBLIC__/js/echarts/build/dist/echarts.js"></script>
+<!-- 
+	<script type="text/javascript" src="__PUBLIC__/js/ichart.1.2.min.js"></script> 
+-->
+
+<form action="__SELF__" id="detail_form" method="POST">
+	<div class="page-header clearfix">
+	    <h1 class="col-sm-2">{$title}</h1>
+	   	<div class="col-sm-10">
+		
+			<if condition=" isAdmin() ">
+				<div class="form-group col-sm-2">
+					<select name="owner_uid[]" id="owner_uid" style="width:100%;" multiple="multiple" size="1" placeholder="请选择用户(admin)">
+						<option value="">请选择用户</option>
+						<foreach name="user_list" item="user">
+							<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['owner_uid'])){ echo 'selected="selected"';}?> >{$user.emp_name}</option>
+						</foreach>	
+					</select>
+				</div>
+			</if>
+
+			<div class="form-group col-sm-2">
+				<select name="website_id" id="website_id" style="width:100%;">
+					<option value="">选择平台</option>
+					<foreach name="website_list" item="website">
+						<option value="{$website.id}" <eq name="Think.request.website_id" value="$website.id">selected</eq> >{$website.website_name}</option>
+					</foreach>	
+				</select>
+			</div>
+
+			<div class="form-group col-sm-2">
+				<select name="account_id" id="account_id" style="width:100%;">
+
+					<option value="" <eq name="Think.request.account_id" value="">selected</eq> >帐号</option>
+					
+						<foreach name="account_list" key="website" item="accounts">
+							<optgroup label="{$website}">
+							<foreach name="accounts" key="vv" item="account">
+								<option value="{$account.id}" <eq name="Think.request.account_id" value="$account.id">selected</eq> >{$account.show_name}</option>
+							</foreach>	
+						</foreach>
+					</optgroup>
+				</select>
+			</div>
+		    <div class="form-group col-sm-2">
+		        <div class="input-group">
+		            <span class="input-group-addon">
+		                周期
+		            </span>
+		            <select name="cycle" id="cycle" class="form-control">
+						<option value="day">请选择周期</option>
+						<option value="day" <eq name="Think.request.cycle" value="day">selected</eq>>每天</option>
+						<option value="week" <eq name="Think.request.cycle" value="week">selected</eq>>每周</option>
+						<option value="month" <eq name="Think.request.cycle" value="month">selected</eq>>每月</option>
+					</select>
+
+		        </div>
+		    </div>
+		
+			<div class="input-group col-sm-4">
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="input-date-range form-control" type="text" name="order_time" id="order_time" value="{$Think.request.order_time}"  placeholder="订单时间默认最近14天">
+		      	<span class="input-group-btn">
+		        	<button type="submit" class="btn btn-danger btn-sm">确定</button>
+		      	</span>
+			</div>	
+		</div>
+
+
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-body">
+			
+
+			<div class="col-sm-12 align-center">
+				<span>
+					<b>销量:</b> {$quantity_total} 个
+				</span>
+				<span>
+					<b>订单数据:</b> {$count_total} 单
+				</span>
+				<span>
+					<b>预计销售额:</b> {$estimate_total} 元
+				</span>	
+				<if condition=" isAdmin() ">
+					<span>
+						<b>预计利润:</b> {$profit_total} 元
+					</span>	
+				</if>
+			</div>
+
+			<div class="col-sm-12 align-center">
+				<div id="canvasDiv" style="height:600px;width:90%;">
+					<!-- <div class="col-sm-12 chart_list" id='canvasDiv'></div>		 -->
+				</div>		
+			</div>
+		</div>
+	</div>
+</form>
+
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+
+<script type="text/javascript">
+//PUBLIC
+var label_list=<?php echo json_encode($label_list); ?>;
+
+var variation_legend_list=<?php echo json_encode($label_name_list); ?>;
+var variation_data= <?php echo json_encode($chartByCount); ?>	
+var variation_option  = {
+	    tooltip : {
+	        trigger: 'axis'
+	    },
+	    legend: {
+	        data:variation_legend_list,
+	        // orient:"vertical",
+	        x:"left",
+	    },
+	    toolbox: {
+	        show : true,
+	        feature : {
+	            mark : {show: true},
+	            dataView : {show: true, readOnly: false},
+	            magicType : {show: true, type: ['bar', 'line']},
+	            restore : {show: true},
+	            saveAsImage : {show: true}
+	        }
+	    },
+	    calculable : true,
+	    xAxis : [
+	        {
+	            type : 'category',
+	            boundaryGap : true,
+
+	            data : label_list,
+	        }
+	    ],
+	    yAxis : [
+	        {
+	            type : 'value',
+	            
+	        }
+	    ],
+
+	    series :variation_data,
+	};           
+
+var variationChart = function(){
+	// 路径配置
+	require.config({
+	    paths: {
+	        echarts: '__PUBLIC__/js/echarts/build/dist'
+	    }
+	});
+	// 使用
+    require(
+        [
+            'echarts',
+            'echarts/chart/bar',
+            'echarts/chart/line',
+        ],
+        function (ec) {
+            // 基于准备好的dom，初始化echarts图表
+            var myChart = ec.init(document.getElementById('canvasDiv')); 
+              // 为echarts对象加载数据 
+	        myChart.setOption(variation_option); 
+	    }
+    );
+}
+
+// 关闭悬浮框
+function closeDetailBox(){
+	if(parent.$("#order-detail-box").length>0){
+		parent.$("#order-detail-box").css({display:"none"});
+	}else{
+		window.close();
+	}
+}
+
+$(function($){
+
+	if($("#owner_uid").length > 0){
+		$("#owner_uid").select2();
+	}
+	
+	$("#account_id").select2();
+	$("#website_id").select2();
+
+	variationChart();
+
+	$(".showInNewWindow").click(function(){
+		$("#detail_form").attr("target","_blank").submit();
+		$("#detail_form").attr("target","")
+	});
+})
+</script>

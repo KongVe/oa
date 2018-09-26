@@ -1,0 +1,28 @@
+<div class="form-group col-xs-12">
+	<div class="well">
+		服务器: 
+		<b>{$false_proxy_server_data.proxy_server_address}</b>
+	</div>
+
+	<eq name="cache.action_step" value="Wait payment">
+		<form action="{:U('doFunction')}?function_name=addPayment" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+
+			<input type="hidden" id="ajax" name="ajax" value="1"/>
+			<input type="hidden" id="exec_log_id" name="exec_log_id" value="{$_REQUEST.exec_log_id}"/>
+			<input type="hidden" id="false_account_id" name="false_account_id" value="{$false_account_data.id}"/>
+			<div class="col-xs-12">
+				<label class="control-label" for="device_id">请输入Promotion Code</label>
+				<input type="text" class="form-control" id="promotion_code" name="promotion_code" value="">
+			</div>
+			<div class="col-xs-12">
+				<label class="control-label" for="device_id">请输入Gift Card Number</label>
+				<input type="text" class="form-control" id="gift_card" name="gift_card" value="">
+			</div>
+
+			<div class="form-group col-xs-12">
+				<input type="button" data-loading-text="正在保存..." data-reload="1" class="defaultEditFormSubmit btn btn-primary" value="保存" />
+			</div>
+		</form>
+	</eq>
+
+</div>

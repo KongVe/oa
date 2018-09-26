@@ -1,0 +1,68 @@
+<script type="text/javascript">
+$(function(){
+	 $('[data-toggle="popover"]').popover({
+	 	trigger:'hover focus',
+	 	html:true,
+	 	placement:'bottom'
+	 })
+
+	 $(".createTransferPlanQuantity").change(function(){
+	 	data = {
+	 		id:$(this).data("issue-id"),
+	 		transfer_quantity:$(this).val(),
+	 	}
+	 	$.post("{:U('updatePlanTransferQuantity')}",data,function(r){
+	 		if(r.status){
+	 			window.location.reload();
+	 		}else{
+	 			alertWarning(r.info);
+	 		}
+	 	})
+	 });
+
+})
+
+	function closeBox(){
+		parent.$("#order-detail-box").hide("fast");
+	}
+
+	function edit(id){
+		parent.$("#middleBoxIframe").attr("src","<?php echo U("AmazonSellyoursIssue/edit"); ?>?id=" + id);
+		parent.$("#middleBox").modal("show");
+	}
+
+
+
+function businessReport(id){
+		parent.$("#middleBoxIframe").attr("src","<?php echo U("AmazonBusinessReports/detail"); ?>?issue_id=" + id);
+		parent.$("#middleBox").modal("show");	
+		return false;
+		var iframe_height = window.innerHeight-140;
+		console.log(iframe_height);
+		parent.$("#business-report-iframe").css({height:iframe_height});
+		parent.$("#business-report-iframe").attr("src","<?php echo U("AmazonBusinessReports/detail"); ?>?issue_id=" + id);
+		parent.$("#business-report-box").css({display:"block"}).show();
+}
+
+function printFNSKU(id){
+	quantity = $("#fnsku_quantity_" + id).val();
+	labelWindow = window.open('{:U("printfnsku")}?id=' + id + "&quantity=" + quantity,'','width=600,height=400');
+	print(labelWindow);
+	
+	return false;	
+}
+
+function print(labelWindow){
+	labelWindow.onload=function(){
+		//console.log(labelWindow.document.getElementsByTagName('embed'));
+        if(labelWindow.document.readyState=="complete"){     
+        	if(labelWindow.document.getElementsByTagName('embed').length!=0){
+				labelWindow.window.print();
+				return false;
+			}else{
+				print(labelWindow);
+			} 
+        }   
+	}
+}
+</script>

@@ -1,0 +1,91 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('boxCache')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" id="ajax" value="1">
+		<input type="hidden" name="transfer_shipment_id" id="transfer_shipment_id" value="{$Think.request.transfer_shipment_id}" />
+		<table class="table table-striped table-hover">
+			<tr>
+				<th>序号</th>
+				<th>类型</th>
+				<th>详情</th>
+				<th>重量(kg)</th>
+				<th>操作</th>
+			</tr>
+		
+
+		<?php foreach($box_cache as $box_key  => $box){  ?>
+			<tr>
+				<td>{$box_key}</td>
+				<td>
+					<select name="box_cache[{$box_key}][box_type_id]" class="form-control">
+						<option value="">请选择箱子类型</option>
+						<volist name="box_type_list" id="box_type">
+							<option value="{$box_type.id}" <?php if($box['box_type_id'] == $box_type['id']){ echo "selected"; } ?>>{$box_type.box_name} : {$box_type.length} * {$box_type.width} * {$box_type.height}</option>
+						</volist>
+						<option value="custom" <?php if($box['box_type_id'] == 'custom'){ echo "selected"; }?>>定制</option>
+					</select>
+					<br>
+					长：<input type="text" size=2 name="box_cache[{$box_key}][custom][length]" value="{$box.custom.length|default=0}"/> * 
+					宽：<input type="text" size=2 name="box_cache[{$box_key}][custom][width]" value="{$box.custom.width|default=0}"/> * 
+					高：<input type="text" size=2 name="box_cache[{$box_key}][custom][height]" value="{$box.custom.height|default=0}"/> cm
+				</td>
+				<td>
+					<textarea style="width:100%; height:200px;" name="box_cache[{$box_key}][box_detail]">{$box.box_detail}</textarea>
+				</td>
+				<td>
+					<input size=8 name="box_cache[{$box_key}][weight]" value="{$box.weight}" /> kg
+				</td>
+				<td><a class="btn btn-sm btn-primary" id="btn_changeBoxShipment_{$box_key}" onclick="changeBoxShipment({$box_key})" >转移Shipment</a></td>	
+			</tr>
+		<?php } ?>
+		<tr>	
+			<?php $box_key++;?>
+				<td>{$box_key}</td>
+				<td>
+					<select name="box_cache[{$box_key}][box_type_id]" class="form-control">
+						<option value="">请选择箱子类型</option>
+						<volist name="box_type_list" id="box_type">
+							<option value="{$box_type.id}" <?php if($box['box_type_id'] == $box_type['id']){ echo "selected"; } ?>>{$box_type.box_name} : {$box_type.length} * {$box_type.width} * {$box_type.height}</option>
+						</volist>
+						<option value="custom">定制</option>
+					</select>
+					<br>
+					长：<input type="text" size=2 name="box_cache[{$box_key}][custom][length]" value="0"/> * 
+					宽：<input type="text" size=2 name="box_cache[{$box_key}][custom][width]" value="0"/> * 
+					高：<input type="text" size=2 name="box_cache[{$box_key}][custom][height]" value="0"/> cm
+					<p class="help-block">只有选择定制类型，长宽高才有效</p>
+				</td>
+				<td>
+					<textarea style="width:100%; height:200px;" name="box_cache[{$box_key}][box_detail]"></textarea>
+				</td>
+				<td>
+					<input size=8 name="box_cache[{$box_key}][weight]" value="" /> kg
+				</td>
+		</tr>
+		</table>
+		<div class="form-group text-center">
+			<a id="editFormSubmit" data-close="true" data-reload="true" data-loading-text="正在保存..."  class="btn btn-primary defaultEditFormSubmit" />保存</a>
+			<a class="btn btn-success close_box_button" id="cancel">取消</a>
+		</div>
+	</form>
+<script type="text/javascript">
+function changeBoxShipment(box_key){
+	if(target_shipment_id = prompt("请输入要转移到的Shipment ID")){
+		data = {
+			box_key:box_key,
+			transfer_shipment_id:$("#transfer_shipment_id").val(),
+			target_transfer_shipment_id:target_shipment_id
+		}
+		$("#btn_changeBoxShipment_" + box_key).attr("disabled","disabled");
+		$.post("{:U('V2TransferShipment/changeBoxShipment')}",data,function(r){
+			$("#btn_changeBoxShipment_" + box_key).attr("disabled",null);
+			if(r.status){
+				alert(r.info);
+				window.location.reload();
+			}else{
+				alertWarning(r.info);
+			}
+			
+		})
+	}
+}		
+</script>

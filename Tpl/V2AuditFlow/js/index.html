@@ -1,0 +1,98 @@
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	// ace.settings.sidebar_collapsed(true);
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	});
+
+	//如果只有一条记录，默认打开详细框
+	if($("tbody.tbody tr").length == 1){
+		$("tbody.tbody tr").click();
+	}
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}
+	if($("#oaid").val() != ''){
+		$("#oaid").focus().select();
+	}
+	$("#oaid").click(function(){
+		$(this).select();
+	});
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+
+	$(".batch_audit").click(function(){
+        var data = $('[name="id[]"]').serialize();
+        if(!data){
+            alertWarning("请选择审核条目");
+            return false;
+        }
+        if(!confirm("确认批量同意审核？将不可撤销")){
+            return false;
+        }
+        var btn = $(this);
+        btn.button('loading');
+        $.post("{:U('batchAgreeAudit')}",data,function(msg){
+            btn.button('reset');
+            if(msg.status){
+                alertWarning(msg.info,1);
+                window.location.reload();
+            }else{
+                alertWarning(msg.info);
+            }
+        }).error(function(){
+            btn.button('reset');
+            alertWarning("网络错误，请重试");
+            return false;
+        });
+    });
+
+
+	$(".del").click(function(){
+
+		if(confirm("确认删除？将不可恢复")){
+			var id = $(this).data("id");
+			var btn = $(this).button('loading');
+			$.post("{:U('del')}",{id:id,opmode:'del'},function(msg){
+				btn.button('reset');
+				if(msg.status){
+					window.location.reload();
+				}else{
+					alertWarning(msg.info);
+					return false;
+				}
+			}).error(function(){
+				alertWarning("网络错误,请重试");
+				btn.button('reset');
+			});
+		}
+	});
+});
+
+</script>

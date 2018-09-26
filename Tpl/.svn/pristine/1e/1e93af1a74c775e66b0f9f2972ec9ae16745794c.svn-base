@@ -1,0 +1,67 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'导入运费报表'))}
+<div class='panel' id="result">
+	
+</div>
+<script type="text/javascript">
+
+function ajaxSaveShippingcost(data_list,i,success,error) {
+	
+	if(data_list.length<=i){
+		$('#result').html("");
+		alertWarning("导入完成<br>总条数:"+data_list.length+"<br>成功:"+success+"条<br>SQL更新错误"+error+"条<br>",1);
+		return;
+	}
+	
+	var shipping_data={shipping_data:[],save_key:save_key};
+
+	for (var j = i; j < (i+50); j++) {
+		if(typeof(data_list[j])=='undefined'){
+			break;
+		}
+		shipping_data.shipping_data.push(data_list[j]);
+	};
+	var total_count=data_list.length;
+	
+	$.ajax({
+		url:"{:U('ajaxSaveShippingcost')}",
+		data:shipping_data,
+		dataType:'json',
+		type:'post',
+		success:function(msg){
+			console.log(msg);
+			if(msg.data!=null){
+				if(typeof(msg.data.success)!='undefined'){
+					success = success+msg.data.success.length;
+				}
+				if(typeof(msg.data.sql_error)!='undefined'){
+					error = error+msg.data.sql_error.length;
+				}
+				
+				i = i+shipping_data.shipping_data.length;
+
+				if(msg.status){
+					$('#result').html("<div>总共:"+total_count+"条数据, 当前处理第"+(j+1)+"条</div>");
+
+					ajaxSaveShippingcost(data_list,i,success,error);
+				}else{
+					$('#result').html("<div>总共:"+total_count+"条数据, 当前处理第"+(j+1)+"条</div>");
+					ajaxSaveShippingcost(data_list,i,success,error);
+				}
+			}else{
+
+			}
+			
+		},
+		error:function(){
+			$('#result').html("<div>总共:"+total_count+"条数据, 当前处理第"+(j+1)+"条 网络错误,重试中</div>");
+			ajaxSaveShippingcost(data_list,i,success,error);
+		},
+	});
+}
+
+var data_list={$data_list};
+var save_key="{$save_key}";
+$('#result').html("<div>正在导入数据...</div>");
+ajaxSaveShippingcost(data_list,0,0,0,0);
+</script>

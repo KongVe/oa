@@ -1,0 +1,152 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="id" value="{$Think.request.id}" />
+<div class="page-header clearfix">
+	<h1 class="col-sm-4">刷单任务</h1>
+	<div class="col-sm-5 pull-right">
+		<div class="input-group col-sm-8">
+			<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索 任务名称"/>
+			<div class="input-group-btn">
+				<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+				<button class="btn btn-sm btn-danger" onclick="this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="col-xs-12">
+			<table class="table table-condensed">
+				<tr>
+					<th>IP</th>
+					<th>VPN IP</th>
+					<th>实际IP</th>
+				</tr>
+				<volist name="proxy_list" id="proxy">
+					<tr>
+						<td>{$proxy.proxy_server_address}</td>
+						<td>{$proxy.vpn_server_address}</td>
+						<td>{$proxy.internet_ip}</td>
+					</tr>
+				</volist>
+				
+			</table>
+		</div>	
+		
+		<div class="btn-group">
+			<a class="btn btn-sm btn-primary" onclick="add()" >新增</a>	
+		</div>
+		<div class="btn-group">
+			<a class="btn btn-sm btn-inverse" href="{:U('FalseTaskExecLog/index')}" target="_blank">所有线程</a>	
+		</div>		
+	</div>
+</div>
+<div class="message-container">
+	<table class="table table-striped table-hover">
+			<include file="Layout:title" />
+
+			<tbody class="tbody">
+			<volist name="list" id="vo">
+				<tr>
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+			
+					<td style="max-width:200px;word-break:break-all;">{$vo.task_name}</td>
+					<td><a href="{$vo.thumbnail}" class="thumbnail" target="_blank"><img src="{$vo.thumbnail}" width="60" /></a></td>
+					<td>{$vo.website_name}</td>
+					<td>{$vo.action_name}</td>
+					<td>{$vo.crontab}</td>
+					<td>{$vo.plan_times}</td>
+					<td>{$vo.finished_times}</td>
+					
+					<td>{$vo.repeat_times_min} - {$vo.repeat_times_max}</td>
+					<td>{$vo.appoint_account|toYes}</td>
+					<td>{$vo.appoint_ip|toYes}</td>
+					<td>{$vo.thread_max_count}</td>
+					<td>
+						<b>{$vo.status}<b>
+
+					</td>
+					<td>{$vo.last_exec_success_time|default="无"|date="y-m-d H:i",###}</td>
+					
+					<td>
+						<b>{$vo.exec_count}</b>
+						<br>
+						<br>
+						暂停数:<b <notempty name="vo.parse_count">class="red"</notempty>>{$vo.parse_count}</b>
+						<br>
+						<notempty name="vo.exec_log_list">
+							<volist name="vo.exec_log_list" id="exec_log">
+								{$exec_log.proxy_server_address}
+								<br>
+							</volist>
+						</notempty>
+					</td>
+					<td>
+						<notempty name="vo.error_count">
+							<b class="text-danger">{$vo.error_count}</b>
+						<else/>
+							<b>{$vo.error_count}</b>
+						</notempty>
+						
+					</td>
+					<td>
+						<eq name="vo.debug" value="Yes">
+							<a href="{:U('FalseTask/execute')}?debug=623&admin=<?php echo C("ADMIN_KEY");?>&task_id={$vo.id}" target="_blank" >{$vo.debug}</a>
+						<else/>
+							{$vo.debug}
+						</eq>
+					</td>
+					<td>{$vo.add_user_name}</td>
+					<td style="max-width:200px;"><span class="editStatic" field="memo" onclick="editStatic(this,'{:U('saveMemo')}?id={$vo.id}','textarea')">{$vo.memo}</span></td>
+					<td style="min-width:210px;">
+						<a class="btn btn-sm btn-success " id="executeFront_{$vo.id}" onclick="executeFront({$vo.id});">执行</a>
+
+						<a class="btn btn-sm btn-primary " href="{:U('FalseTaskExecLog/index')}?task_id={$vo.id}" target="_blank">线程</a>
+
+						<a class="btn btn-sm btn-info " href="{:U('FalseTaskLog/index')}?task_id={$vo.id}" target="_blank">每次记录</a>
+						<hr>
+						<a class="btn btn-danger btn-sm"    onclick="edit({$vo.id})">修改</a>
+
+						<a class="btn btn-warning btn-sm"    onclick="del({$vo.id})">删除</a>
+						<notempty name="vo.plan_id">
+							<a class="btn btn-info btn-sm" href="{:U('FalsePlan/index')}?ids={$vo.plan_id}" target="_blank">相应计划</a>
+						</notempty>
+					</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" height="300px" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxLabel" aria-hidden="true">
+	<div class="modal-dialog" style="height:100%;width:65%;">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:100%;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<style>
+.showBottomBox{cursor: pointer;}
+</style>

@@ -1,0 +1,78 @@
+var dataList={$packegeListJsonStr};
+var success_count=0;
+var error_count=0;
+var account="{$account}";
+var ship={$ship};
+if(dataList.length==0){
+	parent.$('#syncWish').html("帐号："+account+" 无可更新数据 ");
+	parent.monitorSyncState=1;
+}else{
+	ajaxSubmitWishTrackingNumber(0,dataList);
+}
+parent.$("#syncCK1").html("");
+
+//异步ajax提交Wish跟踪号
+function ajaxSubmitWishTrackingNumber(i,dataList){
+
+		if(ship){
+			var url="https://merchant.wish.com/api/transaction/ship";//wish跟踪号提交
+		}else{
+			var url="https://merchant.wish.com/api/transaction/modify-tracking";//wish跟踪号修改
+		}
+ 
+		$.ajax({   
+			url:url,
+			type:"post",
+			data:{mtid:dataList[i].snapshot_id,provider_id:dataList[i].provider,tracking_id:dataList[i].forwarder_tracking_number,ship_note:"tracking number:"+dataList[i].forwarder_tracking_number},
+			// async:false,
+			error:(function(msg) { 
+				error_count++;
+				parent.$("#syncCK1").html(parseInt(((i+1)/dataList.length)*100)+"%");
+
+				if(i>=dataList.length-1){
+					parent.$('#syncWish').html("帐号："+account+" 总共处理条数:"+dataList.length+" 条,成功："+success_count+" 条,错误："+error_count+" 条");
+					parent.monitorSyncState=1;
+
+					return;
+				}
+				ajaxSubmitWishTrackingNumber(i+1,dataList);
+		    	// console.log("dddd");
+		    	// console.log(msg); 
+		    	// parent.$.post("{:U('order_syn/wrongSyncWishRecord','',true,false,true)}",{mtid:dataList[i].snapshot_id,provider_id:dataList[i].provider,tracking_id:dataList[i].forwarder_tracking_number,ship_note:"wrong_msg:"+msg.responseText},function(data,info,status){
+
+		    	// })
+	    	}),
+			success:function(msg) {
+
+				if(msg.code==0){
+					
+					parent.$.ajax({
+						url:"{:U('order_syn/updateOnlineTrackingNumber')}",
+						type:"post",
+						data:{mtid:dataList[i].snapshot_id, package_id:dataList[i].package_id,online_tracking_number:dataList[i].forwarder_tracking_number},
+						async:false,
+						success:function(data){
+							parent.$("#syncCK1").html(parseInt(((i+1)/dataList.length)*100)+"%");
+
+							if(data.status==0){
+								alert(data.info);
+							}else{
+								success_count++;
+							}
+
+							if(i>=dataList.length-1){
+								parent.$('#syncWish').html("帐号："+account+" 总共处理条数:"+dataList.length+" 条,成功："+success_count+" 条,错误："+error_count+" 条");
+								parent.monitorSyncState=1;
+								return;
+							}
+						}
+					})
+
+				}else{
+					error_count++;
+				}
+
+				ajaxSubmitWishTrackingNumber(i+1,dataList);
+			}
+		})
+}

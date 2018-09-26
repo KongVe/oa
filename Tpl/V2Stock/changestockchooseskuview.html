@@ -1,0 +1,136 @@
+<layout name='Layout/ace_popup' />
+
+{:W('PageHeader',array('name'=>'<b>编写转换格式</b> -> 转换库存'))}
+
+<form method='post' action="{:U('V2Stock/changeStockView')}" id="editForm" class="well form-horizontal clearfix">
+	<input type="hidden" id="ajax" value="1"/>
+	<input type="hidden" id="id" name="id" value="{$Think.request.id}">
+
+	<div class="panel panel-primary">
+		<div class="panel panel-heading">
+			<span>编写转换格式</span>
+		</div>
+		<div class="panel-body">
+
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 text-right" for="sku_name">SKU图片: </label>
+				<div class="col-sm-8">
+					<a href="{$sku_data.thumbnail}" class="thumbnail" target="_blank" style="width:100px;"><img src="{$sku_data.thumbnail}" /></a>
+				</div>
+			</div>
+
+			<div class="form-group col-xs-12">
+				<div class="col-sm-4  text-right">
+					<label for="sku">库存SKU: </label>
+				</div>
+				<div class="col-sm-4">
+					{$sku_data.sku}
+				</div>
+			</div>
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 text-right" for="sku_name">SKU名称: </label>
+				<div class="col-sm-8">
+					{$sku_data.sku_name}
+				</div>
+			</div>
+			
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 text-right" for="stock_quantity">绑定数量: </label>
+				<div class="col-sm-2 input-group">
+					<input type="number" class="form-control" name="stock_quantity" id="stock_quantity" value="1" check="require" msg="请输入数量" >
+					<div class="input-group-btn">
+						个
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group col-xs-12">
+				<hr>
+			</div>
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 text-right" for="sku_id">转换后的SKU: </label>
+				<div class="col-sm-6">
+					<input type="hidden" style="width:100%;"  name="sku_id" id="sku_id" value="" check="require" msg="请输入转换后的SKU" >
+				</div>
+			</div>
+
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 text-right" for="quantity">转换后的数量: </label>
+				<div class="col-sm-2 input-group">
+					<input type="number" class="form-control" name="quantity" id="quantity" value="1" check="require" msg="请输入转换后的数量" >
+					<div class="input-group-btn">
+						个
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 text-right"></label>
+				<div class="col-sm-8 input-group">
+					<span class="help-block red">
+						注: 绑定数量 和 转换后的数量 中需要有一个为 “1”
+					</span>
+				</div>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12">
+		<label class="col-sm-4 text-right"></label>
+		<div class="col-sm-4">
+			<input class="submitFormButton btn btn-sm btn-primary" type="button" value="确定">
+		</div>
+		<div class="col-sm-4">
+			<input class="close_box_button btn btn-sm btn-default" type="button" value="取消">
+		</div>
+	</div>
+</form>
+
+<script type="text/javascript">
+
+	$('#sku_id').select2({
+	    placeholder          : "请输入搜索SKU或SKU名称",
+	    minimumInputLength   : 1,
+	    multiple             : true,
+	    // separator            : "",                          // 分隔符
+	    maximumSelectionSize : 1,                               // 限制数量
+	    // createSearchChoice   : function(term, data) {           // 创建搜索结果（使用户可以输入匹配值以外的其它值）
+	    //     return { id: term, text: term };
+	    // },
+	    formatSelection : function (item) { return item.sku_text; },  // 选择结果中的显示
+	    formatResult    : function (item) { return item.sku_text; },  // 搜索列表中的显示
+	    ajax : {
+	        url      : "{:U('V2SkuProduct/ajaxGetSkuProduct')}",              // 异步请求地址
+	        dataType : "json",                  // 数据类型
+	        data     : function (term, page) {  // 请求参数（GET）
+	            return { q: term };
+	        },
+	        results      : function (data, page) {
+	        		input_sku = data.data;
+					return {results:data.data}; 
+				},  
+	         // 构造返回结果
+	        escapeMarkup : function (m) { return m; }               // 字符转义处理
+	    }
+	});
+
+	$(".submitFormButton").click(function(){
+		var form_id = "editForm";
+		if (check_form(form_id)) {
+			var stock_quantity = $("#stock_quantity").val();
+			var quantity = $("#quantity").val();
+
+			if( (stock_quantity != 1 && quantity != 1) ){
+				alertWarning("请输入正确的数量");
+				return false;
+			}
+
+			$("#"+form_id).submit();
+
+		}else{
+			btn.button('reset');
+		}
+	});
+
+</script>

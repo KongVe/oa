@@ -1,0 +1,47 @@
+<layout name='Layout/ace_box' />
+
+<script type="text/javascript" src="__PUBLIC__/js/echarts/build/dist/echarts.js"></script>
+<!-- 
+<script type="text/javascript" src="__PUBLIC__/js/ichart.1.2.min.js"></script> -->
+
+<form action="__SELF__" id="detail_form" method="POST">
+	<input type="hidden" name="sku" value="{$Think.request.sku}"> 
+	<input type="hidden" name="show" value="sku"  id="show"> 
+<div class="panel panel-default">
+	<div class="panel-body">
+		<div class="col-sm-12">
+			<div class="form-group col-sm-7">
+				<div class="col-sm-12">
+					<a class="btn btn-danger btn-sm"  onclick="closeBox()">关闭</a>
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}"  placeholder="采集时间默认最近30天">
+			      	<span>
+			        	<button type="submit" class="btn btn-danger btn-sm">确定</button>
+			      	</span>
+				</div>
+			</div>	
+
+			<div class="form-group  col-sm-4">
+				<a class="btn btn-sm" onclick="location.reload();">刷新</a>
+				<a href="__SELF__" target="_blank" class="btn btn-info btn-sm">在新窗口中查看</a>
+			</div>
+				
+
+			
+		</div>
+		<div class="col-sm-12 align-center">
+			<div  style="z-index:1000;">
+				<!-- <a onclick="showlegend()" class="btn btn-xs">显示图例菜单</a> -->
+				<!-- <a onclick="showlegend()" class="btn btn-xs">显示图例菜单</a> -->
+			</div>
+			
+			<div id="canvasDiv" style="height:520px;width:100%;">
+				<!-- <div class="col-sm-12 chart_list" id='canvasDiv'></div>		 -->
+			</div>		
+		<div>
+	</div>
+</div>
+<form>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<iframe src="" id="saveThunbnail" style="visibility:hidden;height:1px;width:1px;"></iframe>

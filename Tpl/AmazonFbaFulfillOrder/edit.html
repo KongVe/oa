@@ -1,0 +1,304 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" name="id" value="{$vo.id}">
+		<input type="hidden" name="sellyours_id" value="{$vo.sellyours_id}" />
+		<input type="hidden" name="issue_time" value="<?php echo time(); ?>" />
+		<input type="hidden" name="issue_uid" value="<?php if($vo['issue_uid']){ echo $vo['issue_uid']; }else{ echo $_SESSION['authId']; } ?>" />
+		<input type="hidden" name="asin" id="asin"	value="{$vo.asin}" />
+		<input type="hidden" id="opmode" name="opmode" value="{$vo.opmode}" >	
+		<input type="hidden" id="product_weight" name="product_weight" value="{$vo.product_weight}" />
+		<div class="form-group">
+			<label class="control-label" for="asin_input">ASIN</label>
+			<a href="http://www.amazon.com/dp/{$vo.asin}" target="_blank" id="product_link" class="btn btn-xs btn-danger">Product</a>
+			<a href="http://www.amazon.com/gp/offer-listing/{$vo.asin}?condition=new" id="offers_link" target="_blank" class="btn btn-xs btn-danger">Offers</a>
+			<input class="form-control" type="text" id="asin_input" name="asin_input" value="{$vo.asin}" disabled>
+		</div>		
+		<div class="form-group">
+			<label class="control-label" for="price_lowest">发布帐号</label>
+			<select class="form-control" id="account_id" name="account_id">
+				<option value="">请选择账号</option>
+				<volist name="accountList" id="account">
+					<option value="{$account.id}" <?php if($vo['account_id'] == $account['id']){ echo "selected"; } ?>>{$account.website_name}=>{$account.proxy_host}=>{$account.account_name}</option>
+				</volist>
+			</select>
+		</div>
+		<div class="form-group " id="skuSelectHtml" style="display:none;" >
+		</div>
+		<div class="form-group">
+			<div class="col-xs-4">
+				<label class="control-label" for="sku">SKU</label>
+				<input class="form-control" type="text" id="sku" name="sku" value="{$vo.sku}" <?php if($vo['fnsku']){ echo "disabled"; } ?> >
+			</div>
+			<div class="col-xs-2">
+				<a id="refresh" onclick="refresh()" class="btn btn-success">刷新</a>
+			</div>
+			<?php if($vo['fnsku']){ ?>
+			<div class="col-xs-4">
+				<label class="control-label" for="fnsku">FNSKU</label>
+				<input class="form-control" type="text" id="fnsku" name="fnsku" disabled value="{$vo.fnsku}" />
+			</div>	
+			<div class="col-xs-2">
+				<a id="refresh" onclick="$('#fnsku').val('')" class="btn btn-success">重置</a>
+			</div>		
+			<?php } ?>
+		</div>			
+		<div class="form-group">
+			<label class="control-label" for="fulfill_by">发货方式</label>
+			<select class="form-control" id="fulfill_by" name="fulfill_by">
+				<option value="">请选择发货方式</option>
+				<option value="Self" <eq name="vo.fulfill_by" value="Self">selected</eq> >中国直发</option>
+				<option value="Amazon" <eq name="vo.fulfill_by" value="Amazon">selected</eq> >FBA</option>
+				<option value="Oversea" <eq name="vo.fulfill_by" value="Oversea">selected</eq> >海外仓</option>
+			</select>
+		</div>
+		<div class="form-group">
+			<label class="control-label">价格 <span id="price_currency_html" class="red">{$vo.price_currency}</span></label>
+			<table class="table col-xs-12">
+				<tr>
+					<td>售价类型</td>
+					<td>售价</td>
+					<td>货源价格</td>
+					<td>运费预估</td>
+					<td>预备费用</td>
+					<td width=100>利润预估</td>
+					<td width=100>利润率预估</td>
+				</tr>
+				<tr>
+					<td>当前售价</td>
+					<td>
+						<input type="text" name="product_price" id="product_price" class="form-control calPrice" value="{$vo.product_price}" />
+					</td>
+					<td>
+						<input type="text" name="source_price" id="source_price" class="form-control" value="{$vo.source_price}" disabled />
+					</td>		
+					<td>
+						<input type="text" name="shipping_estimate" id="shipping_estimate" class="form-control calPrice" value="{$vo.shipping_estimate}" />
+					</td>
+					<td>
+						<input type="text" name="prep_fee" id="prep_fee" class="form-control calPrice" value="{$vo.prep_fee}" />
+					</td>
+
+					<td>
+						<input type="text" name="profit_estimate" id="profit_estimate" class="form-control" value="{$vo.profit_estimate}" disabled />
+					</td>		
+					<td>
+						<input type="text" name="profit_rate_estimate" id="profit_rate_estimate" class="form-control" value="{$vo.profit_rate_estimate}" disabled />
+					</td>
+				</tr>		
+				<tr>
+					<td>最低售价</td>
+					<td>
+						<input type="text" name="price_lowest" id="price_lowest" class="form-control calPrice" value="{$vo.price_lowest}" />
+					</td>					
+					<td></td>
+					<td></td>
+					<td></td>		
+					<td>
+						<input type="text" name="lowest_profit_estimate" id="lowest_profit_estimate" class="form-control" value="{$vo.lowest_profit_estimate}" disabled />
+					</td>		
+					<td>
+						<input type="text" name="lowest_profit_rate_estimate" id="lowest_profit_rate_estimate" class="form-control" value="{$vo.lowest_profit_rate_estimate}" disabled />
+					</td>
+				</tr>							
+			</table>
+		</div>	
+		<div class="form-group">
+			<label class="control-label" for="memo">备注</label>
+			<textarea name="memo" id="memo" class="form-control">{$vo.memo}</textarea>
+		</div>		
+		<div class="form-group text-center">
+			<input type="submit" id="editFormSubmit" data-loading-text="正在保存..."  class="btn btn-primary" value="保存" />
+			<a class="btn btn-success" id="cancel">取消</a>
+			<?php /* <a class="btn btn-danger" id="delete">删除</a> */ ?>
+		</div>
+	</form>
+<script type="text/javascript">
+var offerList;
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);
+
+	if($("#prep_fee").val() == '' && $("#shipping_estimate").val() == ''){
+		calShippingEstimate();
+	}
+	calProfitEstimate();
+
+	$("input.calPrice").change(function(){
+		calProfitEstimate();
+	})
+
+	$("#account_id").change(function(){
+		$("input.calPrice").val('');
+	})
+	$("#fulfill_by").change(function(){
+		calShippingEstimate();
+	})
+
+	$("#cancel").click(function(){
+		parent.$("#middleBox").modal("hide");
+	})
+	$("#delete").click(function(){
+		if(window.confirm("Delete? ")){
+			$("#opmode").val("del");
+			var data = $("#editForm").serialize();
+			var url = $("#editForm").attr("action");
+			$.post(url,data,function(r){
+				if(r.status){
+
+					parent.$("#form_search").submit();
+					//parent.window.location.reload();
+
+				}else{
+					alert(r.info);
+					return false;
+				}
+			})
+		}else{
+			return false;
+		}
+
+		return false;
+	})
+
+	$("#editFormSubmit").click(function(){
+		$("input").attr("disabled",null);
+		var data = $("#editForm").serialize();
+		var url = $("#editForm").attr("action");
+		$.post(url,data,function(r){
+			if(r.status){
+
+				parent.$("#middleBox").modal("hide");
+				//parent.window.location.reload();
+
+			}else{
+				alert(r.info);
+				window.location.reload();
+				return false;
+			}
+		})
+		return false;
+	})
+})
+
+function calShippingEstimate(){
+	if($("#fulfill_by").val() == '' || $("#sku").val() == ''){
+		return false;
+	}
+
+	$("#fulfill_by").attr("disabled","disabled");
+	var sku = $("#sku").val();
+	var data = {
+		asin:$("#asin").val(),
+		fulfill_by:$("#fulfill_by").val(),
+	};
+	$.ajax({
+		url:"{:U('calShippingEstimate')}",
+		type:"POST",
+		data:data,
+		success:function(r){
+			if(r.status){
+				$("#prep_fee").val(r.data.prep_fee);
+				$("#shipping_estimate").val(r.data.shipping_estimate);
+				calProfitEstimate();
+			}else{
+				alert(r.info);
+			}
+			$("#fulfill_by").attr("disabled",null);
+		},
+		error:function(r){
+			$("#account_id").change();
+		}
+	})
+}
+
+function refresh(){
+	if($("#account_id").val() == ''){
+		return false;
+	}
+
+	$("#skuSelectHtml").hide();
+	$("#refresh").attr("disabled","disabled");
+	$("#account_id").attr("disabled","disabled");
+	var sku = $("#sku").val();
+	var data = {
+		asin:$("#asin").val(),
+		account_id:$("#account_id").val(),
+		fulfill_by:$("#fulfill_by").val(),
+		sku:sku
+	};
+	$.ajax({
+		url:"{:U('getMyListing')}",
+		type:"POST",
+		data:data,
+		success:function(r){
+			if(r.status){
+				offerList = r.data.offerList;
+				$("#skuSelectHtml").html(r.data.skuSelectHtml);
+				$("#skuSelectHtml").show();
+			}else{
+				alert(r.info);
+			}
+			$("#refresh").attr("disabled",null);
+			$("#account_id").attr("disabled",null);
+		},
+		error:function(r){
+			$("#account_id").change();
+		}
+	})
+}
+
+function selectSkuChange(){
+	var selectedSku = $("#selectSku").val();
+	if(offerList[selectedSku]){
+		selectedSku = offerList[selectedSku];
+		$("#sku").val(selectedSku.sku);
+		$("#product_price").val(selectedSku.product_price);
+		$("#source_price").val(selectedSku.source_price);
+		$("#prep_fee").val(selectedSku.prep_fee);
+		$("#shipping_estimate").val(selectedSku.shipping_estimate);
+		$("#price_currency_html").html(selectedSku.price_currency);
+		$("#fulfill_by").val(selectedSku.fulfill_by);
+		calProfitEstimate();
+		return true;
+	}else{
+		alert("Error: Not found this sku in offerList");
+		console.log(offerList);
+	}
+}
+function calProfitEstimate(){
+
+	var product_price = $("#product_price").val();
+	var price_lowest = $("#price_lowest").val();
+	var prep_fee = $("#prep_fee").val();
+	var shipping_estimate = $("#shipping_estimate").val();
+	var source_price = $("#source_price").val();
+	if(product_price > 0 && prep_fee > 0 && shipping_estimate > 0 && source_price > 0){
+		profit_estimate = product_price * 0.85 - prep_fee - shipping_estimate - source_price;
+		profit_rate_estimate = Math.ceil(profit_estimate / product_price * 10000) / 100;
+		profit_rate_estimate = profit_rate_estimate.toString() + '%';
+		profit_estimate = Math.ceil(profit_estimate * 100) / 100;
+	}else{
+		profit_estimate = 0;
+		profit_rate_estimate = 0;
+	}
+	if(price_lowest > 0 && prep_fee > 0 && shipping_estimate > 0 && source_price > 0){
+		lowest_profit_estimate = price_lowest * 0.85 - prep_fee - shipping_estimate - source_price;
+		lowest_profit_rate_estimate = Math.ceil(lowest_profit_estimate / price_lowest * 10000) / 100;
+		lowest_profit_rate_estimate = lowest_profit_rate_estimate.toString() + '%';
+		lowest_profit_estimate = Math.ceil(lowest_profit_estimate * 100) / 100;
+	}else{
+		lowest_profit_estimate = 0;
+		lowest_profit_rate_estimate = 0;
+	}
+
+	$("#profit_estimate").val(profit_estimate);
+	$("#profit_rate_estimate").val(profit_rate_estimate);
+	$("#lowest_profit_estimate").val(lowest_profit_estimate);
+	$("#lowest_profit_rate_estimate").val(lowest_profit_rate_estimate);	
+
+}
+</script>

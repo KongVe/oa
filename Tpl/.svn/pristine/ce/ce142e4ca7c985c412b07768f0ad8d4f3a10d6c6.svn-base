@@ -1,0 +1,157 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'编辑库存图片'))}
+<div class="operate panel panel-default">
+	<div class="panel-body">
+
+		<div class="action">
+			<input type="hidden" name="model_name" value="place"> 
+			<input class="btn btn-sm btn-primary" type="button" value="保存" onclick="save();">
+			<input  class="btn btn-sm btn-default" type="button" value="取消" onclick="parent.$('#middleBox').modal('hide');">
+		</div>
+	</div>
+</div>
+
+<div class="col-sm-4" id="reference"></div>
+<div class="col-sm-8">
+	<form method='post' id="form_data" class="well form-horizontal">
+		<input type="hidden" id="ajax" name="ajax" value="1">
+
+		<input type="hidden" id="id" name="id" value="{$vo.id}">
+		<input type="hidden" id="opmode" name="opmode" value="edit">
+
+		
+		<input type="hidden" id="add_file" name="add_file" value="{$vo.add_file}">
+		
+
+		<table class="table table-bordered">
+			<div class="form-group col-xs-12">	
+				<label class="col-sm-4 control-label" for="sku">搜索SKU：</label>	
+				<div class="col-sm-8">
+					<input class="form-control" value="{$vo.sku}" type="text" id="sku">
+					<!-- <span class="help-block">多个SKU值时，请使用英文逗号,分开</span> -->
+				</div>
+			</div>
+			<div class="form-group col-xs-12">	
+				<label class="col-sm-4 control-label" for="variation">修改规格：</label>	
+				<div class="col-sm-8">
+					<input class="form-control" value="{$vo.variation}" name="variation" type="text" id="variation">
+					<!-- <span class="help-block">多个SKU值时，请使用英文逗号,分开</span> -->
+				</div>
+			</div>
+
+			<div class="form-group col-xs-12">
+				<div class="col-sm-4">
+					<label class="col-sm-12 control-label" for="thumbnail">图片：</label>
+					<div class="col-sm-12">
+						<a href="{$vo.thumbnail}" id="thumbnail_show" class="thumbnail" target="_blank" style="width: 80%;position: absolute;z-index:1000;"><img src="{$vo.thumbnail}" /></a>
+					</div>
+				</div>
+			
+				<div class="col-sm-8">
+					<input class="form-control" value="{$vo.thumbnail}" type="text" id="thumbnail" name="thumbnail" check="require" msg="请输入图片地址" onchange="showThumbnail()">
+					<div class="form-group col-xs-12">
+						如果图片不正确，请选择参考卖出过的图片和规格<br>
+						或直接输入正确的图片地址
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 control-label" for="thumbnail_upload">上传图片：</label>
+				<div class="col-sm-8">
+					<div class="col-sm-12">
+					<include file="Widget:uploader" />
+					</div>
+				</div>
+			</div>
+		
+
+			<div class="form-group col-xs-12">
+				<div class="col-xs-12 pull-right" id="reference">
+
+				</div>	
+			</div>
+		</table>
+	</form>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+
+<script type="text/javascript">
+	function save() {
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('saveImg')}",false,function(msg){
+				if(msg.status){
+					if(parent.$("#middleBox").length>0){
+						parent.window.location.reload();
+						parent.$("#middleBox").modal('hide');
+
+					}else{
+						alertWarning(msg.info,1);
+					}
+				}else{
+					alertWarning(msg.info);
+				}
+			});
+		}
+	}
+
+	
+
+	function showRelate(r){
+		if(r.status){
+			if(r.data.referenceHtml){
+				$("#reference").html(r.data.referenceHtml);
+			}else{
+				$("#reference").html('无');
+			}
+			if(r.data.relateHtml){
+				$("#relateStock").html(r.data.relateHtml);
+			}else{
+				$("#relateStock").html('无');
+			}
+		}else{
+			$("#reference").html('无');
+			$("#relateStock").html('无');
+		}
+		
+	}
+
+	function setCheckVariation(obj){
+		var sku = $(obj).attr("data-sku");
+		var variation = $(obj).attr("data-variation");
+		$("#sku").val(sku);
+		$("#variation").val(variation);
+		var img = $(obj).parent().parent().parent().find('img').attr("src");
+		$("#thumbnail").val(img);
+		showThumbnail();
+	}
+
+	function doImgActionFromUpload(obj,file_id,url){
+		if(url){
+			$("#thumbnail").attr('value',"/"+url);
+			showThumbnail();
+		}
+	}
+
+	function showThumbnail(){
+		var src=$("#thumbnail").val();
+		$('#thumbnail_show').attr('href',src);
+		$('#thumbnail_show img').attr('src',src);
+	}
+
+	$(function() {
+		set_val('is_del', "{$vo.is_del}");
+
+		$("#sku").change(function(){
+			$.post("{:U('check')}",'sku=' + $(this).val(),showRelate)
+		})
+
+		if($("#sku").val() != ''){
+			$.post("{:U('check')}",'sku=' + $("#sku").val(),showRelate)
+		}
+	}); 
+
+	
+</script>

@@ -1,0 +1,132 @@
+<layout name="Layout/ace_layout_v3"/>
+<link rel="stylesheet" href="__PUBLIC__/assets-v3/css/ui-jqgrid.min.css"/>
+<script  src="__PUBLIC__/assets-v3/js/jquery.jqGrid.min.js"></script>
+<script src="__PUBLIC__/assets/js/jqGrid/i18n/grid.locale-cn.js"></script>
+<style type="text/css">
+.ui-pg-table>tbody>tr>.ui-pg-button>.ui-icon:before {
+  width: 20px;
+  text-align: center;
+  display: inline-block;
+}
+.fa-angle-double-right:before {
+  content: "\f101";
+}
+.fa-angle-right:before {
+  content: "\f105";
+}
+.fa-angle-left:before {
+  content: "\f104";
+}
+.fa-angle-double-left:before {
+  content: "\f100";
+}
+</style>
+<div class="col-xs-12">
+  <!-- PAGE CONTENT BEGINS -->
+  <div class="col-xs-12" id="search_table">
+
+  </div>
+  <table id="grid-table"></table>
+
+  <div id="grid-pager"></div>
+
+  <!-- PAGE CONTENT ENDS -->
+</div>
+<script type="text/javascript">
+  var filter_list = {$filter_list|default=""|json_encode};
+  var config_data = {$config_data|default=""|json_encode};
+  var colModel = [];
+  var list_len = config_data.title_list.length;
+  $(function() {
+    $.each(config_data.title_list,function(i,v){
+      var obj = {};
+      if(v.sort_key){
+        obj['name'] = v.sort_key;
+      }else{
+        obj['name'] = v.key;
+      }
+      if(v.val){
+        obj ['label'] = v.val;
+      }else{
+        obj['hidden'] = true
+      }
+      if(!v.sort){
+        obj['sortable'] =true;
+      }else{
+        obj['sortable'] = false;
+      }
+      obj['width'] = (100/list_len)+'%'
+      colModel.push(obj);
+    })
+    $.ajax({
+      url:config_data.search_url,
+      type:'GET',
+      dataType:'json',
+      success:function(data){
+        debugger
+        Get_Grid('grid-table',data.data.results,'grid-pager');
+      }
+    })
+  })
+  function Get_Grid(table,data,pager){
+    $('#'+table).jqGrid({
+     // subGrid : true,
+     data:data,
+     datatype: "local",
+     subGridOptions : {
+      plusicon : "ace-icon fa fa-plus center bigger-110 blue",
+      minusicon  : "ace-icon fa fa-minus center bigger-110 blue",
+      openicon : "ace-icon fa fa-chevron-right center orange"
+    },
+          //for this example we are using local data
+          // subGridRowExpanded: function (subgridDivId, rowId) {debugger
+          //   var subgridTableId = subgridDivId + "_t";
+          //   $("#" + subgridDivId).html("<table id='" + subgridTableId + "'></table>");
+          //   $("#" + subgridTableId).jqGrid({
+          //     datatype: 'local',
+          //     data: subgrid_data,
+          //     width:'100%',
+          //     colNames: ['No','Item Name','Qty'],
+          //     colModel: [
+          //     { name: 'id',value:'id', width: 50 },
+          //     { name: 'name',value:'名字', width: 150 },
+          //     { name: 'qty',value:'数量', width: 50 }
+          //     ]
+          //   });
+          // },
+          // height:$(window).height()*0.9,
+          autoheight:true,
+          width:$(window).width()*0.85,
+          colModel:colModel,
+          viewrecords : true,
+          rowNum:1,
+          rowList:[1,10,20,30],
+          pager : '#'+pager,
+          // altRows: true,
+          multiselect: true,
+          loadComplete : function() {
+            var table = this;
+            setTimeout(function(){
+              updatePagerIcons(table);
+            }, 0);
+          }
+        })
+    // $('#lui_grid-table').hide();
+  }
+  function updatePagerIcons(table) 
+
+  {
+    var replacement = {
+      'ui-icon-seek-first' : 'ui-icon ace-icon fa fa-angle-double-left bigger-140',
+      'ui-icon-seek-prev' : ' ui-icon ace-icon fa fa-angle-left bigger-140',
+      'ui-icon-seek-next' : 'ui-icon ace-icon fa fa-angle-right bigger-140',
+      'ui-icon-seek-end' : ' ui-icon ace-icon fa fa-angle-double-right bigger-140'
+    };
+    $('.ui-pg-table:not(.navtable) > tbody > tr > .ui-pg-button > .ui-icon').each(function() {
+      var icon = $(this);
+      var $class = $.trim(icon.attr('class').replace('ui-icon', ''));
+      if ($class in replacement)
+        icon.attr('class', 'ui-icon ' + replacement[$class]);
+    });
+  }
+</script>

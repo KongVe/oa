@@ -1,0 +1,55 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'编辑仓库'))}
+
+<form method='post' id="form_data" name="form_data" class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	<notempty name="vo.id">
+		<input type="hidden" id="id" name="id" value="{$vo.id}">	
+	</notempty>
+	
+	<input type="hidden" id="add_file" name="add_file" value="{$vo.add_file}">
+	<input type="hidden" id="opmode" name="opmode" value="<notempty name="_REQUEST['id']">edit<else/>add</notempty>">
+
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="warehouse_name">仓库名称：</label>
+		<div class="col-sm-10">
+			<input class="form-control" type="text" id="warehouse_name" name="warehouse_name" value="{$vo.warehouse_name}"  check="require" msg="请输入仓库名称">
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="memo">仓库类型：</label>
+		<div class="col-sm-10">
+			<select name="type">
+				<option value="自有仓" <eq name="vo.type" value="自有仓"> selected</eq> >自有仓</option>
+				<option value="FBA" <eq name="vo.type" value="FBA"> selected</eq> >FBA</option>
+			</select>
+		</div>
+	</div>
+
+	<div class="action">
+		<input type="hidden" name="model_name" value="warehouse"> 
+		<input class="btn btn-sm btn-primary" type="button" value="保存" onclick="save();">
+		<input  class="btn btn-sm btn-default" type="button" value="取消" onclick="parent.$('#middleBox').modal('hide');">
+	</div>
+</form>
+<script type="text/javascript">
+	function save() {
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('layoutSave')}",false,function(msg){
+				if(msg.status){
+					if(parent.$("#middleBox").length>0){
+						parent.window.location.reload();
+						parent.$("#middleBox").modal('hide');
+
+					}else{
+						alertWarning(msg.info,1);
+					}
+				}else{
+					alertWarning(msg.info);
+				}
+			});
+		}
+	}
+	
+</script>

@@ -1,0 +1,40 @@
+<script type="text/javascript">
+
+jQuery(function($){
+	
+		$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+	$(".use_stock_quantity").click(function(){
+		if(this.disabled == false){
+			$(this).focus().select();	
+		}
+	})
+
+
+})
+</script>

@@ -1,0 +1,10 @@
+<select name="forwarder_id" id="forwarder_id" class="form-control">
+	<option value="" >请选择帐号</option>
+	<volist name="forwarder_list" id="forwarder">
+		<optgroup label="{$forwarder[0]['forwarder']}">
+			<volist name="forwarder" id="forwarder_account">
+				<option value="{$forwarder_account.id}" <eq name="vo.forwarder" value="$forwarder_account['id']"> selected </eq> >{$forwarder_account.forwarder_account}</option>
+			</volist>
+		</optgroup>
+	</volist>
+</select>

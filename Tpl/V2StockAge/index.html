@@ -1,0 +1,202 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" action="{:U()}" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">{$title}</h1>
+	<div class="col-sm-10">
+
+<!-- 		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					库存序号
+				</span>
+				<input class="form-control" type="text" id="stock_id" name="stock_id" value="{$Think.request.stock_id}"  placeholder="库存序号, 英文逗号分隔" />
+			</div>
+		</div>
+	 -->
+		
+		<if condition=" isAdmin() ">
+		    <div class="form-group col-sm-3">
+		        <div class="input-group">
+		            <span class="input-group-addon">
+		                所属用户(admin)
+		            </span>
+		            <select name="owner_uid[]" id="owner_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+		                <option value="">选择用户</option>
+		                <option value="0" <?php if(in_array(0, $_REQUEST['owner_uid'])){echo 'selected="selected"';} ?>>无所属</option>
+		                <volist name="user_list" id="user">
+		                    <option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['owner_uid'])){echo 'selected="selected"';} ?> >{$user.show_name}</option>
+		                </volist>
+		            </select>
+		        </div>
+		    </div>
+		</if>
+
+		<div class="form-group col-sm-3">
+	        <div class="input-group">
+	            <span class="input-group-addon">
+	                仓库
+	            </span>
+	            <select name="warehouse_id[]" id="warehouse_id" size="1" multiple="multiple" style="width:100%;" placeholder="选择仓库">
+	                <option value="">选择仓库</option>
+	                <volist name="warehouse_list" id="warehouse">
+	                    <option value="{$warehouse.id}" <?php if(in_array($warehouse['id'], $_REQUEST['warehouse_id'])){echo 'selected="selected"';} ?> >{$warehouse.warehouse_name}</option>
+	                </volist>
+	            </select>
+	        </div>
+	    </div>
+
+        <div class="input-group col-sm-4">
+            <input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="搜索 规格SKU,SKU名称"/>
+            <span class="input-group-btn">
+                <button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+            </span>
+        </div>
+
+	</div>	
+</div>	
+
+
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			
+			<b>搜索所有页面汇总:</b> 
+			0-30日: <b>{$total_data.cost_day_between_000030_total}</b> 元 
+			<b>{$total_data.quantity_day_between_000030_total}</b> 个 |
+			30-90日: <b>{$total_data.cost_day_between_030090_total}</b> 元 
+			<b>{$total_data.quantity_day_between_030090_total}</b> 个 |
+			90-180日: <b>{$total_data.cost_day_between_090180_total}</b> 元 
+			<b>{$total_data.quantity_day_between_090180_total}</b> 个 |
+			180-270日: <b>{$total_data.cost_day_between_180270_total}</b> 元 
+			<b>{$total_data.quantity_day_between_180270_total}</b> 个 |
+			180-365日: <b>{$total_data.cost_day_between_270365_total}</b> 元 
+			<b>{$total_data.quantity_day_between_270365_total}</b> 个 |
+			365+: <b>{$total_data.cost_day_between_365000_total}</b> 元 
+			<b>{$total_data.quantity_day_between_365000_total}</b> 个 |
+		</div>
+	</div>
+</div>
+
+<div class="message-container">
+	<table class="table table-hover table-bordered">
+		
+		<include file="Layout:title_v2"/>
+
+		<tbody class="tbody">
+			<volist name="list" id="vo">
+				<tr class="success">
+					<td>
+						{$vo.id}
+					</td>
+					<td>
+						<a class="thumbnail"  href="{$vo.thumbnail}" target="_blank">
+	                        <img src="{$vo.thumbnail}" width="80" />
+	                    </a>
+					</td>
+					<td>{$vo.sku}</td>
+					<td style="max-width:150px;">{$vo.sku_name}</td>
+					<td>
+						<b>{$vo.cost_day_between_000030|default="0"|round=###,2}</b> 元
+						<br>
+						{$vo.quantity_day_between_000030|default="0"} 个
+					</td>
+					<td>
+						<b>{$vo.cost_day_between_030090|default="0"|round=###,2}</b> 元
+						<br>
+						{$vo.quantity_day_between_030090|default="0"} 个
+					</td>
+					<td>
+						<b>{$vo.cost_day_between_090180|default="0"|round=###,2}</b> 元
+						<br>
+						{$vo.quantity_day_between_090180|default="0"} 个
+					</td>
+					<td>
+						<b>{$vo.cost_day_between_180270|default="0"|round=###,2}</b> 元
+						<br>
+						{$vo.quantity_day_between_180270|default="0"} 个
+					</td>
+					<td>
+						<b>{$vo.cost_day_between_270365|default="0"|round=###,2}</b> 元
+						<br>
+						{$vo.quantity_day_between_270365|default="0"} 个
+					</td>
+					<td>
+						<b>{$vo.cost_day_between_365000|default="0"|round=###,2}</b> 元
+						<br>
+						{$vo.quantity_day_between_365000|default="0"} 个
+					</td>
+
+					<td>{$vo.add_time|default=" "|date="y-m-d H:i",###}</td>
+					<td>
+						
+					</td>
+				</tr>
+				<volist name="vo.user_age_list" id="v2">
+					<tr>
+						<td colspan="2">
+						</td>
+						<td>
+							{$v2.warehouse_data.warehouse_name}
+						</td>
+						<td>
+							<b>所属用户: {$v2.owner_user_name|default="无所属"}</b>
+						</td>
+						
+						<td>
+							<b>{$v2.cost_day_between_000030|default="0"|round=###,2}</b> 元
+							<br>
+							{$v2.quantity_day_between_000030|default="0"} 个
+						</td>
+						<td>
+							<b>{$v2.cost_day_between_030090|default="0"|round=###,2}</b> 元
+							<br>
+							{$v2.quantity_day_between_030090|default="0"} 个
+						</td>
+						<td>
+							<b>{$v2.cost_day_between_090180|default="0"|round=###,2}</b> 元
+							<br>
+							{$v2.quantity_day_between_090180|default="0"} 个
+						</td>
+						<td>
+							<b>{$v2.cost_day_between_180270|default="0"|round=###,2}</b> 元
+							<br>
+							{$v2.quantity_day_between_180270|default="0"} 个
+						</td>
+						<td>
+							<b>{$v2.cost_day_between_270365|default="0"|round=###,2}</b> 元
+							<br>
+							{$v2.quantity_day_between_270365|default="0"} 个
+						</td>
+						<td>
+							<b>{$v2.cost_day_between_365000|default="0"|round=###,2}</b> 元
+							<br>
+							{$v2.quantity_day_between_365000|default="0"} 个
+						</td>
+
+						<td colspan="2"></td>
+
+					</tr>
+				</volist>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" width="200px"/></a>
+</div>
+
+<script type="text/javascript">
+
+$(function(){
+	$("#warehouse_id").select2();
+	$("#owner_uid").select2();
+});
+
+</script>

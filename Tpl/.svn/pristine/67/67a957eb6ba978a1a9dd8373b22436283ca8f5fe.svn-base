@@ -1,0 +1,299 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" action="{:U()}" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">{$title}</h1>
+
+	<div class="col-sm-10 pull-right">
+
+		<div class="col-sm-12">
+			<div class="form-group col-sm-3">
+		        <div class="input-group">
+		            <span class="input-group-addon">
+		                下单时间
+		            </span>
+		            <input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="order_time" id="order_time" value="{$Think.request.order_time}"  placeholder="下单时间">
+		        </div>
+		    </div>
+
+			<!-- <div class="form-group col-sm-2">
+				<select name="user_id" class="form-control">
+					<option value="" <eq name="Think.request.user_id" value="">selected</eq> > 显示全部用户数据</option>
+					<option value="{$_SESSION['authId']}" <eq name="Think.request.user_id" value="0">selected</eq> > 显示当前用户数据</option>
+					<volist name="user_list" id="user">
+						<option value="{$user['id']}" <eq name="Think.request.user_id" value="$user['id']">selected</eq> >{$user['emp_name']}</option>
+					</volist>	
+				</select>
+			</div> -->
+
+			<div class="form-group col-sm-2">
+				<select name="website_id" class="form-control">
+					<option value="">选择平台</option>
+					<foreach name="website_list" item="website">
+						<option value="{$website.id}" <eq name="Think.request.website_id" value="$website.id">selected</eq> >{$website.website_name}</option>
+					</foreach>	
+				</select>
+			</div>
+
+			<div class="form-group col-sm-2">
+				<select name="account_id" class="form-control">
+
+					<option value="" <eq name="Think.request.account_id" value="">selected</eq> >帐号</option>
+					
+						<foreach name="account_list" key="website" item="accounts">
+							<optgroup label="{$website}">
+							<foreach name="accounts" key="vv" item="account">
+								<option value="{$account.id}" <eq name="Think.request.account_id" value="$account.id">selected</eq> >{$account.show_name}</option>
+							</foreach>	
+						</foreach>
+					</optgroup>
+				</select>
+			</div>
+
+			<div class="input-group col-sm-4">
+		        <div class="input-group">
+		            <input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="搜索 商品SKU、规格SKU"/>
+		            <span class="input-group-btn">
+		                <button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+		            </span>
+		        </div>
+		    </div>
+		</div>
+	</div>
+</div>
+<!-- 
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a href="#" class="btn btn-sm btn-danger" >sku统计</a>
+			
+		</div>
+		<div class="btn-group">
+			<div id="syncCK1"></div>
+		</div>
+	</div>
+</div>
+ -->
+ <div class="operate panel panel-default">
+	<div class="panel-body">
+
+		<div class="btn-group">
+			<div class="input-group" style="width: 300px;">
+				<select class="form-control" id="warehouse_id_choose">
+					<option value="">选择仓库</option>
+					<volist name="warehouse_list" id="warehouse">
+						<option value="{$warehouse.id}">{$warehouse.warehouse_name}</option>
+					</volist>
+				</select>
+				<span class="input-group-btn">
+					<a class="batchAddPurchaseQuantity btn btn-primary btn-sm">批量添加采购</a>
+				</span>
+			</div>
+		</div>
+	
+		<div class="btn-group">
+			<span>当前结果总销量：<b>{$total_count}</b></span>
+		</div>	
+		
+	</div>
+</div>
+
+<div class="message-container"style="width:25%;">
+	<table class="table table-striped">
+			
+		<include file="Layout:title_v2"/>
+            
+        <tbody class="tbody">
+
+			<volist name="list" id="vo">
+				<tr id="parent_sku_tr_{$vo.pid}" data-parent_sku_id="{$vo.pid}" class="parent_sku_tr">
+					<td >
+						<a href="{$vo.thumbnail}" class="thumbnail" style="width:80px"><img src="{$vo.thumbnail}" style="width:80px"/></a>
+					</td>
+					<td class="sku_name">
+						<a href="{:U('V2SkuProduct/index')}?q={$vo.parent_sku}" target="_blank">{$vo.parent_sku}</a>
+					</td>
+					<td>
+						<b>{$vo.local_product_quantity}</b>
+					</td>
+				</tr>
+				<tr class="sku_product_tr" id="sku_product_tr_{$vo.pid}" style="display:none;">
+					<td colspan="4">
+						<table class="table">
+							<notempty name="vo.sku_product_quantity_list">
+								<tr>
+									<th>
+										<label class="form-group pull-left">
+				                            <input class="ace select_all_sku_product" type="checkbox" value="{$vo.pid}" />
+				                            <span class="lbl"></span>
+				                            全选
+				                        </label>
+					                </th>
+									<th>规格SKU</th>
+									<th>SKU名称</th>
+									<th>使用量</th>
+								</tr>
+								<tr>
+									<td>
+										<label class="form-group pull-left">
+				                            <input class="ace sku_ids all_sku_ids" data-parent_sku_id="{$vo.pid}" type="checkbox" value="all" />
+				                            <span class="lbl"></span>
+				                        </label>
+									</td>
+									<td colspan="2" class="text-center">
+										<b>全部</b>
+									</td>
+									<td width="100px">{$vo.local_product_quantity}</td>
+								</tr>
+								<volist name="vo.sku_product_quantity_list" id="sku_product">
+									<tr>
+										<td>
+											<label class="form-group pull-left">
+					                            <input class="ace sku_ids" data-parent_sku_id="{$vo.pid}" type="checkbox" value="{$sku_product.id}" />
+					                            <span class="lbl"></span>
+					                        </label>
+										</td>
+										<td>
+											{$sku_product.sku}
+										</td>
+										<td >{$sku_product.sku_name}
+											<br>
+											<br>
+											<div class="input-group" style="width:180px;">
+												<span class="input-group-addon">
+													采购数量
+												</span>
+												<input type="number" name="purchase_quantity[{$sku_product.id}]" class="form-control purchase_quantity" value="" placeholder="采购数量">
+											</div>
+										</td>
+										<td width="100px">
+											{$sku_product.local_product_quantity}
+											<br>
+											<span class="red">可用库存:{$sku_product.stock_data.available_quantity|default="0"}</span>
+											<br>
+											<span class="blue">采购计划:{$sku_product.purchase_data.purchase_quantity|default="0"}</span>
+											<br>
+											<b >总:{$sku_product['stock_data']['available_quantity']+$sku_product['purchase_data']['purchase_quantity']|default="0"}</b>
+										</td>
+									</tr>
+								</volist>
+							</notempty>
+						</table>
+					</td>
+				</tr>
+			</volist>
+
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;top:138px;width:71%;z-index:100;height:300px;left:30%;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+<!-- 
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div> -->
+
+<script type="text/javascript">
+
+$(function($){
+	$(".parent_sku_tr").click(function(){
+		var parent_sku_id = $(this).data("parent_sku_id");
+		var show_status = $(this).data("show_status");
+		if(!show_status || show_status==undefined){
+			$("#sku_product_tr_"+parent_sku_id).show();
+			$(this).data("show_status",1);
+		}else{
+			$("#sku_product_tr_"+parent_sku_id).hide();
+			$(this).data("show_status",0);
+		}
+	});
+
+	$(".select_all_sku_product").click(function(){
+		selectAllSkuProduct($(this),$(this).val());
+	});
+
+	$(".sku_ids").change(function(){
+		var parent_sku_id = $(this).data("parent_sku_id");
+		showVariationsDetail(parent_sku_id);
+	})
+
+	$(".batchAddPurchaseQuantity").click(function(){
+
+		if(!confirm("确认批量添加采购计划？添加错误可以在采购计划中关闭")){
+            return false;
+        }
+
+		var data = $(".purchase_quantity").serialize();
+		var warehouse_id = $("#warehouse_id_choose").val();
+
+		data += ("&warehouse_id="+warehouse_id);
+
+	 	var btn = $(this);
+        btn.button('loading');
+        $.post("{:U('V2PurchasePlan/batchAdd')}",data,function(msg){
+            btn.button('reset');
+            if(msg.status){
+                alertWarning(msg.info,1);
+                window.location.reload();
+            }else{
+                alertWarning(msg.info);
+            }
+        }).error(function(){
+            btn.button('reset');
+            alertWarning("网络错误，请重试");
+            return false;
+        });
+	});
+});
+
+function selectAllSkuProduct(obj,parent_sku_id){
+	
+	if($(obj).prop("checked")){
+		var select_type = 1;
+	}else{
+		var select_type = 0;
+	}
+	$("#sku_product_tr_"+parent_sku_id+" .sku_ids").prop("checked",select_type);
+	$("#sku_product_tr_"+parent_sku_id+" .all_sku_ids").prop("checked",false);
+
+	showVariationsDetail(parent_sku_id);
+}
+
+function showVariationsDetail(parent_sku_id){
+	var order_detail_box = $("div.order-detail-box");
+	order_detail_box.show();
+		
+	var iframe_height = window.innerHeight - 140;
+
+	order_detail_box.css({display:"block"});
+
+	var iframe = window.frames['order-detail-iframe'];
+	
+	$("#order-detail-iframe").css({height:iframe_height});
+
+	var param1 = $("#form_search").serialize();
+	param1 += ("&parent_sku_id="+parent_sku_id);
+	
+	var sku_ids = "";
+	$("#sku_product_tr_"+parent_sku_id+" .sku_ids").each(function(i){
+		if($(this).prop("checked")){
+			sku_ids +=("&sku_ids[]="+$(this).val());
+		}
+		
+	});
+	param1 += ("&"+sku_ids);
+
+	tmpSendForm("{:U('V2Statistics/skuProductCountDetail')}",param1,"order-detail-iframe",false,false);	
+}
+
+
+</script>

@@ -1,0 +1,209 @@
+<script type="text/javascript">
+	var synch_start=0;
+	var synch_account_id;
+	var synch_success=0;
+	var stop_synch=0;
+
+	function synchAllProduct(account_id,obj){
+
+		if(!confirm("确认同步该帐号？")){
+			return;
+		}
+		add_history(obj.innerHTML+" 开始获取数据...");
+		$("#ctrl_synch").show();
+		$("#show_history").show();
+		stopClose();
+
+		synch_account_id=account_id;
+
+		synchProduct(account_id);
+	}
+
+	function synchProduct (account_id,start,limit,success) {
+
+		if(!start){
+			start=0;
+		}
+		if(!limit){
+			limit=500;
+		}
+		if(!success){
+			success=0;
+		}
+		if(stop_synch){
+			var massage = "已暂停";
+			$('#show_msg').html(massage);
+			add_history(massage);
+			stopSynch();
+			return;
+		}
+		$.post("{:U('WishProduct/synchProduct')}",{account_id:account_id,start:start,limit:limit},function(msg){
+				if(msg.status){
+					if(msg.data=="finish"){
+						add_history("完成 获取"+ start +"条，成功：" + success + " 条");
+						stopClose(1);
+						return;
+					}
+					synch_start = start =start+msg.data.count;
+
+					success+=msg.data.success;
+
+					add_history("获取"+ start +"条，成功：" + success + " 条");
+
+					synchProduct(account_id,start,limit,success);
+				}else{
+					var massage="同步出错,是否重试？错误信息：<br>" + msg.info ;
+					add_history(massage);
+					if(confirm("同步出错,是否重试？")){
+
+						add_history(massage);
+						synchProduct(account_id,start,limit,success);
+					}else{
+						stopSynch();
+					}
+				}
+		}).error(function(){
+	
+			var massage="网络错误,是否重试？";
+			add_history(massage);
+			if(confirm(massage)){
+				
+				synchProduct(account_id,start,limit,success);
+			}else{
+				stopSynch();
+			}
+		})
+	}
+
+	function continueSynch(){
+		stop_synch=0;
+		changeCtrl(false);
+		var start = synch_start;
+		var success = synch_success;
+		synchProduct(synch_account_id,start,500,success);
+	}
+	function stopSynch(){
+		stop_synch=1;
+		changeCtrl(1);
+	}
+
+	function changeCtrl(status){
+		if(status){
+
+			$('#continueSynch').show();
+			$('#stopSynch').hide();
+		}else{
+			$('#stopSynch').show();
+			$('#continueSynch').hide();
+		}
+	}
+
+	function add_history(msg){
+		var myDate=new Date();
+		var now=myDate.toLocaleString();
+		msg += (' 时间：'+now);
+		$("#show_msg").html(msg);
+		$("#show_history").html(msg + "<br>" + $("#show_history").html());
+	}
+
+	function showHistory(){
+		if($("#show_history").css("display")=="none"){
+			$("#show_history").show();
+		}else{
+			$("#show_history").hide();
+		}
+	}
+
+
+	//备份数据
+	function backupData(account_id,obj){
+		if(confirm("确定备份当前帐号的数据?")){
+
+		}
+	}
+
+	function stopClose(status){
+		if(!status){
+			document.body.onbeforeunload = function (event){
+	            var c = event || window.event;
+	            if (/webkit/.test(navigator.userAgent.toLowerCase())) {
+	                return "当前正在同步数据，确认刷新或者关闭页面？！";
+	            }
+	            else
+	            {
+	                c.returnValue = "当前正在同步数据，确认刷新或者关闭页面？";
+	            }
+	        }
+		}else{
+			document.body.onbeforeunload = '';
+		}
+	}
+
+
+	function changeSales(ids,account_ids,status){
+
+		if(!confirm("确定执行？")){
+			return;
+		}
+		updateSale(ids,account_ids,status);
+	}
+
+
+	function updateSale(ids,account_id,status){
+
+		var url="{:U('updateSale')}";
+		$.post(url,{ids:ids,account_id:account_id,status:status},function(msg){
+			if(msg.status){
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+				return;
+			}
+		}).error(function(){
+			alertWarning("网络错误");
+		});
+	}
+
+	function importCsv(){
+		$("#bottomBoxIframe").attr("src","{:U('importCsv')}?_" + Math.round(new Date().getTime()/1000));
+		$("#bottomBox").modal("show");	
+	}
+
+	function soldOutAll(){
+		
+	}
+
+	// ace.settings.sidebar_collapsed(true);
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit()
+	});
+
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	});
+
+	$(function(){
+		$(".tbody .thumbnail").hover(
+			function(){
+				$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+				var position = $(this).position(),
+				outerWidth = $(this).outerWidth(true),
+				box_top = position.top,
+				box_left = position.left + outerWidth + 10;
+				$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+			},
+			function(){
+				$(".thumbnailBox").hide();
+			}
+		);	
+	})
+
+</script>

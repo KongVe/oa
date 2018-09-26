@@ -1,0 +1,202 @@
+
+//window.frames["iframe1"].document.getElementById("J_TSearchForm").children.item(0).children.item(0).setAttribute('data-spm-click','')
+var start=[];
+var iframe = window.frames["iframe1"];
+var item_name;
+var page_now=0;
+init();
+
+function init() {
+	document.getElementsByTagName("body").item(0).innerHTML="";
+
+	var dd=document.createElement("div");
+	dd.id="control";
+	var html1='<div id="control1" style="top: 2px;left: 100px;width: 300px;height: 100px;background: rgb(255, 202, 158);position: fixed;z-index: 10000;"><button onclick="init();">初始化页面</button> &nbsp;&nbsp;<input type="text" id="searchItem"/><button onclick="searchItem();">搜索排名</button><button onclick="stop();">停止</button><br>页数限制<input type="text" id="page_limit" value="100"><label for="search_product_list">搜索页<input type="checkbox" checked="checked" id="search_product_list" value="1"></label><label for="search_ad_list">直通车<input type="checkbox" id="search_ad_list" checked="checked" value="1"></label><div id="item_name"></div><div id="showResult"></div></div>';
+	dd.innerHTML=html1;
+	document.getElementsByTagName("body").item(0).appendChild(dd);
+
+	var height=document.body.scrollHeight;
+
+	if(document.getElementById("iframe1")==null){
+		var iframe=document.createElement("iframe");
+		iframe.id="iframe1";
+		iframe.name="iframe1";
+		iframe.src="http://www.aliexpress.com/wholesale?SearchText=summer dress";
+		iframe.height=height;
+		iframe.width="100%";
+		document.getElementsByTagName("body").item(0).appendChild(iframe);
+	}else{
+		iframe.src="http://www.aliexpress.com/wholesale?SearchText=summer dress";
+		iframe.height=height;
+		iframe.width="100%"; 
+	}
+}
+
+function stop () {
+	for (var i = 0; i < start.length; i++) {
+		
+		clearInterval(start[i]);//清除监听
+	};
+	 
+}
+
+function searchItem() {
+	var iframe=window.frames["iframe1"];
+
+	item_name=document.getElementById("searchItem").value;
+	page_limit=document.getElementById("page_limit").value;
+	page_limit=document.getElementById("page_limit").value;
+	document.getElementById("item_name").innerHTML="搜索词："+item_name;
+	if(item_name){
+		var search_product_list = document.getElementById("search_product_list").checked;
+		var search_ad_list = document.getElementById("search_ad_list").checked;
+		if(!search_product_list && !search_ad_list){
+			alert("请选择需要搜索的类型");
+			return false;
+		}
+		if(search_product_list){
+			var name_list = iframe.document.getElementsByClassName("picRind");
+			var result=searchFromList(name_list,item_name,"product");
+		}
+		if(search_ad_list){
+			var ad_list = iframe.document.getElementsByClassName("p4p-list-item");
+			var result2=searchFromList(ad_list,item_name,"ad");
+		}
+		
+
+
+		page_now = window.frames["iframe1"].document.getElementsByClassName("ui-pagination-active")[0].innerHTML;
+		if(parseInt(page_limit)<parseInt(page_now)){
+			alert("查找失败，在搜索的"+page_limit+"页内未找到搜索结果");
+			return false;
+		}
+		if(result!==false && result!=undefined){
+			showResult("查找成功，在第 "+page_now+"页的 第"+(result+1)+"个位置",result,"product");
+		}else if(result2!==false && result2!=undefined){
+			showResult("查找成功，在直通车第 "+page_now+"页的 第"+(result2+1)+"个位置",result2,"ad");
+		}else{
+			var next_obj=getNextPageButtonObj();
+			if(next_obj){
+				
+				next_obj.click();
+
+				start.push(setInterval('check()', 800));	
+		
+			}else{
+				alert("获取下一页链接错误,请查看是否查找完所有页面");
+			}
+			
+		}
+	}else{
+		//alert("输入有错误");
+		return;
+	}
+}
+
+function check() {
+	if (window.frames["iframe1"].document.readyState == 'complete') {
+	    try{
+	        stop();//执行成功，清除监听
+	        searchItem();
+	    }catch(err){return true;}
+	}
+}
+
+//type 搜索列表页product 直通车ad
+function searchFromList(item_list,item_name,type){
+	for (var i = 0; i < item_list.length; i++) {
+		if(type=="product"){
+			if(item_list[i].href==undefined || item_list[i].href=='' || item_list[i].href==null){
+				continue;
+			}
+			var tmp = item_list[i].href;
+			if(tmp.indexOf(item_name) >= 0 ){
+				return i;//return shop_list[i].children[0].children[1];
+			}
+		}else{
+			var tmp_attr = item_list[i].getAttribute("data-product-id");
+			if(tmp_attr==undefined || tmp_attr=='' || tmp_attr==null){
+				continue;
+			}
+			if(tmp_attr == item_name ){
+				return i;//return shop_list[i].children[0].children[1];
+			}
+		}
+		
+	};
+	return false;
+}
+function getNextPageButtonObj(is_iframe){
+	var iframe=window.frames['iframe1'];
+	var next_obj=iframe.document.getElementsByClassName("page-next ui-pagination-next");
+	if(next_obj==undefined || next_obj==null){
+		return false;
+	}else{
+		return next_obj[0];
+	}
+	
+}
+
+function getHandlePage() {
+	var iframe=window.frames['iframe1'];
+
+	var page=iframe.document.getElementsByClassName("current")[0].innerHTML;
+	if(page!=null || !page){
+		return page;
+	}else{
+		return false;
+	}
+}
+
+function showResult(str,num,type){
+	var iframe=window.frames["iframe1"];
+
+	if(type=="product"){
+		alert(str);
+	}else{
+		var ad_list = iframe.document.getElementsByClassName("p4p-list-item");
+		var rigth_tmp=0;
+		var bottom_tmp=0;
+		for (var i = 0; i < ad_list.length; i++) {
+			if(i<=3){
+				bottom_tmp++;
+				if(i==num){
+					var position_tmp = "底部第"+bottom_tmp+"位";
+				}
+				
+			}else{
+				rigth_tmp++;
+				if(i==num){
+					var position_tmp = "右边第"+rigth_tmp+"位";
+				}
+			}
+		}
+
+		alert("查找成功，在直通车第 "+page_now+"页的"+position_tmp);
+	}
+	stop();
+	return true;
+
+	var name_list=iframe.document.getElementsByClassName("shop");
+
+	if(str){
+		document.getElementById("showResult").innerHTML=str;
+		iframe.document.body.scrollTop=name_list.item(num).offsetTop-300;
+
+		name_list.item(num).children[0].children[1].setAttribute("style","background:yellow");
+	}
+}
+
+
+
+function getQueryStr(str,LocString){  
+var rs = new RegExp("(^|)"+str+"=([^\&]*)(\&|$)","gi").exec(LocString), tmp;  
+
+if(tmp=rs){ 
+
+    return tmp[2];  
+}  
+
+// parameter cannot be found  
+return "";  
+}  

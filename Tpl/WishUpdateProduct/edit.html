@@ -1,0 +1,127 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" name="id" value="{$vo.id}">
+		<input type="hidden" id="opmode" name="opmode" value="{$vo.opmode}" >	
+		<div class="form-group">
+			<label class="control-label" for="sku">SKU(如果还没确定要更换成哪个SKU，则不要填写)</label>
+			<input class="form-control" type="text" id="sku" name="sku" value="{$vo.sku}">
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="sku_id">sku_id(可选，如果产品列表没有给予SKU就填其sku_id)</label>
+			<input class="form-control" type="text" id="sku_id" name="sku_id" value="{$vo.sku_id}">
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="online_product_id">onlin product id</label>
+			<input class="form-control" type="text" id="online_product_id" name="online_product_id" value="{$vo.online_product_id}" msg="请输入onlin product id" check="require">
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="account_id">帐号</label>
+			<select name="account_id" class="form-control" id="account_id">
+				<option value="">请选择帐号</option>
+				<volist name="accountList" id="account">
+					<option value="{$account.id}" <?php if($account['id'] == $vo['account_id']){ echo "selected"; } ?> >{$account.account_name}</option>
+				</volist>
+			</select>
+			<input type="hidden" name="account_name" value="" id="account_name" />
+		</div>
+		<div class="form-group">
+			<div class="col-xs-8">
+				<label class="control-label" for="editForm_thumbnail">图片网址</label>
+				<input class="form-control" type="text" id="editForm_thumbnail" name="thumbnail" value="{$vo.thumbnail}">	
+			</div>
+			<div class="col-xs-4">
+				<a href="#" class="thumbnail"><img src="{$vo.thumbnail}" id="img_thumbnail" width="60" /></a>
+			</div>
+		</div>		
+		<div class="form-group">
+			<label class="control-label" for="memo">备注</label>
+			<textarea name="memo" id="memo" class="form-control">{$vo.memo}</textarea>
+		</div>		
+		<div class="form-group text-center">
+			<input type="submit" id="editFormSubmit" data-loading-text="正在保存..."  class="btn btn-primary" value="保存" />
+			<a class="btn btn-success" id="cancel">取消</a>
+			<a class="btn btn-danger" id="delete">删除</a>
+		</div>
+	</form>
+<script type="text/javascript">
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);
+
+	$("#code").change(function(){
+		var code = $(this).val(),
+			data = {code:code};
+		$.post("{:U('parseCode')}",data,function(r){
+			if(r.status){
+				$("#asin").val(r.data.asin);
+				$("#customer_reviews").val(r.data.customer_reviews);
+				$("#price_lowest").val(r.data.price_lowest);
+				$("#product_name").val(r.data.product_name);
+				$("#editForm_thumbnail").val(r.data.thumbnail);
+				$("#img_thumbnail").attr("src",r.data.thumbnail);
+				$("#trademark").val(r.data.trademark);
+			}else{
+				alert(r.info);
+			}
+		})
+	})
+
+	$("#cancel").click(function(){
+		parent.$("#middleBox").modal("hide");
+	})
+	$("#delete").click(function(){
+		if(window.confirm("Delete? ")){
+			$("#opmode").val("del");
+			var data = $("#editForm").serialize();
+			var url = $("#editForm").attr("action");
+			$.post(url,data,function(r){
+				if(r.status){
+
+					//parent.$("#middleBox").modal("hide");
+					parent.window.location.reload();
+
+				}else{
+					alert(r.info);
+					return false;
+				}
+			})
+		}else{
+			return false;
+		}
+
+		return false;
+	})
+
+	$("#editFormSubmit").click(function(){
+		if(!check_form("editForm")){
+			return false;
+		}
+		var data = $("#editForm").serialize();
+		var url = $("#editForm").attr("action");
+		$.post(url,data,function(r){
+			if(r.status){
+
+				//parent.$("#middleBox").modal("hide");
+				parent.window.location.reload();
+
+			}else{
+				alert(r.info);
+				return false;
+			}
+		})
+		return false;
+	})
+
+	//保存过account_id后初始化account_name
+	$("#account_name").val($("option[value='" + $("#account_id").val() + "']",$("#account_id")).html());
+
+	$("#account_id").change(function(){
+		var account_name = $("option[value='" + $(this).val() + "']",$(this)).html();
+		$("#account_name").val(account_name);
+	})
+})
+</script>

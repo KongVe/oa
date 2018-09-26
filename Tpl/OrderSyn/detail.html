@@ -1,0 +1,85 @@
+<layout name='Layout/ace_box' />
+<div class="panel panel-default">
+	<div class="panel-body">
+		<ul id="orderDetail" class="nav nav-tabs">
+			<li><a href="#product" data-toggle="tab">产品明细</a></li>
+			<li><a href="#customer" data-toggle="tab">客户信息</a></li>
+			<li><a href="#package" data-toggle="tab">包裹信息</a></li>
+		</ul>
+		<div id="orderDetailContent" class="tab-content">
+			<div class="tab-pane fade active in" id="product">
+				<table class="table table-striped table-hover table-bordered table-condensed">
+					<tr>
+						<th>操作</th>
+						<th>SKU</th>
+						<th>规格</th>
+						<th>数量</th>
+						<th>备注</th>
+						<th>图片</th>
+						<th>本地状态</th>
+						<th>商品状态</th>
+						<th>标题</th>
+						<th>成本</th>
+						<th>预计可得</th>
+						<th>价格</th>
+						<th>运费</th>
+						
+					</tr>
+					<tbody class="tbody">
+						<foreach name="productList" item="product" key="pK">
+							<tr>
+								<th>
+									<input type="hidden" name="id[]" value="{$product.id}" />
+								<!--	<a href="" onclick="del_product({$product.id})">删除</a>
+									<br> -->
+									<a href="" onclick="editProduct({$product.id})">修改</a>
+								</th>
+								<td>{$product.sku}</td>
+								<td>{$product.variation}</td>
+								<td><strong style="color:red">{$product.quantity}</strong></td>
+								<td>
+									<span class="editStatic" field="memo" onclick="editStatic(this,'{:U('OrderProduct/save')}?id={$product.id}','textarea')">{$product.memo}</span>
+								</td>								
+								<td><a href="{$product.thumbnail}" class="thumbnail" target="_blank"><img src="{$product.thumbnail}" width="60" /></a></td>
+								<td>{$product.local_state}</td>
+								<td>{$product.product_state}</td>
+								
+								<td class="col-lg-2">
+									<a href="{$product.product_link}" target="_blank" title="{$product.product_name}">{:substr($product['product_name'],0,20)}...</a>
+									<br>产品ID：{$product.product_id}
+									<br><a href="{$product.snapshot_link}" target="_blank">快照</a>
+								</td>
+								<td>￥<span class="editStatic" field="cost" onclick="editStatic(this,'{:U('OrderProduct/save')}?id={$product.id}')">{$product.cost}</span></td>
+								<td>{$product.estimate_total}</td>
+								<td>{$product.price}</td>
+								<td>{$product.shipping_fee}</td>
+								
+							</tr>
+						</foreach>
+					</tbody>
+				</table>
+				<button class="btn btn-danger" id="addProduct" onclick="addProduct({$Think.request.id})">新增</button>
+				<eq name="canShip" value="true"><button class="btn btn-danger" id="ship" onclick="ship({$Think.request.id})">发货</button></eq>
+			</div>
+			<div class="tab-pane fade" id="customer">
+				<span class="editStatic" field="shipping_first_name" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$Think.request.id}')">{$order.shipping_first_name}</span> <span class="editStatic" field="shipping_last_name" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$Think.request.id}')">{$order.shipping_last_name}</span><br>
+				<span class="editStatic" field="shipping_street_address_1" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$Think.request.id}')">{$order.shipping_street_address_1}</span><br>
+				<span class="editStatic" field="shipping_street_address_2" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$Think.request.id}')">{$order.shipping_street_address_2}</span><br>
+				<span class="editStatic" field="shipping_city" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$Think.request.id}')">{$order.shipping_city}</span>, <span class="editStatic" field="shipping_state" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$Think.request.id}')">{$order.shipping_state}</span>, <span class="editStatic" field="shipping_zipcode" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$Think.request.id}')">{$order.shipping_zipcode}</span><br>
+				<span class="editStatic" field="shipping_country" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$Think.request.id}')">{$order.shipping_country}</span><br>
+				<span class="editStatic" field="shipping_phone" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$Think.request.id}')">{$order.shipping_phone}</span>
+			</div>			
+			<div class="tab-pane fade" id="package">
+				<foreach name="packageList" item="package">
+					包裹号： {$package.package_code}<br>
+					跟踪号： {$package.online_tracking_number}<br>
+				</foreach>
+			</div>
+			<a class="btn btn-danger pull-right"  onclick="closeBox()" style="position: absolute;right: 12px;bottom: 15px;">关闭</a>
+		</div>
+	</div>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<iframe src="" id="saveThunbnail" style="visibility:hidden;height:1px;width:1px;"></iframe>

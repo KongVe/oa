@@ -1,0 +1,410 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo intval(!$sort); ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="transfer_shipment_id" id="transfer_shipment_id" value="{$Think.request.transfer_shipment_id}" />
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">{$title}</h1>
+	<div class="col-sm-10 pull-right">			
+
+			<div class="form-group col-sm-2 pull-left">
+				
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}"    readonly="readonly" placeholder="计划时间">
+				
+			</div>	
+			<div class="form-group col-sm-2 pull-left">
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="ship_time" id="ship_time" value="{$Think.request.ship_time}"    readonly="readonly" placeholder="发货时间">
+			</div>		
+			<div class="form-group col-sm-1 pull-left">
+				<select class="form-control" id="status" name="status">
+					<option value="">选择状态</option>
+					<option value="New" <?php echo ($_REQUEST['status'] == 'New') ? "selected" : ''; ?> >New</option>
+					<option value="Shipped" <?php echo ($_REQUEST['status'] == 'Shipped') ? "selected" : ''; ?> >Shipped</option>
+				</select>				
+			</div>	
+			<div class="form-group col-sm-1 pull-left">
+				<select class="form-control" id="add_uid" name="add_uid">
+					<option value="">选择计划者</option>
+					<volist name="added_user_list" id="user">
+						<option value="{$user.add_uid}" <?php if($_REQUEST['add_uid'] == $user['add_uid']){echo "selected"; } ?> >{$user.emp_name}</option>
+					</volist>
+				</select>				
+			</div>				
+			<div class="input-group col-sm-6">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索 FNSKU SKU ASIN 商品名称 "/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div>
+	</div>
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a class="btn btn-sm btn-danger" href="{:U('V2TransferShipment/index')}?id={$Think.request.transfer_shipment_id}" >返回</a>
+		</div>
+		<?php if(in_array($shipment['transfer_type'], array('Local to FBA','Oversea to FBA'))){ ?>
+		<div class="btn-group">
+			<a class="btn btn-sm btn-info" id="btn_check_shipment_contents" onclick="firstCheckShipmentContents()" >发货预检</a>
+		</div>
+		<div class="btn-group">
+			<div class="input-group" style="max-width:150px">
+				<input class="form-control" type="number" name="force_quantity" id="force_quantity" value="{$Think.request.force_quantity|default=40}" placeholder="数量"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-danger" id="btn_submit_fba_shipment_plan" onclick="sumbitFBAShipmentPlan()" >提交FBA</a>
+				</div>
+			</div>
+			
+		</div>			
+		<div class="btn-group">
+			<a class="btn btn-sm btn-warning" id="btn_updateFBAShipmentPlan" onclick="updateFBAShipmentPlan()" >修正FBA</a>
+		</div>
+		<?php } ?>
+		<?php if(in_array($shipment['transfer_type'], array('FBA to Oversea','FBA to Disposal'))){ ?>  
+			<a class="btn btn-sm btn-warning" id="btn_fbaRemoval" onclick="fbaRemoval()" >FBA Removal</a> 
+			<a class="btn btn-sm btn-success" id="btn_fbaRemovalConfirm" onclick="fbaRemovalConfirm()" >确认Removal</a>
+			<a class="btn btn-sm btn-warning" id="btn_manualFbaRemoval" href="{:U('manualSubmitFBARemoval')}?transfer_shipment_id={$Think.request.transfer_shipment_id}" >手动FBA Removal</a>
+			<a class="btn btn-sm btn-success" id="btn_manualFbaRemovalConfirm" onclick="manualFbaRemovalConfirm()" >手动确认Removal</a>
+			<a class="btn btn-sm btn-danger" id="btn_fbaRemovalConfirmShip" onclick="fbaRemovalConfirmShip()" >确认发货完成</a>
+		<?php }?>
+		<?php if(in_array($shipment['transfer_type'], array('Oversea to Disposal'))){ ?>  
+			<a class="btn btn-sm btn-warning" id="btn_storage5Disposal" onclick="storage5Disposal()" >Storage5 Disposal</a>
+		<?php }?>
+		<?php if(in_array($shipment['transfer_type'], array('Local to Oversea'))){ ?>
+			<div class="btn-group">
+				<a class="btn btn-sm btn-primary "  id="btn_sumbitOverseaShipmentPlan" onclick="sumbitOverseaShipmentPlan()" >提交海外仓</a>
+			</div>
+		<?php } ?>
+		<?php if(in_array($shipment['transfer_type'], array('Local to FBA','Local to Oversea'))){ ?>
+		<div class="btn-group">
+			<a class="btn btn-sm btn-success "  id="btn_generatePickingPlan" onclick="generatePickingPlan()" >拣货</a>
+		</div>	
+		<?php } ?>
+		<?php if(in_array($shipment['transfer_type'], array('Local to FBA','Local to Oversea','Oversea to FBA'))){ ?>
+		<div class="btn-group">
+			<div class="col-xs-6">
+				<a class="btn btn-sm btn-primary showBox" data-url="{:U('v2_transfer_shipment/boxCacheIndex')}?transfer_shipment_id={$Think.request.transfer_shipment_id}" >提交box</a>
+			</div>
+		</div>	
+		<div class="btn-group">
+				<a class="btn btn-sm btn-info"  id="btn_changeShipment" onclick="changeShipment()" >转移</a>
+		</div>					
+		<div class="btn-group">
+			<a class="btn btn-sm btn-warning showBox" data-url="{:U('v2_transfer_borrow_stock/edit')}?transfer_shipment_id={$Think.request.transfer_shipment_id}" >借库存</a>
+		</div>			
+		<div class="btn-group">
+			<a class="btn btn-sm btn-danger" id="btn_confirm_ship" onclick="confirmShip()" >确认发货</a>
+		</div>		
+		<?php } ?>
+		<?php if(in_array($shipment['transfer_type'], array('Oversea to FBA'))){ ?>
+		<div class="btn-group">
+			<a class="btn btn-sm btn-primary" id="btn_generateStorage5TransferExcel" onclick="generateStorage5TransferExcel()" >生成表格</a>
+		</div>		
+		<div class="btn-group">
+			<a class="btn btn-sm btn-success" id="btn_createStroage5Stockout" onclick="createStroage5Stockout()" >提交出库单</a>
+		</div>
+		<?php } ?>		
+		<div class="btn-group">
+			<table>
+				<tr>
+					<td align="center" valign="middle">由&nbsp;</td>
+					<td align="center" valign="middle"><b><notempty name="from_account.show_name">{$from_account.show_name}<br></notempty>{$from_warehouse.show_name}</b></td>
+					<td align="center" valign="middle">&nbsp;转至&nbsp;</td>
+					<td align="center" valign="middle"><b>{$target_account.show_name}<br>{$target_warehouse.show_name}</b></td>
+					<td><pre>{$shipment.memo}</pre></td>
+					<td>{$shipment.online_shipment_id}</td>
+				</tr>
+			</table>
+		</div>
+		<div class="btn-group">
+			已装总数：<b class="red">{$packed_quantity_total}</b> | 
+			已装SKU数：<b class="red">{$packed_sku_count}</b> | 
+			预计装箱重量：<b class="red">{$packed_sku_wegith_total}</b> kg  |
+			状态：<b class="red">{$shipment.status}</b> | 
+			<br>
+			计划总数量: <b class="red">{$plan_transfer_quantity_total}</b> 个  | 
+			计划SKU数: <b class="red">{$plan_transfer_sku_total}</b> 个  | 
+			预计应发总重量: <b class="red">{$plan_sku_wegith_total}</b> kg(仅供参考)  |
+
+			<notempty name="box_weight_total">
+				提交box总重量: <b class="red">{$box_weight_total}</b> kg
+			</notempty>
+		</div>
+	</div>
+</div>
+<div class="message-container">
+	<table class="table table-striped table-hover">
+		 	<include file="Layout:title_v2"/>
+			<tbody class="tbody">
+			<volist name="list" id="vo">
+				<tr>
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td>
+						<a href="{:U('amazon_sellyours/index')}?q={$vo.target_product_sn}" target="_blank">
+						{$vo.target_product_sn}
+						</a>
+						<br>
+						<input type="text" id="label_quantity_{$vo.id}" value="{$vo.max_print_quantity}" size=4/>
+						<br>
+						<gt name="vo.is_printed" value="0">
+							<a class="btn btn-xs btn-danger" id="btn_printProductSn_{$vo.id}" onclick="printProductSn({$vo.id})">已打印 <span class="badge badge-info"><?php echo $vo['is_printed'] / 10; ?></span></a>		
+						<else />
+							<a class="btn btn-xs btn-warning" id="btn_printProductSn_{$vo.id}" onclick="printProductSn({$vo.id})">打印</a>							
+						</gt>
+						
+					</td>
+					<td>
+						<a href="{$vo.thumbnail}" target="_blank" class="thumbnail" style="width:60px;"><img src="{$vo.thumbnail}" width="60" /></a>
+					</td>
+					
+					<td style="width:120px;">
+						<span class="red"><span class="editStatic" field="priority" onclick="editStatic(this,'{:U('v2_transfer_plan/updatePriority')}?id={$vo.id}','input')">{$vo.priority}</span></span>
+						<gt name="vo.sku_quantity" value="0">
+							<br>
+							库存：{$vo.sku_quantity}
+						</gt>
+						
+					</td>
+					<td style="width:100px;">
+						应发：<span class="red"><span class="editStatic" field="plan_transfer_quantity" onclick="editStatic(this,'{:U('v2_transfer_plan/updatePlanTransferQuantity')}?id={$vo.id}','input')">{$vo.plan_transfer_quantity}</span></span> 个
+						<br>
+						<br>
+						<gt name="vo.waiting_pick_quantity" value="0">
+							拣货：<input type="number" name="waiting_pick_quantity[transfer_plan_{$vo.id}]" value="{$vo.max_picking_quantity}" class="waiting_pick_quantity_input" style="width:80px;"/>
+						</gt>
+					</td>
+					<td>
+						<b class="green">
+							<gt name="vo.box_final_ship_quantity" value="0">
+								{$vo.box_final_ship_quantity} / 
+							</gt>{$vo.packed_quantity}
+						</b>
+						<gt name="vo.receive_quantity" value="0">
+							<br>
+							<b class="red">
+								已收：{$vo.receive_quantity}
+							</b>
+						</gt>
+					</td>
+					<td>
+						<span class="V2EditMemo" data-table-name="v2_transfer_plan" data-field-value="{$vo.id}"><pre>{$vo.memo}</pre></span></td>
+					<td>
+						<?php if(in_array($shipment['transfer_type'], array('Local to FBA','Local to Oversea'))){ ?> 
+
+						<table class="table table-bordered table-hover table-condensed">
+							<volist name="vo.picking_sku_list" id="picking_sku">
+							<tr>
+								<td style="width:40px;vertical-align:middle;">
+									<a class="thumbnail" href="{$picking_sku.thumbnail}" style="width:40px;"><img src="{$picking_sku.thumbnail}" width="40;" /></a>
+								</td>
+								<td style="vertical-align:middle; width:150px;" >
+										<a href="{:U('V2SkuProduct/index')}?id={$picking_sku.id}" target="_blanK">{$picking_sku.sku}</a><br>{$picking_sku.sku_name}
+										
+										<notempty name="picking_sku.source_list">
+											<br>
+											<br>
+											<volist name="picking_sku.source_list" id="source">
+												<notempty name="source.item_number">
+													货源货号: <b>{$source.item_number}</b>
+													<br>
+												</notempty>
+											</volist>
+										</notempty>
+								</td>
+								<td>
+									<table class="table table-bordered table-hover table-condensed">
+										<tr class="success">
+											<td colspan=2>预留: <b class="red">{$picking_sku.reserved_quantity}</b></td>
+											<td colspan=3>拣货: <b class="green">{$picking_sku.picked_quantity}</b>
+												<gt name="picking_sku.canceling_quantity">
+													<br>撤销: <b class="orange">{$picking_sku.canceling_quantity}</b>
+												</gt>
+											</td>
+										</tr>
+										<gt name="picking_sku.virtual_reserved_quantity" value="0">
+										<tr class="warning">
+											<td colspan=2>预留: <b class="red">{$picking_sku.virtual_reserved_quantity}</b></td>
+											<td colspan=3>拣货: <b class="green">{$picking_sku.virtual_picked_quantity}</b></td>
+										</tr>
+										</gt>
+										<volist name="picking_sku.sku_product_list" id="map_sku">
+											<tr>
+												<td>
+													<b style="font-size:15px;">{$map_sku.quantity}</b> <span style="font-size:12px;color:red;">个</btn_submit_fba_shipment_plan>
+												</td>
+												
+												<td style="width:40px;vertical-align:middle;">
+													<a class="thumbnail" href="{$map_sku.thumbnail}" style="width:40px;"><img src="{$map_sku.thumbnail}" width="40;" /></a>
+												</td>
+												<td style="vertical-align:middle; width:150px;" >
+														{$map_sku.sku}<br><b>{$map_sku.sku_name}</b>
+												</td>													
+												<td>预留: <b class="red">{$map_sku.reserved_quantity}</b></td>
+												<td>拣货: <b class="green">{$map_sku.picked_quantity}</b>
+													<gt name="map_sku.canceling_quantity">
+														<br>撤销: <b class="orange">{$map_sku.canceling_quantity}</b>
+													</gt>
+												</td>
+											</tr>
+										</volist>
+									</table>
+								</td>
+							</tr>
+							</volist>
+						</table>
+						<?php } ?>
+						<?php if(in_array($shipment['transfer_type'], array('Oversea to FBA','FBA to Oversea','FBA to Disposal','Oversea to Disposal'))){ ?> 
+						<table class="table table-bordered table-hover table-condensed">
+							<volist name="vo.oversea_product_list" id="oversea_product">
+							<?php if($oversea_product['transfer_plan_unsellable_reserved_quantity'] || $oversea_product['unsellable_available_quantity']){ 
+								$has_unsellable = true;
+								}else{
+								$has_unsellable = false;
+								}
+							?> 
+							<tr>
+								<td style="width:40px;vertical-align:middle;">
+									<a class="thumbnail" href="{$oversea_product.online_product_thumbnail}" style="width:40px;"><img src="{$oversea_product.online_product_thumbnail}" width="40;" /></a>
+								</td>
+								<td style="vertical-align:middle; width:150px;" >
+										{$oversea_product.online_product_sn} 
+										<br>
+										<?php echo formatPrice($oversea_product['oversea_cost'],'CNY'); ?>
+										<br>
+										<a href="{:U('V2SkuProduct/index')}?q={$vo.sku.sku}" target="_blank">{$vo.sku.sku}</a>
+										
+								</td>
+								<td>
+									<table class="table table-bordered table-condensed">
+										<tr>
+											<td>
+												Sellable: <b class="green">{$oversea_product.available_quantity}</b>
+											</td>
+											<td>
+												<gt name="oversea_product.transfer_plan_reserved_quantity" value="0">
+													<a class="btn btn-success btn-xs useOverseaProductQuantity" data-transfer-plan-id="{$vo.id}" data-oversea-product-id="{$oversea_product.id}">使用</a>
+												<else />
+													<a class="btn btn-primary btn-xs useOverseaProductQuantity" data-transfer-plan-id="{$vo.id}" data-oversea-product-id="{$oversea_product.id}">使用</a>
+												</gt>
+												<input type="text" size=4 id="oversea_product_quantity_{$vo.id}_{$oversea_product.id}"   value="{$oversea_product.transfer_plan_sellable_reserved_quantity|default=0}" />												
+												个
+											</td>
+										</tr>
+										<?php if($oversea_product['transfer_plan_unsellable_reserved_quantity'] || $oversea_product['unsellable_available_quantity']){  ?> 
+										<tr>
+											<td>
+												Unsellable: <b class="red">{$oversea_product.unsellable_available_quantity}</b>
+											</td>
+											<td>
+												<gt name="oversea_product.transfer_plan_unsellable_reserved_quantity" value="0">
+													<a class="btn btn-danger btn-xs useOverseaProductUnselleableQuantity" data-transfer-plan-id="{$vo.id}" data-oversea-product-id="{$oversea_product.id}">使用</a>
+												<else />
+													<a class="btn btn-warning btn-xs useOverseaProductUnselleableQuantity" data-transfer-plan-id="{$vo.id}" data-oversea-product-id="{$oversea_product.id}">使用</a>
+												</gt>
+												<input type="text" size=4 id="oversea_product_unsellable_quantity_{$vo.id}_{$oversea_product.id}"   value="{$oversea_product.transfer_plan_unsellable_reserved_quantity|default=0}" />
+												个
+											</td>
+										</tr>
+
+										<?php } ?>
+									</table>
+								</td>
+
+							</tr>
+							</volist>
+						</table>
+						<?php } ?>
+
+					</td>					
+					
+					<td>{$vo.add_empname}<br>{$vo.add_time}</td>					
+					<td>{$vo.status}</td>
+					<td>		
+					<?php if($vo['status'] == 'New' && $shipment['status'] == 'New'){ ?>
+						<a class="btn btn-warning btn-sm" id="btn_cancelPick_{$vo.id}"    onclick="cancelPick({$vo.id})">撤销拣货</a>
+						<?php /*<a class="btn btn-danger btn-sm" id="btn_cancelPick_{$vo.id}"    onclick="del({$vo.id})">删除</a> */ ?>
+					<?php } ?>
+					</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div style="height:300px;"></div>
+</div>
+</form>
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+
+
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<div class="modal fade" id="manualSubmitFBAPlan" role="dialog"  tabindex="-1" aria-labelledby="manualSubmitFBAPlan" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4>手动提交FBA计划</h4>
+			</div>
+			<div class="modal-body">
+				<table class="table">
+					<tr>
+						<td>Shipment ID</td><td><input type="text" class="manual_input" name="manual[online_shipment_id]" value="" /></td>
+					</tr>
+					<tr>
+						<td>Center ID</td><td><input type="text" class="manual_input" name="manual[online_center_id]" value="" /></td>
+					</tr>
+					<tr>
+						<td>Receiver Name</td><td><input type="text" class="manual_input" name="manual[ShipToAddress][Name]" value="" /></td>
+					</tr>
+					<tr>
+						<td>AddressLine1</td><td><input type="text" class="manual_input" name="manual[ShipToAddress][AddressLine1]" value="" /></td>
+					</tr>
+					<tr>
+						<td>AddressLine2</td><td><input type="text" class="manual_input" name="manual[ShipToAddress][AddressLine2]" value="" /></td>
+					</tr>
+					<tr>
+						<td>City</td><td><input type="text" class="manual_input" name="manual[ShipToAddress][City]" value="" /></td>
+					</tr>
+					<tr>
+						<td>StateOrProvinceCode</td><td><input type="text" class="manual_input" name="manual[ShipToAddress][StateOrProvinceCode]" value="" /></td>
+					</tr>
+					<tr>
+						<td>CountryCode</td><td><input type="text" class="manual_input" name="manual[ShipToAddress][CountryCode]" value="" /></td>
+					</tr>
+					<tr>
+						<td>PostalCode</td><td><input type="text" class="manual_input" name="manual[ShipToAddress][PostalCode]" value="" /></td>
+					</tr>
+				</table>
+			</div>
+			 <div class="modal-footer">
+				<a class="btn btn-primary" id="btn_sumbitFBAShipmentPlanManual" onclick="sumbitFBAShipmentPlanManual()" >提交</a>
+			</div>			
+		</div>
+
+	</div>
+</div>
+<style>
+.showBottomBox{cursor: pointer;}
+</style>
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>

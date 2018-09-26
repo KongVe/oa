@@ -1,0 +1,119 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('generatePackage')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix"> 
+		<input type="hidden" name="transfer_shipment_id" id="transfer_shipment_id" value="<?php echo $_REQUEST['transfer_shipment_id']; ?>" />
+		<input type="hidden" id="ajax" value="1">
+		<div class="col-sm-6">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<b>箱子详情</b>
+				</div>
+				<div class="panel-body">
+					<table class="table table-bordered table-hover">
+						<tr>
+							<th>箱子序号</th>
+							<th>类型</th>
+							<th>实重</th>
+							<th>抛重</th>
+							<th>最终重量</th>
+						</tr>
+						<volist name="box_list" id="box">
+							<tr>
+								<td>{$box.box_number}</td>
+								<td>
+									{$box.box_type.volume_html}
+									<gt name="box.real_length" value="0">
+										<br>
+										<br>
+										真实长宽高(CM): {$box.real_length}*{$box.real_width}*{$box.real_height}
+									</gt>
+								</td>
+								<td>{$box.real_weight}</td>
+								<td>{$box.box_type.volume_weight}</td>
+								<td>
+									<eq name="box.weight_type" value="实重">
+										{$box.final_weight}
+										<br>
+										{$box.weight_type}
+									<else />
+										<b class="red">
+											{$box.final_weight}
+											<br>
+											{$box.weight_type}
+										</b>
+									</eq>
+								</td>
+							</tr>
+						</volist>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-6">
+			<div class="panel panel-success">
+				<div class="panel-heading">
+					<b>发货详情</b>
+				</div>
+				<div class="panel-body">
+					<table class="table table-bordered table-hover">
+						<tr>
+							<th>序号</th>
+							<th>箱子序号</th>
+							<th>箱子数量</th>
+							<th>重量</th>
+						</tr>
+						<volist name="package_list" id="package">
+							<tr>
+								<td>{$key+1}</td>
+								<td>
+									第 {$package.box_number} 箱
+								</td>
+								<td>{$package.box_count}</td>
+								<td>{$package.weight}</td>
+							</tr>
+						</volist>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-12">
+			<div class="panel panel-danger">
+				<div class="panel-heading">
+					<b>发货安排</b>
+				</div>
+				<div class="panel-body">
+					<div class="form-group">
+						<label class="control-label">抛重计算公式</label>
+						<select name="volume_divide_weight" id="volume_divide_weight" class="form-control">
+							<option value="5000" <?php if($_REQUEST['volume_divide_weight'] == '5000'){ echo "SELECTED"; } ?> >体积 / 5000</option>
+							<option value="6000" <?php if($_REQUEST['volume_divide_weight'] == '6000'){ echo "SELECTED"; } ?> >体积 / 6000</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label class="control-label">箱子排序</label>
+						<input type="text" name="box_sequence" id="box_sequence" class="form-control" value="{$Think.post.box_sequence}" />
+					</div>	
+					<div class="form-group text-center">
+						<notempty name="package_list">
+							<a id="editFormSubmit" data-close="true" data-reload="true" data-loading-text="正在保存..."  class="btn btn-primary defaultEditFormSubmit"  />保存</a>
+						</notempty>
+						<a class="btn btn-danger close_box_button">取消</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</form>
+<script type="text/javascript">
+
+$(function(){
+	$("#box_sequence").change(function(){
+
+		$("#editForm").attr("action",'boxSequence').submit();
+	})
+	$("#volume_divide_weight").change(function(){
+
+		$("#editForm").attr("action",'boxSequence').submit();
+	})	
+})
+
+</script>

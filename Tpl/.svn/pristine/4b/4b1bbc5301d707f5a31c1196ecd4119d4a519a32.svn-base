@@ -1,0 +1,140 @@
+<layout name='Layout/ace_popup' />
+    {:W('PageHeader',array('name'=>"增加win计划"))}
+
+    <form action="{:U('addWin')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+        <input type="hidden" id="ajax" name="ajax" value="1"/>
+
+        <input type="hidden" id="false_plan_id" name="false_plan_id" value="{$Think.request.false_plan_id}">
+        <input type="hidden" id="opmode" name="opmode" value="edit">
+
+        <div class="panel panel-primary">
+            <div class="panel panel-heading">
+                <span>增加win计划</span>
+            </div>
+            <div class="panel-body">
+                <div class="col-sm-12">
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2"></label>
+                            <div class="col-sm-9">
+								<table class="table">
+									<tr>
+										<th class="text-center" colspan="6">
+											当前该刷单计划已添加的win计划
+										</th>
+									</tr>
+									<tr>
+										<th>日期</th>
+										<th>计划单数</th>
+										<th>已刷数</th>
+										<th>添加用户</th>
+										<th>添加时间</th>
+										<th>操作</th>
+									</tr>
+									<volist name="win_list" id="win">
+										<tr>
+											<td>
+												{$win.submit_date|default=" "|date="Y-m-d",###}
+											</td>
+											<td>
+												<b>{$win.plan_submit_order_count}</b> 单
+											</td>
+											<td>
+												<b>{$win.submit_order_count|default="0"}</b> 单
+											</td>
+											<td>
+												{$win.add_user_name}
+											</td>
+											<td>
+												{$win.add_time|default=""|date="Y-m-d H:i:s",###}<br>
+											</td>
+											<td>
+												<a data-id="{$win.id}" class="delWin btn btn-danger btn-sm">删除计划</a>
+											</td>
+										</tr>
+									</volist>
+								</table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label class="text-right col-sm-6" for="package_code">计划日期: </label>
+                        <div class="col-sm-6">
+                            <div class="input-group">
+					            <input class="form-control input-date-range" type="date" id="submit_date" name="submit_date" value="{$now_date}"  placeholder="计划日期">
+					        </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label class="text-right col-sm-4" for="plan_submit_order_count">刷单数量: </label>
+                        <div class="col-sm-4 input-group">
+				            <input class="form-control" type="number" id="plan_submit_order_count" name="plan_submit_order_count" value="1" placeholder="刷单数量">
+				            <span class="input-group-addon">
+				                个
+				            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-default">
+            <div class="form-group text-center">
+                <input type="button" data-loading-text="正在保存..." data-reload="1" class="defaultEditFormSubmit btn btn-primary" value="保存" />
+                <a class="close_box_button btn btn-danger">取消</a>
+            </div>
+        </div>
+    
+    </form>
+
+
+<script type="text/javascript">
+$(function($){
+
+    // $(".editFormSubmit").click(function(){
+    //     var data = $("#editForm").serialize();
+    //     var url = $("#editForm").attr("action");
+        
+    //     var btn = $(".editFormSubmit").button('loading');
+    //     if (check_form("editForm")) {
+    //         sendForm("editForm", url,false,function(msg){
+    //             btn.button('reset');
+    //             if(msg.status){
+    //                 //下载PDF
+    //                 $.post("{:U('reDownloadPdf')}",data);
+                    
+    //                 closeBox();
+    //             }else{
+    //                 alertWarning(msg.info);
+    //             }
+    //         });
+    //     }else{
+    //         btn.button('reset');
+    //     }
+    // });
+
+	$(".delWin").click(function(){
+		var id = $(this).data("id");
+		if(!confirm("确认删除？")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('delWin')}",{id:id},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+});
+</script>

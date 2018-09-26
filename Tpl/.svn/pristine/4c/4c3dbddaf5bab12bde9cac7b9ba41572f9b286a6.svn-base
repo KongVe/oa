@@ -1,0 +1,218 @@
+<layout name='Layout/m_ace_layout' />
+
+<style>
+.showBottomBox{cursor: pointer;}
+</style>
+
+<!-- <link rel="stylesheet" type="text/css" href="__PUBLIC__/css/boostarap.min.css">
+<link rel="stylesheet" type="text/css" href="__PUBLIC__/boostarap-select"/>
+<script type="text/javascript" src="__PUBLIC__/js/boostarap.min.js"></script>
+<script type="text/javascript" src="__PUBLIC__/boostarap-select/js/boostarap-select.min.js"></script>
+<script type="text/javascript" src="__PUBLIC__/boostarap-select/js/i18n/default-zh_CN.min.js"></script> -->
+
+<div class="page">
+	<div class="list-block" id="card-list">
+
+	</div>
+</div>
+<script type="text/javascript">
+	var filter_list = {$filter_list|default=""|json_encode};
+	function init(index){
+		$.ajax({
+			url:'{:U('V2TransferShipment/getTransferShipmentList')}',
+			type:'GET',
+			dataType:'json',
+			success:function(msg){
+				debugger
+				$.each(msg.data.results,function(i,v){
+					var lists = document.createElement('div');
+					lists.className = 'card';
+					var card_head = document.createElement('div');
+					card_head.className = 'card-header';
+					card_head.textContent = v.id;
+					var card_contnet = document.createElement('div');
+					card_contnet.className = "card-content";
+					var list_block = document.createElement('div');
+					list_block.className = 'list-block media-list';
+					var list_ul = document.createElement('ul');
+					var ltem_content = document.createElement('li');
+					ltem_content.className="item-content";
+					var item_media = document.createElement('div');
+					item_media.className = 'item-media';
+					var img_item_media = document.createElement('img');
+					img_item_media.width = '100';
+					img_item_media.src = 'http://gqianniu.alicdn.com/bao/uploaded/i4//tfscom/i3/TB10LfcHFXXXXXKXpXXXXXXXXXX_!!0-item_pic.jpg_250x250q60.jpg';
+					item_media.appendChild(img_item_media)
+					var item_inner = document.createElement('div');
+					item_inner.className = 'item-inner';
+					var item_title_row = document.createElement('div');
+					item_title_row.className = 'item-title-row';
+					var item_title = document.createElement('div')
+					item_title.className='item-title';
+					item_title.textContent = v.online_shipment_name
+					item_title_row.appendChild(item_title)
+					var item_subtitle = document.createElement('div')
+					item_subtitle.className='item-subtitle';
+					var address_sub = v.ship_to_address?JSON.parse(v.ship_to_address):''
+					item_subtitle.textContent = address_sub?('接收人信息:'+address_sub.Name+' '+address_sub.AddressLine1+' '+address_sub.City+' '+address_sub.StateOrProvinceCode+' '+address_sub.CountryCode+' '+address_sub.PostalCode):'';
+					item_inner.appendChild(item_title_row);
+					item_inner.appendChild(item_subtitle);
+					ltem_content.appendChild(item_media)
+					ltem_content.appendChild(item_inner);
+					list_ul.appendChild(ltem_content);
+					list_block.appendChild(list_ul);
+					card_contnet.appendChild(list_block)
+					lists.appendChild(card_head)
+					lists.appendChild(card_contnet);
+					var card_footer = document.createElement('div');
+					card_footer.className='card-footer';
+					var span_1 = document.createElement('span');
+					var span_2 = document.createElement('span');
+					span_1.textContent='仓库:'+v.target_warehouse_id
+					span_2.textContent=v.create_time
+					card_footer.appendChild(span_1);
+					card_footer.appendChild(span_2);
+					lists.appendChild(card_footer);
+					$('#card-list').append(lists)
+// 				
+})
+
+			},error:function(){
+
+			},beforeSend:function(){
+				$.showIndicator() 
+			},complete:function(){
+				$.hideIndicator()
+			}
+		})
+	}
+	function serch_list(){
+		$.each(filter_list,function(i,data){
+			switch (data.filter_type) {
+				case 'str_in_array':
+					// 英文逗号分隔，如 33,533,64,text文本
+					'<li>'
+					'<div class="item-content">'
+					'<div class="item-inner">'
+					'<div class="item-title label">'+data.title+'</div>'
+					' <div class="item-input">'
+					'   <input type="text" placeholder="'+data.title+'" name="'+data.name+'">'
+					'</div>'
+					'</div>'
+					'</div>'
+					'</li>'
+					break;
+					case 'time_between':
+					//1个或者2个input type=text,时间用" - "分隔，如 2018-04-01 - 2018-04-18
+					$('.panel-left .list-block ul').append('<li>'+
+						'<div class="item-content">'+
+						'<div class="item-inner">'+
+						'<div class="item-title label">'+data.title+'</div>'+
+						' <div class="item-input">'+
+						'   <input type="text" placeholder="'+data.title+'" name="'+data.name+'start" />-<input type="text" placeholder="'+data.title+'" name="'+data.name+'end"  />'+
+						'</div>'+
+						'</div>'+
+						'</div>'+
+						'</li>');
+					$('.panel-left .list-block ul li:last').find('[name="'+data.name+'start"]').calendar({
+						dateFormat:'yyyy-mm-dd'
+					})
+					$('.panel-left .list-block ul li:last').find('[name="'+data.name+'end]').calendar({
+						dateFormat:'yyyy-mm-dd'
+					})
+					break;
+					case 'multi_select':
+					$('.panel-left .list-block ul').append('<li>'+
+						'<div class="item-content">'+
+						'<div class="item-inner">'+
+						'<div class="item-title label">'+data.title+'</div>'+
+						' <div class="item-input">'+
+						'   <input type="text" id="picker+'+data.name+'" placeholder="'+data.title+'" name="'+data.name+'">'+
+						'</div>'+
+						'</div>'+
+						'</div>'+
+						'</li>')
+					break;
+					case 'like_left':
+					$('.panel-left .list-block ul').append('<li>'+
+						'<div class="item-content">'+
+						'<div class="item-inner">'+
+						'<div class="item-title label">'+data.title+'</div>'+
+						' <div class="item-input">'+
+						'   <input type="text"  placeholder="'+data.title+'" name="'+data.name+'">'+
+						'</div>'+
+						'</div>'+
+						'</div>'+
+						'</li>')
+					break;
+					case 'like_right':
+					$('.panel-left .list-block ul').append('<li>'+
+						'<div class="item-content">'+
+						'<div class="item-inner">'+
+						'<div class="item-title label">'+data.title+'</div>'+
+						' <div class="item-input">'+
+						'   <input type="text"  placeholder="'+data.title+'" name="'+data.name+'">'+
+						'</div>'+
+						'</div>'+
+						'</div>'+
+						'</li>')
+					break;
+					case 'like_between':
+					$('.panel-left .list-block ul').append('<li>'+
+						'<div class="item-content">'+
+						'<div class="item-inner">'+
+						'<div class="item-title label">'+data.title+'</div>'+
+						' <div class="item-input">'+
+						'   <input type="text"  placeholder="'+data.title+'" name="'+data.name+'start">-<input type="text"  placeholder="'+data.title+'" name="'+data.name+'end">'+
+						'</div>'+
+						'</div>'+
+						'</div>'+
+						'</li>')
+					break;
+					case 'eq':
+					$('.panel-left .list-block ul').append('<li>'+
+						'<div class="item-content">'+
+						'<div class="item-inner">'+
+						'<div class="item-title label">'+data.title+'</div>'+
+						' <div class="item-input">'+
+						'   <input type="text"  placeholder="'+data.title+'" name="'+data.name+'">'+
+						'</div>'+
+						'</div>'+
+						'</div>'+
+						'</li>')
+					break;
+					case 'number_between'://最小值和最大值
+					$('.panel-left .list-block ul').append('<li>'+
+						'<div class="item-content">'+
+						'<div class="item-inner">'+
+						'<div class="item-title label">'+data.title+'</div>'+
+						' <div class="item-input">'+
+						'   <input type="number"  placeholder="'+data.title+'" name="'+data.name+'start">-<input type="text"  placeholder="'+data.title+'" name="'+data.name+'end">'+
+						'</div>'+
+						'</div>'+
+						'</div>'+
+						'</li>')
+					break;
+					default:
+					// 默认为文本输出
+
+					$('.panel-left .list-block ul').append('<li>'+
+						'<div class="item-content">'+
+						'<div class="item-inner">'+
+						'<div class="item-title label">'+data.title+'</div>'+
+						' <div class="item-input">'+
+						'   <input type="text"  placeholder="'+data.title+'" name="'+data.name+'">'+
+						'</div>'+
+						'</div>'+
+						'</div>'+
+						'</li>')
+					break;
+				}
+			})
+}
+$(function(){
+	serch_list();
+	init();
+
+})
+</script>

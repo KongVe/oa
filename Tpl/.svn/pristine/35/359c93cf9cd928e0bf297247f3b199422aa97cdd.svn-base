@@ -1,0 +1,66 @@
+<layout name='Layout/ace_popup' />
+<form action="{:U('Returned')}" method="POST" name="productForm" id="productForm" class="well form-horizontal clearfix">
+	<input type="hidden" name="id" value="{$data.id}">
+	<input type="hidden" name="opmode" value="{$data.opmode}" >
+	<input type="hidden" name="memo" value="{$data.memo}">
+	<input type="hidden" name="product_quantity" value="{$data.quantity}">
+
+	<div class="form-group">
+		<label class="control-label" for="productForm_sku">SKU:</label>
+		<div>{$data.sku}</div>
+	</div>
+	<div class="form-group">
+		<label class="control-label" for="productForm_variation">规格:</label>
+		<div>{$data.variation}</div>
+	</div>
+	<div class="form-group">
+		<label class="control-label" for="returned_quantity">退货数量</label>
+		<input class="form-control" type="text" id="returned_quantity" name="returned_quantity" value="{$data.quantity}">
+	</div>
+	<div class="form-group">
+		<label class="control-label" for="returned_flag">标记
+			<select onchange="$('#returned_flag').val($(this).val());">
+				<option value="">请选择退货原因</option>
+				<option value="客户退回">客户退回</option>
+				<option value="未妥投">未妥投</option>
+				<option value="地址错误">地址错误</option>
+				<option value="无人签收">无人签收</option>
+				<option value="拒签">拒签</option>
+			</select>
+		</label>
+		<textarea class="form-control" placeholder="填写退货原因 " name="returned_flag" id="returned_flag">{$data.returned_flag}</textarea>
+	</div>
+	<div class="form-group">
+		暂时不支持自动入库存，请在库存管理<b>报溢</b>,原因填写本<b>订单号</b>
+	</div>
+	<div class="form-group text-center">
+		<a id="productFormSubmit" data-loading-text="正在保存..."  class="btn btn-primary">登记</a>
+		<a class="btn btn-danger" onClick='parent.$("#editProduct").modal("hide");'>关闭</a>
+	</div>
+</form>
+
+<script type="text/javascript">
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#editProductIframe").css("height",height);
+
+	$("#productFormSubmit").click(function(){
+		var data = $("#productForm").serialize();
+		var url = $("#productForm").attr("action");
+		$.post(url,data,function(r){
+			if(r.status){
+				alert(r.info);
+				parent.frames['order-detail-iframe'].location.reload(true);
+				parent.$("#editProduct").modal("hide");
+			}else{
+				alertWarning(r.info);
+			}
+		})
+		return false;
+	})
+})
+</script>

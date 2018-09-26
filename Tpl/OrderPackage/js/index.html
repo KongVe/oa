@@ -1,0 +1,390 @@
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	// ace.settings.sidebar_collapsed(true);
+
+
+	$("tbody.tbody tr").click(function(){
+		$("tbody.tbody tr").removeClass("success");
+		$(this).addClass("success");
+		var order_detail_box = $("div.order-detail-box");
+		var id = $(this).find("input[name='id[]']").val();
+		if($("#order-detail-iframe").attr("src").indexOf(id) > 0 ){
+			order_detail_box.show();
+			return true;
+		}
+			
+		
+		var box_top = document.documentElement.clientHeight - order_detail_box.height();
+		var box_width = window.screen.availWidth;
+		order_detail_box.css({display:"block",top:box_top + "px",width:box_width + "px"});
+		$("#order-detail-iframe").attr("src","{:U('OrderPackage/packageDetail')}?id=" + id + "&_"+  Math.round(new Date().getTime()/1000));
+	});
+
+
+	//如果只有一条记录，默认打开详细框
+	if($("tbody.tbody tr").length == 1){
+		$("tbody.tbody tr").click();
+	}
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}
+	if($("#oaid").val() != ''){
+		$("#oaid").focus().select();
+	}
+	$("#oaid").click(function(){
+		$(this).select();
+	})
+})
+
+//根据选择的包裹获取包裹跟踪信息
+var iframe=window.frames['package_iframe'];
+
+var diyIframe = document.getElementById("package_iframe"); 
+var bold_tmp=1;  //是否可以执行点击事件
+var chk_value =[]; 
+var progress=0; 
+var chk_value_total=0; 
+
+function getTrackingInfo(){
+	$(".tbody input[name='id[]']").attr("name","package_id[]"); //转换一下ID名称
+
+	if($("#purchase").val() == "page"){
+		$(".tbody input[name='package_id[]']").prop("checked",true);
+	}
+
+	
+	chk_value =[];
+	$('input[name="package_id[]"]:checked').each(function(){  
+		chk_value.push($(this).val());  
+	});
+
+	if(chk_value.length==0){
+		alert('你还没有选择任何内容！');  
+	}else{
+		//进入17track的网站
+		$('#package_iframe_div').show();
+		$('#package_iframe').attr('src',"http://www.17track.net/cn/result/post.shtml");
+		chk_value_total=chk_value.length;
+		progress=0;
+		bold_tmp=1;
+		$('#progress').html( "正在获取包裹数据.." );
+
+		if (diyIframe.attachEvent){ 
+			diyIframe.attachEvent("onload", function(){ 
+				goOn();
+			}); 
+		}else{ 
+			diyIframe.onload = function(){ 
+				goOn();
+			}; 	
+		} 
+	}
+}
+
+function goOn(){
+	
+	var tracking_num_list="";
+	if(chk_value.length>=39){
+		var length=39;
+	}else if(chk_value.length<=0){
+		//结束任务
+		alert('包裹跟踪信息获取完毕');
+		return false;
+	}else{
+		var length=chk_value.length;
+	}
+	
+	for (var i = 0; i < length; i++) {
+		var tracking_num = $('#tracking_num_'+chk_value.pop()).val();
+		var num=(tracking_num_list==null)?"":"\n"+tracking_num;
+
+		tracking_num_list+=num;
+	};
+
+	iframe.$("#frmPost textarea").val(tracking_num_list);
+
+	if(bold_tmp==1){
+		iframe.$('.bold').click();
+		bold_tmp=0;
+	}
+
+	if (diyIframe.attachEvent){ 
+		diyIframe.attachEvent("onload", function(){ 
+			getTrackingResults(0);
+		}); 
+	}else{ 
+		diyIframe.onload = function(){ 
+			getTrackingResults(0);
+		}; 	
+	} 
+
+}
+function getTrackingResults(i){
+	var length=iframe.$('#tbResult tbody').length;
+	if(i>=length){
+		bold_tmp=1;
+		goOn();
+	}
+	var data={};
+	data['tracking_num']=iframe.$('#tbResult tbody').eq(i).find('p b').html();
+	data['packState']=iframe.$('#tbResult tbody').eq(i).find('.s-packState div').html();
+
+	if(data['packState']!="查询不到"){
+		data['lastEvent']=iframe.$('#tbResult tbody').eq(i).find('.s-lastEvent span').html()
+	}
+
+	//最后更新时间
+	//目的国
+	var val1=iframe.$('#tbResult tbody').eq(i).find('dl').eq(0).find('dd span').html();
+	//发货国
+	var val2=iframe.$('#tbResult tbody').eq(i).find('dl').eq(1).find('dd span').html();
+	var time_rs=/^(\w{4}-\w{2}-\w{2}\s*\w{2}:\w{2})/;
+	var tmp1=time_rs.exec(val1);
+	var tmp2=time_rs.exec(val2);
+	if(tmp1!=null){
+		data['time1']=tmp1[1];
+	}
+	if(tmp2!=null){
+		data['time2']=tmp2[1];
+	}
+
+	$.post("saveTrackingInfo",data,function(msg){
+		progress++;
+		i++;
+		$('#progress').html( parseInt(parseFloat(progress/chk_value_total)*100)+'%' );
+		if(i>=length){
+			bold_tmp=1;
+			goOn();
+		}else{
+			getTrackingResults(i);
+		}
+	});
+}
+
+//导出包裹信息
+function outputData(choose){
+	switch(choose){
+	case 'all':
+	  	
+	  break;
+	default:
+	  alert('参数错误');
+	}
+	$('#form_search').attr("action","{:U('OrderPackage/outputData')}"+'?choose='+choose);
+	$('#form_search').submit();
+}
+
+//获取出口易跟踪号
+function getCk1TrackingNumber(choose){
+	if(choose){
+		//所选项
+		$("#getCk1TrackingNumber").val(choose);
+	}else{
+		//操作结果
+		$("#getCk1TrackingNumber").val('');
+	}
+	$("#syncCK1").html("正在准备获取列表信息...");
+	$.post("{:U('getCk1TrackingNumber')}",$('#form_search').serialize(),function(data){
+		if(data.status==0){
+			alert(data.info);
+			$("#syncCK1").html("获取列表信息失败.请重试");
+		}else{
+			$("#syncCK1").html("准备开始获取跟踪号");
+			ajaxSyncCK1(data,0,0);//递归	
+		}	
+	});
+
+}
+
+//递归 ajax异步提交
+function ajaxSyncCK1(data,ii,success_count){
+	var dataArr=new Array();
+	var j=0;
+
+	for(i=ii;i<data.data.length;i++){
+
+		dataArr[j]=data.data[i];
+			j++;
+		if( (i>0 && i%10==0) ||( ( i==(data.data.length-1) ) && ((i%10!=0)||i==0) )){
+			console.log(dataArr);
+			
+			$.ajax({
+				type: 'POST',
+				//async:false,
+				url: '{:U("OrderSyn/SyncCK1")}',
+				data: {PackageCodeArr:[dataArr]},
+			    success:function (data2){
+
+			    	$("#syncCK1").html(parseInt(((i+1)/data.data.length)*100)+"%");				    	
+			    	
+			    	if(data2.status==1){
+			    		success_count+=dataArr.length;
+			    	}	
+
+					if(data2.status=="error"){
+					//报error时停止执行
+
+						alert(data2.info);
+						return false;
+					}
+
+					if(data2.status==0){
+						success_count=success_count+dataArr.length-data2.data;
+					}
+
+					if(i>=data.data.length-1){
+
+						$("#syncCK1").html('获取出口易跟踪号进度：'+parseInt(((i+1)/data.data.length)*100)+"%");	
+
+						
+
+						if(data.data!=0){
+							alert("操作完毕。 总共处理条数:"+data.data.length+" 条,成功："+success_count+" 条"); //"错误："+error_count+" 条");
+			 			}else{
+			 				alert("操作完毕");
+			 				$("#syncCK1").html("");
+			 			}
+						return;
+					}
+					ajaxSyncCK1(data,i+1,success_count);
+
+				}
+			});
+
+			break;//跳出循环
+		}	
+	}	
+}
+
+
+//查看未到仓包裹
+function checkPackageArrival(){
+
+}
+//根据选项下载PDF
+function downloadPDF(){
+	$(".tbody input[name='id[]']").attr("name","package_id[]"); //转换一下ID名称
+
+	if($("#purchase").val() == "page"){
+		$(".tbody input[name='package_id[]']").prop("checked",true);
+	}
+	
+	chk_value =[];
+	$('input[name="package_id[]"]:checked').each(function(){  
+		chk_value.push($(this).val());  
+	});
+	console.log(chk_value);
+	$('#syncCK1').html('开始下载PDF' );
+	downloadPackagePDF(chk_value,0,0);
+}
+
+//提交下载PDF到服务器 //最多重试3次
+function downloadPackagePDF(package_id_list,i,attempt){
+	
+	if(package_id_list.length<=i){
+		$('#syncCK1').html( 'PDF下载完成。' );
+		alert("pdf下载操作完成");
+		return;
+	}else{
+		$.ajax({
+			url:"{:U(printLabel)}",
+			data:{isSubmmitPackage:1,package_id:package_id_list[i],re_download:1},
+			type:'POST',		
+			success:function(msg){
+				if(msg.status==1){
+					$('#syncCK1').html('正在下载PDF。'+parseInt( parseFloat(i/package_id_list.length)*100)+"%" );
+					i++;
+					downloadPackagePDF(package_id_list,i,0);
+				}else{
+					attempt++;
+					if(attempt>3){
+						i++;
+						downloadPackagePDF(package_id_list,i,0);
+						return;
+					}else{
+						$('#syncCK1').html('正在下载PDF。'+parseInt( parseFloat(i/package_id_list.length)*100)+"% 重试 "+attempt+' 次' );
+
+						if(msg.info!=undefined){
+							alertWarning(msg.info); 
+
+							if(msg.info.indexOf("尚未提审")!='-1'){
+								attempt=4;
+								
+							}
+
+						}
+						
+						console.log(msg.info); 
+
+						downloadPackagePDF(package_id_list,i,attempt);
+					}
+				}
+			},
+			error:function(){
+				attempt++;
+				if(attempt>3){
+					i++;
+					downloadPackagePDF(package_id_list,i,0);
+					return;
+				}else{
+					$('#syncCK1').html('正在下载PDF。'+parseInt( parseFloat(i/package_id_list.length)*100)+"% 重试 "+attempt+' 次' );
+					
+					downloadPackagePDF(package_id_list,i,attempt);
+				}
+			}
+		})
+	}
+}
+
+//获取运费
+function getPricingForPackage(){
+	$("#syncCK1").html("正在准备获取...");
+	$.post("{:U('getPricingForPackageList')}",$('#form_search').serialize(),function(data){
+		if(data.status==0){
+			alert(data.info);
+			$("#syncCK1").html("获取失败.请重试");
+		}else{
+			ajaxPricingForPackage(data.data,0,0);
+			$("#syncCK1").html("处理数据 条，获取成功 条，失败 条");
+		}	
+	});
+}
+
+function ajaxPricingForPackage(package_code_list,ii,success_count){
+	if(package_code_list.length<i){
+		return;
+	}
+	var post_data={package_code_list:[]};
+
+	for (var i = ii; i < (ii+100); i++) {
+		console.log(package_code_list[i]);
+		if(typeof(package_code_list[i])!="undefined"){
+			post_data.package_code_list.push(package_code_list[i].package_code);	
+		}
+	};
+
+	$.post("{:U('getPricingForPackage')}",post_data,function(msg){
+		if(msg.status){
+			success_count+=msg.data.length;
+			ajaxPricingForPackage(package_code_list,i,success_count);
+		}else{
+			//return;
+		}
+	}).error(function(){
+		alertWarning('网络错误正在重试..');
+		ajaxPricingForPackage(package_code_list,i,success_count);
+	})
+}
+
+//导入运费报表
+function importShippingReport(){
+	$("#bottomBoxIframe").css({height:'500px'});
+	$("#bottomBoxIframe").attr("src","<?php echo U("OrderPackage/importShipping"); ?>?_" + Math.round(new Date().getTime()/1000));
+	$("#bottomBox").modal({backdrop:'static'}).modal("show");	
+}
+
+// --></mce:script>
+</script>

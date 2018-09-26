@@ -1,0 +1,42 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('doRollback')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" id="ajax" value="1">
+		<input type="hidden" name="transfer_shipment_id" value="{$Think.request.transfer_shipment_id}">	
+		<div class="form-group">
+			<label class="control-label" for="rollback_status">撤销至状态</label>
+			<select class="form-control" id="rollback_status" name="rollback_status">
+				<option value="">请选择</option>
+				<option value="New">New</option>
+				<option value="Waiting confirm">Waiting confirm</option>
+				<option value="Waiting sequence">Waiting sequence</option>
+				<option value="Waiting declare">Waiting declare</option>
+				<option value="Waiting verify">Waiting verify</option>
+			</select>
+			<p class="help-block">撤销至某个状态时，对应这个状态以后的数据将会消失，就能进行状态相关的操作了</p>
+		</div>	
+		<div class="form-group text-center">
+			<a id="editFormSubmit" data-close="true" data-reload="true" data-loading-text="正在保存..."  class="btn btn-danger"  />撤销</a>
+			<a class="btn btn-warning close_box_button" id="cancel">取消</a>
+		</div>
+	</form>
+<script type="text/javascript">
+$(function(){
+	$("#editFormSubmit").click(function(){
+		confirm = prompt("请输入cancel, 确认需要撤销");
+		if(confirm == 'cancel'){
+			$("#editFormSubmit").attr("disabled","disabled");
+			data = $("#editForm").serialize();
+			url = $("#editForm").attr("action");
+			$.post(url,data,function(r){
+				$("#editFormSubmit").attr("disabled",null);
+				if(r.status){
+					alert("撤销成功");
+					parent.window.location.reload();
+				}else{
+					alertWarning(r.info);
+				}
+			})
+		}
+	})
+})
+</script>

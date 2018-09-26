@@ -1,0 +1,109 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('supplierSave')}" method="POST" name="sourceForm" id="sourceForm" class="well form-horizontal clearfix">
+
+		<div class="form-group">
+			<div class="col-sm-12">
+				<label class="text-right col-sm-2">货源平台:</label>
+				<div class="col-sm-8">
+					<volist name="platform_list" id="platform">
+						<eq name="vo.platform_id" value="$platform.id">{$platform.platform_name}</eq>
+					</volist>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-sm-12">
+				<label class="text-right col-sm-2">供应商名称:</label>
+				<div class="col-sm-8">
+					{$vo.supplier_name}
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-sm-12">
+				<label class="text-right col-sm-2">网址:</label>
+				<div class="col-sm-8">
+					<a href="{$vo.website_link}" target="_blank" >{$vo.website_link}</a>
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-sm-12">
+				<label class="text-right col-sm-2">联系人:</label>
+				<div class="col-sm-8">
+					{$vo.contacts}
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-sm-12">
+				<label class="text-right col-sm-2">支付信息:</label>
+				<div class="col-sm-8">
+					{$vo.payment_info}
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-sm-12">
+				<label class="text-right col-sm-2">电话号码:</label>
+				<div class="col-sm-8">
+					{$vo.phone_number}
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-sm-12">
+				<label class="text-right col-sm-2">E-Mail:</label>
+				<div class="col-sm-8">
+					{$vo.email}
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-sm-12">
+				<label class="text-right col-sm-2">联系地址:</label>
+				<div class="col-sm-8">
+					{$vo.address}
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-sm-12">
+				<label class="text-right col-sm-2">状态:</label>
+				<div class="col-sm-8">
+					{$vo.status|L}
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-sm-12">
+				<label class="text-right col-sm-2">备注:</label>
+				<div class="col-sm-8">
+					{$vo.memo}
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group">
+			<div class="col-sm-12">
+				<label class="text-right col-sm-2">备注:</label>
+				<div class="col-sm-8">
+					{$vo.memo}
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group text-center">
+			<a href="{:U('supplierIndex')}?ids={$vo.id}" class="btn btn-primary" target="_blank" title="{$vo.supplier_name}">查看修改</a>
+			<a class="close_box_button btn btn-danger">关闭</a>
+		</div>
+	</form>

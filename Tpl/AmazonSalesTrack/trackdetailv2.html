@@ -1,0 +1,60 @@
+<layout name='Layout/ace_popup_v2' />
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			<b>Sales Tracking</b>
+		</div>
+		<div class="panel-body">
+			<table class="table table-striped table-hover">
+				<tr>
+					<td>Date</td>
+					<td>Fulfill By / Inventory / Sold / Rank</td>
+				</tr>
+				<foreach name="log_list" item="seller_list" key="log_date">
+					<tr>
+						<td>{$log_date}</td>
+						<foreach name="seller_list" item="fulfill_by_list" key="seller_id">
+							<td>
+								<table>
+									<tr><td>
+										<?php echo $seller_name_list[$seller_id] ? $seller_name_list[$seller_id] : $seller_id; ?>
+									</td></tr>
+									<tr>
+										<td>
+											<foreach name="fulfill_by_list" item="log" key="fulfill_by">
+
+												{$fulfill_by} : 
+											</foreach>
+										</td>
+										<td width=60 title="Inventory">
+										<foreach name="fulfill_by_list" item="log" key="fulfill_by">
+											{$log.quantity} 
+										</foreach>
+										</td>
+										<td width=60 title="Quantity Sold">
+										<foreach name="fulfill_by_list" item="log" key="fulfill_by">
+											{$log.qty_sold}
+										</foreach>
+										</td>
+										<td title="rank">
+											<foreach name="fulfill_by_list" item="log" key="fulfill_by">
+												<volist name="log.rank_data" id="rank" key="cate">
+													&nbsp;分类{$cate}: <b>{$rank.Rank}</b> | 
+												</volist>
+												<br>
+											</foreach>
+
+										</td>
+									</tr>
+								</table>
+							
+
+							</td>
+						</foreach>
+					</tr>
+				</foreach>
+			</table>
+		</div>
+	</div>
+<script type="text/javascript">
+
+</script>

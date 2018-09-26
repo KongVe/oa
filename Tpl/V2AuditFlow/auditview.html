@@ -1,0 +1,142 @@
+<layout name='Layout/ace_popup' />
+	{:W('PageHeader',array('name'=>"审核操作"))}
+
+	<form action="{:U('doAudit')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" id="ajax" name="ajax" value="1"/>
+
+		<input type="hidden" id="id" name="id" value="{$vo.id}">
+
+		<input type="hidden" id="audit_type" name="audit_type" value="0">
+
+		<div class="panel-default">
+			<div class="form-group text-center">
+				<div class="col-sm-4">
+					<a data-loading-text="正在处理中..." data-type="1" class="do_audit btn btn-primary">同意</a>
+				</div>
+				<div class="col-sm-4">
+					<a data-loading-text="正在处理中..." data-type="0" class="do_audit btn btn-danger">拒绝</a>
+				</div>
+				<div class="col-sm-4">
+					<a class="close_box_button btn btn-warning">取消</a>
+				</div>
+			</div>
+		</div>
+
+		<include file="V2AuditFlow:baseinfo" />
+
+		<div class="panel panel-primary">
+			<div class="panel panel-heading">
+				<span>提审原因</span>
+			</div>
+			<div class="panel-body">
+				<div class="form-group">
+					<div class="col-sm-12 info" style="overflow-x:scroll;">
+						{$vo.submit_reason}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="panel panel-info ">
+			<div class="panel panel-heading">
+				<span>提交复审</span>
+			</div>
+			<div class="panel-body">
+			  	<div class="form-group">
+					<div class="col-sm-12">
+						<label class="text-right col-sm-2">提交复审</label>
+						<div class="col-sm-8">
+							
+							<a href="{:U('reviewView')}?id={$vo.id}" target="_self" class="btn btn-inverse btn-sm">提交复审</a>
+							<span class="help-block red">
+								注：提交复审，表示审核人不审核，交由复审人直接审核。不用填写 审核反馈
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="panel panel-info ">
+			<div class="panel panel-heading">
+				<span>审核反馈</span>
+			</div>
+			<div class="panel-body">
+
+				<div class="form-group">
+					<label class="text-right col-sm-2"></label>
+					<div class="col-sm-8">
+						<textarea class="show_editor col-sm-12" placeholder="点击添加审核反馈">{$vo.audit_content}</textarea>
+					</div>
+					<div class="col-sm-12">
+						<script id="editor" type="text/plain" style="width:1024px;height:500px;">{$vo.audit_content}</script>
+					</div>
+				</div>
+			</div>
+		</div>
+	  	
+
+		<div class="panel-default">
+			<div class="form-group text-center">
+				<div class="col-sm-4">
+					<a data-loading-text="正在处理中..." data-type="1" class="do_audit btn btn-primary">同意</a>
+				</div>
+				<div class="col-sm-4">
+					<a data-loading-text="正在处理中..." data-type="0" class="do_audit btn btn-danger">拒绝</a>
+				</div>
+				<div class="col-sm-4">
+					<a class="close_box_button btn btn-warning">取消</a>
+				</div>
+			</div>
+		</div>
+	
+	</form>
+
+
+<script type="text/javascript">
+$(function(){
+	//UE编辑器
+	var ue;
+	$(".show_editor").click(function(){
+		$(this).remove();
+   		ue = UE.getEditor('editor', {
+		    initialFrameWidth:"80%",
+		    initialFrameHeight:350,
+		    autoHeightEnabled: true,
+		    textarea:"audit_content",
+			focus:true,
+		});
+	});
+
+	
+
+   	$(".do_audit").click(function(r){
+		if(!confirm("确认操作？将不可撤销")){
+			return false;
+		}
+		
+		var id = $("#id").val();
+		var type = $(this).attr("data-type");
+
+		$("#audit_type").val(type);
+
+		var url = $("#editForm").attr("action");
+		var data = $("#editForm").serialize();
+		
+		var btn = $(this).button('loading');
+		
+		$.post(url,data,function(r){
+			if(r.status){
+				closeBox();
+				parent.window.location.reload();
+			}else{
+				alertWarning(r.info);
+			}
+			btn.button('reset');
+		}).error(function(r){
+			alertWarning("网络错误，请刷新后重试");
+			btn.button('reset');
+		});
+	});
+});
+</script>

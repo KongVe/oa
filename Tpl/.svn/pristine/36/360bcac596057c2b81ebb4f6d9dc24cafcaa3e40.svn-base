@@ -1,0 +1,152 @@
+<layout name='Layout/ace_layout' />
+
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="pull-right">
+			<a onclick="window.close();" class="btn btn-sm btn-danger">关闭</a>
+		</div>
+		
+	</div>
+</div>
+<div class="col-sm-12">
+	<form method='post' id="form_data" action="" class="well form-horizontal" enctype="multipart/form-data" >
+		<input type="hidden" id="ajax" name="ajax" value="1"/>
+		<input type="hidden" id="add_file" name="add_file" value="{$vo.add_file}"/>
+		<input type="hidden" id="add_gallery" name="add_gallery" value="{$vo.add_gallery_file}"/>
+
+		<input type="hidden" id="develop_file" name="develop_file" value="{$vo.develop_file}"/>
+		<input type="hidden" id="photo_file" name="photo_file" value="{$vo.photo_file}"/>
+
+		<if condition="$vo['id'] neq ''">
+			<input type="hidden" id="id" name="id" value="{$vo.id}">
+			<input type="hidden" id="opmode" name="opmode" value="edit">
+		<else/>
+			<input type="hidden" id="opmode" name="opmode" value="add">
+		</if>
+
+		<table class="table table-bordered">
+		
+			<div class="form-group col-xs-12">
+				<label class="col-sm-2 control-label">提醒信息：</label>
+				<div class="col-sm-10" >
+					<div class="col-sm-12" id="alert_info" style="font-size:15px;">
+						请输入跟踪号，多条记录请换行
+					</div>
+					<div class="col-sm-12 alert" id="alert_check_info" style="font-size:15px; display:none;">
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group col-xs-12">
+				<label class="col-sm-2 control-label" for="number_list">跟踪号：</label>
+				<div class="col-sm-10">
+					<textarea name="number_list" id="number_list" class="form-control" oninput="this.style.height='0px';this.style.height=((this.scrollHeight+10)+'px'); checkData(this); checkTextDataInput();" onpropertychange="this.style.height=(this.scrollHeight+'px')"/></textarea> 
+					<span class="help-block">请输入包裹号或跟踪号，多条记录请换行</span>
+				</div>
+			</div>
+
+			<div class="form-group col-xs-12">
+				<label class="col-sm-2 control-label" for="memo">备注：</label>
+				<div class="col-sm-10">
+					<textarea name="memo" id="memo" class="form-control" placeholder="选填，有异常请输入备注"/></textarea> 
+				</div>
+			</div>
+
+			<div class="action">
+				<label class="col-sm-2 control-label"></label>
+				<div class="col-sm-10">
+					<div class="col-sm-2">
+						<a onclick="save(this);"  class="btn btn-sm btn-primary">提交</a>
+					</div>
+				</div>
+			</div>
+
+			
+		</table>
+	</form>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<iframe src="" id="baidu_voice_iframe" style="display:none"></iframe>
+
+<script type="text/javascript">
+
+var input_time_out=0;
+
+function save() {
+	if(!confirm("确认数据无误 并且 提交出仓？")){
+		return false;
+	}
+	if (check_form("form_data")) {
+		sendForm("form_data", "{:U('OrderPackage/checkShippedSave')}",false,function(msg){
+			if(msg.status){
+				if(parent.$("#middleBox").length>0){
+					parent.window.location.reload();
+					parent.$("#middleBox").modal('hide');
+				}else{
+					alertWarning(msg.info,1);
+				}
+
+				$("#alert_check_info").removeClass("alert-danger");
+				$("#alert_check_info").addClass("alert-success");
+				$("#alert_check_info").html(msg.info);
+			}else{
+				alertWarning(msg.info);
+				$("#alert_check_info").removeClass("alert-success");
+				$("#alert_check_info").addClass("alert-danger");
+				$("#alert_check_info").html(msg.info);
+			}
+		});
+	}
+}
+
+function checkData(obj){
+	var val1 = $(obj).val(); 
+	var val_list = val1.split("\n");
+	var data_list = [];
+	for (var i = 0; i < val_list.length; i++) {
+		var tmp = val_list[i];
+		if(tmp != undefined && tmp != '' && tmp != null){
+			data_list.push(tmp);
+		}else{
+			continue;
+		}
+	};
+
+	$("#alert_info").html("有效记录 "+data_list.length+" 条");
+}
+
+function checkTextDataInput(){
+	console.log(input_time_out);
+	$("#alert_check_info").html("自动检查中...");
+	if(input_time_out>0){
+		clearTimeout(input_time_out);
+	}
+	input_time_out = setTimeout(checkTextData,1200);
+}
+
+function checkTextData() {
+
+	if (check_form("form_data")) {
+		sendForm("form_data", "{:U('OrderPackage/checkShipped')}",false,function(msg){
+			if(msg.status){
+				$("#alert_check_info").removeClass("alert-danger");
+				$("#alert_check_info").addClass("alert-success");
+				$("#alert_check_info").html(msg.info);
+			}else{
+				$("#alert_check_info").removeClass("alert-success");
+				$("#alert_check_info").addClass("alert-danger");
+				$("#alert_check_info").html(msg.info);
+			}
+			$.post("{:U('BaiduVoice/getVoiceUrl')}",{word:msg.data.word},function(msg){
+				if(msg.status){
+					$("#baidu_voice_iframe").attr("src",msg.data);
+				}
+			});
+			
+			$("#alert_check_info").show();
+		});
+	}
+}
+</script>

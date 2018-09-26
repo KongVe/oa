@@ -1,0 +1,47 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'导入刷单跟踪号'))}
+
+<form method='post' action="{:U('importOrderTrackingSave')}" id="editForm" name="editForm" class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	<input type="hidden" id="id" name="id" value="{$_REQUEST['id']}">
+	
+	<div class="form-group">
+		<label class="col-sm-2 control-label">物流方式</label>
+		<div class="col-sm-6">
+			<?php
+				if($vo['false_local_express_type']){
+					$false_local_express_type_select = $vo['false_local_express_type'];
+				}else{
+					$false_local_express_type_select = $_SESSION['false_finish_order']['false_local_express_type'];
+				}
+			?>
+			<select name="false_local_express_type" check="require" msg="请选择物流方式">
+				<option value="">请选择物流方式</option>
+				<option value="USPS">USPS</option>
+				<option value="EPost">EPost</option>
+			</select>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label">订单号 跟踪号<br>(空格隔离，换行分条)</label>
+		<div class="col-sm-8">
+			<textarea style="height:600px;" class="form-control" type="text" id="str" name="str" check="require" msg="订单号 跟踪号(空格隔离，换行分条)"></textarea>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for=""></label>
+		<div class="col-sm-10">
+			<div class="action">
+				<input type="hidden" name="model_name" value="place">
+				<a data-close="1" class="defaultEditFormSubmit btn btn-sm btn-primary">保存</a>
+				<input class="close_box_button btn btn-sm btn-default" type="button" value="取消" >
+			</div>
+		</div>
+	</div>
+</form>
+<script type="text/javascript">
+$(function() {
+
+	
+});
+</script>

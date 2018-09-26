@@ -1,0 +1,116 @@
+<layout name='Layout/ace_popup' />
+    {:W('PageHeader',array('name'=>"编辑商品信息"))}
+
+    <form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+        <input type="hidden" id="ajax" name="ajax" value="1"/>
+
+        <if condition="$vo['id'] neq ''">
+            <input type="hidden" id="id" name="id" value="{$vo.id}">
+            <input type="hidden" id="opmode" name="opmode" value="edit">
+        <else/>
+            <input type="hidden" id="opmode" name="opmode" value="add">
+        </if>
+
+        <div class="panel panel-primary">
+            <div class="panel panel-heading">
+                <span>基本信息</span>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="col-sm-6">
+                        <label class="text-right col-sm-4">商品SKU：</label>
+                        <div class="col-sm-6">
+                            <input class="form-control" type="text" id="parent_sku" data-bak="{$vo.parent_sku}" name="parent_sku" value="{$vo.parent_sku}" readonly="readonly" check="require" msg="请输入商品SKU" placeholder="请输入商品SKU">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2" for="product_name">商品简述：</label>
+                        <div class=" col-sm-6">
+                            <textarea class="form-control" type="text" id="product_name" name="product_name"  check="require" msg="请输入商品简述" placeholder="请输入商品简述">{$vo.product_name}</textarea>
+                        </div>
+                        <div class="col-sm-4">
+                            <a href="{$vo.thumbnail|default="#"}" id="thumbnail_show" class="thumbnail" target="_blank" style="height:105px;position: absolute;z-index:1000;"><img src="{$vo.thumbnail}" style="height:100px;"/></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2" for="main_thumbnail">主图：</label>
+                        <div class=" col-sm-6">
+                            <input class="form-control" type="text" id="main_thumbnail" name="thumbnail" value="{$vo.thumbnail}" check="require" msg="请输入主图链接" placeholder="请输入主图链接" >
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2" for="product_id">状态：</label>
+                        <div class=" col-sm-4">
+                            <select name="status" class="form-control">
+                                <option value="Normal">Normal(正常)</option>
+                                <option value="Disabled">Disabled(禁用)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+
+        <div class="panel-default">
+            <div class="form-group text-center">
+                <input type="button" data-loading-text="正在保存..."  class="editFormSubmit btn btn-primary" value="保存" />
+                <a class="close_box_button btn btn-danger">取消</a>
+            </div>
+        </div>
+    
+    </form>
+
+
+<script type="text/javascript">
+    $(".editFormSubmit").click(function(){
+        $("input").attr("disabled",null);
+        var data = $("#editForm").serialize();
+        var url = $("#editForm").attr("action");
+        
+        var btn = $(".editFormSubmit").button('loading');
+        var sku_bak = $("#parent_sku").attr("data-bak");
+
+        if (check_form("editForm")) {
+            sendForm("editForm", url,false,function(msg){
+                btn.button('reset');
+                if(msg.status==2){
+                    if(!confirm(msg.info)){
+                        return false;
+                    }else{
+                        var title = "修改原商品SKU: <b>"+msg.data.old_data.parent_sku+"</b> 为 <b>"+msg.data.new_data.parent_sku+"</b> 序号ID:"+msg.data.old_data.id;
+                        var param_data = "old_parent_sku="+msg.data.old_data.parent_sku+"&"+$("#editForm").serialize();
+                        var form_data = {
+                            title:title,
+                            content:'<a href="{:U('V2SkuProduct/index')}?pid='+msg.data.old_data.id+'" class="btn btn-primary" target="_blank">查看SKU</a>',
+                            thumbnail:msg.data.old_data.thumbnail,
+                            audit_action_id:2,
+                            param_json:param_data,
+                        };
+                        tmpSendForm("{:U('V2AuditFlow/addView')}",form_data,"_self");
+                        return false;
+                    }
+                }
+                if(msg.status){
+                    closeBox();
+                    parent.window.location.reload();
+                }else{
+                    alertWarning(msg.info);
+                }
+                
+            });
+        }else{
+            btn.button('reset');
+        }
+    });
+
+</script>

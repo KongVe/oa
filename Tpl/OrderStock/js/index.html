@@ -1,0 +1,185 @@
+<script type="text/javascript">
+$(function(){
+	// ace.settings.sidebar_collapsed(true);
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top+50,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+
+
+	$(".changeIsCount").click(function(){
+		var id = $(this).data("id");
+		var type = $(this).data("type");
+		if(!id){
+			return false;
+		}
+		if(!confirm("确认该库存已经清算到新系统？")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('changeIsCount')}",{id:id,type:type},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".printStockSKU").click(function(){
+		var id=$(this).data("id");
+		var quantity = $("#print_sku_"+id).val();
+		if(!id){
+			alertWarning("参数错误,缺少ID");
+			return false;
+		}
+		if(quantity<=0){
+			alertWarning("请输入打印数量");
+			return false;
+		}
+		var url="{:U('OrderStock/printStockSKU')}?id="+id+"&quantity="+quantity;
+		showBox("",url);
+	});
+	downloadThumbnail("order_stock",'thumbnail');
+})
+
+function stockChangeView(stock_id,log_type){
+	if(stock_id){
+		var url="<?php echo U("stockChangeView"); ?>?log_type="+log_type+"&stock_id="+stock_id+"&_" + Math.round(new Date().getTime()/1000);
+	}else{
+		alertWarning("参数错误");
+		return false;	
+	}
+	
+	$("#middleBoxIframe").attr("src",url);
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+function editImg(stock_id){
+	if(stock_id){
+		var url="<?php echo U("editImg"); ?>?stock_id="+stock_id+"&_" + Math.round(new Date().getTime()/1000);
+	}else{
+		alertWarning("参数错误");
+		return false;	
+	}
+	
+	$("#middleBoxIframe").attr("src",url);
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+
+function changeStockPlaceView(stock_id,place_id){
+	if(!stock_id || !place_id){
+		alertWarning("参数错误");
+	}
+	var url="<?php echo U("changeStockPlaceView"); ?>?stock_id="+stock_id+"&place_id="+place_id+"&_" + Math.round(new Date().getTime()/1000);
+	
+	$("#middleBoxIframe").attr("src",url);
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+
+}
+
+function showLog (stock_id) {
+	var url = "{:U('OrderStock/stockLog')}";
+
+	$("#form_tmp").html('');
+	$("#form_tmp").attr('target',"_blank");
+	$("#form_tmp").attr('action',url);
+	$("#form_tmp").append('<input name="stock_ids" value="'+stock_id+'" />');
+	$("#form_tmp").submit();
+
+}
+
+//删除库存记录
+function delStock(id,type){
+	if(!confirm('确定删除？')){
+		return false;
+	}
+	$.post("{:U('del')}",{id:id,admin:type},function(msg){
+		if(msg.status){
+			alertWarning(msg.info,1);
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alertWarning("网络错误，请刷新后重试");
+	})
+}
+//货架位
+	<include file="OrderStock:js/chooseshelfjs"/>
+
+	ajaxGetChildrenList(false,false,false);
+	ajaxGetChildrenList(1,'region','warehouse');
+
+	
+	<?php
+		if($_REQUEST['shelf_id']){
+			echo "ajaxGetChildrenList(false,false,false,1);";
+			echo " ajaxGetChildrenList(1,'region','warehouse',2);";
+			echo "setTimeout(\"ajaxGetChildrenList(2,'shelf','region',".$_REQUEST['shelf_id'].");\",100);";
+			
+			if($_REQUEST['place_id']){
+				echo "setTimeout(\"ajaxGetChildrenList(".$_REQUEST['shelf_id'].",'place','shelf',".$_REQUEST['place_id'].");\",500);";
+			}else{
+				echo "setTimeout(\"ajaxGetChildrenList(".$_REQUEST['shelf_id'].",'place','shelf',);\",500);";
+			}
+		}else{
+			echo "ajaxGetChildrenList(2,'shelf','region');";
+		}
+	?>
+
+	<?php
+		// if($_REQUEST['shelf_id']){
+		// 	echo "ajaxGetChildrenList(2,'shelf','region',".$_REQUEST['shelf_id'].");";
+		// 	if($_REQUEST['place_id']){
+		// 		echo "setTimeout(\"ajaxGetChildrenList(".$_REQUEST['shelf_id'].",'place','shelf',".$_REQUEST['place_id'].");\",500);";
+		// 	}else{
+		// 		echo "setTimeout(\"ajaxGetChildrenList(".$_REQUEST['shelf_id'].",'place','shelf');\",200);";
+		// 	}
+		// }else{
+		// 	echo "ajaxGetChildrenList(2,'shelf','region');";
+		// }
+	?>
+
+	<?php
+		// if($_REQUEST['place_id'] && $_REQUEST['shelf_id']){
+		// 	echo "setTimeout(\"ajaxGetChildrenList(".$_REQUEST['shelf_id'].",'place','shelf',".$_REQUEST['place_id'].");\",500);";
+		// }else{
+		// //	echo "ajaxGetChildrenList(2,'place','shelf');";
+		// }
+	?>
+	
+	
+
+
+</script>

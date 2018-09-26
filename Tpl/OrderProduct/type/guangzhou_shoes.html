@@ -1,0 +1,18 @@
+<div class="panel panel-default">
+	<div class="panel-heading">可复制的采购详细</div>
+	<div class="panel-body">
+		<table class="clearfix sourceHtml" width="100%" border="1" >	
+			<tr height="70">
+				<td>{$product.sku}</td>
+				<td><img src="{$product.thumbnail}" height="60" /></td>
+				<td>{$Think.request.quantity}</td>
+				<td>{$product.color}</td>
+				<td>{$product.size}</td>
+				<td><a href="{$source.link}" target="_blank">{$source.link}</a></td>
+				<td>{$source.price}</td>
+				<td></td>
+				<td>{$source.item_number}</td>
+			</tr>
+		</table>
+	</div>
+</div>

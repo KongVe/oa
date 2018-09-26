@@ -1,0 +1,285 @@
+<layout name="Layout/ace_select_v3"/>
+<link rel="stylesheet" href="__PUBLIC__/assets-v3/css/ui.jqgrid.min.css"/>
+<script  src="__PUBLIC__/assets-v3/js/jquery.jqGrid.min.js"></script>
+<script src="__PUBLIC__/assets/js/jqGrid/i18n/grid.locale-cn.js"></script>
+<link rel="stylesheet" href="__PUBLIC__/assets-v3/css/ace.min.css" class="ace-main-stylesheet" id="main-ace-style" />
+<style type="text/css">
+.ui-jqgrid .ui-jqgrid-htable th div{
+  text-align: center;
+}
+.gritter-close{
+  left: auto;
+}
+.sidebar.menu-min .nav-list>li>a>.menu-icon{
+  display: none;
+}
+.sidebar.menu-min .nav-list>li>a{
+  padding-left: 5px;
+  font-weight: 900;
+}
+.form-group{
+  margin-bottom: 0
+}
+.form-group>.col-sm-6{
+  margin-bottom: 10px
+}
+.ui-jqgrid tr.jqgrow td {
+    white-space: normal;
+}
+#select-list-table{
+	width: 100%;
+	height: auto;
+	padding-bottom: 1.5rem;
+	overflow: auto;
+}
+#select-list-table>.select-list{
+	width: 100%;
+	border:1px solid #E1E1E1;
+}
+#select-list-table>.select-list>thead{
+	background-color: #d8d8d8;
+    line-height: 2.5;
+}
+#select-list-table>.select-list>thead th,td{
+	text-align: center;
+	background-color: #fff;
+}
+#select-choose-list{
+	width: 100%;
+	overflow: auto;
+}
+</style>
+<div id="select-list-table">
+	<table class="select-list" border="1">
+		<thead>
+</thead>
+<tbody>
+</tbody>
+<tfoot>
+    <tr>
+      <td colspan="1">选中的数据</td>
+    </tr>
+  </tfoot>
+</table>
+<div id="selected-choose-list">
+	<div class="form-group" id="button_list">
+  <button class="btn btn-info" onclick="success_true()">确定选中</button>
+</div>
+</div>
+<div id="select-choose-list">
+	<div class="form-group" id="button_list">
+  <button class="btn btn-info" onclick="check_true()">加入选中</button>
+</div>
+<div style="display: table;width: 100%;margin-bottom: 5rem" id="grid-page">
+  <table id="grid-table"></table> 
+  <div id="grid-pager"></div>
+</div>
+</div>
+
+<script type="text/javascript">
+	var selected_list = [];
+	var select_list = [];
+	 var filter_list = {$filter_list|default=""|json_encode};
+  var config_data = {$config_data|default=""|json_encode};
+  var colModel = [];
+	var id = getParam('add_review_id');
+	$(function () {
+		$('#select-list-table .select-list tfoot td:first').attr('colspan',config_data.title_list.length);
+		clomodel()
+		getChooseOnlineListingList();
+		getRalateOnlineListingList();
+
+	})
+	function success_true(){
+
+	}
+	function check_true(){debugger;
+		var ids=$("#grid-table").jqGrid('getGridParam','selarrrow');
+		if(ids.length<=0){
+			return false;
+		}
+		var ids_list = '';
+		for(var i = 0;i<ids.length;i++){
+			ids_list += ids[i]+','
+		}
+		select_list = ids_list.substr(0,ids_list.length-1);
+		$.ajax({
+			url:'../AmazonSellyoursAddReview/chooseOnlineListing',
+			data:{'onlie_listing_ids':ids,'add_review_id':id},
+			type:'POST',
+			success:function(data){
+				getChooseOnlineListingList();
+		getRalateOnlineListingList();
+		$('#grid-table').trigger('reloadGrid');
+			}
+		})
+
+	}
+	function clomodel(){
+		var table_thead = "<tr>";
+	$.each(config_data.title_list,function(i,v){
+		var k = v.key;
+		var obj = {};
+		var all_list = '';
+		for(var key in v){
+			
+			if(v.sort_key&&key){
+				all_list +='id="'+v['sort_key']+'"';
+			}
+		}
+		table_thead += "<th "+all_list+">"+v['val']+"</th>";
+		if(v.sort_key){
+			obj['name'] = v.sort_key;
+			obj['formatter'] = function(cellvalue, options,rowObject){
+
+				var name = '';
+				$.each(config_data.title_list,function(i,v){
+					if(options.colModel.name == v.sort_key){
+						name = rowObject[v.key]?rowObject[v.key]:'';
+						// }
+						return false;
+					}
+
+				})
+				return name
+			}
+		}else{
+			obj['name'] = v.key;
+		}
+		if(v.val){
+			obj ['label'] = v.val;
+		}else{
+			obj['hidden'] = true
+		}
+		if(v.sort == true){
+			obj['sortable'] =true;
+		}else{
+			obj['sortable'] = false;
+		}
+    // if(k=='id'){
+    // 	obj['width'] = 60;
+    // }
+    
+    obj['align'] = 'center';
+      // obj['width'] = 100
+      colModel.push(obj);
+  })
+	
+	
+	 
+	table_thead += '</tr>'
+	$('#select-list-table .select-list thead').append(table_thead);
+};
+function Get_Grid(table,data,pager,url){
+	var rowList = [];
+	for(var i = 0;i<(Number(data.list_total_count)/Number(data.list_rows));i++){
+		rowList.push((data.list_rows*(i+1)))
+	}
+	$('#'+table).jqGrid({
+		url:url,
+		datatype: "json",
+		// height:'100%', 
+		autoheight:true,
+		// autowidth:true,
+		width:$(window).width(),
+		colModel:colModel,
+		viewrecords : true,
+		altRows: true,//单双行样式不同
+		totalCount:data.list_total_count,
+          jsonReader : { // jsonReader来跟服务器端返回的数据做对应
+			root : "data.results", // 包含实际数据的数组
+			page : "data.p", // 当前页
+			total :'data.page_count',
+			records : "data.list_total_count", // 查询出的记录数
+			id:'id',
+			// repeatitems :false
+		},
+		// pagerpos: 'left',
+		// recordpos: 'center',
+		prmNames: {
+                    page: "data.p"   // 表示请求页码的参数名称
+                },
+                rowList:rowList,
+                rowNum:data.list_rows,
+                pager : pager,
+                shrinkToFit: false,
+                // autoScroll: true, 
+                multiselect: true,
+                
+                loadComplete : function() {
+                	var table = this;
+                	setTimeout(function(){
+                		updatePagerIcons(table);
+                	}, 0);
+                	}
+                ,onSortCol:function(index,iCol,sortorder){
+                	var order_sort = {};
+                	order_sort[index] = sortorder == 'asc' ? 1:0;
+      	// var postData = submit_list('#search_table');
+      	var postData = $('#'+table).jqGrid("getGridParam", "postData")||{};
+      	if(postData['order_sort'])
+      		$.each(postData['order_sort'], function (k, v) {
+      			delete postData['order_sort'][k];
+      		});
+      	postData['order_sort'] = order_sort;
+      	postData['sidx'] = index;
+      	postData['sord'] = sortorder;
+      	$("#"+table).jqGrid("setGridParam", {
+      		postData:postData,
+      	}).trigger("reloadGrid");
+      },onPaging: function(pgButton) {
+      	if(pgButton == 'next'){
+                     var postData = {p:$('#'+table).getGridParam('page')+1}; // current page}
+                 }else if(pgButton == 'last'){
+                   var postData = {p:$('#'+table).getGridParam('lastpage')} // current page}
+               }else if(pgButton == 'prev'){
+                   var postData = {p:$('#'+table).getGridParam('page')-1}; // current page}
+               }else if(pgButton == 'first'){
+      		       var postData = {p:1}; // current page}
+      		   };
+
+      		   $('#'+table).jqGrid('setGridParam',{
+      		   	url:url+'?p'+postData.p,
+      		   	postData:{p:postData.p}
+      		   }).trigger("reloadGrid");
+      		}
+
+
+
+      	})
+};
+
+	function getChooseOnlineListingList(){
+		$.ajax({
+			url:'../AmazonSellyoursAddReview/getChooseOnlineListingList',
+			type:'GET',
+			data:{'add_review_id':id},
+			dataType:'json',
+			success:function(data){debugger;
+				selected_list = data.data.results==null?[]:data.data.results;
+				$('#select-list-table .select-list tbody').empty();
+				$.each(selected_list,function(i,v){
+					var list = '<tr>';
+					for(var key in v){
+						list += '<td id='+key+' >'+v[key]+'</td>';
+					}
+					list += '</tr>';
+					$('#select-list-table .select-list tbody').append(list);
+				})
+			}
+		})
+	}
+	function getRalateOnlineListingList(){
+		$.ajax({
+			url:'../AmazonSellyoursAddReview/getRalateOnlineListingList',
+			type:'GET',
+			// data:{'add_review_id':id},
+			dataType:'json',
+			success:function(data){
+				debugger;
+				// select_list = data.data.results;
+				Get_Grid('grid-table',data.data,'#grid-pager',config_data.search_url);
+			}
+		})
+	}
+</script>

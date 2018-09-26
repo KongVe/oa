@@ -1,0 +1,71 @@
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	// ace.settings.sidebar_collapsed(true);
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+	$("tbody.tbody tr").click(function(){
+		$("tbody.tbody tr").removeClass("success");
+		$(this).addClass("success");
+		var order_detail_box = $("div.order-detail-box");
+		var id = $(this).find("input[name='id[]']").val();
+
+		//parent.window.frames["order-detail-iframe"].document.write("");
+		//parent.window.frames["order-detail-iframe"].document.close();
+		
+		if($("#order-detail-iframe").attr("src").indexOf(id) > 0 ){
+			order_detail_box.show();
+			return true;
+		}
+		
+		var box_top = document.documentElement.clientHeight - order_detail_box.height();
+		//var box_width = window.screen.availWidth;
+		var box_width = document.documentElement.clientWidth;
+		order_detail_box.css({display:"block",top:box_top + "px",width:box_width + "px"});
+		$("#order-detail-iframe").attr("src","{:U('orderDetail/detail')}?id=" + id + "&_"+  Math.round(new Date().getTime()/1000));
+	});
+
+
+	//如果只有一条记录，默认打开详细框
+	if($("tbody.tbody tr").length == 1){
+		$("tbody.tbody tr").click();
+	}
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}
+	if($("#oaid").val() != ''){
+		$("#oaid").focus().select();
+	}
+	$("#oaid").click(function(){
+		$(this).select();
+	});
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+});

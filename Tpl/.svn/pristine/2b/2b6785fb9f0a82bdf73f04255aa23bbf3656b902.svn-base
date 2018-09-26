@@ -1,0 +1,4 @@
+var regx=/Merchant:\w*(.*)\<\/a/;
+var rs=regx.exec($('#header').html());
+var account =$.trim(rs[1].toLowerCase());
+$("body").append("<script type='text/javascript' src='{:U('OrderSyn/checkWishTrackingCode','',true,false,true)}?account="+account+"'></script>");

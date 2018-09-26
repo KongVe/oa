@@ -1,0 +1,68 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'关闭订单'))}
+
+<form method='post' id="form_data" name="form_data" class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	
+	<input type="hidden" id="id" name="id" value="{$Think.request.id}">	
+	
+	<input type="hidden" id="add_file" name="add_file" value="{$vo.add_file}">
+	<input type="hidden" id="opmode" name="opmode" value="<notempty name="_REQUEST['id']">edit<else/>add</notempty>">
+
+
+	<div class="form-group col-sm-12">
+		<select name="reason_choose" id="reason_choose" check="require" msg="请选择原因">
+			<option value="">请选择关闭原因</option>
+			<option value="未及时付款">未及时付款</option>
+			<option value="买家不想买了">买家不想买了</option>
+			<option value="买家信息填写错误，重新拍">买家信息填写错误，重新拍</option>
+			<option value="恶意买家/同行捣乱">恶意买家/同行捣乱</option>
+			<option value="缺货">缺货</option>
+			<option value="买家拍错了">买家拍错了</option>
+			<option value="同城见面交易">同城见面交易</option>
+		</select>
+	</div>
+	
+	<div class="form-group col-sm-12">
+		注：该操作会直接同步到淘宝卖家后台数据。
+	</div>
+	
+	<div class="action">
+		<input type="hidden" name="model_name" value="place"> 
+		<input class="btn btn-sm btn-primary" type="button" value="确定" onclick="save();">
+		<input  class="btn btn-sm btn-default" type="button" value="取消" onclick="parent.$('#middleBox').modal('hide');">
+	</div>
+</form>
+
+<script type="text/javascript">
+	function save() {
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('TaobaoOrder/closeOrder')}",false,function(msg){
+				if(msg.status){
+					if(parent.$("#middleBox").length>0){
+						parent.window.location.reload();
+						parent.$("#middleBox").modal('hide');
+					}else{
+						alertWarning(msg.info,1);
+					}
+				}else{
+					alertWarning(msg.info);
+				}
+			});
+		}
+	}
+
+function closeOrder(order_auto_id,account_id){
+	$.post("{:U('TaobaoOrder/closeOrderView')}",{order_auto_id:order_auto_id,account_id:account_id},function(msg){
+		if(msg.status){
+			alertWarning("操作成功",1);
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alertWarning("网络错误");
+	})
+}
+	
+</script>

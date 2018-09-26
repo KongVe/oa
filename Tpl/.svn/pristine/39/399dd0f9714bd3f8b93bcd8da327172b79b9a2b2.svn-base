@@ -1,0 +1,317 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="purchase" value="selected" />
+	<foreach name="Think.post.order_auto_id" item="id">
+		<input name="order_auto_id[]" type="hidden" value="{$id}" />
+	</foreach>
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">订单采购</h1>
+	<div class="col-sm-3 pull-right">
+			<div class="input-group">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="purchase_q" id="purchase_q" value="{$Think.post.purchase_q}" placeholder="可搜索 产品名称，货源简称，档口位置，货号，SKU"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="this.form.purchase_q.value='';this.form.stock.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div>
+	</div>
+
+		
+	
+	<div class="col-sm-1 pull-right">
+		<select class="form-control" name="stock">
+			<option value="">选择货源状态</option>
+			<option value="In stock" <eq name="Think.post.stock" value="In stock">selected</eq> >有货</option>
+			<option value="Stockout" <eq name="Think.post.stock" value="Stockout">selected</eq> >断货</option>
+			<option value="Null" <eq name="Think.post.stock" value="Null">selected</eq> >无货源</option>
+		</select>
+	</div>	
+	
+	<div class="col-sm-1 pull-right">
+		<b style="font-size:12px;">可能有库存</b>
+		<input type="checkbox"  style="width:20px;height:20px;" name="have_stock" value="1" <notempty name="Think.request.have_stock"> checked='checked'</notempty> />
+	</div>
+
+	<div class="col-sm-5 pull-right">
+		<div>
+			<span><b id="purchaseCartWarning"></b></span>
+			<span>采购车商品数:<b id="purchaseCartCounts"></b></span>
+		</div>
+		<span>
+			<a id="delCartAll" class="btn btn-danger btn-xs">清空采购车</a>
+			<a id="purchaseMulti" class="btn btn-info btn-xs">批量采购</a>
+		</span>
+		
+		<div class="btn-group pull-right" id="button_{$titleKey}" <?php  if($voTitle['dropdown']){echo 'style="width:' . (strlen($voTitle['title']) * 6 + 20) . 'px;"';} ?> >
+			<eq name="voTitle.order" value="no">
+				<a  class="btn btn-xs">
+			<else/>
+				<eq name="titleKey" value="$order">
+					<a type="botton" class="btn btn-xs sort_button btn-primary" name="{$titleKey}">
+					<eq name="sortImg"	value="asc">
+						<i class="icon-sort-up"></i>
+					</eq>
+					<eq name="sortImg"	value="desc">
+						<i class="icon-sort-down"></i>
+					</eq>
+				<else/>
+					<a type="botton" class="btn btn-xs sort_button " name="{$titleKey}">
+				</eq>
+			</eq>
+			<b style="font-size: 14px;">
+			 {$voTitle.title}
+			</b>
+			</a>
+			<notempty name="voTitle.dropdown">
+				<a class="btn btn-xs dropdown-toggle <notempty name="_POST['filter'][$titleKey]">btn-danger</notempty>  " data-toggle="dropdown"><i class="icon-caret-down"></i></a>
+
+				<ul class="dropdown-menu" role="menu">
+					<foreach name="voTitle.dropdown" item="voDrop" key="dropKey" >
+						<li >
+							<input style="cursor:pointer;" type="checkbox" name="filter[{$titleKey}][{$dropKey}]" value="{$dropKey}" 
+							<notempty name="voTitle['click_submit']">
+								class="filter_checkbox"
+							<else/>
+								onclick="setTimeout('$(&quot;#button_{$titleKey}&quot;).addClass(&quot;open&quot;)',80);"
+							</notempty> id="dropdown_{$titleKey}_{$dropKey}"
+								<?php if(isset($_POST['filter'][$titleKey][$dropKey])){ echo 'checked="checked"';
+									unset($_POST['filter'][$titleKey][$dropKey]);
+								} ?>
+							/>
+							<label style="cursor:pointer;" for="dropdown_{$titleKey}_{$dropKey}">{$voDrop}</label>
+						</li>
+					</foreach>
+			
+					<empty name="voTitle['click_submit']">
+						<li >
+							<a class="btn btn-primary btn-xs" onclick="$('#form_search').submit();">确定</a>
+						</li>
+					</empty>
+					
+					<?php 
+					foreach($_POST['filter'][$titleKey] as $ttk=>$ttv){
+						echo '<input type="hidden" name="filter[' .$titleKey. ']['.$ttk.']" value="' .$ttv. '" />';
+					} ?>			
+	      		</ul>	
+			</notempty>
+		</div>
+
+		<span class="pull-right">
+			<!-- <a onclick="combineSku()" class="btn btn-danger btn-xs">合并SKU</a> -->
+			<a href="{:U('OrderProduct/purchaseCartIndex')}" target="_blank" class="btn btn-primary btn-xs">查看采购车</a>
+			
+			<a href="{:U('order_purchase/getPurchaseCartTmp')}" target="_blank" class="btn btn-success btn-xs">查看上一次的采购车</a>
+			&nbsp;
+			<!-- <a href="{:U('OrderProduct/purchaseCartIndex?choose=1')}" target="_blank" class="btn btn-primary btn-xs">1688</a> -->
+		</span>
+
+	</div>	
+</div>	
+<div class="message-container">
+	<table class="table table-hover table-bordered">
+			<tr>
+				<th style="min-width:90px;">图片</th>
+				<th style="max-width:200px;width:150px;">库存SKU</th>
+				<th style="max-width:200px;width:150px;">规格</th>
+				<th style="min-width:85px">数量</th>
+				<th class="col-sm-1">备注</th>
+				<th>预计可得</th>
+				<th style="max-width:300px;width:200px;">名称</th>
+				<th style="max-width:100px;width:80px;">需求来源</th>
+				<th>
+					<table>
+						<tr>
+							<td style="width:50px; border:0;">数量</td>
+							<td style="width:100px; border:0;">下单时间</td>
+							<td style="width:220px; border:0;">订单号</td>
+						</tr>
+					</table>
+				</th>
+			</tr>
+			<tbody class="tbody">
+			<volist name="productList" key="p_key" id="product">
+				
+				<tr id="tr_{$p_key}">
+					<td>
+						<input type="hidden" name="tr_key" value="{$p_key}" />
+
+						<notempty name="product.stock_bind_id">
+							<!-- 所有相关绑定 -->
+							<volist name="product.stock_bind_ids" id="pp_id">
+								<input type="hidden" name="stock_bind_ids[]" value="{$pp_id}" />
+							</volist>
+							<input type="hidden" name="stock_bind_id[]" value="{$product.stock_bind_id}" />
+							<input type="hidden" name="stock_sku[]" value="{$product.stock_sku}" />
+							<input type="hidden" name="sku[]" value="{$product.sku}" />
+							<input type="hidden" name="variation[]" value="{$product.variation}" />
+						<else/>
+							<input type="hidden" name="sku[]" value="{$product.sku}" />
+							<input type="hidden" name="variation[]" value="{$product.variation}" />
+						</notempty>
+
+						<foreach name="product.product_auto_id" item="pai" >
+							<input type="hidden" name="product_auto_id[]" value="{$pai}"  />
+						</foreach>
+						<foreach name="product.purchase_plan_id" item="pai" >
+							<input type="hidden" name="purchase_plan_id[]" value="{$pai}"  />
+						</foreach>
+
+						<a href="{$product.thumbnail}" target="_blank" class="thumbnail"><img src="{$product.thumbnail}" width="60" /></a>
+					</td>
+					<td>
+						{$product.stock_sku}
+						<notempty name="product.stock_bind_id">
+							<br>
+							<br>
+							<br>
+							<i>绑定订单SKU：{$product.sku}</i>
+						</notempty>
+					</td>
+					<td>
+						{$product.stock_variation}
+						<notempty name="product.stock_bind_id">
+							<br>
+							<br>
+							<br>
+							<i>订单规格：{$product.variation}</i>
+						</notempty>
+					</td>
+					<td>
+						<b>总需: {$product.total_quantity} 件</b><br>
+						已采: {$product.total_purchased_quantity|default=0} 件<br>
+						用库: {$product.total_use_stock_quantity|default=0} 件<br>
+						<b style="color:blue;">
+							缺少:
+						</b>
+						<b style="color:red;">
+							{$product.total_need_quantity|default=0} 件
+						<br>
+					</td>
+					<td>
+						<volist name="product.product_data_list" id="p_data">
+							<notempty name="product.purchase_plan_id">
+								<notempty name="p_data.memo">
+									采购计划id:{$p_data.purchase_plan_id} 备注: <b>{$p_data.memo}</b>
+									<br>
+								</notempty>
+							<else/>
+								<notempty name="p_data.memo">
+									订单备注:<b>{$p_data.memo}</b>
+									<br>
+								</notempty>
+							</notempty>
+						</volist>
+						
+					</td>
+					<td>
+						<volist name="product.product_data_list" id="p_data">
+							{$p_data.estimate_total}<br>		
+						</volist>
+					</td>
+					<td>
+						<a href="{$product['product_data_list'][0]['product_link']}" target="_blank" title="{$product['product_data_list'][0]['product_name']}">{$product['product_data_list'][0]['product_name']}</a>
+					</td>
+					<td>
+						<volist name="product.product_data_list" id="p_data">
+							<notempty name="p_data.website">{$p_data.website}:</notempty><br>
+							<notempty name="p_data.account_name">{$p_data.account_name}</notempty>
+							<br>
+						</volist>
+					</td>					
+					<td>
+
+						<foreach name="product.product_data_list" item="o">
+							<table>
+								<notempty name="o.purchase_plan_id">
+									<tr>
+										<td style="width:40px; border:0;color:red;">{$o.quantity}</td>
+										<td  style="width:100px; border:0;">{$o.add_time|date="Y-m-d",###}</td>
+										<td style="width:200px; border:0;">
+											<a href="{:U('OrderPurchasePlan/index?id='.$o['id'])}" target="_blank">
+												<b>来自 {$voTitle['dropdown'][$o['uid']]} 的采购计划 ID:{$o.purchase_plan_id}</b>
+											</a>
+										</td>
+									</tr>
+								<else/>
+									<tr>
+										<td style="width:40px; border:0;">{$o.quantity}</td>
+										<td  style="width:100px; border:0; padding:0;">
+
+											<notempty name="o.order_time">
+												<span <?php if($o['order_time']+3600*24*5 <= time()){ echo ' style="color:red;" ';} ?> >
+													{$o.order_time|date="y-m-d H:i",###}<?php if($o['order_time']+3600*24*5 <= time()){ echo ' <i><span class="label label-danger">急</span></i> ';} ?>
+												</span>
+											<else/>
+												<span>
+													{$o.add_time|date="y-m-d H:i",###}
+												</span>
+											</notempty>
+										</td>
+										<td style="width:200px; border:0;">
+											<notempty name="o.order_id">
+
+												<a href="{:U('OrderDetail/index')}?oaid={$o.order_auto_id}" target="_blanK" style="display:block;">{$o.order_id}</a>
+											</notempty>
+										</td>
+									</tr>
+								</notempty>
+							</table>
+						</foreach>
+					</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+</div>
+</form>
+
+
+<div id="form_tmp_div" class="display-none">
+	<form name="form_tmp" id="form_tmp" method="post" class="form-inline">
+	</form>
+</div>
+
+<div  style="height:300px;"></div>
+<div class="purchase-detail-box col-lg-12" id="purchase-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none">
+	<iframe src="" id="purchase-detail-iframe" frameborder="0" height="300px" name="purchase-detail-iframe" srolling="auto"  width="100%"></iframe>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<div class="modal fade" id="editSource" role="dialog"  tabindex="-1" aria-labelledby="editSourceLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="editSourceIframe" name="editSourceIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog" style="height:100%">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<!-- 警告弹窗 -->
+<div class="modal fade " id="alertBox" tabindex="-1" role="dialog" aria-labelledby="alertBoxLabel" aria-hidden="true">
+  <div class="modal-dialog">
+  	<div class="bs-example">
+      <div class="alert alert-danger fade in" id="alertStatus">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h4> </h4>
+        <p id="alerBody"></p>
+
+        <p>
+          <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal" id="alertConfirm">确认</button>
+        </p>
+      </div>
+    </div>   
+  </div><!-- /.modal-dialog -->
+</div>
+
+<!-- 弹出框 -->
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<iframe src="" id="saveThumbnail" style="visibility:hidden;height:1px;width:1px;"></iframe>

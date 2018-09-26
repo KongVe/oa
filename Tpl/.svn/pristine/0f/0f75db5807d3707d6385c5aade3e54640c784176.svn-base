@@ -1,0 +1,71 @@
+<layout name='Layout/m_ace_layout' />
+
+<style>
+.showBottomBox{cursor: pointer;}
+</style>
+
+<!-- <link rel="stylesheet" type="text/css" href="__PUBLIC__/css/boostarap.min.css">
+<link rel="stylesheet" type="text/css" href="__PUBLIC__/boostarap-select"/>
+<script type="text/javascript" src="__PUBLIC__/js/boostarap.min.js"></script>
+<script type="text/javascript" src="__PUBLIC__/boostarap-select/js/boostarap-select.min.js"></script>
+<script type="text/javascript" src="__PUBLIC__/boostarap-select/js/i18n/default-zh_CN.min.js"></script> -->
+
+<div class="page">
+<div class="list-block">
+
+</div>
+</div>
+<script type="text/javascript">
+	var filter_list = {$filter_list|default=""|json_encode};
+	function init(index){
+		$.ajax({
+			url:'{:U('V2TransferShipment/getTransferShipmentList')}',
+			type:'GET',
+			dataType:'json',
+			success:function(msg){
+			debugger
+			var list = '';
+			$.each(msg.data.results,function(i,v){
+				list +='<div class="card">'+
+		'<div class="card-header">'+v.id+':</div>'+
+		'<div class="card-content">'+
+			'<div class="list-block media-list">'+
+				'<ul>'+
+					'<li class="item-content">'+
+						'<div class="item-media">'+
+							'<img src="=" width="100">'+
+						'</div>'+
+						'<div class="item-inner">'+
+							'<div class="item-title-row">'+
+								'<div class="item-title">'+v.online_shipment_name+'</div>'+
+							'</div>'
+							'<div class="item-subtitle">'+v.ship_to_address+'</div>'+
+						'</div>'+
+					'</li>'+
+				'</ul>'+
+			'</div>'+
+		'</div>'+
+		'<div class="card-footer">'+
+			'<span>仓库:'+v.target_warehouse_id+'</span>'+
+			'<span>'+v.create_time+'</span>'+
+		'</div>'+
+	'</div> '+	
+'</div>'
+			})
+			$('.list-block').append(list)
+			},error:function(){
+
+			},beforeSend:function(){
+				$.showIndicator() 
+			},complete:function(){
+				$.hideIndicator()
+			}
+		})
+	}
+	function serch_list(){
+	}
+	$(function(){
+		init();
+		serch_list();
+	})
+</script>

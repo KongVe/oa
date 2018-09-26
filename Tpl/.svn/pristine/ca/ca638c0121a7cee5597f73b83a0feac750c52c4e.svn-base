@@ -1,0 +1,425 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" action="{:U('')}" id="form_search" method="post" class="form-inline">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	
+<div class="page-header clearfix">
+	<h1 class="col-xs-3">{$title}</h1>
+	<div class="col-xs-9 pull-right">
+		
+		<div class="form-group col-sm-2" >
+			<label>
+				<input type="checkbox" class="ace input-lg" name="is_virtual_sku" value="1" <notempty name="Think.request.is_virtual_sku">checked="checked"</notempty> />
+				<span class="lbl padding-5">
+					虚拟SKU
+				</span>
+			<label>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					添加用户
+				</span>
+				<select name="add_uid[]" id="add_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+					<option value="">选择用户</option>
+					<volist name="user_list" id="user">
+						<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['add_uid'])){echo 'selected="selected"';} ?> >{$user.show_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					添加时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}" placeholder="添加时间">
+			</div>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					SKU序号
+				</span>
+				<input class="form-control" type="text" id="id" name="id" value="{$Think.request.id}"  placeholder="SKU序号, 英文逗号分隔" />
+			</div>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					申报名称
+				</span>
+				<input class="form-control" type="text" id="declare_name" name="declare_name" value="{$Think.request.declare_name}"  placeholder="中文、英文申报名称" />
+			</div>
+		</div>
+		<div class="form-group col-xs-2">
+			<div class="input-group">
+				<span class="input-group-addon">
+					亚马逊编码
+				</span>
+				<input class="form-control" type="text" id="amz_code" name="amz_code" value="{$Think.request.amz_code}"  placeholder="FBA条码或ASIN" />
+			</div>
+		</div>
+	
+		<div class="input-group col-sm-4">
+			<div class="input-group">
+				<input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="商品SKU,商品简述,规格SKU,规格名称"/>
+				<span class="input-group-btn">
+					<button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-125 icon-search"></i> </button>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<?php 
+			if(isAdmin() || in_array( $_SESSION['authId'] , array(67,86))){
+		?>
+			<div class="btn-group">
+				<a data-url="{:U('skuEdit')}" class="showBox btn btn-primary">添加商品SKU</a>
+			</div>
+		<?php
+			}
+		?>
+		
+		<div class="btn-group">
+			<a href="{:U()}?excludeRepeat=1" class="showBox btn btn-warning">排重</a>
+		</div>
+	</div>
+</div>
+
+<div class="message-container" id="container_table" style="width:100%;">
+
+	<table class="table table-hover table-bordered">
+
+		<include file="Layout:title_v2"/>
+
+		<tbody class="tbody" style="width:100%;">
+			
+			<volist name="list" id="sku_data">
+	      		<!-- <tr class="success" id="tr_{$sku_data.parent_data.id}">
+						<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$sku_data.parent_data.id}" />
+							<span class="lbl"></span>
+							{$sku_data.parent_data.id}
+						</label>
+					</td>
+	  				<td>
+	  					{$sku_data.parent_data.parent_sku}
+	  				</td>
+	  				<td>
+	  					<a class="thumbnail"  href="{$sku_data.parent_data.thumbnail}" target="_blank">
+	  						<img src="{$sku_data.parent_data.thumbnail}" width="60" />
+	  					</a>
+	  				</td>
+	  				<td>
+	  					{$sku_data.parent_data.product_name}
+					</td>
+					<td>
+	  					{$sku_data.parent_data.status|L}
+					</td>
+					<td style="width:80px;">
+	  					{$sku_data.parent_data.add_time|date="Y-m-d H:i:s",###}
+					</td>
+					<td>
+	  					{$sku_data.parent_data.add_user_name}
+					</td>
+					<td></td>
+					<td>
+						<a onclick="showMiddleBox('{:U('edit')}?id={$sku_data.parent_data.id}');" class="btn btn-inverse btn-sm">修改商品</a>
+
+						<a onclick="showMiddleBox('{:U('skuEdit')}?pid={$sku_data.parent_data.id}');" class="btn btn-danger btn-sm">添加规格</a>
+
+						<a data-id="{$sku_data.parent_data.id}" data-sku="{$sku_data.parent_data.parent_sku}" class=" del_parent_sku btn btn-warning btn-sm" >删除</a>
+	  				</td>
+	       		</tr> -->
+				<volist name="sku_data.data_list" id="vo" key="vo_key">
+		    		<tr id="tr_{$sku_data.parent_data.id}_{$vo.id}">
+						<td  style="border:none;text-align:right;" >
+							<!-- <label class="inline pull-left">
+								<input class="ace" type="checkbox" name="sku_id[]" value="{$vo.id}" />
+								<span class="lbl"></span>
+								{$vo.id}
+							</label> -->
+							{$vo.id|indexHighLight}
+
+							<br>
+							<br>
+							<div class="input-group" style="width:100px;" >
+								<input type="number" class="form-control" id="print_sku_quantity_{$vo.id}" value="0">
+								<div class="input-group-btn">
+									<a data-id="{$vo.id}" class="printSku btn btn-primary btn-sm">打印</a>
+								</div>
+							</div>
+
+						</td>
+						<td style="width:200px;">
+							{$vo.sku|indexHighLight}
+							<br>
+							<a href="{:U('v2_stock/index')}?q={$vo.sku}" target="_blank" class="btn btn-xs btn-primary">库存</a>
+							<eq name="vo.is_virtual_sku" value="Yes">
+								<br>
+								<br>
+								<a href="{:U('V2SkuProduct/virtualSkuList')}?q={$vo.sku}" target="_blank"><span class="label label-info arrowed-right arrowed-in">虚拟SKU</span></a>
+
+								<empty name="vo.weight">
+									<a data-id="{$vo.id}" class="updateVirtualWeight btn btn-link">合计重量</a>
+								</empty>
+							</eq>
+							<empty name="vo.weight">
+								<a data-id="{$vo.id}" class="updateWeightBySellyours btn btn-link">获取sellyours重量</a>
+							</empty>
+							<eq name="vo_key" value="1">
+								<br>
+								<br>
+								<b>商品SKU:</b> {$sku_data.parent_data.parent_sku|indexHighLight}
+								<a data-url="{:U('edit')}?id={$sku_data.parent_data.id}" class="showBox btn btn-info btn-xs">修改</a>
+							</eq>
+						</td>
+						<td style="width:200px;" >
+							{$vo.sku_name|indexHighLight}
+							<eq name="vo_key" value="1">
+								<br>
+								<br>
+								<br>
+								<b>商品简述:</b> {$sku_data.parent_data.product_name}
+							</eq>
+						</td>
+						<td style="width:80px;" >
+							<a class="thumbnail"  href="{$vo.thumbnail}" target="_blank" style="width:80px;">
+		  						<img src="{$vo.thumbnail}" width="80" />
+		  					</a>
+						</td>
+						<td>
+							<gt name="vo.weight" value="0">
+								{$vo.weight} 克
+							<else/>
+								<b>未称重</b>
+							</gt>
+							
+						</td>
+						<!-- <td>
+							<notempty name="vo.weight">
+								{$vo.weight} 克
+							<else/>
+								<b>未测量</b>
+							</notempty>
+						</td> -->
+						<td style="width:200px;">
+							<gt name="vo.length" value="0">
+								长: <b>{$vo.length|ceil}</b> 宽: <b>{$vo.width|ceil}</b> 高: <b>{$vo.height|ceil}</b> CM
+							<else/>
+								<b>未测量</b>
+							</gt>
+						</td>
+						<td style="width:100px;" >
+							<volist name="vo.flag_list" id="flag">
+								<div class="col-xs-12">
+									<span class="btn-minier" style="border-color:red; background-color:{$flag.bg_color};color:{$flag.font_color};" title="{$flag.description}">{$flag.flag_name}</span>
+								</div>
+							</volist>
+						</td>
+						<td>
+		  					{$vo.add_time|date="Y-m-d H:i:s",###}
+		  					<br>
+		  					<br>
+		  					中文申报: {$vo.declare_name_en}<br>
+		  					英文申报: {$vo.declare_name_cn}
+						</td>
+						<td>
+		  					{$vo.add_user_name}
+						</td>
+						<td>
+							<span class="V2EditMemo" data-field="memo" data-table-name="v2_sku_product" data-field-value="{$vo.id}"><pre>{$vo.memo}</pre></span>
+						</td>
+						<td style="width:200px;">
+							<eq name="vo_key" value="1">
+								<a data-url="{:U('skuEdit')}?pid={$sku_data.parent_data.id}" class="showBox btn btn-inverse btn-sm">添加规格</a>
+							</eq>
+							<br>
+							<br>
+							<a data-url="{:U('skuEdit')}?id={$vo['id']}" class="showBox btn btn-primary btn-sm">修改规格</a>
+
+							<!-- <a data-id="{$vo.id}" data-loading-text="正在复制..."  class="clone_sku btn btn-inverse btn-sm">复制</a> -->
+							<br>
+							<br>
+							<a data-url="{:U('OperateLog/view')}?id={$vo.id}&table_name=v2_sku_product" class="showBox btn btn-info btn-sm">日志</a>
+							<eq name="vo_key" value="1">
+								<a href="{:U('V2Stock/index')}?q={$sku_data.parent_data.parent_sku}" target="_blank" class=" btn btn-primary btn-sm">总库存</a>
+							</eq>
+							<?php 
+								if(isAdmin()){
+							?>
+								<a data-id="{$vo.id}" class="skuDel btn btn-warning btn-sm" >删除</a>
+
+							<?php
+								}
+							?>
+
+							<!-- <a data-id="{$vo.id}" data-sku="{$vo.sku}" data-skuName="{$vo.sku_name}" class="del_sku btn btn-warning btn-sm" >删除</a> -->
+						</td>
+					</tr>
+				</volist>
+				<tr style="height:30px;">
+					<td colspan="11" class="success"></td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+
+<div id="tmp" class="display-none">
+	<form name="form_tmp" id="form_tmp" method="post" class="form-inline">
+	</form>
+</div>
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+<script type="text/javascript">
+
+$(function($){
+	$("#add_uid").select2();
+	if($(".indexHighLight").length > 0){
+		scrollTo(0,$(".indexHighLight").offset().top -100);
+		// $("body").animate({scrollTop:$(".indexHighLight").offset().top -100});	
+	}
+	$(".clone_sku").click(function(e){
+		if(!confirm("是否复制该规格？")){
+			return false;
+		}
+		var btn = $(".clone_sku").button('loading');
+		var id = $(this).attr("data-id");
+		$.post("{:U('cloneSku')}",{id:id},function(msg){
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+			btn.button('reset');
+		}).error(function(){
+			btn.button('reset');
+		})
+	});
+
+	$(".skuDel").click(function(e){
+		if(!confirm("确认删除")){
+			return false;
+		}
+		var btn = $(".clone_sku").button('loading');
+		var id = $(this).attr("data-id");
+		$.post("{:U('skuDel')}",{id:id},function(msg){
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+			btn.button('reset');
+		}).error(function(){
+			btn.button('reset');
+		})
+	});
+
+	//删除SKU提交审核
+	$(".del_sku").click(function(e){
+		if(!confirm("确定删除？ 注: 当删剩一个关联时将会把整个虚拟SKU关联删除。")){
+			return false;
+		}
+		var id = $(this).attr("data-id");
+		var sku = $(this).attr("data-sku");
+		var sku_name = $(this).attr("data-skuName");
+		var thumbnail = $(this).parent().parent().find("img").attr("src");
+
+		var title = "删除 SKU: <b>"+sku+"</b> 名称: <b>"+sku_name+"</b>  序号id:<b>"+id+"</b>";
+		var data = {
+				audit_action_id:3,
+				title:title,
+				thumbnail:thumbnail,
+				content:'<a href="{:U('V2SkuProduct/index')}?ids='+id+'" class="btn btn-primary" target="_blank">查看</a>',
+				param_json:"id="+id,
+			};
+		showBox();
+		tmpSendForm("{:U('V2AuditFlow/addView')}",data,"middleBoxIframe");
+
+		return false;
+
+	});
+
+	//删除商品SKU和关联的规格SKU提交审核
+	$(".del_parent_sku").click(function(e){
+		var id = $(this).attr("data-id");
+		var sku = $(this).attr("data-sku");
+		var sku_name = $(this).attr("data-skuName");
+		var thumbnail = $(this).parent().parent().find("img").attr("src");
+
+		var title = "删除 商品SKU: <b>"+sku+"</b> 和其所有的规格SKU 序号id:<b>"+id+"</b>";
+		var data = {
+				audit_action_id:4,
+				title:title,
+				thumbnail:thumbnail,
+				content:'<a href="{:U('V2SkuProduct/index')}?pid='+id+'" class="btn btn-primary" target="_blank">查看</a>',
+				param_json:"id="+id,
+			};
+		showBox();	
+		tmpSendForm("{:U('V2AuditFlow/addView')}",data,"middleBoxIframe");
+
+		return false;
+
+	});
+
+	$(".printSku").click(function(){
+		var id = $(this).data("id");
+		var quantity = $("#print_sku_quantity_"+id).val();
+		if(quantity <= 0 || !quantity){
+			alertWarning("请输入正确的数量");
+			return false;
+		}
+		var url = "{:U('V2SkuProduct/printSku')}?id="+id+"&quantity="+quantity;
+		window.open(url).print();
+	});
+
+	$(".updateVirtualWeight").click(function(e){
+		var id = $(this).attr("data-id");
+		$.post("{:U('updateVirtualWeight')}",{id:id},function(msg){
+			if(msg.status){
+				alertWarning(msg.info,1);
+			}else{
+				alertWarning(msg.info);
+			}
+			btn.button('reset');
+		}).error(function(){
+			btn.button('reset');
+		})
+	});
+
+	$(".updateWeightBySellyours").click(function(e){
+		var id = $(this).attr("data-id");
+		$.post("{:U('updateWeightBySellyours')}",{id:id},function(msg){
+			if(msg.status){
+				alertWarning(msg.info,1);
+			}else{
+				alertWarning(msg.info);
+			}
+			btn.button('reset');
+		}).error(function(){
+			btn.button('reset');
+		})
+	});
+	
+})
+
+</script>

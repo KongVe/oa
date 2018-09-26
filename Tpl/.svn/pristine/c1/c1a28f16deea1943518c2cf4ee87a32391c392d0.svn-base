@@ -1,0 +1,112 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" action="{:U('')}" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="id" value="{$Think.request.id}" />
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">{$title}</h1>
+	<div class="col-sm-2">
+		<div class="btn-group">
+			<a data-url="{:U('sourceEdit')}" class="showBox btn btn-primary btn-sm">增加货源</a>
+		</div>
+
+		<div class="btn-group">
+			<a href="{:U('supplierIndex')}" target="_blank" class="btn btn-sm" title="供应商列表">供应商列表</a>
+		</div>
+	</div>
+	<div class="col-sm-8">
+		<div class="form-group col-sm-3">
+	        <div class="input-group">
+	            <span class="input-group-addon">
+	                序号:
+	            </span>
+	            <input class="form-control " type="text" name="id" id="id" value="{$Think.request.id}"  placeholder="序号,英文逗号分隔">
+	        </div>
+	    </div>
+		
+		<div class="form-group col-sm-3">
+			<div class="col-sm-12">
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}" placeholder="添加时间">
+			</div>
+		</div>
+		<div class="input-group col-sm-6">
+			<div class="input-group">
+				<input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="商品SKU，货源名称"/>
+				<span class="input-group-btn">
+					<button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- <div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<div id="syncCK1"></div>
+		</div>
+	</div>
+</div>
+ -->
+<div class="message-container"style="width:100%;">
+	<table class="table table-striped table-hover">
+		
+			<include file="Layout:title_v2"/>
+			
+			<tbody class="tbody">
+			<volist name="list" id="vo">
+				<tr>
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td>
+						<volist name="vo.parent_sku_data_list" id="parent_sku_data">
+							{$parent_sku_data.parent_sku}
+							<a href="{$parent_sku_data.thumbnail}" class="thumbnail" target="_blank"><img src="{$parent_sku_data.thumbnail}" width="80px"></a>
+							<br>
+						</volist>
+					</td>
+					<td>{$vo.source_name}</td>
+					<td>{$vo.price} 元</td>
+					<td>
+						{:L($vo["stock_status"])}
+					</td>
+					<td><a href="{$vo.link}" target="_blank" class="btn btn-info btn-sm" title="{$vo.link}">查看</a></td>
+					<td>
+						<a href="{:U('supplierIndex')}?ids={$vo.supplier_id}" target="_blank" title="{$vo.supplier_name}">{$vo.supplier_name}</a>
+					</td>
+					<td>{$vo.contacts}</td>
+					<td>{$vo.item_number}</td>
+					<td>{$vo.phone_number}</td>
+					<td>{$vo.last_in_stock_time|default=""|date="y-m-d H:i",###}</td>
+					<td>{$vo.last_stockout_time|default=""|date="y-m-d H:i",###}</td>
+					<td>{$vo.add_user_name}</td>
+					<td>{$vo.add_time|default=""|date="y-m-d H:i",###}</td>
+
+					<td><span class="editStatic" field="memo" onclick="editStatic(this,'{:U('V2Source/save')}?id={$vo.id}','textarea')">{$vo.memo}</span></td>
+					<td>
+						<a data-url="{:U('sourceEdit')}?id={$vo.id}" class="showBox btn btn-primary btn-sm">修改</a>
+						<!-- <a href="javascript:void(0);" class="btn btn-danger btn-sm" onclick="delSource({$vo.id})">删除</a> -->
+					</td>
+
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" height="300px" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" style="max-width:400px;"/></a>
+</div>

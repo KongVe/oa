@@ -1,0 +1,27 @@
+<div class="panel panel-default">
+	<div class="panel-heading">
+		已存在的库存
+	</div>
+	<div class="panel-body">
+		<ul class="list-group">
+		<empty name="stockList">
+			<li>无</li>
+		</empty>
+		<foreach name="stockList" item="stock">
+			<li class="list-group-item">
+			    SKU:<b>{$stock.sku}</b><br>
+			    规格:<b>{$stock.variation}</b><br>
+			    <b class="pull-right">{$stock.quantity} 件</b><br>
+			    <div>
+			    	<a onclick="setShipData(this)" data-id="{$stock.id}" data-sku="{$stock.sku}"  data-variation="{$stock.variation}"  data-thumbnail="{$stock.thumbnail}"  class="btn btn-primary btn-xs">设为实发</a>
+
+			    	<a onclick="setStockData(this)" data-id="{$stock.id}" data-sku="{$stock.sku}"  data-variation="{$stock.variation}" data-thumbnail="{$stock.thumbnail}" class="btn btn-info btn-xs">设为库存</a>
+				
+			    </div>
+				
+
+			</li>
+		</foreach>
+		</ul>
+	</div>
+</div>

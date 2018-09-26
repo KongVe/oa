@@ -1,0 +1,108 @@
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	// ace.settings.sidebar_collapsed(true);
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+
+	//如果只有一条记录，默认打开详细框
+	if($("tbody.tbody tr").length == 1){
+		$("tbody.tbody tr").click();
+	}
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}
+	if($("#oaid").val() != ''){
+		$("#oaid").focus().select();
+	}
+	$("#oaid").click(function(){
+		$(this).select();
+	});
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+
+	//下载远程图片
+	var id_obj_list = $("input[name='template_id[]']");
+	var id_list = [];
+	for (var i = 0; i < id_obj_list.length; i++) {
+		if(id_obj_list.eq(i) == undefined){
+			continue;
+		}
+		id_list.push(id_obj_list.eq(i).val());
+	};
+	if(id_list.length==0){
+		id_list = false;
+	}
+	console.log(id_list);
+	downloadThumbnail("wish_product",'thumbnail',id_list);
+})
+
+function synchProducts(obj,type){
+	if(type){
+		//同步全部页面
+		showBox("middleBox","{:U('WishOnlineProduct/synchProductView')}");
+	}else{
+		//即时同步所选产品
+		var id_list = {};
+		$("[name='id[]']").each(function(r){
+			if($(this).prop("checked")){
+				id_list.push($(this).val());
+			}
+		});
+		doSynchChooseProducts(id_list,0,0);
+	}
+}
+
+function doSynchChooseProducts(id_list,ii,attempt){
+	if(!ii || ii==undefined){
+		ii = 0;
+	}
+	$.post("{:U('WishOnlineProduct/synchProducts')}",{ids:id_list,ii:ii,type:'choose'},function(r){
+		if(r.status){
+			if(r.info == "Finish" || ii == (id_list.length-1) ){
+				alertWaring("网络错误，请重试");
+				return true;
+			}else{
+				ii++;
+				return doSynchChooseProducts(id_list,ii,attempt);
+			}
+		}else{
+			alertWaring(r.info);
+		}
+	}).error(function(r){
+		attempt++;
+		if(attempt>=3){
+			alertWaring("网络错误");
+		}else{
+			doSynchChooseProducts(id_list,ii,attempt);
+		}
+	});
+}
+</script>

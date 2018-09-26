@@ -1,0 +1,68 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="purchase" value="selected" />
+	<foreach name="Think.post.order_auto_id" item="id">
+		<input name="order_auto_id[]" type="hidden" value="{$id}" />
+	</foreach>
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">任务完成报表</h1>
+	<div class="col-sm-5">
+		<div class="input-group">
+			<if condition="$admin eq 1">
+				<span>
+					<select name="user_name" onchange="$('#form_search').submit()" class="form-group">
+						<option value="">请选择执行人</option>
+						<volist name="user_list" id="user">
+							<option value="{$user.emp_name}" <if condition="$_REQUEST['user_name'] eq $user['emp_name']">selected</if> >{$user.emp_name}</option>
+						</volist>
+					</select>
+				</span>
+			</if>
+		</div>
+	</div>
+	
+</div>	
+<div class="message-container">
+	<table class="table table-hover table-bordered">
+			<tr>
+				<th style="width:90px;">年份</th>
+				<th>月份</th>
+				<th>设定奖励</th>
+				<th>获得奖励</th>
+				<th>可得总分</th>
+				<th>实际得分</th>
+				<th>操作</th>
+			</tr>
+			<tbody class="tbody">
+				<if condition="$list[0] eq ''">
+					<tr id="tr_{$key}">
+						<td colspan="6" class="text-center"><b>木有数据</b></td>
+					</tr>
+				<else/>
+					<volist name="list" id="info">
+						<tr id="tr_{$key}">
+							<td>{$info.Year}</td>
+							<td>{$info.Month}</td>
+							<td>{$info.sum_reward}</td>
+							<td>{$info.sum_final_reward}</td>
+							<td>
+								<?php 
+									echo $info['count']*10;
+								?>
+							</td>
+							<td>{$info.sum_score}</td>
+							<td>
+								<if condition="$_REQUEST['user_name'] neq ''">
+									<a href="{:U( 'result_detail?user_name='.$_REQUEST['user_name'].'&year='.$info['Year'].'&month='.$info['Month'] )}" target="_blank">查看任务完成列表</a>
+								<else/>
+									<a href="{:U( 'result_detail?user_name='.$_SESSION['user_name'].'&year='.$info['Year'].'&month='.$info['Month'] )}" target="_blank">查看任务完成列表</a>
+								</if>
+							</td>
+						</tr>
+					</volist>
+				</if>
+			
+		</tbody>
+	</table>
+</div>
+</form>

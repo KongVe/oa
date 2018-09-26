@@ -1,0 +1,111 @@
+<script type="text/javascript">
+
+$(function($){
+	//close sidebar
+	// ace.settings.sidebar_collapsed(true);
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+})
+
+
+function del(id) {
+	if(confirm("确认删除？将不可恢复")){
+		$.post("{:U('save')}",{id:id,opmode:'del'},function(msg){
+			if(msg.status){
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+			
+		}).error(function(){
+			alert("网络错误,请重试");
+			window.location.reload();
+		});
+	}
+}
+function state(id,type) {
+	if(!confirm("确认操作？")){
+		return;
+	}
+	if(type){
+		is_del="Yes";
+	}else{
+		is_del="No";
+	}
+
+	$.post("{:U('save')}",{id:id,opmode:'edit',is_del:is_del},function(msg){
+		if(msg.status){
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alert("网络错误,请重试");
+		window.location.reload();
+	});
+}
+function stockout(id){
+	alertWarning("此功能已废除。断货请到 捡货入库 页面搜索对应的SKU取消采购。未开始采购的计划请直接 <b>禁用</b>");
+	return false;
+	if(!confirm("确认断货？")){
+		return;
+	}
+	$.post("{:U('save')}",{id:id,opmode:'edit',purchase_state:"Stockout"},function(msg){
+		if(msg.status){
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alert("网络错误,请重试");
+		window.location.reload();
+	});
+}
+
+
+function editData(id){
+	if(id){
+		var url="<?php echo U("edit"); ?>?id="+id+"&_" + Math.round(new Date().getTime()/1000);
+	}else{
+		var url="<?php echo U("edit"); ?>?_" + Math.round(new Date().getTime()/1000);
+	}
+	$("#middleBoxIframe").attr("src",url);
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+
+function viewProduct(id){
+	$("#form_tmp").html('正在获取数据...');
+	$("#form_tmp").attr("action","{:U('Product/index')}");
+	$("#form_tmp").attr("target","_blank");
+	$("#form_tmp").append('<input type="hidden" name="advanced_q" value="'+id+'" />');
+	$("#form_tmp").append('<input type="hidden" name="show_status" value="0" />');
+	$("#form_tmp").submit();
+}
+
+
+</script>

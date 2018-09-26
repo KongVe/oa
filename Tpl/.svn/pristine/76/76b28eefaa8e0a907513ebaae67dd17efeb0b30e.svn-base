@@ -1,0 +1,127 @@
+<layout name='Layout/ace_layout' />
+{:W('PageHeader',array('name'=>'报关单','search'=>'S'))}
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="pull-left">
+			<a href="{:U('index')}" class="btn btn-sm btn-primary">返回</a>
+			<?php if($has_declaration == true){ ?>
+			<a id="btn_dhlOfficialDeclaration" class="btn btn-sm btn-danger showBox" data-url="{:U('dhlOfficialDeclaration')}?id=<?php echo $_REQUEST['id']; ?>">官方对接</a>
+			<?php  } ?>
+		</div>
+		
+		<div class="pull-right">
+			<a onclick="reset()" id="btn_reset" class="btn btn-sm btn-danger">重置</a>
+			<a onclick="save()" id="btn_save" class="btn btn-sm btn-primary">保存</a>
+		</div>
+	</div>
+</div>
+<!-- 列表显示区域  -->
+<div class="row">
+	<div class="col-sm-6 sub_left_menu">
+		<table class="table table-bordered table-striped">
+			<thead>
+				<tr>
+					<th>
+					<nobr>
+						产品
+					</nobr></th>
+					<th>
+					<nobr>
+						ASIN
+					</nobr></th>
+					<th>
+					<nobr>
+						申报名(EN)
+					</nobr></th>
+					<th>
+					<nobr>
+						申报名(CN)
+					</nobr></th>
+					<th>
+					<nobr>
+						数量
+					</nobr></th>
+					<th>
+					<nobr>
+						申报价值({$marketplace.price_currency})
+					</nobr></th>
+				</tr>
+			</thead>
+			<tbody>
+				<volist name="product_detail" id="data">
+					<tr id="{$data.id}">
+						<td>
+							<a href="{$data.thumbnail}" target="_blank" class="thumbnail"><img src="{$data.thumbnail}" width="60" />
+						</td>
+						<td>
+							{$data.asin}<br>
+							{$data.sku}<br>
+							{$data.fnsku}
+						</td>
+						<td>
+							<input name="declare_name" value="{$data.declare_name}" onchange="saveStatic(this,'/amazon_sellyours/save?id={$data.sellyours_id}','',{})" />
+						</td>
+						<td>
+							<input name="declare_name_cn" value="{$data.declare_name_cn}" onchange="saveStatic(this,'/amazon_sellyours/save?id={$data.sellyours_id}','',{})" />
+						</td>
+						<td>
+							{$data.quantity}
+						</td>
+						<td>
+							{$data.cost}
+						</td>
+					</tr>
+				</volist>
+			</tbody>
+		</table>
+	</div>
+	<div class="col-sm-6 sub_content">
+		<form id="form_data" name="form_data" method="post" >
+			<input type="hidden" id="shipment_id" name="id" value="<?php echo $_REQUEST['id']; ?>"	/>
+			<volist name="declaration_detail" id="declaration">
+				<div class="panel panel-default">
+				  <div class="panel-body">
+				  	<?php $declaration_key = $key; ?>
+				    第 {$key+1} 票，总价值：<b class="red" id="total_value_{$declaration_key}">{$declaration.total_value}</b> {$marketplace.price_currency}
+				    <input type="hidden" id="declaration_total_value_{$declaration_key}" name="declaration_detail[{$declaration_key}][total_value]" value="{$declaration.total_value}" />
+				  </div>
+				</div>
+				<table class="table table-bordered table-striped" data-declaration-key="{$declaration_key}">
+					<thead>
+						<tr>
+							<th>申报名(EN)</th>
+							<th>申报名(CN)</th>
+							<th>数量</th>
+							<th><nobr>申报价值({$marketplace.price_currency})</nobr></th>
+						</tr>
+					</thead>
+					<tbody>
+						<volist name="declaration.declaration_list" id="vo">
+							<tr>
+								<td>
+									<input type="text" name="declaration_detail[{$declaration_key}][declaration_list][{$key}][declare_name]" value="{$vo.declare_name}" />
+								</td>
+								<td>
+									<input type="text" name="declaration_detail[{$declaration_key}][declaration_list][{$key}][declare_name_cn]" value="{$vo.declare_name_cn}" />
+								</td>
+								<td>
+									<input type="text" class="cal_param declaration_quantity"  name="declaration_detail[{$declaration_key}][declaration_list][{$key}][quantity]" value="{$vo.quantity}" />
+								</td>
+								<td>
+									<input type="text"  class="cal_param declaration_price" name="declaration_detail[{$declaration_key}][declaration_list][{$key}][price]" value="{$vo.price}" />
+								</td>
+							</tr>
+						</volist>
+					</tbody>
+				</table>
+			</volist>
+		</form>
+	</div>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<style>
+.showBottomBox{cursor: pointer;}
+</style>
+

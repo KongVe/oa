@@ -1,0 +1,205 @@
+<layout name='Layout/ace_layout' />
+
+<script src="/Public/ueditor/third-party/zeroclipboard/ZeroClipboard.js"></script> 
+
+<form name="form_search" id="form_search" method="post" class="form-inline">
+<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+<div class="page-header clearfix">
+	<h1 class="col-xs-3">SKU: <b>{$_REQUEST['sku']}</b> 的图片</h1>
+	<!-- <div class="col-xs-9 pull-right">
+
+		<div class="form-group col-xs-3">
+			<label class="sr-only" >q</label>
+			<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.post.q}" placeholder="搜索SKU"/>
+		</div>
+
+		<div class="form-group">
+			<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+			<button class="btn btn-sm btn-danger" onclick="window.location.reload();" title="重置"><i class="icon-rotate-right" ></i></button>
+		</div>
+	</div> -->
+</div>	
+<div class="message-container" id="container_table">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="btn-group">
+				<a href="{:U('index')}" class="btn btn-inverse">返回</a>
+			</div>
+			<div class="btn-group">
+				<a onclick="edit('{$_REQUEST['sku']}');" target="_blank" class="btn btn-primary">添加图片</a>
+			</div>
+		</div>
+	</div>
+	<table class="table table-hover table-bordered">
+		<include file="Layout:title"/>
+		
+		<tbody class="tbody">
+		<volist name="list" id="vo">
+			<tr id="tr_{$vo.id}" >
+				<td  >
+					<label class="inline pull-left">
+						<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+						<span class="lbl"></span>
+						{$vo.id}
+					</label>
+				</td>
+				<td >
+					{$vo.sku}
+				</td>
+				<td >
+					{$vo.status}
+				</td>
+				<td >
+					<a href="/{$vo.local_img}" class="thumbnail" target="_blank"><img src="/{$vo.local_img}" style="min-width:80px;width:80px;" /></a>	
+				</td>
+				<td >
+					<eq name="vo.status" value="Out date">
+						<div class="col-sm-12 red">
+							图片过期
+						</div>
+					<else/>
+						<empty name="vo.remote_img">
+							未上传
+						<else/>
+							<div class="col-sm-12">
+								<textarea  class="col-sm-12" id="remote_img_{$vo.id}" readonly="readonly">{$vo.remote_img}</textarea>
+							</div>
+							<div class="col-sm-12">
+								<input id="copy_{$vo.id}" class="btn btn-info btn-sm copy_button" data-id="{$vo.id}" onclick="copyUrl('{$vo.id}',this);" type="button" data-clipboard-target="remote_img_{$vo.id}" value="复制">
+								<span id="alert_copy_{$vo.id}"></span>
+							</div>
+						</empty>
+					</eq>
+				</td>
+				<td >
+					<empty name="vo.upload_time">
+						未上传
+					<else/>
+						{$vo.upload_time|date="y-m-d H:i:s",###}
+					</empty>
+				</td>
+				<td >
+					{$vo.add_time|date="y-m-d H:i:s",###}
+				</td>
+				<td >
+					{$vo.user_name}
+				</td>
+				<td >
+					<a class="btn btn-warning btn-xs" onclick="del('{$vo.id}')">删除</a>
+				</td>
+
+			</tr>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+
+<!-- 模态弹窗-->
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxIframe" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:800px;height:100%;min-height:500px;" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<script type="text/javascript">
+
+function del(id) {
+	if(confirm("确认删除？将不可恢复")){
+		$.post("{:U('del')}",{id:id,opmode:'del'},function(msg){
+			if(msg.status){
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+			
+		}).error(function(){
+			alert("网络错误,请重试");
+			window.location.reload();
+		});
+	}
+}
+
+function state(id,type) {
+	if(!confirm("确认操作？")){
+		return;
+	}
+	if(type){
+		is_del=1;
+	}else{
+		is_del=0;
+	}
+
+	$.post("{:U('save')}",{id:id,opmode:'edit',is_del:is_del},function(msg){
+		if(msg.status){
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alert("网络错误,请重试");
+		window.location.reload();
+	});
+
+}
+
+function edit(sku){
+	if(sku){
+		var url="<?php echo U("edit"); ?>?sku="+sku+"&_" + Math.round(new Date().getTime()/1000);
+	}else{
+		var url="<?php echo U("edit"); ?>?_" + Math.round(new Date().getTime()/1000);
+	}
+	$("#middleBoxIframe").attr("src",url);
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+
+
+var tmp_list = {};
+var copy_list = [];
+function initCopyButton(){
+	$(".copy_button").each(function(r){
+		var ii = $(this).attr("data-id");
+		if(tmp_list[ii] == undefined){
+			tmp_list[ii] = 1;
+			$(this).click();
+		}
+	});
+}
+function copyUrl(id,obj){
+	
+	copy_list[id] = new ZeroClipboard( document.getElementById("copy_"+id) );
+	
+	copy_list[id].on("aftercopy", function(e){
+		console.log(id);
+		$('#copy_'+id).tooltip({html:"复制成功",
+				title:"复制成功",
+				trigger:"click",
+				delay: { show: 500, hide: 100 },
+				placement:"right",
+			}).tooltip('show');
+		setTimeout(closeTip,800);
+	});
+
+	tmp_list[id] ++;
+}
+function closeTip(){
+	for(var id in tmp_list){  
+	   $('#copy_'+id).tooltip({
+	   		placement:"right",
+			title:"复制成功",	   	
+			trigger:"hover",
+			delay: { show: 500, hide: 100 },
+		}).tooltip('hide');
+	}  
+}
+setTimeout(initCopyButton,500);
+
+</script>

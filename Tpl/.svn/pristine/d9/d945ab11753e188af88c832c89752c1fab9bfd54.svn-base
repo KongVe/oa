@@ -1,0 +1,673 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" action="{:U('index')}" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo intval(!$sort); ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<div class="page-header clearfix">
+		<h1 class="col-sm-2">跟卖查询</h1>
+		<div class="form-group col-sm-2	 pull-left">
+			<select name="is_owner" id="is_owner" class="form-control ">
+				<option value=''>筛选自建跟卖</option>
+				<option value="Owner" <?php if($_REQUEST['is_owner'] == 'Owner'){ echo "selected"; } ?> >Owner(自建)</option>
+				<option value="Others" <?php if($_REQUEST['is_owner'] == 'Others'){ echo "selected"; } ?> >Others(跟卖)</option>
+			</select>
+		</div>	
+
+		<div class="input-group col-sm-4">
+			<span class="input-group-addon">
+				<label>
+					<input type="checkbox" class="ace input-lg" name="have_fba_stock_account" id="have_fba_stock_account" value="1" <notempty name="Think.request.have_fba_stock_account">checked="checked"</notempty> />
+					<span class="lbl">
+						<b>有库存</b>
+					</span>
+				<label>
+			</span>
+
+			<select class="form-control"  name="account_id[]" id="account_id" style="width:70%;" multiple="multiple" size="1" placeholder="筛选帐号">
+				<option value=''>帐号</option>
+				<volist name="accountList" id="account">
+					<option value="{$account.id}" <?php 
+					if($_REQUEST['account_id']){
+						if(!is_array($_REQUEST['account_id'])){
+							$account_ids = array($_REQUEST['account_id']);
+						}else{
+							$account_ids = $_REQUEST['account_id'];
+						}
+					}
+					
+					if(in_array($account['id'], $account_ids)) echo "selected"; ?>>{$account.website_name}=>{$account.proxy_host}=>{$account.account_name}</option>
+				</volist>
+			</select>
+		</div>
+		
+		<div class="form-group col-sm-2	 pull-left">
+			<select name="promote_ads_type[]" id="promote_ads_type" style="width:100%" multiple="multiple" size="1" placeholder="PPC状态">
+				<foreach name="promote_ads_type_list" key="k1" item="v1">
+					<option value="{$k1}" <?php if(in_array($k1, $_REQUEST['promote_ads_type'])){ echo "selected"; } ?> >{$v1}</option>
+				</foreach>
+			</select>
+		</div>
+		<div class="form-group col-sm-2	 pull-left">
+			<input style="cursor:pointer;" class="form-control" type="text" name="ppc_campaign_name" id="ppc_campaign_name" value="{$Think.request.ppc_campaign_name}"  placeholder="PPC活动名" >
+		</div>
+
+		<!-- <div class="form-group col-sm-1	 pull-left">
+			<select name="promote_ads_status" id="promote_ads_status" class="form-control">
+				<option value=''>选择广告状态</option>
+				<option value="ENABLED_PAUSED" <?php if("ENABLED_PAUSED" == $_REQUEST['promote_ads_status']){ echo "selected"; } ?> >正常&暂停</option>
+				<option value="ENABLED" <?php if("ENABLED" == $_REQUEST['promote_ads_status']){ echo "selected"; } ?> >正常</option>
+				<option value="PAUSED" <?php if("PAUSED" == $_REQUEST['promote_ads_status']){ echo "selected"; } ?> >暂停</option>
+				<option value="ARCHIVED" <?php if("ARCHIVED" == $_REQUEST['promote_ads_status']){ echo "selected"; } ?> >归档</option>
+				<option value="ALL" <?php if("ALL" == $_REQUEST['promote_ads_status']){ echo "selected"; } ?> >全部</option>
+			</select>
+		</div> -->
+
+		<!-- <div class="form-group col-sm-2	 pull-left">
+			<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="day_sessions_date" id="day_sessions_date" value="{$Think.request.day_sessions_date}"    readonly="readonly" placeholder="流量时间">
+		</div> -->
+		<div class="form-group col-sm-2	 pull-left">
+			<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}" placeholder="创建时间">
+		</div>		
+		<div class="form-group col-sm-2	 pull-left">
+			<input style="cursor:pointer;"    class="form-control" type="text" name="id" id="id" value="<?php if(is_string($_REQUEST['id'])){ echo $_REQUEST['id']; }  ?>"  placeholder="序号">
+		</div>			
+		<div class="form-group col-sm-2	 pull-left">
+			<input style="cursor:pointer;"    class="form-control" type="text" name="stock_q" id="stock_q" value="{$Think.request.stock_q}"  placeholder="绑定的库存序号或SKU" onkeypress="if(event.keyCode==13) {submit_search();return false;}">
+		</div>	
+		<div class="form-group col-sm-2	 pull-left">
+			<input style="cursor:pointer;"    class="form-control" type="text" name="stock_q_v2" id="stock_q_v2" value="{$Think.request.stock_q_v2}"  placeholder="SKU序号,SKU,SKU商品描述" onkeypress="if(event.keyCode==13) {submit_search();return false;}">
+		</div>	
+
+		<!-- <div class="input-group col-sm-3">
+			<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索 ASIN，产品名称，商标"/>
+			<div class="input-group-btn">
+				<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+				<a class="btn btn-sm btn-danger" href="{:U('index')}" title="重置"><i class="icon-rotate-right" ></i></a>
+			</div>
+		</div> -->
+
+		<div class="input-group col-sm-3">
+	        <div class="input-group">
+	            <input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="搜索 (父)ASIN，产品名称，商标"/>
+	            <span class="input-group-btn">
+	                <button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+	            </span>
+	        </div>
+	    </div>
+
+	</div>
+
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="col-sm-9">
+			<div class="btn-group">
+				<!-- <a class="btn btn-sm btn-primary showBox" data-url="{:U('edit')}" >新增</a>	 -->
+				<a class="btn btn-sm btn-primary" href="{:U('AmazonSellyoursAddReview/index')}" >新增审核</a>
+			</div>
+			<div class="btn-group">
+				<a href="#" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown">标记 <i class="icon-caret-down"></i></a>
+				<ul class="dropdown-menu col-20">
+					<foreach name="allFlag" item="f">
+						<li style="height:35px;">
+							<span class="col-sm-6">
+								<span class="btn-sm" style="color:{$f['font_color']};background:{$f['bg_color']};">{$f['short_name']}</span>
+							</span>
+							<span class="col-sm-3">
+								<label class="btn-minier btn btn-success" style="cursor:pointer">标记<input style="display:none" type="radio" name="binary_key"  value="{$f.binary_key}" onclick="mark('flag')"></label>
+							</span>
+							<span class="col-sm-3">
+								<label class="btn-minier btn btn-warning" style="cursor:pointer">取消<input style="display:none" type="radio" name="binary_key"  value="{$f.binary_key}" onclick="mark('unflag')"></label>
+							</span>
+						</li>
+					</foreach>
+				</ul>
+			</div>		
+			<!-- <div class="btn-group">
+				<a class="btn btn-sm btn-warning showBox" data-url='{:U("AmazonSellyours/generateSKU")}'>生成SKU</a>
+			</div> -->
+			<?php /*<div class="btn-group">
+				<a class="btn btn-sm btn-danger" id="btn_purchase" onclick="purchase()" >生成采购单</a>
+			</div>*/ ?>
+			 <div class="btn-group">
+				<a class="btn btn-sm btn-danger" id="btn_v2Purchase" onclick="v2Purchase()" >采购</a>
+			</div> 
+			<div class="btn-group">
+				<a class="btn btn-sm btn-success" id="btn_generateTransferPlan"  >转仓</a>
+			</div>
+
+			<div class="btn-group">
+				<a class="showBox btn btn-sm btn-primary" data-url="{:U('skuDataImportView')}" >批量关联SKU</a>
+			</div>
+			<?php if(isAdmin()){ ?> 
+				<div class="btn-group">
+					<a class="btn btn-sm btn-danger"  href="{:U('AmazonBusinessReports/importIndex')}" >Session导入</a>	
+				</div>	
+				<div class="btn-group">
+					<a class="btn btn-sm btn-inverse"  href="{:U('V2AmazonReportPromotePerformance/importIndex')}" >广告数据导入</a>	
+				</div>		
+			<?php } ?>	
+
+
+			<div class="btn-group">
+				当前FBA积压总数: <b class="green">{$overstock['quantity_total']}</b> 个
+			</div>
+			
+			
+			<div class="btn-group">
+				<a class="btn btn-sm btn-danger" target="_blank" href="{:U('AmazonRecommendationInventory/index')}" >库存预警</a>
+			</div>		
+			<div class="btn-group">
+				<a class="btn btn-sm btn-primary" target="_blank" href="{:U('AmazonSalesTrack/index')}" >销量跟踪V2</a>
+			</div>
+			<?php if(false && isAdmin()){ ?> 
+			<div class="btn-group">
+				<a class="btn btn-sm btn-warning showBox" data-url="{:U('getAllCost')}" >货值</a>
+			</div>
+			<div class="btn-group">
+				<a class="btn btn-sm btn-warning" target="_blank" href="{:U('AmazonMerchantBlocked/index')}" >跟卖投诉</a>
+			</div>	
+			<div class="btn-group">
+				<a class="btn btn-sm btn-danger showBox" data-url="{:U('AmazonSellyoursIssue/repeatRate')}" >重复铺货率</a>
+			</div>	
+			<?php } ?>
+
+			
+		</div>
+		
+		<div class="col-sm-3">
+			<div class="input-group">
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="day_between" id="day_between" value="{$Think.request.day_between}" placeholder="广告时间">
+				<span class="input-group-btn">
+					<a class="downloadAccountReportV2 btn btn-inverse btn-sm">下载帐号广告</a>
+				</span>
+			</div>
+		</div>
+
+		<div class="col-sm-12">
+			<hr>
+		</div>
+
+		<div class="col-sm-12 align-center">
+			<div class="btn-group">
+				<label>
+					<input type="checkbox" class="ace input-lg show_by_pasin" name="show_by_pasin" value="1" <notempty name="Think.request.show_by_pasin">checked="checked"</notempty> />
+					<span class="lbl">
+						<b>按父ASIN显示</b>
+					</span>
+				<label>
+			</div>
+
+			<div class="btn-group">
+				<label onClick="$('#form_search').submit();">
+					<input type="checkbox" class="ace input-lg" name="show_year_order" value="1" <notempty name="Think.request.show_year_order">checked="checked"</notempty> />
+					<span class="lbl">
+						<b>近一年半销量</b>
+					</span>
+				<label>
+			</div>
+
+			<div class="btn-group">
+				<label onClick="$('#form_search').submit();">
+					<input type="checkbox" class="ace input-lg" name="have_other_seller_offer" value="1" <notempty name="Think.request.have_other_seller_offer">checked="checked"</notempty> />
+					<span class="lbl">
+						<b>近一周被跟卖</b>
+					</span>
+				<label>
+			</div>
+
+			<div class="btn-group">
+				<label onClick="$('#form_search').submit();">
+					<input type="checkbox" class="ace input-lg" name="show_ppc_spend" value="1" <notempty name="Think.request.show_ppc_spend">checked="checked"</notempty> />
+					<span class="lbl">
+						<b class="red">近期广告费</b>
+					</span>
+				<label>
+			</div>
+
+			<div class="btn-group">
+				<label onClick="$('#form_search').submit();">
+					<input type="checkbox" class="ace input-lg" name="show_returned_rate" value="1" <notempty name="Think.request.show_returned_rate">checked="checked"</notempty> />
+					<span class="lbl">
+						<b class="red">FBA退货率</b>
+					</span>
+				<label>
+			</div>
+
+			<div class="btn-group">
+				<label onClick="$('#form_search').submit();">
+					<input type="checkbox" class="ace input-lg" name="online_weight_error" value="1" <notempty name="Think.request.online_weight_error">checked="checked"</notempty> />
+					<span class="lbl">
+						<b>FBA重量偏大</b>
+					</span>
+				<label>
+			</div>
+
+			<if condition=" isAdmin(61) ">
+				<div class="btn-group">
+					<label onClick="$('#form_search').submit();">
+						<input type="checkbox" class="ace input-lg" name="profit_real_loan_rate" value="1" <notempty name="Think.request.profit_real_loan_rate">checked="checked"</notempty> />
+						<span class="lbl">
+							<b>利润/实收(admin)</b>
+						</span>
+					<label>
+				</div>
+			</if>
+
+			<div class="btn-group">
+				<a class="btn btn-sm btn-danger showBox" data-url="{:U('AmazonSellyoursIssue/repeatRate')}" >重复铺货率</a>
+			</div>	
+		</div>
+	</div>
+
+</div>
+<div class="message-container" style="width:100%;overflow:scroll;">
+	<table class="table table-striped table-hover">
+		
+		 	<include file="Layout:title"/>
+			<tbody class="tbody">
+			<volist name="list" id="vo">
+				<notempty name="vo.parent_asin_data">
+					<tr class="warning">
+						<input type="hidden" id="foldTrVal_{$vo.parent_asin_data.parent_asin}" value="0"> 
+						<input type="hidden" class="foldTrAsin" value="{$vo.parent_asin_data.parent_asin}">
+
+						<td class="align-center foldTr">
+							<a style="cursor:pointer;">折叠</a>
+						</td>
+						<td colspan="1">
+							父ASIN: 
+							<br>
+							<notempty name="vo.parent_asin_data.parent_asin">
+								<b>{$vo.parent_asin_data.parent_asin}</b>
+							<else/>
+								<b class="red">没有父ASIN</b>
+							</notempty>
+							
+						</td>
+						<td colspan="2">
+							<a href="{$vo.parent_asin_data.thumbnail}" target="_blank" class="thumbnail" style="width:70px;"><img src="{$vo.parent_asin_data.thumbnail}" width="70" /></a>
+						</td>
+						<td colspan="1" class="foldTr">
+							{$vo.parent_asin_data.parent_warehouse_quantity_total}
+							<notempty name="vo.parent_asin_data.parent_total_purchase_quantity">
+								<br>
+								<b>采购中: </b>{$vo.parent_asin_data.parent_total_purchase_quantity}
+							</notempty>
+
+							<notempty name="vo.parent_asin_data.parent_local_transfer_quantity">
+								<br>
+								<b>转FBA中: </b>{$vo.parent_asin_data.parent_local_transfer_quantity|default="0"} 个
+								<br>
+							</notempty>
+						</td>
+						<td colspan="1" class="foldTr">
+						</td>
+						<td colspan="2" class="foldTr">
+							{$vo.parent_asin_data.website}
+						</td>
+						<td class="foldTr">
+							{$vo.parent_asin_data.parent_day_order_units}
+
+							<!-- <neq name="vo.parent_asin_data.pending_order_units" value="0">
+								<br>
+								Pending: {$vo.parent_asin_data.parent_pending_order_units}
+							</neq> -->
+							
+						</td>
+						<td>
+							{$vo.parent_asin_data.parent_week_order_units}
+							<br>
+							<a href="javascript:void(0);" onclick="tmpSendForm('{:U('V2OrderDetail/index')}',{online_product_id:'<?php echo $vo['parent_asin_data']['asins_str']; ?>'})" target="_blank" class="blue">所有订单</a>
+							<br>
+							Avg: <?php echo ceil($vo['parent_asin_data']['parent_week_order_units'] / 7 * 100) / 100; ?>
+						</td>
+						<td>
+							{$vo.parent_asin_data.parent_month_order_units}
+							<br>
+							<a href="javascript:void(0);" onclick="tmpSendForm('{:U('v2_statistics/salesCountIndex')}',{online_product_id:'<?php echo $vo['parent_asin_data']['asins_str']; ?>'})" target="_blank" class="blue">合并统计</a>
+							<br>
+							Avg: <?php echo ceil($vo['parent_asin_data']['parent_month_order_units'] / 30 * 100) / 100; ?>
+						</td>
+						<notempty name="Think.request.show_year_order">
+							<td class="foldTr">
+								{$vo.parent_asin_data.parent_year_order_units}
+							</td>
+						</notempty>
+						<notempty name="Think.request.show_ppc_spend">
+							<td class="foldTr">
+								月: {$vo.parent_asin_data.parent_month_ppc_spend} 元<br>
+								周: {$vo.parent_asin_data.parent_week_ppc_spend}<br>
+								日均: <?php echo ceil($vo['parent_asin_data']['parent_month_ppc_spend'] / 30 * 100) / 100; ?>
+							</td>
+						</notempty>
+
+						<notempty name="Think.request.show_returned_rate">
+							<td class="foldTr">
+								率: <a class="showBox" data-url="{:U('showReturnedDetail')}?sellyours_id={$vo['parent_asin_data']['sellyours_ids']}"><?php echo round( ($vo['parent_asin_data']['parent_returned_order'] / $vo['parent_asin_data']['parent_total_order'])*100 ); ?> %</a><br>
+								退: <a href="javascript:void(0);" onclick="tmpSendForm('{:U('V2OrderDetail/index')}',{online_product_id:'<?php echo $vo['parent_asin_data']['asins_str']; ?>',have_returned:1,fulfill_by:'Amazon'})" target="_blank">{$vo.parent_asin_data.parent_returned_order}</a><br>
+								总: {$vo.parent_asin_data.parent_total_order}
+							</td>
+						</notempty>
+
+						<notempty name="Think.request.profit_real_loan_rate">
+							<td class="foldTr">
+								<notempty name="vo.parent_asin_data.profit_real_loan_rate1">
+									
+										{$vo.parent_asin_data.profit_real_loan_rate1|round=###,2}
+										<br>
+										广告: {$vo.parent_asin_data.month1_ad_fee_total}
+										<br>
+										利润: {$vo.parent_asin_data.month1_profit_total_total}
+										<br>
+										订单: {$vo.parent_asin_data.month1_order_count_total}
+									
+								</notempty>
+							</td>
+
+							<td class="foldTr">
+								<notempty name="vo.parent_asin_data.profit_real_loan_rate2">
+									
+										{$vo.parent_asin_data.profit_real_loan_rate2|round=###,2}
+										<br>
+										广告: {$vo.parent_asin_data.month2_ad_fee_total}
+										<br>
+										利润: {$vo.parent_asin_data.month2_profit_total_total}
+										<br>
+										订单: {$vo.parent_asin_data.month2_order_count_total}
+									
+								</notempty>
+							</td>
+						</notempty>
+
+
+						
+						<td class="foldTr">
+						</td>
+						<td class="align-center foldTr">
+							<b class="orange">{$vo.parent_asin_data.parent_online_fba_instock_quantity}</b><br>
+						</td>
+						<td colspan="2" class="align-center foldTr" style="width:220px;">
+							<a style="cursor:pointer;">折叠</a>
+						</td>
+						<td>
+							<a class="btn btn-success btn-sm showBox" data-url="{:U('AmazonBusinessReports/detailV2')}?sellyours_id={$vo.id}&parent_asin_data=1">父ASIN分析</a>
+
+							<notempty name="vo.parent_asin_data.has_ads">
+								<a data-sellyours_id="{$vo['parent_asin_data']['sellyours_ids']}" data-asin="{$vo.parent_asin_data.parent_asin}" class="downloadAsinStReportV2 btn btn-primary btn-sm">广告报告</a>
+							</notempty>
+
+							<a class="btn btn-info btn-sm showTaskList" data-id="{$vo['parent_asin_data']['sellyours_ids']}" data-pasin="{$vo.parent_asin_data.parent_asin}">任务</a>
+						</td>
+					</tr>
+				</notempty>
+				<tr class="child_tr_{$vo.parent_asin}" <notempty name="Think.request.show_by_pasin">style="display: none;"</notempty> >
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+							<br>
+							<br>
+							{$vo.add_time}
+						</label>
+					</td>
+					<td>
+						<a href="{$vo.offer_link}" target="_blank" title="{$vo.asin}">{$vo.asin}</a>
+						<notempty name="vo.parent_asin">
+							<br>
+							父ASIN: {$vo.parent_asin}
+						</notempty>
+						
+						<?php if($vo['sales_track']){ ?>
+						<br><br>
+						<a href="{:U('AmazonSalesTrack/index')}?q={$vo.asin}" class="btn btn-xs btn-primary" target="_blank" title="{$vo.asin}">Track</a>
+						<?php } ?>
+						<?php if($vo['merchant_blocked']){ ?>
+						<br><br>
+						<a href="{:U('AmazonMerchantBlocked/index')}?q={$vo.asin}" class="btn btn-xs btn-danger" target="_blank" title="{$vo.asin}">投诉</a>
+						<?php } ?>
+						</td>
+					<td><a href="{$vo.source_link}" target="_blank" class="thumbnail"><img src="{$vo.thumbnail}" width="60" /></a>
+					<a href="{$vo.product_link}" target="_blank" title="{$vo.product_name}"><?php echo substr($vo['product_name'], 0,10) . "..."; ?></a></td>
+					<td>{$vo.flag|default="&nbsp;"}</td>
+					
+					<td style="min-width:150px;max-width:200px;">
+						库存: <b>{$vo.warehouse_quantity_total|default="0"}</b> 个
+						<eq name="vo.sku_data.is_virtual_sku" value="Yes">
+		  					<span style="cursor:pointer;" data-toggle="popover" class="popover_show blue"  data-content="<pre>{$vo.stock_show_str}</pre>"><b>详情</b></span>
+		  				</eq>
+		  				<br>
+		  				<notempty name="vo.owner_list">
+		  					<div style="font-size:13px;">
+				  				<volist name="vo.owner_list" id="owner">
+				  					&nbsp;{$owner.owner_empname}: <b>{$owner.quantity}</b> 个<br>
+				  				</volist>
+			  				</div>
+							<br>
+		  				</notempty>
+
+						<?php if($vo['sku_purchase_data']['total_purchase_quantity']){ ?>
+							<a title="采购中: {$vo.purchasing_quantity}" href="{:U('V2PurchasePlan/index')}?q={$vo.sku_data.sku}" target="_blank"  >采购中: {$vo.sku_purchase_data.total_purchase_quantity}</a>
+							<br>
+						<?php } ?>
+
+						<notempty name="vo.local_transfer_quantity">
+							转FBA中: <b>{$vo.local_transfer_quantity|default="0"}</b> 个
+							<br>
+						</notempty>
+
+						<notempty name="vo.oversea_instock_quantity" value="0">
+							<a title="海外仓: {$vo.oversea_instock_quantity} ,包含虚拟SKU" href="javascript:void(0);" onclick="tmpSendForm('{:U('V2OverseaProduct/index')}','q={$vo.sku_data.sku}&_order=v2_oversea_product.available_quantity')" target="_blank"  >海外仓 : {$vo.oversea_instock_quantity}</a><br>
+						</notempty>
+
+
+						<?php if($vo['sku_data']['weight'] > 0){ ?>
+							重量: <b>{$vo.sku_data.weight}</b> g
+							<br>
+						<?php } ?>
+
+						<empty name="vo.sku_data">
+							<a class="showBox btn btn-primary btn-xs" data-url="{:U('AmazonSellyours/mapLocalSku')}?id={$vo.id}" title="关联本地SKU">关联本地SKU</a>
+							<br>
+						<else/>
+							<a style="cursor:pointer;" class="showBox" data-url="{:U('AmazonSellyours/mapLocalSku')}?id={$vo.id}" title="已关联SKU">修改</a>
+							<b>{$vo.sku_data.sku}</b>
+							
+							<br>
+							{$vo.sku_data.sku_name}
+						</empty>
+						
+					</td>
+					<td><span class="editStatic" field="purchase_quantity" onclick="editStatic(this,'{:U('AmazonSellyours/save')}?id={$vo.id}','input')">{$vo.purchase_quantity}</span></td>
+					<td class="showBottomBox" style="width:80px;">
+						{$vo.website}
+						<notempty name="vo.ads_data_list">
+							<br>
+							<br>
+							
+							<notempty name="vo.campaign_name_show">
+			  					<span style="cursor:pointer;" data-toggle="popover" class="popover_show"  data-content="<pre>{$vo.campaign_name_show}</pre>"><b class="blue">PPC状态</b></span>
+			  					<br>
+			  				<else/>
+			  					<b class="blue">PPC状态</b><br>
+			  				</notempty>
+
+							<volist name="vo.ads_data_list" id="ads_data">
+								{$ads_data.targeting|L} {$ads_data.eligibility_reason|L}<br>
+							</volist>
+						</notempty>
+					</td>
+					<?php /*<td class="showBottomBox">{$vo.is_owner}</td>
+					<td class="showBottomBox">{$vo.review_time}</td>
+					<td class="showBottomBox">{$vo.status}</td> */ ?>
+					<td class="showBottomBox">{$vo.add_empname}<br><br>{$vo.is_owner}</td>
+					<?php /*<td class="showBottomBox">
+						<b class="blue">{$vo.day_sessions}</b>
+						<br>
+						<br>
+						{$vo.day_sessions_date}
+					</td> */ ?>
+					<td  class="showBottomBox">
+						{$vo.day_order_units}
+
+						<!-- <neq name="vo.pending_order_units" value="0">
+							<br>
+							Pending: {$vo.pending_order_units}
+						</neq> -->
+						
+					</td>
+					<td  class="showBottomBox">
+						<a href="javascript:void(0);" onclick="tmpSendForm('{:U(\'V2OrderDetail/index\')}',{online_product_id:'<?php echo $vo['asin']; ?>'})" target="_blank" class="green">{$vo.week_order_units}</a>
+						<neq name="vo.week_order_units" value="0">
+							<br>
+							Avg: <?php echo ceil($vo['week_order_units'] / 7 * 100) / 100; ?>
+						</neq>
+
+						<br>
+						<br>
+						<a href="javascript:void(0);" onclick="tmpSendForm('{:U('V2OrderDetail/index')}',{online_product_id:'<?php echo $vo['asin']; ?>'})" target="_blank" class="blue">订单</a>
+
+					</td>
+					<td class="showBottomBox">
+						{$vo.month_order_units}
+						
+						<neq name="vo.week_order_units" value="0">
+							<br>
+							Avg: <?php echo ceil($vo['month_order_units'] / 30 * 100) / 100; ?>
+						</neq>
+
+						<br>
+						<br>
+						<a href="javascript:void(0);" onclick="tmpSendForm('{:U('v2_statistics/salesCountIndex')}',{online_product_id:'<?php echo $vo['asin']; ?>'})" target="_blank" class="blue">统计</a>
+
+					</td>
+					<notempty name="Think.request.show_year_order">
+						<td class="showBottomBox">
+							{$vo.year_order_units}
+						</td>
+					</notempty>
+
+					<notempty name="Think.request.show_ppc_spend">
+						<td class="showBottomBox">
+							<gt name="vo.month_ppc_spend" value="0">
+								月: {$vo.month_ppc_spend} 元<br>
+								周: {$vo.week_ppc_spend}<br>
+								日均: <?php echo ceil($vo['month_ppc_spend'] / 30 * 100) / 100; ?>
+							</gt>
+						</td>
+					</notempty>
+
+					<notempty name="Think.request.show_returned_rate">
+						<td class="showBottomBox">
+							<gt name="vo.returned_order" value="0">
+								率: <a class="showBox" data-url="{:U('showReturnedDetail')}?sellyours_id={$vo.id}"   >{$vo['returned_rate']*100} %</a><br>
+								退: <a href="javascript:void(0);" onclick="tmpSendForm('{:U('V2OrderDetail/index')}',{online_product_id:'<?php echo $vo['asin']; ?>',have_returned:1,fulfill_by:'Amazon'})" target="_blank">{$vo.returned_order}</a><br>
+								总: {$vo.total_order}
+							</gt>
+						</td>
+					</notempty>
+
+					
+					<td class="showBottomBox">
+						<neq name="vo.last_order_cost" value="0">
+							利润: ￥<b class="red">{$vo.last_order_profit}</b><br>
+							成本: ￥{$vo.last_order_cost}<br>
+							<b>利润率: <?php echo ($vo['last_order_profit_rate'] * 100) . "%"; ?></b><br>
+							销利率: <?php echo (round($vo['last_order_profit'] / 6.8 / $vo['last_order_price'],2) * 100). "%"; ?><br>
+							售价:<b><?php echo formatPrice($vo['last_order_price'],$vo['price_currency']); ?></b><br>
+							<?php echo date("Y-m-d", $vo['last_order_time']); ?>
+						</neq>
+					</td>
+					<td class="showBottomBox">
+						<b class="orange">{$vo.online_fba_instock_quantity}</b><br>
+						<?php if($vo['cost_list'][0]['cost']) { ?> 
+						<span class="purple"><?php echo $vo['cost_list'][0]['cost']; ?></span> =><?php echo $vo['cost_list'][
+						0]['fulfillable_quantity']; ?><br>
+						<?php } ?>
+						<?php /* <volist name="vo.cost_list" id="cost">
+							<span class="purple">{$cost.cost}</span> =>{$cost.fulfillable_quantity}<br>
+						</volist> */ ?>
+					</td>
+					<td class="showBottomBox">
+						<?php if($vo['competition_last_update']){  ?>
+						FBA卖家：{$vo.buy_box_eligible_offer_count_fulfillby_amazon}<br>
+						FBA最低价：<b>{$vo.lowest_price_fulfillby_amazon}</b><br>
+						直发卖家：{$vo.buy_box_eligible_offer_count_fulfillby_merchant}<br>
+						直发最低价：<b>{$vo.lowest_price_fulfillby_merchant}</b>
+						<?php } ?>
+					</td>
+					<td>
+						<span class="V2EditMemo" data-table-name="amazon_sellyours" data-field-value="{$vo.id}"><pre>{$vo.memo}</pre></span>
+						<br>
+						<notempty name="vo.offer_log_data.not_in_buybox">
+							<b class="Red">没BuyBox</b>
+							<br>
+						</notempty>
+
+						<notempty name="vo.offer_log_data.has_other_seller">
+							<b>被跟卖过</b>
+							<br>
+						</notempty>
+					</td>
+					
+					<td style="width:220px;">
+						<a class="btn btn-primary btn-sm showBox" data-url="{:U('AmazonSellyoursIssue/edit')}?sellyours_id={$vo.id}"  >上架</a>
+						<a class="btn btn-success btn-sm showBox" data-url="{:U('AmazonBusinessReports/detailV2')}?sellyours_id={$vo.id}"   >分析</a>
+						<a class="btn btn-inverse btn-sm showBox" data-url="{:U('V2AmazonSellyoursRank/detail')}?sellyours_id={$vo.id}"  >排名&库存</a>
+						
+						<a class="btn btn-danger btn-sm showBox" data-url="{:U('AmazonSellyours/edit')}?id={$vo.id}" >修改</a>
+						<neq name="vo.competition_last_update" value="0">
+							<a class="btn btn-warning btn-sm showBox" data-url="{:U('AmazonSellyoursOffer/index')}?sellyours_id={$vo.id}"  >竞争</a>
+						</neq>
+						<empty name="_REQUEST.show_by_pasin">
+							<notempty name="vo.campaign_name_show">
+								<a data-sellyours_id="{$vo['id']}" data-asin="{$vo.asin}" class="downloadAsinStReportV2 btn btn-primary btn-sm">广告报告</a>
+							</notempty>
+						</empty>
+
+						<a class="btn btn-primary btn-sm showTaskList" data-id="{$vo.id}">任务</a>
+
+						<notempty name="Think.request.show_by_pasin">
+
+							<eq name="vo.is_parent_thumbnail" value="No">
+								<a class="btn btn-info btn-sm setParentThumbnail" data-id="{$vo.id}">设为主图</a>
+							</eq>
+						</notempty>
+						
+					</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+</div>
+</form>
+<div class="modal fade" id="editProduct" role="dialog"  tabindex="-1" aria-labelledby="editProductLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="editProductIframe" name="editProductIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<div class="business-report-box col-lg-12" id="business-report-box" style="position:fixed;top:138px;width:71%;z-index:1000;height:300px;left:30%;display:none;">
+	<iframe src="" id="business-report-iframe" frameborder="0" name="business-report-iframe" srolling="auto"  width="100%"></iframe>
+</div>
+
+
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox1" role="dialog"  tabindex="-1" aria-labelledby="bottomBox1Label" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBox1Iframe" name="bottomBox1Iframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<style>
+.showBottomBox{cursor: pointer;}
+</style>

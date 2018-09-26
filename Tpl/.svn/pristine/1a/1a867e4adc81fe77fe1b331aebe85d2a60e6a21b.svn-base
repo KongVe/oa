@@ -1,0 +1,176 @@
+<layout name='Layout/ace_box' />
+<form name="form_search" id="form_search" method="post">
+	<div class="panel panel-default">
+		<div class="panel-body">
+
+			<div class="tab-pane fade active in" id="product">
+				<!-- 主列表点击哪行 -->
+				<input type="hidden" name="tr_key" id="tr_key" value="{$tr_key}" />
+
+				<input type="hidden" name="sku_id" id="sku_id" value="{$sku_id}">
+
+				<!-- 选择采购哪个货源-->
+				<input type="hidden" name="source_id" id="source_id" value="" />
+
+				<!-- 批量采购的计划-->
+				<input type="hidden" name="batch_purchase_plan_ids" id="batch_purchase_plan_ids" value="{$batch_purchase_plan_ids}" />
+
+				<!-- 相关的采购计划 -->
+				<foreach name="plan_ids" item="plan_id">
+					<input type="hidden" name="plan_ids[]" value="{$plan_id}" />
+				</foreach>
+				
+				<table class="table table-striped table-hover table-bordered table-condensed">
+					<tr>
+						<th style="width:250px;">操作 <span class="pull-right">当前SKU：<b class="red">{$sku_data.parent_sku}</b></span></th>
+						<th>价格</th>
+						<th>平台</th>
+						<th>供应商名称</th>
+						<th>货源名称</th>
+						<th>货号</th>
+						<th>库存状态</th>
+						<th>备注</th>						
+					</tr>
+					<tbody class="tbody">
+						<foreach name="list" item="source" key="tr_key">
+							<tr id="tr_{$tr_key}">
+								<th>
+									<table class="purchase-action" >
+										<tr>
+											<td style="width:60px;">
+												<?php
+													if(isAdmin()){
+												?>
+												<!-- <a href="javascript:void(0);" onclick="delSource({$source.id})">删除</a>
+												<br> -->
+												<?php
+													}
+												?>
+												
+												<a href="{:U('V2Source/index')}?id={$source['id']}" class="" target="_blank">查看</a>
+												<br>
+												<a href="javascript:void(0);"  data-url="{:U('V2Source/sourceEdit')}?parent_sku_id={$parent_sku_id}&id={$source['id']}" data-use_parent="1" class="showBox">修改</a>
+											</td>
+											<td>
+												<eq name="source.stock_status" value="In stock">
+													<neq name="review_state" value="Review agree">
+														该SKU无法采购，需要审核
+													<else/>
+														<a class="purchase btn btn-primary" data-source-id="{$source.id}">采购</a>
+
+														<notempty name="batch_purchase_plan_ids">
+															<a class="batchPurchase btn btn-inverse" data-source-id="{$source.id}">批量采购</a>
+														</notempty>
+													</neq>
+												<else/>
+													已断货
+												</eq>
+												
+											</td>
+										</tr>
+									</table>
+								</th>
+								<td>￥ <b>{$source.price}</b></td>
+								<td>
+									<a href="{$source.platform_link}" target="_blank">{$source.platform_name}</a>
+								</td>
+								<td style="max-width:120px;word-break: break-word;">
+									<a href="{$source.website_link}" target="_blank">{$source.supplier_name}</a>
+									<br>
+									<a data-url="{:U('V2Source/supplierView')}?id={$source['supplier_id']}" data-use_parent="1" class="showBox btn btn-inverse btn-xs">系统登记信息</a>
+								</td>
+								
+								<td style="max-width:200px;word-break: break-word;"><a href="{$source.link}" target="_blank">{$source.source_name}</a></td>
+
+								<td>{$source.item_number|default="无"}</td>
+
+								<td>
+									{$source.stock_status|L}
+								</td>
+								<td>
+									<span class="V2EditMemo" data-field="memo" data-table-name="v2_source" data-field-value="{$source.id}"><pre>{$source.memo}</pre></span>
+								</td>									
+							</tr>
+						</foreach>
+						<tr>
+							<td colspan="2">
+								<a class="btn btn-primary showBox" data-url="{:U('v2_source/sourceEdit')}?parent_sku_id={$parent_sku_id}" data-use_parent="1">新增货源</a>
+
+								<notempty name="product_sku">
+									<!-- <a class="btn btn-danger" onclick="refund('{$product_sku}')">缺货</a> -->
+								</notempty>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div class="adjustPriceBox popover fade bottom in">
+		<div class="arrow"></div>
+		<div class="popover-content">
+			<a class="btn btn-success btn-xs" data-price="3">+3</a>
+			<a class="btn btn-success btn-xs" data-price="5">+5</a>
+			<a class="btn btn-success btn-xs" data-price="8">+8</a>
+
+		</div>
+	</div>
+</form>
+
+
+<script type="text/javascript">
+$(function($){
+	$(".purchase").click(function(){
+		var source_id = $(this).data("source-id");
+		
+		if(!source_id){
+			alertWarning("参数错误，source_id");
+			return false;
+		}
+		parent.showBox();
+		var data = $("#form_search").serialize();
+		$("#form_search").attr("action","{:U('purchaseView')}");
+
+		$("#form_search").attr("target","middleBoxIframe");
+		$("#source_id").val(source_id);
+
+		$("#form_search").submit();
+	});
+
+	$(".batchPurchase").click(function(){
+		var source_id = $(this).data("source-id");
+		
+		if(!source_id){
+			alertWarning("参数错误，source_id");
+			return false;
+		}
+
+		if(!confirm("批量采购 价格自动设置为货源价格，采购数量自动设置为 还需要采购的数量，确认批量采购？")){
+			return false;
+		}
+		$("#source_id").val(source_id);
+		var data = $("#form_search").serialize();
+
+		var btn = $(this);
+        btn.button('loading');
+        $.post("{:U('batchPurchase')}",data,function(msg){
+            btn.button('reset');
+            if(msg.status){
+                parent.alertWarning(msg.info,1);
+                parent.window.location.reload();
+            }else{
+                parent.alertWarning(msg.info);
+            }
+        }).error(function(){
+            btn.button('reset');
+            alertWarning("网络错误，请重试");
+            return false;
+        });
+
+	
+		
+	});
+
+	
+});
+</script>

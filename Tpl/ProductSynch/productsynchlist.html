@@ -1,0 +1,247 @@
+ 	<layout name='Layout/ace_layout' />
+
+<form name="form_search" action="{:U('')}" id="form_search" method="post" class="form-inline">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	
+	<input type="hidden" name="aliexpress_synch_processing" id="aliexpress_synch_processing" value='' />
+	<input type="hidden" name="multiSearch" id="multiSearch" value="<?php echo $_REQUEST['multiSearch']; ?>" />
+<div class="page-header clearfix">
+	<h1 class="col-xs-2">{$title}</h1>
+	
+	<div class="col-xs-10">
+		<div class="input-group col-sm-9">
+			<div class="form-group col-xs-3">
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="update_time" id="update_time" value="{$_REQUEST['update_time']}"  placeholder="上传时间">
+			</div>	
+			<!-- <div class="input-group col-sm-3">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="sku_id" id="advanced_q" value="{$Think.post.sku_id}" placeholder="精确搜索sku_id"/>	
+			</div> -->
+			<div class="input-group col-sm-6">
+				<div class="input-group">
+					<input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="线上product id"/>
+					<span class="input-group-btn">
+						<button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-125 icon-search"></i> </button>
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>	
+<div class="message-container" id="container_table" style="width:100%;overflow:scroll;">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="btn-group">
+				<a data-url="{:U("ProductSynch/edit")}" class="showBox btn btn-primary">手动补录</a>
+			</div>
+			<div class="btn-group">
+				发布失败：<b class="red">{$fail_count}</b> 个
+			</div>
+		</div>
+	</div>
+	<table class="table table-hover table-bordered">
+		<include file="Layout:title_v2"/>
+		
+
+		<?php
+			$show_imgs=1;
+			// if(count($list)<50){
+			// 	$show_imgs=1;
+			// }
+		?>
+		
+		<tbody class="tbody">
+			
+		<volist name="list" id="vo">
+
+			<tr id="tr_{$vo.id}" style="border-top-style:ridge;">
+				<td  style="vertical-align:middle;">
+					<label class="inline pull-left">
+						<input class="ace" type="checkbox" name="product_id[]" value="{$vo.id}" />
+						<span class="lbl"></span>
+						{$vo.id}
+					</label>
+				</td>
+				<td style="vertical-align:middle;">
+					{$vo.account}
+					<notempty name="vo.proxy_host">
+						<br>
+						IP: {$vo.proxy_host}
+					</notempty>
+					
+				</td>
+				<td style="vertical-align:middle;">
+					{$vo.sku_id}
+				</td>
+				<td style="vertical-align:middle;">
+					{$vo.sku}
+				</td>
+				<td>
+					<a href="{$vo.image}" target="_blank" class="thumbnail"><img src="<notempty name="show_imgs">{$vo.image}</notempty>" data-src="{$vo.image}" width="80" /></a>
+				</td>
+				<td>
+					{$vo.synch_state|L}
+					<eq name="vo.synch_state" value="Fail">
+						<a data-url="{:U("ProductSynch/showError")}?id={$vo.id}" class="showBox btn btn-danger btn-sm" >查看错误</a>
+					</eq>
+				</td>
+				<td>{$vo.add_type|L}</td>
+				<td>{$vo.online_product_id}</td>
+				<td>{$vo.name_en}</td>
+				<td>{$vo.add_time|default=" "|date="y-m-d H:i:s",###}</td>
+				<td>{$vo.timing_synch|default=" "|date="y-m-d H:i:s",###}</td>
+				<td>{$vo.add_user_name}</td>
+				<td>
+					<empty name="vo.update_time">
+						未上传
+					<else/>
+						{$vo.update_time|date="y-m-d H:i:s",###}
+					</empty>
+				</td>
+				<td>{$vo.user_name}</td>
+				<td>
+					<span class="editStatic" field="memo" onclick="editStatic(this,'{:U('ProductSynch/memoSave')}?id={$vo.id}','input')">{$vo.memo}</span>
+				</td>
+
+				
+				<td style="vertical-align:middle;">
+					<notempty name="vo.product_id">
+						<a href="{:U('product/edit?id='.$vo['product_id'])}" class="btn btn-primary btn-xs" target="_blank" >编辑产品</a>
+						<br>
+						<br>
+					</notempty>
+					
+					<?php
+						if(in_array($vo['synch_state'], array("New","Processing"))){
+					?>
+						<a data-id="{$vo.id}" class="cancelSynch btn btn-danger btn-xs">取消发布</a>
+					<?php
+						}
+					?>
+					
+					<eq name="vo.is_stop" value="Yes">
+						<a data-id="{$vo.id}" class="startSynch btn btn-info btn-xs">开启发布</a>
+						<br>
+						<br>
+						<a data-id="{$vo.id}" class="delSynch btn btn-warning btn-xs">删除</a>
+					</eq>
+				</td>
+			</tr>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>
+</div>
+</form>
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+<script type="text/javascript">
+var currentCategoryId = {$Think.request.category_id|default="0"};
+
+$(function(){
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top+50,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	});
+
+	$("#toggleImage").click(function(){
+		if($(".thumbnail img").attr("src") == ''){
+			$(this).html("隐藏");
+			$(".thumbnail img").each(function(k,v){
+				$(v).attr("src",$(v).data("src"));
+			})
+		}else{
+			$(this).html("显示");
+			$(".thumbnail img").attr("src",'');
+		}
+	})
+	
+	$(".cancelSynch").click(function(){
+		if(confirm("确认取消发布？需要再次向该帐号发布这个产品请直接开启发布")){
+			var id = $(this).data("id");
+			var btn = $(this).button('loading');
+			$.post("{:U('cancelSynch')}",{id:id},function(msg){
+				btn.button('reset');
+				if(msg.status){
+					alertWarning(msg.info,1);
+					window.location.reload();
+				}else{
+					alertWarning(msg.info);
+					return false;
+				}
+			}).error(function(){
+				alertWarning("网络错误,请重试");
+				btn.button('reset');
+			});
+		}
+	});
+
+	$(".startSynch").click(function(){
+		if(confirm("确认取消发布？需要再次向该帐号发布这个产品请直接开启发布")){
+			var id = $(this).data("id");
+			var btn = $(this).button('loading');
+			$.post("{:U('startSynch')}",{id:id},function(msg){
+				btn.button('reset');
+				if(msg.status){
+					alertWarning(msg.info,1);
+					window.location.reload();
+				}else{
+					alertWarning(msg.info);
+					return false;
+				}
+			}).error(function(){
+				alertWarning("网络错误,请重试");
+				btn.button('reset');
+			});
+		}
+	});
+
+	$(".delSynch").click(function(){
+		if(confirm("确认删除？")){
+			var id = $(this).data("id");
+			var btn = $(this).button('loading');
+			$.post("{:U('delSynch')}",{id:id},function(msg){
+				btn.button('reset');
+				if(msg.status){
+					alertWarning(msg.info,1);
+					window.location.reload();
+				}else{
+					alertWarning(msg.info);
+					return false;
+				}
+			}).error(function(){
+				alertWarning("网络错误,请重试");
+				btn.button('reset');
+			});
+		}
+	});
+
+});
+
+</script>

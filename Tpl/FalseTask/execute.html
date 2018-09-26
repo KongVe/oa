@@ -1,0 +1,147 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+
+<div class="page-header clearfix">
+	<h1 class="col-sm-4">开始</h1>
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a onclick="finish()" class="btn btn-primary">完成</a>
+		</div>
+	</div>
+</div>
+
+<div class="message-container">
+	<table class="table table-bordered">
+		<tr>
+			<td width=120>帐号</td>
+			<td>
+				<div class="col-sm-2">{$account.username}<br>{$account.password}</div>
+				<div class="col-sm-10"><span class="editStatic" field="memo" onclick="editStatic(this,'{:U('FalseAccount/save')}?id={$account.id}','textarea')">{$account.memo}</span></div>
+			</td>
+		</tr>	
+		<tr>
+			<td >当前IP</td>
+			<td>
+				<div id="currentIP" class="col-sm-2">{$currentIP}</div>
+				<div id="vpnAccountList" class="col-sm-10" style="display:none;">
+					可换VPN： 
+					<volist name="vpn.vpnAccountList" id="vpnAccount">
+						<a href="{:U('FalseVpn/getSwitchBat')}?vpn_id={$vpnAccount.vpn_id}&vpn_server_id={$vpn.id}" target="middleBoxIframe" style="margin-right:10px;">{$vpnAccount.website} -> {$vpnAccount.username} </a> 
+					</volist>
+				</div>
+			</td>
+		</tr>
+		
+		<tr>
+			<td>要求IP</td>
+			<td>
+				<div class="col-sm-2">{$vpn.server_address}</div>
+				<div class="col-sm-10">
+					<a class="btn btn-xs btn-danger" onclick="vpnInvalid()">失效</a>
+				</div>
+
+			</td>
+		</tr>
+		<?php /* 审核头部已经没有意义了。从JS获取是更改不了的
+		<tr><td></td></tr>
+		<tr>
+			<td>当前Header</td>
+			<td><div id="currentHeader">{$currentHeader}</div></td>
+		</tr>
+		<tr>
+			<td>要求Header</td>
+			<td>{$account.header}</td>
+		</tr>		*/ ?>
+		<tr><td></td></tr>
+		<tr>
+			<td>支付方式</td>
+			<td>
+				<div class="col-sm-2">{$pay.formatName}<br>{$pay.password}</div>
+				<div class="col-sm-10">
+					<a class="btn btn-xs btn-danger" onclick="vpnInvalid()">失效</a>
+				</div>
+
+			</td>
+		</tr>	
+
+	</table>
+
+	<table class="table table-bordered" id="planTable" style="display:block;">
+		<tr>
+			<td width="120">网站</td>
+			<td>{$plan.website}</td>
+		</tr>
+		<tr>
+			<td>店铺</td>
+			<td>{$plan.store}</td>
+		</tr>
+		<tr>
+			<td>产品</td>
+			<td>
+				<div class="col-sm-1">
+					<a href="{$plan.product_thumbnail}" class="thumbnail" target="_blank">
+						<img src="{$plan.product_thumbnail}" width=60 />
+					</a>
+				</div>
+				<div class="col-sm-8">
+						{$plan.product_price} | {$plan.product_name} 
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td>链接</td>
+			<td>{$plan.product_url}</td>
+		</tr>
+		<tr>
+			<td>类型</td>
+			<td>{$plan.type}</td>
+		</tr>
+		<tr>
+			<td>客户端</td>
+			<td>{$plan.environment_type}</td>
+		</tr>
+		<tr>
+			<td>刷的数量</td>
+			<td>{$plan.plan_times} / {$plan.finish_times}</td>
+		</tr>
+		<?php $keywordList = json_decode($plan['search_keywords'],true); ?>
+		<tr>
+			<td>搜索关键词</td>
+			<td>
+				<volist name="keywordList" id="keyword">
+					<notempty name="keyword.keyword">
+						{$keyword.keyword} 第 {$keyword.page} 页<br>
+					</notempty>
+				</volist>
+			</td>
+		</tr>			
+		<tr>
+			<td>刷的步骤</td>
+			<td>{$plan.plan_step}</td>
+		</tr>	
+		<tr>
+			<td>备注</td>
+			<td><span class="editStatic" field="memo" onclick="editStatic(this,'{:U('save')}?id={$plan.id}','textarea')">{$plan.memo}</span></td>
+		</tr>
+	</table>
+</div>
+</form>
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<style>
+.showBottomBox{cursor: pointer;}
+</style>

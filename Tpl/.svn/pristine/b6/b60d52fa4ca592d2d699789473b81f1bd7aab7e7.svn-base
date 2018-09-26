@@ -1,0 +1,74 @@
+<layout name='Layout/ace_popup' />
+<style type="text/css">
+.control-label{
+	font-weight: bolder;
+}
+</style>
+
+<form action="{:U('Returned')}" method="POST" name="productForm" id="productForm" class="well form-horizontal clearfix">
+	<input type="hidden" name="id" value="{$data.id}">
+	<input type="hidden" name="opmode" value="{$data.opmode}" >
+	<input type="hidden" name="memo" value="{$data.memo}">
+	<input type="hidden" name="product_quantity" value="{$data.quantity}">
+
+	<div class="form-group">
+		<label class="control-label" for="productForm_sku">SKU:</label>
+		<div>{$data.sku}</div>
+	</div>
+	<div class="form-group">
+		<label class="control-label" for="productForm_variation">规格:</label>
+		<div>{$data.variation}</div>
+	</div>
+	<div class="form-group">
+		<label class="control-label" for="returned_quantity">退货数量</label>
+		<div>{$data.quantity}</div>
+	</div>
+	<div class="form-group">
+		<label class="control-label" for="returned_quantity">退货原因</label>
+		<div>{$data.returned_flag}</div>
+	</div>
+	<div class="form-group">
+		<label class="control-label" for="returned_time">登记时间</label>
+		<div>
+			{$data.returned_time|date="Y-m-d H:i:s",###}
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="control-label" for="returned_user_name">登记用户</label>
+		<div>
+			{$data.returned_user_name}
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="control-label" for="instock_time">入库时间</label>
+		<div>
+			<notempty name="data.instock_time">
+				{$data.instock_time|date="Y-m-d H:i:s",###}
+			<else/>
+				未入库
+			</notempty>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="control-label" for="instock_user_name">入库用户</label>
+		<div>
+			{$data.instock_user_name}
+		</div>
+	</div>
+
+	<div class="form-group">
+		修改： 要修改请删除记录重新登记
+		<!-- <a class="btn btn-primary" onclick="returnedProduct({$data.id})">修改</a> -->
+	</div>
+	
+</form>
+
+<script type="text/javascript">
+	
+	//退货登记
+	function returnedProduct(){
+		parent.parent.$("#editProductIframe").attr("src","<?php echo U("OrderProduct/returnedProduct"); ?>?id=" + {$data.id});
+		parent.parent.$("#editProduct").modal("show");
+	}
+
+</script>

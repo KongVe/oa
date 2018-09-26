@@ -1,0 +1,108 @@
+<layout name='Layout/m_ace_layout' />
+
+<style>
+.showBottomBox{cursor: pointer;}
+</style>
+
+<!-- <link rel="stylesheet" type="text/css" href="__PUBLIC__/css/boostarap.min.css">
+<link rel="stylesheet" type="text/css" href="__PUBLIC__/boostarap-select"/>
+<script type="text/javascript" src="__PUBLIC__/js/boostarap.min.js"></script>
+<script type="text/javascript" src="__PUBLIC__/boostarap-select/js/boostarap-select.min.js"></script>
+<script type="text/javascript" src="__PUBLIC__/boostarap-select/js/i18n/default-zh_CN.min.js"></script> -->
+
+<div class="page">
+<div class="list-block">
+
+</div>
+</div>
+<script type="text/javascript">
+	var filter_list = {$filter_list|default=""|json_encode};
+	function init(index){
+		$.ajax({
+			url:'{:U('V2TransferShipment/getTransferShipmentList')}',
+			type:'GET',
+			dataType:'json',
+			success:function(msg){
+			debugger
+			var list = $('.list-block');
+			$.each(msg.data.results,function(i,v){
+				var lists = document.createElement('div');
+				lists.className = 'card';
+				var card_head = document.createElement('div');
+				card_head.className = 'card-header';
+				card_head.textContent = v.id;
+				var card_contnet = document.createElement('div');
+				card_contnet.className = "card-content";
+				var list_block = document.createElement('div');
+				list_block.className = 'list-block media-list';
+				var list_ul = document.createElement('ul');
+				var ltem_content = createElement('li');
+				ltem_content.className="item-content";
+				var item_media = document.createElement('div');
+				item_media.className = 'item-media';
+				var img_item_media = document.createElement('img');
+				img_item_media.width = '100';
+				img_item_media.src = '';
+				item_media.appendChild(img_item_media)
+				var item_inner = document.createElement('div');
+				item_inner.className = 'item-inner';
+				var item_title_row = document.createElement('div');
+				item_title_row.className = 'item-title-row';
+				var item_title = document.createElement('div')
+				item_title.className='item-title';
+				item_title.textContent = v.online_shipment_name
+				item_title_row.appendChild(item_title)
+				var item_subtitle = document.createElement('div')
+				item_subtitle.className='item-subtitle';
+				item_subtitle.textContent = v.ship_to_address;
+				item_title_row.appendChild(item_subtitle);
+				item_inner.appendChild(item_title_row);
+				ltem_content.appendChild(item_media,item_inner);
+				list_ul.appendChild(ltem_content);
+				list_block.appendChild(list_ul);
+				card_contnet.appendChild(list_block)
+				lists.appendChild(card_head,card_contnet);
+				list.appendChild(lists)
+// 				list +='<div class="card">'+
+// 		'<div class="card-header">'+v.id+':</div>'+
+// 		'<div class="card-content">'+
+// 			'<div class="list-block media-list">'+
+// 				'<ul>'+
+// 					'<li class="item-content">'+
+// 						'<div class="item-media">'+
+// 							'<img src="" width="100">'+
+// 						'</div>'+
+// 						'<div class="item-inner">'+
+// 							'<div class="item-title-row">'+
+// 								'<div class="item-title">'+v.online_shipment_name+'</div>'+
+// 							'</div>'
+// 							'<div class="item-subtitle">'+v.ship_to_address+'</div>'+
+// 						'</div>'+
+// 					'</li>'+
+// 				'</ul>'+
+// 			'</div>'+
+// 		'</div>'+
+// 		'<div class="card-footer">'+
+// 			'<span>仓库:'+v.target_warehouse_id+'</span>'+
+// 			'<span>'+v.create_time+'</span>'+
+// 		'</div>'+
+// 	'</div> '+	
+// '</div>';
+			})
+			$('.list-block').append(list)
+			},error:function(){
+
+			},beforeSend:function(){
+				$.showIndicator() 
+			},complete:function(){
+				$.hideIndicator()
+			}
+		})
+	}
+	function serch_list(){
+	}
+	$(function(){
+		init();
+		serch_list();
+	})
+</script>

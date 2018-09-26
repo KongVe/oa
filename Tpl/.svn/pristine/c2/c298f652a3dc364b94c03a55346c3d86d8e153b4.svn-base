@@ -1,0 +1,118 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="stock_ids" id="stock_ids" value="{$_REQUEST['stock_ids']}">
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">库存流水</h1>
+	<div class="col-sm-2">
+		<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}"   placeholder="记录时间">
+	</div>
+	<div class="col-sm-4 pull-right">
+			<div class="input-group">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.post.q}" placeholder="可搜索 SKU,产品规格"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="this.form.q.value='';" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div>
+	</div>	
+</div>	
+<!-- <div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a href="{:U('edit')}" class="btn btn-sm btn-primary ">新增</a>
+
+		</div>
+	</div>
+</div> -->
+<div class="message-container">
+	<table class="table table-hover table-bordered">
+		
+		<include file="Layout:title"/>
+
+		<tbody class="tbody">
+		<volist name="list" id="vo">
+			<tr>
+				<td>{$vo.id}</td>
+				<td>{$vo.stock_sku}</td>
+				<td style="width:180px;">{$vo.stock_variation}</td>
+				<td>
+					<a href="{$vo.stock_thumbnail}" target="_blank" class="thumbnail" style="width:80px;"><img src="{$vo.stock_thumbnail}"  /></a>
+				</td>
+				<td>
+					<?php 
+
+						if(in_array($vo['log_type'], array('使用库存','强制出库','报损'))){
+							echo '<b style="color:red;">-'.$vo['change_quantity'].'</b>';
+						}elseif(in_array($vo['log_type'], array('库存移位'))){
+							echo '<b style="color:blue;">'.$vo['change_quantity'].'</b>';
+						}else{
+							echo '<b style="color:blue;">+'.$vo['change_quantity'].'</b>';
+						}
+
+					?>
+				</td>
+				<td><b>{$vo.log_type}</b></td>
+				<td>{$vo.place_name}</td>
+				<td>
+					<volist name="vo.log_data" id="vv">
+						<switch name="key">
+						    <case value="price_data">
+						    	<foreach name="vv"  key="key_p_d" item="val_p_d">
+						    		单价:{$key_p_d} 数量:{$val_p_d}<br>
+						    	</foreach>
+						    </case>
+						    <case value="quantity">
+						    		数量:{$vv}<br>
+						    </case>
+						    <case value="purchase_plan_ids" >
+						    		采购计划ID:{$vv}<br>
+						    </case>
+						    <case value="product_auto_id" >
+						    		订单产品ID:{$vv}<a href="{:U('OrderDetail/staffIndex?paid='.$vv)}" class="btn btn-link" target="_blank">查看</a> <br>
+						    </case>
+						     <case value="new_place" >
+						    		新货架位:{$vv}<br>
+						    </case>
+						    <default />{$key}:{$vv}<br>
+						</switch>
+					</volist>
+					
+				</td>
+				<td>{$vo.add_time|date="y-m-d H:i",###|default="无数据"}</td>
+				<td>{$vo.emp_name}</td>
+				<td>{$vo.memo}</td>
+				<td>
+					<div>
+						
+						<!-- <a href="{:U('edit')}?id={$vo.id}" class="btn btn-xs btn-primary">修改</a>
+							<a href="{:U('del')}?id={$vo.id}" class="btn btn-xs btn-danger" onclick="if(!confirm('删除哦，确定吗？')){return false;}" >删除</a> 
+				
+							<a class="btn btn-xs btn-primary" onclick="stockChangeView({$vo.id},'warehouse_out');">强制出库</a>
+
+							<a class="btn btn-xs btn-info" onclick="stockChangeView({$vo.id},'add');">报溢</a>
+							<a class="btn btn-xs btn-warning" onclick="stockChangeView({$vo.id},'reduce');">报损</a>
+						-->
+					</div>
+				</td>
+			</tr>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" width="200px"/></a>
+</div>
+
+<!-- 模态弹窗-->
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxIframe" aria-hidden="true">
+	<div class="modal-dialog" style="height:100%;">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:800px;height:100%;min-height:500px;" scrolling="auto" ></iframe>
+	</div>
+</div>
+

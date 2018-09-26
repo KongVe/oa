@@ -1,0 +1,214 @@
+<layout name='Layout/ace_layout' />
+
+<div class="operate panel panel-default">
+    <div class="panel-body">
+        <div class="pull-left col-sm-12">
+            <div class="col-sm-2">
+                <a onclick="window.close();" class="btn btn-sm btn-danger"> 关 闭 </a>
+            </div>
+            <div class="col-sm-2">
+                <a class="btn btn-sm btn-primary changeBaiqianUsNumber">格式化百千诚美国专线单号</a>
+            </div>
+        </div>
+        
+    </div>
+</div>
+<div class="col-sm-12">
+    <form method='post' id="form_data" action="" class="well form-horizontal" enctype="multipart/form-data" >
+        <input type="hidden" id="ajax" name="ajax" value="1"/>
+        <input type="hidden" id="add_file" name="add_file" value="{$vo.add_file}"/>
+        <input type="hidden" id="add_gallery" name="add_gallery" value="{$vo.add_gallery_file}"/>
+
+        <input type="hidden" id="develop_file" name="develop_file" value="{$vo.develop_file}"/>
+        <input type="hidden" id="photo_file" name="photo_file" value="{$vo.photo_file}"/>
+
+        <if condition="$vo['id'] neq ''">
+            <input type="hidden" id="id" name="id" value="{$vo.id}">
+            <input type="hidden" id="opmode" name="opmode" value="edit">
+        <else/>
+            <input type="hidden" id="opmode" name="opmode" value="add">
+        </if>
+
+        <table class="table table-bordered">
+            
+            <div class="form-group col-xs-12">
+                <label class="col-sm-2 control-label" for="express_type_id">选择物流方式：</label>
+                <div class="col-sm-5">
+                    <select style="width:100%;" name="express_type_id" id="express_type_id" onchange="checkData(); checkTextDataInput();">
+                        <option value="">请选择物流方式</option>
+                        <volist name="express_type_list" id="express_type">
+                            <option value="{$express_type.id}" <eq name="express_type.id" value="$_RUQUEST.express_type_id"> selected="selected"</eq> >{$express_type.forwarder_name} {$express_type.express_name}</option>
+                        </volist>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group col-xs-12">
+                <label class="col-sm-2 control-label">提醒信息：</label>
+                <div class="col-sm-8" >
+                    <div class="col-sm-12" id="alert_info" style="font-size:15px;">
+                        请输入跟踪号，多条记录请换行
+                    </div>
+                    <div class="col-sm-12 alert" id="alert_check_info" style="font-size:15px; display:none;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group col-xs-12">
+                <label class="col-sm-2 control-label" for="number_list">跟踪号：</label>
+                <div class="col-sm-8">
+                    <textarea name="number_list" id="number_list" class="form-control" oninput="this.style.height='0px';this.style.height=((this.scrollHeight+10)+'px'); checkData(); checkTextDataInput();" onpropertychange="this.style.height=(this.scrollHeight+'px')"/></textarea> 
+                    <span class="help-block">请输入包裹号或跟踪号，多条记录请用 换行 分隔</span>
+                </div>
+            </div>
+
+            
+            <div class="form-group col-xs-12">
+                <label class="col-sm-2 control-label" for="memo">备注：</label>
+                <div class="col-sm-8">
+                    <div class="col-sm-12 form-group">
+                        <select id="select_memo" onchange="$('#memo').val($(this).val());">
+                            <option value="">选择快捷备注</option>
+                            <option value="漏出仓扫描后，有跟踪信息,补出仓">漏出仓扫描后，有跟踪信息,补出仓</option>
+                            <option value="当前为第  袋">当前为第  袋</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-12 form-group">
+                        <textarea name="memo" id="memo" class="form-control" placeholder="选填，有异常请输入备注"/></textarea> 
+                    </div>
+                </div>
+            </div>
+
+            <div class="action">
+                <label class="col-sm-2 control-label"></label>
+                <div class="col-sm-8">
+                    <div class="col-sm-2">
+                        <a class="outStorageSave btn btn-sm btn-primary">提交</a>
+                    </div>
+                </div>
+            </div>
+
+            
+        </table>
+    </form>
+</div>
+<div class="thumbnailBox">
+    <a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<iframe src="" id="voice_iframe" style="display:none"></iframe>
+
+<script type="text/javascript">
+$(function($){
+    $("#express_type_id").select2();
+
+    $(".outStorageSave").click(function(){
+        if(!confirm("确认数据无误 并且 提交出仓？")){
+            return false;
+        }
+        checkTextDataInput();
+        
+        var btn = $(this);
+        btn.button('loading');
+        if (check_form("form_data")) {
+            sendForm("form_data", "{:U('V2OrderPackage/outStorageSave')}",false,function(msg){
+                btn.button('reset');
+                if(msg.status){
+                    if(!confirm(msg.info + " 是否立即刷新？")){
+                        return false;
+                    }
+                    window.location.reload();
+
+                }else{
+                    alertWarning(msg.info);
+                    $("#alert_check_info").removeClass("alert-success");
+                    $("#alert_check_info").addClass("alert-danger");
+                    $("#alert_check_info").html(msg.info);
+                }
+            });
+        }else{
+            btn.button('reset');
+        }
+    });
+
+    $(".changeBaiqianUsNumber").click(function(){
+        if($("#express_type_id").val()!=71){
+            alertWarning("请选择物流方式为百千诚美国专线");
+            return false;
+        }
+        var number_list = $("#number_list").val();
+
+        number_list = number_list.split("\n");
+
+        var show_number_list = [];
+        for (var i = 0; i < number_list.length; i++) {
+            var tmp1 = $.trim(number_list[i]);
+            if(!number_list[i]){
+                continue;
+            }
+            if( tmp1.indexOf("420") === 0 && tmp1.length > 20){
+                tmp1 = tmp1.replace(':2','');
+                show_number_list.push(tmp1.substring(8));
+            }else{
+                show_number_list.push(tmp1);
+            }
+        };
+        
+        $("#number_list").val(show_number_list.join('\n'));
+    });
+});
+
+
+var input_time_out=0;
+
+
+function checkData(){
+    var val1 = $("#number_list").val(); 
+    var val_list = val1.split("\n");
+    var data_list = [];
+    for (var i = 0; i < val_list.length; i++) {
+        var tmp = val_list[i];
+        tmp = $.trim(tmp);
+        if(tmp != undefined && tmp != '' && tmp != null){
+            data_list.push(tmp);
+        }else{
+            continue;
+        }
+    };
+
+    $("#alert_info").html("有效记录 "+data_list.length+" 条");
+}
+
+function checkTextDataInput(){
+    $("#alert_check_info").html("自动检查中...");
+    if(input_time_out>0){
+        clearTimeout(input_time_out);
+    }
+    input_time_out = setTimeout(checkTextData,1200);
+}
+
+function checkTextData() {
+
+    if (check_form("form_data")) {
+        sendForm("form_data", "{:U('V2OrderPackage/outStorageCheck')}",false,function(msg){
+            if(msg.status){
+                $("#alert_check_info").removeClass("alert-danger");
+                $("#alert_check_info").addClass("alert-success");
+                $("#alert_check_info").html(msg.info);
+            }else{
+                $("#alert_check_info").removeClass("alert-success");
+                $("#alert_check_info").addClass("alert-danger");
+                $("#alert_check_info").html(msg.info);
+            }
+            if(msg.data){
+                if(msg.data.voice_url){
+                    $("#voice_iframe").attr("src","about:blank");
+                    $("#voice_iframe").attr("src","/"+msg.data.voice_url.voice_path);
+                }
+            }
+            $("#alert_check_info").show();
+        });
+    }
+}
+
+
+</script>

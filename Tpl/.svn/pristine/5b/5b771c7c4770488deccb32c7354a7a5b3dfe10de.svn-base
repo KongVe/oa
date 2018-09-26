@@ -1,0 +1,192 @@
+<layout name='Layout/ace_popup' />
+
+{:W('PageHeader',array('name'=>'本地转仓'))}
+
+<form method='post' action="{:U('V2Stock/stockChangeQuantityCheck')}" id="editForm" action="" class="well form-horizontal clearfix">
+	<input type="hidden" id="ajax" value="1"/>
+	<input type="hidden"  id="id" name="stock_id" value="{$stock_id}">
+	<input type="hidden"  id="sku_id" name="sku_id" value="{$sku_id}">
+	<input type="hidden"  id="type" name="type" value="{$type}">
+	<input type="hidden"  id="old_quantity" name="old_quantity" value="{$vo.quantity}">
+
+	<div class="form-group col-xs-12">
+		<div class="col-sm-4  text-right">
+			<label for="sku">SKU：</label>
+			<div class="col-sm-12">
+				<a href="{$sku_data.thumbnail}" id="thumbnail_show" class="thumbnail" target="_blank" style="width: 60%;position: absolute;z-index:1000;"><img src="{$sku_data.thumbnail}" /></a>
+			</div>
+		</div>
+		<div class="col-sm-4">
+			{$sku_data.sku}
+		</div>
+	</div>
+	<div class="form-group col-xs-12">
+		<label class="col-sm-4 text-right" for="sku_name">SKU名称：</label>
+		<div class="col-sm-8">
+			{$sku_data.sku_name}
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12">
+		<label class="col-sm-4 text-right">当前仓库：</label>
+		<div class="col-sm-8">
+			{$warehouse_data.warehouse_name}
+		</div>
+	</div>
+	
+	<div class="form-group col-xs-12">
+		<label class="col-sm-4 text-right" for="memo">货架位：</label>
+		<div class="col-sm-8">
+			<eq name="type" value="overflow">
+				<div class="col-sm-6">
+					仓库<br>
+					<b>{$vo.warehouse_name}</b>
+				</div>
+				<div class="col-sm-6">
+					区域<br>
+					<select  id="region_select" name="region_id" onchange="ajaxGetChildrenList($(this).val(),'shelf','region');"></select>
+				</div>
+				<div class="col-sm-6">
+					货架<br>
+					<select  id="shelf_select" name="shelf_id" onchange="ajaxGetChildrenList($(this).val(),'place','shelf');"></select>
+				</div>
+				<div class="col-sm-6">
+					货架位置<br>
+					<select  id="place_select" name="place_id"   msg="请选择货架位" >
+						<option value="">请选择货架位</option>
+					</select>
+				</div>
+				<div class="help-block">
+					如果货架位不存在，请添加该货架位
+				</div>
+			<else/>
+				<select name="place_id" class="form-control"  msg="请选择货架位" >
+					<foreach name="map_place_list" key="place_key" item="v1">	
+						<option value="{$v1.place_id}">{$v1.place_name} (可用数量: {$v1.available_quantity} 个)</option>
+					</foreach>
+				</select>
+			</eq>
+		</div>
+	</div>
+
+
+	<div class="form-group col-xs-12">
+		<label class="col-sm-4 text-right" for="quantity"><b>转仓数量</b>：</label>
+		<div class="col-sm-2 input-group">
+			<input class="form-control" value="" type="number" id="quantity" name="quantity" check="require" msg="请输入数量" placeholder="请输入数量">
+			<span class="input-group-addon">
+				个
+			</span>
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12">
+		<label class="col-sm-4 text-right">选择库存所属用户</label>
+		<div class="col-sm-4">
+			<select name="owner_uid" id="owner_uid" style="width:100%;">
+				<option value="">选择库存所属用户</option>
+				<volist name="user_list" id="user">
+					<option value="{$user.id}">{$user.show_name}</option>
+				</volist>
+			</select>
+		</div>
+		<div class="help-block">
+			<b class="Red">可选</b>，该库存属于哪个用户
+		</div>
+	</div>
+
+
+	<div class="form-group col-xs-12">
+		<label class="col-sm-4 text-right">目的仓库：</label>
+		<div class="col-sm-8">
+			<?php
+        		$warehouse_id_select = false;
+        		if($_SESSION['change_warehouse_warehouse_id_select']){
+        			$warehouse_id_select = $_SESSION['change_warehouse_warehouse_id_select'];
+        		}
+        	?>
+        	<select name="new_warehouse_id" id="warehouse_id" style="width:350px;" check="require" msg="请选择目的仓库">
+				<option value="">请选择目的仓库</option>
+				<volist name="warehouse_list" id="warehouse">
+					<option value="{$warehouse.id}" <eq name="warehouse.id" value="$warehouse_id_select">selected="selected"</eq> >{$warehouse.warehouse_name}</option>
+				</volist>
+			</select>
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12">
+		<label class="col-sm-4 text-right" for="memo">原因：</label>
+		<div class="col-sm-8">
+			<textarea class="form-control" id="memo" name="memo" msg="请输入原因" check="require" placeholder="请输入原因" >{$vo.memo}</textarea>
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12">
+		<label class="col-sm-4 text-right"></label>
+		<div class="col-sm-8">
+			<input class="editFormSubmit btn btn-sm btn-primary" data-reload="1" type="button" value="保存">
+			<input class="close_box_button btn btn-sm btn-default" type="button" value="取消">
+		</div>
+	</div>
+</form>
+<script type="text/javascript">
+	
+//货架位
+<include file="V2StockPlace:getchildrenlistjs" />
+
+$(function() {
+	$("#owner_uid").select2();
+
+	
+	var choose_warehouse = {$vo['warehouse_id']|default="false"};
+	var choose_region = {$_SESSION['stock_change_place_choose']['region_id']|default="false"};
+	var choose_shelf = {$_SESSION['stock_change_place_choose']['shelf_id']|default="false"};
+	var choose_place = {$_SESSION['stock_change_place_choose']['place_id']|default="false"};
+
+	ajaxGetChildrenList(choose_warehouse,'region','warehouse',choose_region);
+	ajaxGetChildrenList(choose_region,'shelf','region',choose_shelf);
+	ajaxGetChildrenList(choose_shelf,'place','shelf',choose_place);
+
+
+	$(".editFormSubmit").click(function(){
+		if(!confirm("确认操作？")){
+        	return false;
+        }
+        $("input").attr("disabled",null);
+        var data = $("#editForm").serialize();
+        var url = $("#editForm").attr("action");
+        
+        var btn = $(".editFormSubmit").button('loading');
+        if (check_form("editForm")) {
+            sendForm("editForm", url,false,function(msg){
+                btn.button('reset');
+                if(msg.status){
+                	if($("#type").val() == "overflow"){
+                    	var audit_action_id = 15;
+                    }else{
+                    	var 	 = 13;
+                    }
+                    var param_data = $("#editForm").serialize();
+                    var form_data = {
+                        title:msg.data.title,
+                        content:msg.data.content,
+                        thumbnail:msg.data.stock_data.thumbnail,
+                        audit_action_id:audit_action_id,
+                        param_json:param_data,
+                    };
+
+                    tmpSendForm("{:U('V2AuditFlow/addView')}",form_data,"_self");
+                    return false;
+                
+                }else{
+                    alertWarning(msg.info);
+                }
+            });
+        }else{
+            btn.button('reset');
+        }
+    });
+}); 
+
+
+</script>

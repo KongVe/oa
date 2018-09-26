@@ -1,0 +1,341 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" action="{:U()}" id="form_search" method="post" class="form-inline">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+<div class="page-header clearfix">
+	<h1 class="col-xs-2">{$title}</h1>
+	<div class="col-xs-10">
+
+		<div class="form-group col-sm-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					添加时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}" placeholder="添加时间">
+			</div>
+		</div>
+
+		<div class="form-group col-sm-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					审核时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="review_time" id="review_time" value="{$Think.request.review_time}" placeholder="审核时间">
+			</div>
+		</div>
+
+		<div class="form-group col-sm-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					出库时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="last_warehouse_out_time" id="last_warehouse_out_time" value="{$Think.request.last_warehouse_out_time}" placeholder="出库时间">
+			</div>
+		</div>
+
+		<div class="form-group col-sm-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					关闭时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="close_time" id="close_time" value="{$Think.request.close_time}" placeholder="关闭时间">
+			</div>
+		</div>
+	</div>
+
+	<div class="col-xs-2"></div>
+	
+	<div class="col-xs-10">
+		<div class="form-group col-sm-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					添加用户
+				</span>
+				<select name="add_uid[]" id="add_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+					<option value="">选择用户</option>
+					<volist name="user_list" id="user">
+						<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['add_uid'])){echo 'selected="selected"';} ?> >{$user.show_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group col-sm-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					审核用户
+				</span>
+				<select name="review_uid[]" id="review_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+					<option value="">选择用户</option>
+					<volist name="user_list" id="user">
+						<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['review_uid'])){echo 'selected="selected"';} ?> >{$user.show_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group col-sm-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					出库用户
+				</span>
+				<select name="last_warehouse_out_uid[]" id="last_warehouse_out_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+					<option value="">选择用户</option>
+					<volist name="user_list" id="user">
+						<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['last_warehouse_out_uid'])){echo 'selected="selected"';} ?> >{$user.show_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group col-sm-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					关闭用户
+				</span>
+				<select name="close_uid[]" id="close_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+					<option value="">选择用户</option>
+					<volist name="user_list" id="user">
+						<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['close_uid'])){echo 'selected="selected"';} ?> >{$user.show_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group col-sm-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					出库单序号
+				</span>
+				<input class="form-control" type="text" id="id" name="id" value="{$Think.request.id}"  placeholder="批次序号, 英文逗号分隔" />
+			</div>
+		</div>
+
+		<div class="input-group col-sm-3">
+			<div class="input-group">
+				<input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="规格SKU，SKU名称"/>
+				<span class="input-group-btn">
+					<button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>	
+
+<div class="message-container" id="container_table" style="width:100%;overflow:scroll;">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="btn-group col-sm-3">
+				<a data-url="{:U('edit')}" class="showBox btn btn-primary">添加出库单</a>
+			</div>
+
+			<div class="btn-group col-sm-3">
+				<label>
+					<input type="checkbox" class="ace input-lg" name="include_close" value="1" <notempty name="Think.request.include_close">checked="checked"</notempty> />
+					<span class="lbl">
+						包含已关闭
+					</span>
+				<label>
+			</div>
+
+		</div>
+	</div>
+
+	<table class="table table-hover table-bordered">
+		<include file="Layout:title_v2"/>
+		
+		<tbody class="tbody">
+		<volist name="list" id="vo" key="tr_key">
+			<tr id="tr_{$vo.id}" >
+				<td>
+					<label class="inline pull-left">
+						<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+						<span class="lbl"></span>
+						{$vo.id}
+					</label>
+				</td>
+				<td >
+					<a href="{$vo.thumbnail}" class="thumbnail" target="_blank"><img src="{$vo.thumbnail}" data-src="{$vo.thumbnail}" width="60" /></a>
+					<a href="{:U('V2SkuProduct/index')}?id={$vo.sku_id}" target="_blank">{$vo.sku}</a>
+				</td>
+				<td >
+					{$vo.sku_name}
+				</td>
+				<td >
+					{$vo.place_show_name}
+				</td>
+				<td>
+					{$vo.warehouse_out_type|L}
+				</td>
+				<td >
+					{$vo.status|L}
+
+					<eq name="vo.is_close" value="Yes">
+						<br>
+						<br>
+						(已关闭)
+					</eq>
+				</td>
+				<td >
+					<b>{$vo.plan_quantity}</b> 个
+				</td>
+				<td >
+					<b>{$vo.warehouse_out_quantity}</b> 个
+				</td>
+				<td>
+					{$vo.add_time|default=""|date="y-m-d<bR>H:i:s",###}
+					<br>
+					<b>{$vo.add_user_name}</b>
+				</td>
+				<td>
+					{$vo.review_time|default=""|date="y-m-d<bR>H:i:s",###}
+					<br>
+					<b>{$vo.review_user_name|default="未审核"}</b>
+				</td>
+				<td>
+					{$vo.last_warehouse_out_time|default=""|date="y-m-d<bR>H:i:s",###}
+					<br>
+					<b>{$vo.last_warehouse_out_user_name|default=""}</b>
+				</td>
+				<td>
+					{$vo.close_time|default=""|date="y-m-d<bR>H:i:s",###}
+					<br>
+					<b>{$vo.close_user_name|default=""}</b>
+				</td>
+				<td>
+					<span class="V2EditMemo" data-field="memo" data-table-name="v2_stock_warehouse_out_plan" data-field-value="{$vo.id}"><pre>{$vo.memo}</pre></span>
+				</td>
+				<td style="width:200px;">
+
+					<?php 
+						if(in_array($vo['status'], array("Waiting warehouse out","Partial warehouse out")) && $vo['is_close'] == "No"){
+					?>
+						<div class="input-group">
+							<input type="number" class="form-control" id="warehouse_out_quantity_{$vo.id}" value="{$vo['plan_quantity']-$vo['warehouse_out_quantity']}">
+							<div class="input-group-btn">
+								<a data-id="{$vo.id}" class="confirmWarehouseOut btn btn-primary btn-sm">确认出库</a>
+							</div>
+						</div>
+						
+						<br>
+					<?php
+						}
+					?>
+
+					<?php 
+						if(in_array($vo['status'], array("Partial warehouse out","Finish")) && $vo['is_close'] == "No"){
+					?>
+						<a data-id="{$vo.id}" class="rollbackPlan btn btn-inverse btn-sm">撤销出库</a>
+					<?php
+						}
+					?>
+					
+
+					<?php 
+						if(!in_array($vo['status'], array("Refuse","Finish")) && $vo['is_close'] == "No"){
+					?>
+						<a data-id="{$vo.id}" class="closePlan btn btn-danger btn-sm">关闭出库单</a>
+					<?php
+						}
+					?>
+
+					<a data-url="{:U('OperateLog/view')}?id={$vo.id}&table_name=v2_stock_warehouse_out_plan" class="showBox btn btn-info btn-sm">日志</a>
+				</td>
+			</tr>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+<script type="text/javascript">
+$(function($){
+	$("#add_uid").select2();
+	$("#review_uid").select2();
+	$("#last_warehouse_out_uid").select2();
+	$("#close_uid").select2();
+
+	$(".confirmWarehouseOut").click(function(){
+		var id = $(this).data("id");
+		if(!id){
+			return false;
+		}
+		var quantity = $("#warehouse_out_quantity_"+id).val();
+
+		if(!confirm("确认执行出库？该操作将无法撤销")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('confirmWarehouseOut')}",{id:id,quantity:quantity},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".rollbackPlan").click(function(){
+		var id = $(this).attr("data-id");
+		if(!id){
+			return false;
+		}
+		if(!confirm("确认撤销？将撤回所有已出库的数量")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('rollbackPlan')}",{id:id},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".closePlan").click(function(){
+		var id = $(this).attr("data-id");
+		if(!id){
+			return false;
+		}
+		if(!confirm("确认关闭？已出库的数量不变，")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('closePlan')}",{id:id},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+});
+
+</script>

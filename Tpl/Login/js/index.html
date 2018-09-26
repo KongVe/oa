@@ -1,0 +1,36 @@
+<script src="__PUBLIC__/js/bootstrap.min.js"></script>
+<script src="__PUBLIC__/js/common.js"></script>
+<script type="text/javascript">
+	function login() {
+		if (check_form("form_login")) {
+			$("#form_login").attr("action", "{:U('login/check_login')}");
+			$("#form_login").submit();
+		}
+	}
+
+
+
+	$(document).ready(function() {
+		$("#password").keydown(function(event) {
+			if (event.keyCode == 13) {
+				if (check_form("form_login")) {
+					sendForm("form_login", "{:U('login/check_login')}");
+					return false;
+				}
+			}
+		})
+
+		$("#test").html(navigator.userAgent + "<br>" + document.referrer +"<br>" 
+			+ navigator.appCodeName + "<br>"
+			+ navigator.appName + "<br>"
+			+ navigator.appVersion + "<br>"
+			+ navigator.cookieEnabled + "<br>"
+			+ navigator.language + "<br>"
+			+ navigator.platform + "<br>"
+			+ navigator.product + "<br>"
+			+ navigator.productSub + "<br>"
+			+ navigator.userAgent + "<br>"
+			+ navigator.vendor + "<br>")	;
+
+	})
+</script>

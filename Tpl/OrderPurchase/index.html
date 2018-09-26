@@ -1,0 +1,306 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="id" value="{$Think.request.id}" />
+	
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">检货入库</h1>
+	
+	<div class="col-sm-3 pull-right">
+		<div class="input-group">
+			<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="purchase_q" id="purchase_q" value="{$Think.post.purchase_q}" placeholder="可搜索 SKU，货源简称，档口位置，货号，采购标识，跟踪号"/>
+			<div class="input-group-btn">
+				<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+				<button class="btn btn-sm btn-danger" onclick="this.form.purchase_q.value='';this.form.purchase_time.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+			</div>
+		</div>
+	</div>
+	<div class="form-group col-sm-1 pull-right">
+		<div class="input-group">
+			<input  class="form-control" type="text" name="product_auto_id_q" id="product_auto_id_q" value="{$Think.post.product_auto_id_q}" placeholder="采购计划或产品序号"/>
+		</div>
+	</div>
+	<div class="form-group col-sm-3 pull-right">
+		<div class="col-sm-6 ">
+			<select name="website" class="form-control">
+				<option value="">平台筛选</option>
+				<volist name="website_list" id="website">
+					<option value="{$website}" <eq name="Think.request.website" value="$website">selected</eq>>{$website}</option>
+				</volist>
+			</select>
+		
+		</div>
+		<div class="col-sm-6 ">
+			<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="purchase_time" id="purchase_time" value="{$Think.request.purchase_time}"    readonly="readonly" placeholder="采购时间">
+		</div>
+	</div>	
+	<div class="form-group col-sm-3 pull-right">
+		<div class="col-sm-6 ">
+			<select name="source_name" class="form-control">
+				<option value="">货源筛选</option>
+				<volist name="source_name_list" id="source_name">
+					<option value="{$source_name}" <eq name="Think.request.source_name" value="$source_name">selected</eq>>{$source_name}</option>
+				</volist>
+			</select>
+		</div>
+		<div class="col-sm-6 ">
+			<select name="source_account_name" class="form-control">
+				<option value="">货源帐号筛选</option>
+				<volist name="source_account_name_list" id="source_account_name">
+					<option value="{$source_account_name}" <eq name="Think.request.source_account_name" value="$source_account_name">selected</eq>>{$source_account_name}</option>
+				</volist>
+			</select>
+		</div>
+	</div>		
+		
+</div>	
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a class="btn btn-sm btn-primary" onclick="purchasedMulti(this);" >批量入库</a>
+		</div>
+
+		<div class="btn-group">
+			 
+		</div>
+		<div class="btn-group">
+			<select id="alibaba_account">
+				<option>请选择1688帐号</option>
+				<option value="all">全部</option>
+				<volist name="alibaba_account_list" id="alibaba_account">
+					<option value="{$alibaba_account.id}">{$alibaba_account.account_name}</option>
+				</volist>
+			</select>
+		</div>
+		<div class="btn-group">
+			<a class="btn btn-sm btn-danger" onclick="synch1688(this);" >同步1688订单</a>
+		</div>
+		<div class="btn-group">
+			<b id="synch_info"></b>
+		</div>
+		<div class="btn-group">
+			<b style="color:red;">注意：</b>如果存在需要入库存的产品，点击 <b>入库存</b> 后需要 选择货架位和数量
+		</div>
+	</div>
+</div>
+
+<div class="message-container">
+	<table class="table table-hover table-bordered">
+		
+		<include file="Layout:title"/>
+		<tbody class="tbody">
+		<volist name="purchaseList" id="p"> 
+			<tr id="tr_{$key}">
+				<td style="vertical-align:middle;width:250px;">
+						<div  class="pull-left">
+							<label class="inline pull-left" style="width:40px; height:40px;">
+								<input class="ace" type="checkbox" name="instock_key[]" value="{$key}" />
+
+								<span class="lbl"></span>
+								<!-- 选择入库 -->
+								<br>
+							</label>
+							<span class="span-purchase pull-left">&nbsp;到货&nbsp;</span>
+							
+							<input class="form-control input-purchase pull-left" id="quantity_{$key}" name="stock_in_quantity[{$key}]" value="{$p.quantity}" data-bak="{$p.quantity}" onchange="changeQuantityData({$key},this)"/>
+
+							<span class="span-purchase pull-left">&nbsp;件&nbsp;</span>
+							
+						</div>
+						<div class="pull-right">	
+							<a class="btn btn-primary btn-xs " id="print_{$key}" onclick="printLabel('{$p.sku}',{$key},this)">&nbsp;打&nbsp;标&nbsp;</a>
+							<br>
+							<br>
+							<?php 
+								if(!empty($p['purchase_source_data']['Purchase plan']['product_auto_ids'])){
+							?>
+								<!-- <a   class="btn btn-warning btn-sm pull-left" id="purchased_{$key}" onclick="purchased('{$p.ids}',{$key},this)">入库</a> -->
+							<?php
+								// }else{
+									$tmp = "'".implode(",", $p['purchase_source_data']['Purchase plan']['product_auto_ids'])."'";
+							?>
+								<a class="btn btn-info btn-xs " id="purchased_{$key}" onclick="addPlaceInput({$key})">入库存</a>
+								<!-- <a class="btn btn-info btn-sm " id="purchased_{$key}" onclick="stockInPlaceView('{$p.purchase}',{$key},this,{$tmp})">库存</a> -->
+							<?php
+								}
+							?>
+							<!-- <a   class="btn btn-danger btn-sm pull-left display-none" id="cancel_purchased_{$key}" onclick="cancelPurchased('{$p.ids}',{$key},this)">取消入库</a> -->
+						</div>
+						
+						<div class="pull-left">
+							<div class="col-sm-12 ">
+								<span>
+									发货 需<b style="color:red;">{$p['purchase_source_data']['Order']['quantity']|default=0}</b>件
+								</span>
+								<span>
+									实到<b id="real_quantity_{$key}" style="color:red;">{$p['purchase_source_data']['Order']['quantity']|default=0}</b>件
+								</span>	
+							</div>						
+						</div>	
+						<div class="pull-left">
+							<div class="col-sm-12">
+								<span>
+									库存 需<b style="color:red;">{$p['purchase_source_data']['Purchase plan']['quantity']|default=0}</b>件
+								</span>
+								<span>
+									实到<b style="color:red;" id="real_plan_quantity_{$key}">{$p['purchase_source_data']['Purchase plan']['quantity']|default=0}</b>件
+								</span>
+							</div>	
+						</div>	
+						<div class="pull-left" id="stock_place_total_{$key}">
+						</div>	
+						<input type="hidden" name="real_quantity[Purchase plan][{$key}]" value="{$p['purchase_source_data']['Purchase plan']['quantity']|default=0}">
+						
+						<input type="hidden" name="real_quantity[Order][{$key}]" value="{$p['purchase_source_data']['Order']['quantity']|default=0}">
+
+						<input type="hidden" name="quantity[Purchase plan][{$key}]" value="{$p['purchase_source_data']['Purchase plan']['quantity']|default=0}">
+						
+						<input type="hidden" name="quantity[Order][{$key}]" value="{$p['purchase_source_data']['Order']['quantity']|default=0}">
+						
+						<notempty name="p['purchase_source_data']['Purchase plan']['product_auto_ids']">
+							<input type="hidden" name="purchase_plan_ids[{$key}]" value="<?php echo implode(",", $p['purchase_source_data']['Purchase plan']['product_auto_ids'])?>" />
+						</notempty>
+
+						<notempty name="p['purchase_source_data']['Order']['product_auto_ids']">
+							<input type="hidden" name="product_auto_id[{$key}]" value="<?php echo implode(",", $p['purchase_source_data']['Order']['product_auto_ids'])?>" />
+						</notempty>
+
+						<input type="hidden" name="sku[{$key}]" value="{$p.sku}">
+						<input type="hidden" name="variation[{$key}]" value="{$p.product_variation}">
+						<input type="hidden" name="purchase_ids[{$key}]" value="<?php echo implode(",", $p['purchase_ids'])?>">
+						<input type="hidden" name="tr_num[]" value="{$key}" />
+						<input type="hidden" name="thumbnails[{$key}]" value="{$p.product_thumbnail}">
+
+						<div id="stock_in_data_{$key}">
+						
+						</div>
+				</td>
+				<td>
+					<a href="{$p.product_thumbnail}" target="_blank" class="thumbnail"><img src="{$p.product_thumbnail}" width="100" /></a>
+					<input type="hidden" name="product_thumbnail[]" value="{$p.product_thumbnail}">
+				</td>
+				<td style="word-break: break-all;min-width: 150px;max-width: 250px;">
+					<span title="{$p.sku}"><b>{$p.sku}</b></span><br>{$p.product_variation}<br>{$p.product_memo}
+
+					<!-- <input type="hidden" name="sku[]" value="{$p.sku}"> -->
+
+					<input type="hidden" name="product_variation[]" value="{$p.product_variation}">
+				</td>
+				<td>
+					<strong style="color:red;">{$p.quantity}</strong>
+				</td>
+				<td>
+					<span class="editStatic" field="cost" onclick="editStatic(this,'{:U('OrderPurchase/save')}?ids=<?php echo implode(",", $p['purchase_ids'])?>')">{$p.cost}</span>
+				</td>
+				<td>
+					{$p.purchase_time}
+				</td>
+				<td>
+					<a href="{$p.source_link}" target="_blank">{$p.source_location}</a>
+				</td>
+				<td>{$p.source_item_number}</td>
+				<td>{$p.source_name} <b>{$p.source_account|default=""}<b></td>
+
+				<td><span class="editStatic" field="purchase_flag" onclick="editStatic(this,'{:U('OrderPurchase/save')}?ids={$p.ids}')">{$p.purchase_flag}</span></td>			
+				<td>
+					<span class="editStatic" field="tracking_number" onclick="editStatic(this,'{:U('OrderPurchase/save')}?ids={$p.ids}')">{$p.tracking_number}</span>
+					<notempty name="p.tracking_number">
+						<a href="https://www.baidu.com/s?wd={$p.tracking_number}" class="btn btn-link" target="_blank">
+							查询
+						</a>
+					</notempty>
+				</td>
+
+				<td><span class="editStatic" field="message_value" onclick="editStatic(this,'{:U('OrderPurchase/save')}?ids={$p.ids}')">{$p.message_value}</span></td>
+				<td><span class="editStatic" field="memo" onclick="editStatic(this,'{:U('OrderPurchase/save')}?ids={$p.ids}')">{$p.memo}</span></td>
+				<td style="vertical-align:middle;">
+				<a  class="btn btn-danger btn-sm" onclick="stockout('{$p.ids}',{$key})">断货重找货源采购</a>
+					<br>
+					<br>
+					<a class="btn btn-warning btn-sm" onclick="cancel('{$p.ids}',{$key})">取消，重新采购</a>
+				</td>
+			</tr>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a class="btn btn-sm btn-primary" onclick="purchasedMulti(this);" >批量入库</a>
+		</div>
+	</div>
+</div>
+<!-- 悬浮 -->
+<div class="operate panel panel-default " id="flxed_div" style="position: fixed;top: 0px;left:450px;z-index: 111;display:none;">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a class="btn btn-inverse" onclick="purchasedMulti(this);" >批量入库</a>
+		</div>
+	</div>
+</div>
+
+
+<div class="modal fade" id="choosePlaceBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxLabel" aria-hidden="true">
+	<div class="modal-dialog" style="background:#eff3f8;">
+		
+	  	<div class="modal-body" style="display:inline-block;">
+		   	<div class="form-group col-xs-12">
+				<label class="col-sm-4 control-label" for="memo">货架位：<br></label>
+				<div class="col-sm-8">
+					<div class="col-sm-6">
+						仓库<br>
+						<select id="warehouse_select" name="warehouse_id" onchange="ajaxGetChildrenList($(this).val(),'region','warehouse');"></select>
+					</div>
+					<div class="col-sm-6">
+						区域<br>
+						<select  id="region_select" name="region_id" onchange="ajaxGetChildrenList($(this).val(),'shelf','region');"></select>
+					</div>
+					<div class="col-sm-6">
+						货架<br>
+						<select  id="shelf_select" name="shelf_id" onchange="ajaxGetChildrenList($(this).val(),'place','shelf');"></select>
+					</div>
+					<div class="col-sm-6">
+						货架位置<br>
+						<select  id="place_select" name="place_id" msg="请选择货架位" ><option value=""></option></select>
+					</div>
+				</div>
+			</div>
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 control-label" for="memo"></label>
+				<div class="col-sm-8">
+						如果货架位不存在，请在添加该货架位
+				</div>
+			</div>
+			<div class="form-group col-xs-12">
+				<label class="col-sm-4 control-label" for="">已有库存：</label>
+				<div class="col-sm-8">
+					<table id="choose_place_table" class="table table-hover table-bordered">
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer">
+		    <a onclick="$('#choosePlaceBox').modal('hide');" class="btn">关闭</a>
+		    <a onclick="setPlaceChooseData(this);" class="btn btn-primary" id="choose_place_key_ii" data-key="" data-ii="">确定</a>
+		</div>
+	</div>
+</div>
+
+</form>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxLabel" aria-hidden="true">
+	<div class="modal-dialog" style="width:70%;height:100%;">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:100%;height:100%;min-height:600px;" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+

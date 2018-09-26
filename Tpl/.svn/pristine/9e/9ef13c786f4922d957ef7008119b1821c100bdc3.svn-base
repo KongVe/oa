@@ -1,0 +1,127 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" id="form_search" method="post" class="form-inline">
+	<input type="hidden" name="_order" id="order" value="{$order}">
+<div class="page-header clearfix">
+	<h1 class="col-xs-3">工资条</h1>
+	<div class="col-xs-9 pull-right">
+		<div class="form-group col-sm-3 pull-left">
+			<div class="col-sm-12">
+				<input class="form-control " type="month" name="wages_month" id="wages_month" value="{$Think.request.wages_month}"  placeholder="年月份">
+			</div>
+		</div>	
+
+		<div class="form-group">
+			<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+			<button class="btn btn-sm btn-danger" onclick="window.location.reload();" title="重置"><i class="icon-rotate-right" ></i></button>
+		</div>
+	</div>
+</div>	
+<div class="message-container" id="container_table" style="width:100%;overflow:scroll;">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="btn-group">
+				当前月份总工资为：￥{$month_total}
+			</div>
+		</div>
+	</div>
+
+	<table class="table table-hover table-bordered">
+		<tr>	
+			<td>姓名</td>
+			<td>工资</td>
+			<td>是否录入完成</td>
+			<td>是否确认</td>
+			<td>是否发放</td>
+			<td>支付方式</td>
+			<td>联系方式</td>
+		</tr>
+		<tbody class="tbody ">
+		<volist name="list" id="vo">
+			<tr>
+				<td>{$vo.emp_name}</td>
+				<td><b class="red">{$vo.money_total}</b></td>
+				<td><?php echo ($vo['is_submit'] == 1) ? "<b class='red'>是</b>" : '否'; ?></td>
+				<td><?php echo ($vo['is_confirm'] == 1) ? "<b class='red'>是</b>" : '否'; ?></td>
+				<td><?php echo ($vo['is_transfer'] == 1) ? "<b class='red'>是</b>" : '否'; ?></td>
+				<td>{$vo.salary_pay_method}</td>
+				<td>{$vo.mobile_tel}</td>
+
+			</tr>
+		</volist>
+		</tbody>
+	</table>
+
+</div>
+</form>
+
+
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+
+<!-- 模态弹窗-->
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxLabel" aria-hidden="true">
+	<div class="modal-dialog" style="height:100%;width:65%;">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:100%;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<div class="modal fade" id="RightBox" role="dialog"  tabindex="-1" aria-labelledby="RightBoxIframe" aria-hidden="true">
+	<div class="modal-dialog" style="width:100%;height:100%;margin-left: 20%;padding-bottom:0px;">
+		<iframe src=""  id="RightBoxIframe" name="RightBoxIframe"  style="width:80%;z-index:100;height:100%;" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+</script>
+<script type="text/javascript">
+
+function confirmWages(wages_month,uid){
+	if(!confirm("确认操作？")){
+		return false;
+	}
+	$.post("{:U('Profile/confirmWages')}",{wages_month:wages_month,uid:uid},function(msg){
+		if(msg.status){
+			alertWarning(msg.info);
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alertWarning("网络错误，请重试");
+	});
+}
+function submitWages(wages_month,uid){
+	if(!confirm("确认操作？")){
+		return false;
+	}
+	$.post("{:U('Profile/submitWages')}",{wages_month:wages_month,uid:uid},function(msg){
+		if(msg.status){
+			alertWarning(msg.info);
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alertWarning("网络错误，请重试");
+	});
+}
+function wagesDel(id){
+	if(!confirm("确认操作？")){
+		return false;
+	}
+	$.post("{:U('Profile/wagesDel')}",{id:id},function(msg){
+		if(msg.status){
+			alertWarning(msg.info);
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alertWarning("网络错误，请重试");
+	});
+}
+
+</script>

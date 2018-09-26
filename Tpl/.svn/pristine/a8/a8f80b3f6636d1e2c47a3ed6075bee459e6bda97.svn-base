@@ -1,0 +1,265 @@
+<layout name='Layout/ace_popup' />
+<form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix" role="form">
+  <input type="hidden" name="ajax" id="ajax" value='1'/>
+  <input type="hidden" name="id" value='{$Think.request.id}'/>
+  <input type="hidden" name="status" value='{$Think.request.status}'/>
+  <gt name="Think.request.id" value="0">
+     <input type="hidden" name="opmode" value='edit'/>
+ </gt>
+ <div class="form-group">
+    <div class="col-sm-12">
+        <label for="website">网站</label>
+        <select  name="website" class="form-control">
+            <option value="www.amazon.com" <eq name="vo.website" value="www.amazon.com">selected</eq> >www.amazon.com</option>
+            <option value="www.amazon.co.uk" <eq name="vo.website" value="www.amazon.co.uk">selected</eq> >www.amazon.co.uk</option>
+            <option value="www.amazon.de" <eq name="vo.website" value="www.amazon.de">selected</eq> >www.amazon.de</option>
+            <option value="www.amazon.co.jp" <eq name="vo.website" value="www.amazon.co.jp">selected</eq> >www.amazon.co.jp</option>
+        </select>
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-12">
+     <label class="col-sm-1" for="reason">Reason</label>
+     <div class="col-sm-12">{$vo.reason}</div>
+     <textarea class="form-control col-sm-12" id="reason" name="reason"></textarea>
+ </div>
+</div>
+
+<div class="form-group">
+    <div class="col-sm-12">
+        <div class="col-sm-6">
+            <label for="related_asin">相关ASIN</label>
+            <?php for($key=0;$key<10;$key++){ ?>
+            <?php if($vo['related_asin'][$key-1] || $vo['related_asin'][$key] || $key==0){ ?>
+            <div class="input-group">
+                <input type="text" class="from-control col-sm-12 related_asin" id="related_asin_{$key}" name="related_asin[{$key}]" value="<?php echo $vo['related_asin'][$key]; ?>" />
+            </div>
+            <?php }else{ ?> 
+            <div class="input-group">
+                <input type="text" class="from-control col-sm-12 related_asin hidden" id="related_asin_{$key}" name="related_asin[{$key}]" value="<?php echo $vo['related_asin'][$key]; ?>"  />    
+            </div>                
+            <?php } ?>
+            <?php } ?>
+        </div>        
+        <div class="col-sm-6">
+            <label for="keyword">关键词</label>
+            <?php for($key=0;$key<10;$key++){ ?>
+            <?php if($vo['keyword'][$key-1] || $vo['keyword'][$key] || $key==0){ ?>
+            <div class="input-group">
+                <input type="text" class="from-control col-sm-12 keyword" id="keyword_{$key}" name="keyword[{$key}]" value="<?php echo $vo['keyword'][$key]; ?>"   />
+            </div>
+            <?php }else{ ?> 
+            <div class="input-group">
+                <input type="text" class="from-control col-sm-12 keyword hidden" id="keyword_{$key}" name="keyword[{$key}]" value="<?php echo $vo['keyword'][$key]; ?>" /> 
+            </div>                   
+            <?php } ?>
+            <?php } ?>
+        </div>
+
+    </div>
+</div>
+
+<div class="form-group">
+    <div class="col-sm-12">
+        <?php for($key=0;$key<20;$key++){ ?>
+        <?php if($vo['reason_pictures'][$key-1] || $vo['reason_pictures'][$key] || $key==0){ ?>
+        <div class="reason_pictures_wrap col-sm-6">
+           <?php }else{ ?> 
+           <div class="reason_pictures_wrap col-sm-6 hidden">
+               <?php } ?>
+               <div class=" col-sm-4">
+                   <input class="form-control thumbnail_clipboard" data-target="reason_pictures_show_{$key}" type="text" id="reason_pictures_{$key}" name="reason_pictures[{$key}]"  value="<?php echo $vo['reason_pictures'][$key]; ?>"    placeholder="理由相关图片" >
+               </div>
+               <div class="col-sm-2">
+                   <a href="{$vo.reason_pictures.key}" id="reason_pictures_show_{$key}" class="thumbnail" target="_blank" ><img src="<?php echo $vo['reason_pictures'][$key]; ?>"  height=60/></a>
+
+               </div>
+           </div>
+           <?php } ?>
+       </div>
+   </div>
+<div class="form-group">
+    <div class="col-sm-12">
+     <div class="col-sm-6">
+        <label for="source_link">货源链接</label>
+        <?php for($key=0;$key<10;$key++){ ?>
+        <?php if($vo['source_link'][$key-1] || $vo['source_link'][$key] || $key==0){ ?>
+        <input type="text" class="from-control col-sm-12 source_link" id="source_link_{$key}" name="source_link[{$key}]" value="<?php echo $vo['source_link'][$key]; ?>"  placeholder="http://" />
+        <?php }else{ ?> 
+        <input type="text" class="from-control col-sm-12 source_link hidden" id="source_link_{$key}" name="source_link[{$key}]" value="<?php echo $vo['source_link'][$key]; ?>"  placeholder="http://" />                    
+        <?php } ?>
+        <?php } ?>                    
+        <p class="help-block">只能在此输入货源的链接</p>
+    </div>
+    <div class="col-sm-6">
+        <label for="source_content">货源描述</label>
+        <textarea class="form-control col-sm-11" id="source_content" name="source_content">{$vo.source_content}</textarea>
+        <p class="help-block">可以在此描述关于货源的相关信息</p>
+    </div>
+</div>
+</div>
+<div class="form-group">
+    <div class="col-sm-12">
+        <div class="col-sm-12">
+            <label class="text-right col-sm-2" for="category_link">新建分类链接: </label>
+            <input type="text" class="from-control col-sm-12" id="category_link" name="category_link" value="{$vo.category_link}"  placeholder="http://" />
+        </div>
+    </div>
+</div>        
+<div class="form-group">
+    <div class="col-sm-12">
+        <label class="text-right col-sm-2" for="related_sales_track_ids">关联销量跟踪ASIN: </label>
+        <div class="col-sm-12">
+            <input name="related_sales_track_ids" id="related_sales_track_ids" type="hidden" class="tag-input-style" style="width:100%;"  value="{$vo.related_sales_track_ids}"    />
+        </div>
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-12">
+        <label class="text-right col-sm-2" for="related_sellyours_ids">关联Sellyours: </label>
+        <div class="col-sm-12">
+            <input name="related_sellyours_ids" id="related_sellyours_ids" type="hidden" class="tag-input-style" style="width:100%;"  value="{$vo.related_sellyours_ids}"    />
+        </div>
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-sm-12">
+        <label class="text-right col-sm-2" for="related_sku_ids">关联SKU: </label>
+        <div class="col-sm-12">
+            <input name="related_sku_ids" id="related_sku_ids" type="hidden" class="tag-input-style" style="width:100%;"  value="{$vo.related_sku_ids}"  />
+        </div>
+    </div>
+</div>                
+<div class="form-group col-sm-12 text-center">
+ <a id="editFormSubmit" data-close="true" data-reload="true" data-loading-text="正在保存..." class="btn btn-primary defaultEditFormSubmit">保存</a>
+</div>
+</form>
+
+<style>
+.reason_pictures_wrap{padding:5px;}
+</style>
+
+<script type="text/javascript">
+    function IsPC() {
+    var userAgentInfo = navigator.userAgent;
+    var Agents = ["Android", "iPhone",
+    "SymbianOS", "Windows Phone",
+    "iPad", "iPod"];
+    var flag = true;
+    for (var v = 0; v < Agents.length; v++) {
+        if (userAgentInfo.indexOf(Agents[v]) > 0) {
+            flag = false;
+            break;
+        }
+    }
+    return flag;
+};
+    $(function(){
+        debugger;
+        $("#middleBox",window.parent.document).css('height',$('body').height());
+        $(window.parent.document).find('body').css('overflow','hidden');
+       $(".thumbnail_clipboard").click(function(){
+          $(this).parents('.reason_pictures_wrap').next().removeClass("hidden");
+      })
+       $(".source_link").click(function(){
+        $(this).next().removeClass("hidden");
+    })    
+       $(".keyword").click(function(){
+        $(this).parent().next().find('input').removeClass("hidden");
+    })  
+       $(".related_asin").click(function(){
+        $(this).parent().next().find('input').removeClass("hidden");
+    })          
+if(IsPC() == false){
+        $('.popup').css('min-width','auto');
+    }
+       var related_sales_track_ids_init_data = {$vo.related_sales_track_ids_init_data|default=""|json_encode};
+       $('#related_sales_track_ids').select2({
+        placeholder          : "请输入搜索ASIN",
+        minimumInputLength   : 1,
+        multiple             : true,
+        // separator            : "",                          // 分隔符
+        maximumSelectionSize : 0,                               // 限制数量
+        initSelection        : function (element, callback) {   // 初始化时设置默认值
+
+            if(related_sales_track_ids_init_data[0].id){
+                callback(related_sales_track_ids_init_data);
+            }
+        },
+        // createSearchChoice   : function(term, data) {           // 创建搜索结果（使用户可以输入匹配值以外的其它值）
+        //     return { id: term, text: term };
+        // },
+        formatSelection : function (item) { return item.show_html; },  // 选择结果中的显示
+        formatResult    : function (item) { return item.show_html; },  // 搜索列表中的显示
+        ajax : {
+            url      : "{:U('searchRelatedSalesTrack')}",              // 异步请求地址
+            dataType : "json",                  // 数据类型
+            data     : function (term, page) {  // 请求参数（GET）
+                return { q: term };
+            },
+            results      : function (data, page) {return {results:data.data}; },  // 构造返回结果
+            escapeMarkup : function (m) { return m; }               // 字符转义处理
+        }
+    });	
+       var related_sellyours_ids_init_data = {$vo.related_sellyours_ids_init_data|default=""|json_encode};
+       $('#related_sellyours_ids').select2({
+        placeholder          : "请输入搜索ASIN",
+        minimumInputLength   : 1,
+        multiple             : true,
+        // separator            : "",                          // 分隔符
+        maximumSelectionSize : 0,                               // 限制数量
+        initSelection        : function (element, callback) {   // 初始化时设置默认值
+            if(related_sellyours_ids_init_data[0].id ){
+            	
+                callback(related_sellyours_ids_init_data);
+            }
+        },
+        // createSearchChoice   : function(term, data) {           // 创建搜索结果（使用户可以输入匹配值以外的其它值）
+        //     return { id: term, text: term };
+        // },
+        formatSelection : function (item) { return item.show_html; },  // 选择结果中的显示
+        formatResult    : function (item) { return item.show_html; },  // 搜索列表中的显示
+        ajax : {
+            url      : "{:U('searchRelatedSellyours')}",              // 异步请求地址
+            dataType : "json",                  // 数据类型
+            data     : function (term, page) {  // 请求参数（GET）
+                return { q: term };
+            },
+            results      : function (data, page) {return {results:data.data}; },  // 构造返回结果
+            escapeMarkup : function (m) { return m; }               // 字符转义处理
+        }
+    });	
+
+
+       var related_sku_ids_init_data = {$vo.related_sku_ids_init_data|default=""|json_encode};
+       $('#related_sku_ids').select2({
+        placeholder          : "请输入搜索SKU或SKU名称",
+        minimumInputLength   : 1,
+        multiple             : true,
+        // separator            : "",                          // 分隔符
+        maximumSelectionSize : 0,                               // 限制数量
+        initSelection        : function (element, callback) {   // 初始化时设置默认值
+
+            if(related_sku_ids_init_data[0].id){
+                callback(related_sku_ids_init_data);
+            }
+        },
+        // createSearchChoice   : function(term, data) {           // 创建搜索结果（使用户可以输入匹配值以外的其它值）
+        //     return { id: term, text: term };
+        // },
+        formatSelection : function (item) { return item.sku_text; },  // 选择结果中的显示
+        formatResult    : function (item) { return item.sku_text; },  // 搜索列表中的显示
+        ajax : {
+            url      : "{:U('V2SkuProduct/ajaxGetSkuProduct')}",              // 异步请求地址
+            dataType : "json",                  // 数据类型
+            data     : function (term, page) {  // 请求参数（GET）
+                return { q: term };
+            },
+            results      : function (data, page) {return {results:data.data}; },  // 构造返回结果
+            escapeMarkup : function (m) { return m; }               // 字符转义处理
+        }
+    });	        
+   })
+
+
+</script>

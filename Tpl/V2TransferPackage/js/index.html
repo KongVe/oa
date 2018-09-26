@@ -1,0 +1,122 @@
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	//ace.settings.sidebar_collapsed(true);
+	 $('[data-toggle="popover"]').popover({
+	 	trigger:'hover focus ',
+	 	html:true,
+	 	placement:'right',
+	 	template:'<div class="popover" role="tooltip" style="max-width:500px;"><div class="arrow"></div><div class="popover-content"></div></div>'
+	 })
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+
+
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}
+
+	$("#account_id").select2();
+	//updateStock();
+})
+
+function returnPackage(transfer_package_id){
+	confirm = prompt("请输入return, 确认需要退货");
+	if(confirm == 'return'){
+		$("#btn_return_" + transfer_package_id).attr("disabled","disabled");
+		data = {
+			transfer_package_id : transfer_package_id
+		}
+		$.post("{:U('transferReturn')}",data,function(r){
+			$("#btn_return_" + transfer_package_id).attr("disabled",null);
+			if(r.status){
+				alert("申请退货成功，请把入库单都对整入库");
+				window.open("{:U('v2_stock_instock_plan/index')}");
+			}else{
+				alertWarning(r.info);
+			}
+		})
+	}
+}
+
+function submitTransportContent(){
+	$("#btn_submit_transport_content").attr("disabled","disabled");
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		//如果没有选中一个，则默认全选，省了一个点击
+		$("input[name='id[]']").click();
+		id = $("input[name='id[]']:checked").serialize();
+	}
+	data = {
+		id:id,
+		transfer_shipment_id:$("#transfer_shipment_id").val()
+	}
+
+	$.post("{:U('V2TransferPackage/submitTransportContent')}",data,function(r){
+		$("#btn_submit_transport_content").attr("disabled",null);
+		if(r.status){
+			alert("提交成功,等待30秒后再确认");
+			window.location.reload();
+		}else{
+			alertWarning(r.info);
+		}
+		
+	})
+}
+function confirmShip(){
+	$("#btn_confirmShip").attr("disabled","disabled");
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		//如果没有选中一个，则默认全选，省了一个点击
+		$("input[name='id[]']").click();
+		id = $("input[name='id[]']:checked").serialize();
+	}
+	data = {
+		id:id,
+		transfer_shipment_id:$("#transfer_shipment_id").val()
+	}
+
+	$.post("{:U('V2TransferPackage/confirmShip')}",data,function(r){
+		$("#btn_confirmShip").attr("disabled",null);
+		if(r.status){
+			alert("确认成功，可以发货");
+			window.location.reload();
+		}else{
+			alertWarning(r.info);
+		}
+		
+	})
+}
+
+function del(id){
+	if(window.confirm("确定删除？")){
+		$("#btn_del_" + id).attr("disabled","disabled");
+		data = {
+			id:id,
+		}
+		$.post("{:U('del')}",data,function(r){
+			if(r.status){
+				$("#form_search").submit();
+			}else{
+				alertWarning(r.info);
+			}
+			$("#btn_del_" + id).attr("disabled",null);
+		})
+	}
+}
+</script>

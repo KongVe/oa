@@ -1,0 +1,80 @@
+<script type="text/javascript">
+jQuery(function($){
+
+	$(".table .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+
+	$(".cal_param").change(function(){
+		var total_value=0;
+		var declaration_key = $(this).parents("table").data('declaration-key');
+
+		$("tr",$(this).parents("table")).each(function(){
+			quantity = $(".declaration_quantity",this).val();
+			price = $(".declaration_price",this).val();
+			if(quantity > 0 && price > 0){
+				total_value += quantity*price;
+			}
+		})
+		
+		total_value = Math.ceil(total_value*100) / 100;
+		$("#total_value_"+declaration_key).html(total_value);
+		$("#declaration_total_value_"+declaration_key).val(total_value);
+	})
+
+});
+
+function dhlOfficialDeclaration(){
+	var data = {
+		id:$("#shipment_id").val()
+	}
+	$("#btn_dhlOfficialDeclaration").attr("disabled","disabled");
+	$.post("{:U('dhlOfficialDeclaration')}",data,function(r){
+		$("#btn_dhlOfficialDeclaration").attr("disabled",null);
+		if(r.status){
+			alert(r.info);
+		}else{
+			alertWarning(r.info);
+		}
+	})
+}
+
+function reset(){
+	var data = {
+		id:$("#shipment_id").val()
+	}
+	$("#btn_reset").attr("disabled","disabled");
+	$.post("{:U('resetDeclaration')}",data,function(r){
+		$("#btn_reset").attr("disabled",null);
+		if(r.status){
+			window.location.reload(true);
+		}else{
+			alertWarning(r.info);
+		}
+	})
+}
+
+function save(){
+	var data = $("#form_data").serialize();
+	$("#btn_save").attr("disabled","disabled");
+	$.post("{:U('saveDeclaration')}",data,function(r){
+		$("#btn_save").attr("disabled",null);
+		if(r.status){
+			window.location.reload(true);
+		}else{
+			alertWarning(r.info);
+		}
+	})
+}
+
+</script>

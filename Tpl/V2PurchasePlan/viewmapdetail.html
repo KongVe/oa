@@ -1,0 +1,74 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'采购计划采购详细'))}
+
+<form action="" method="POST" class="well form-horizontal clearfix" id="editForm" name="editForm" >
+
+	<div class="col-sm-12">
+		<div class="col-sm-8">
+			<div class="form-group">
+				<div class="col-xs-12">
+					本采购计划对应的采购批次的详情  ID: {$vo.id} 
+				</div>
+				<div class="col-xs-12">
+					<table class="table">
+						<tr>
+							<th>计划添加用户</th>
+							<th>计划总数</th>
+							<th>采购中</th>
+							<th>已入库</th>
+						</tr>
+						<tr>
+							<td>{$vo.add_user_name}</td>
+							<td>{$vo.plan_quantity}</td>
+							<td>{$vo.purchasing_quantity}</td>
+							<td>{$vo.instock_quantity}</td>
+						</tr>
+						<tr>
+							<th>采购批次ID</th>
+							<th>采购用户</th>
+							<th>采购中</th>
+							<th>已入库</th>
+						</tr>
+						<notempty name="plan_map_detail_list">
+							<volist name="plan_map_detail_list" id="plan_detail">
+								<tr>
+									<td>
+										<a href="{:U("v2_purchase_detail/index")}?ids={$plan_detail.purchase_detail_id}" target="_blank">{$plan_detail.purchase_detail_id}</a>
+									</td>
+									<td>{$plan_detail.add_user_name}</td>
+									<td>{$plan_detail.purchasing_quantity}</td>
+									<td>{$plan_detail.instock_quantity}</td>
+								</tr>
+							</volist>
+						<else/>
+							<tr>
+								<td colspan="4" class="align-center"><b>未采购</b></td>
+							</tr>
+						</notempty>
+					</table>
+					
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-4">
+			
+		</div>
+	</div>
+	<div class="col-sm-12">
+		<div class="form-group text-center col-sm-6">
+			<div class="pull-right">
+				<a class="close_box_button btn btn-warning" >关闭</a>
+				&nbsp;&nbsp;
+			<div>
+		</div>
+	</div>
+</form>
+
+<script type="text/javascript">
+
+$(function(){
+
+
+})
+
+</script>

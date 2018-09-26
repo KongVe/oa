@@ -1,0 +1,60 @@
+<layout name='Layout/ace_popup' />
+
+{:W('PageHeader',array('name'=>$title))}
+
+<form method='post' action="" id="editForm" class="well form-horizontal clearfix">
+	<div class="panel panel-primary">
+		<div class="panel panel-heading">
+			<span></span>
+		</div>
+		<div class="panel-body">
+			<table class="table table-hover table-bordered">
+				<volist name="list" id="vo">
+					<tr>
+						<td style="width:350px;">
+							{$vo.sku_data.sku}<br>
+							{$vo.sku_data.sku_name}
+							<br>
+							<br>
+							<a href="{:U('V2Stock/index')}?id={$vo.stock_id}" class="btn btn-link" target="_blank">查看库存</a>
+
+						</td>
+						<td>
+							<a href="{$vo.sku_data.thumbnail}" target="_blank" class="thumbnail"><img src="{$vo.sku_data.thumbnail}" width="80"/></a> 
+						</td>
+						<td>
+							<table clss="table" style="width:100%;">
+								<tr>
+									<th>货架位</th>
+									<th>当前库存</th>
+									<th>最后入库</th>
+									<th>最后使用</th>
+								</tr>
+								<volist name="vo.stock_data" id="vo2">
+									<tr>
+										<td>{$vo2.place_data.place_show_name}</td>
+										<td>
+											<b class="red">{$vo2.place_data.place_stock.quantity|default="0"}</b> 个
+										</td>
+										<td>
+											{$vo2['place_stock']['last_instock_time']|default=" "|date="y-m-d H:i:s",###}
+										</td>
+										<td>
+											{$vo2['place_stock']['last_use_time']|default=" "|date="y-m-d H:i:s",###}
+										</td>
+									</tr>
+								</volist>
+							</table>
+						</td>
+					</tr>
+				</volist>
+			</table>
+		</div>
+	</div>
+
+</form>
+
+<script type="text/javascript">
+
+	
+</script>

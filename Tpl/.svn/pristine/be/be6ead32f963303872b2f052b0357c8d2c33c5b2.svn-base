@@ -1,0 +1,18 @@
+<layout name="Layout/ace_box_v3"/>
+<div class="modal-body form-control" id="form-edit">
+    </div>
+
+<script>
+  var vo = {$vo|default=""|json_encode};
+  var config_data = {$config_data|default=""|json_encode};
+ $(function(){
+  $('#search_body').hide()
+  $('#form-edit').height($(window).height())
+   get_form_detail(config_data.edit_setting,'form-edit');
+  for(var key in vo){
+     if(vo[key])
+      $('div[name="'+key+'"]').text(vo[key]).attr('disabled',true);
+  }
+  $('div[name]').attr('disabled',true);
+ })
+</script>

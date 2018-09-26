@@ -1,0 +1,19 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'查看数据'))}
+
+<foreach name="vo" item="vv" key="kk">
+	<?php
+		if(strpos($kk, "password")!==false){
+			continue;
+		}
+	?>
+	<div class="form-group col-sm-11">
+		<label class="col-sm-4 control-label" for="order_account" >{$kk}：</label>
+		<div class="col-sm-8">
+			{$vv}
+		</div>
+	</div>
+
+</foreach>
+	
+	

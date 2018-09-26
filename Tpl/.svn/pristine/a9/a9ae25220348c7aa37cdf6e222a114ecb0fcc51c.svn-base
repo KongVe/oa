@@ -1,0 +1,138 @@
+<script type="text/javascript">
+	function delSource(id){
+		if(confirm("确定删除？")){
+			var data = {'id':id};
+			$.post("{:U('OrderSource/del')}",data,function(r){
+				if(r.status){
+					window.location.reload(true);
+				}
+			})
+		}
+		return false;
+	}
+	function changeSourceState(id,type){
+		if(type){
+			var stock='Stockout';
+		}else{
+			var stock='In stock';
+		}
+		$.post("{:U('OrderSource/save')}",{id:id,stock:stock,opmode:"edit"},function(msg){
+			if(msg.status){
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误");
+		})
+	}
+	function addProduct(sku){
+		parent.window.frames['editSourceIframe'].document.getElementsByTagName("body").innerHTML=''
+		parent.$("#editSourceIframe").attr("src","<?php echo U("OrderSource/edit"); ?>?sku=" + sku);
+		parent.$("#editSource").modal("show");
+		return false;
+	}
+	function editSource(id){
+		parent.window.frames['editSourceIframe'].document.getElementsByTagName("body").innerHTML=''
+		parent.$("#editSourceIframe").attr("src","<?php echo U("OrderSource/edit"); ?>?id=" + id);
+		parent.$("#editSource").modal("show");
+		return false;
+	}
+
+	function stockDetail(sku,quantity){
+		var data = $("input").serialize();
+		data += ( '&_' + Math.round(new Date().getTime()/1000) );
+		parent.window.frames['bottomBoxIframe'].document.getElementsByTagName("body").innerHTML='';
+		parent.tmpSendForm("<?php echo U("OrderStock/detail"); ?>?sku="+sku,data,"bottomBoxIframe");
+		parent.$("#bottomBox").modal("show");
+		return false;
+	}
+
+	function refund(sku){
+		if(confirm("确认该产品找不到货源了？全部货源将被改为Stockout哦。")){
+			var product_auto_id_data = $("input").serialize();
+			var tr_key = $("#tr_key").val();
+			var data = product_auto_id_data;
+			$.post("{:U('OrderProduct/refund')}",data,function(r){
+				if(r.status){
+					$.post("{:U('checkOurProduct')}",{sku:sku},function(msg){
+						if(msg.status==1){
+							if(confirm("该产品是公司产品库中的产品，是否设置产品为stockout(缺货)")){
+								$.post("{:U('changeProductStockout')}",{sku:sku},function(msg){
+								});
+							}
+						}
+						parent.$("#tr_"+ tr_key).remove();
+						parent.$("#purchase-detail-box").hide("fast");
+					}).error(function(){
+						parent.$("#tr_"+ tr_key).remove();
+						parent.$("#purchase-detail-box").hide("fast");
+					});
+					
+				}else{
+					alert(r.info);
+				}
+			})
+		}
+		return false;
+	}
+	
+	function purchase(id,purchase_plan_id){
+		parent.window.frames['bottomBoxIframe'].document.getElementsByTagName("body").innerHTML=''
+
+		// var tr_key = $("#tr_key").val();
+		
+		// var data=$("body input").serialize();
+
+		// data=data + '&source_id=' + id + '&_' + Math.round(new Date().getTime()/1000);
+		
+		var url="<?php echo U("OrderProduct/purchasedetail"); ?>?_" + Math.round(new Date().getTime()/1000);
+
+		// $("#form_tmp").html('正在获取数据...');
+		// $("#form_tmp").attr("action",url);
+		// $("#form_tmp").attr("target","bottomBoxIframe");
+		// if(param){
+		// 	for (var key in param) { 
+		// 		$("#form_tmp").append('<input type="hidden" name="source_id[]" value="'+param[key]+'" />');
+		// 	};
+		// }
+		$("#form_search").attr("target","bottomBoxIframe");
+		$("#form_search").attr("action",url);
+		$("#source_id").val(id);
+		$("#form_search").submit();
+
+		parent.$("#bottomBox").modal("show");
+		return false;
+	}
+	
+	function closeBox(){
+		parent.$("#purchase-detail-box").hide("fast");
+	}
+	
+ 	$(function(){
+
+ 		$("input[name^='price']").hover(
+ 			function(){
+ 				sourcePrice = $(this).val();
+ 				inputId = $(this).attr("id");
+				var position = $(this).position(),
+				box_top = position.top + 34,
+				box_left = position.left - $(this).outerWidth() / 2;
+
+
+ 				$(".adjustPriceBox a").data("sourcePrice",sourcePrice).data("inputId",inputId);
+ 				$(".adjustPriceBox").css({top:box_top,left:box_left}).show(); 
+ 			}
+ 		);
+
+ 		$(".adjustPriceBox a").click(function(){
+ 			var sourcePrice = parseFloat($(this).data("sourcePrice")),
+ 				adjustPrice = parseFloat($(this).data("price")),
+ 				inputId = $(this).data("inputId");
+ 			$("#" + inputId).val(sourcePrice + adjustPrice);
+ 		})
+ 		$("body").click(function(){
+ 			$(".adjustPriceBox").hide();	
+ 		})
+ 	})
+</script>

@@ -1,0 +1,237 @@
+<layout name='Layout/ace_box' />
+
+<script type="text/javascript" src="__PUBLIC__/js/echarts/build/dist/echarts.js"></script>
+<!-- 
+	<script type="text/javascript" src="__PUBLIC__/js/ichart.1.2.min.js"></script> 
+-->
+
+<form action="__SELF__" id="detail_form" method="POST">
+	<div class="page-header clearfix">
+	    <h1 class="col-sm-12">{$title}</h1>
+	   	<div class="col-sm-12">
+	   		<div class="col-sm-3"></div>
+		   	<div class="col-sm-9">
+			    <!-- <div class="form-group col-sm-2">
+			        <div class="input-group">
+			            <span class="input-group-addon">
+			                周期
+			            </span>
+			            <select name="cycle" id="cycle" class="form-control">
+							<option value="day">请选择周期</option>
+							<option value="day" <eq name="Think.request.cycle" value="day">selected</eq>>每天</option>
+							<option value="week" <eq name="Think.request.cycle" value="week">selected</eq>>每周</option>
+							<option value="month" <eq name="Think.request.cycle" value="month">selected</eq>>每月</option>
+						</select>
+
+			        </div>
+			    </div> -->
+				
+				<notempty name="Think.request.sellyours_id">
+					<label class="input-group col-sm-3">
+		                <input type="checkbox" class="ace input-lg" name="parent_asin_data" value="1" onChange="$('#detail_form').submit();" <notempty name="Think.request.parent_asin_data">checked="checked"</notempty> />
+		                <span class="lbl">
+		                    显示父ASIN数据
+		                </span>
+		            </label>
+				</notempty>
+				
+
+				<div class="input-group col-sm-5">
+
+					<span class="input-group-addon">
+			        	统计时间
+			      	</span>
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="input-date-range form-control" type="text" name="report_time" id="report_time" value="{$Think.request.report_time}"  placeholder="时间默认最近30天">
+			      	<span class="input-group-btn">
+			        	<button type="submit" class="btn btn-danger btn-sm">确定</button>
+			      	</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-body">
+			
+			<div class="col-sm-6">
+				
+				<div class="col-sm-12">
+					business report 在统计时间内的汇总
+				</div>
+				
+				<div class="col-sm-6">
+					<b>总流量:</b> {$sessions_total|default="0"}
+				</div>
+				<div class="col-sm-6">
+					<b>总浏览:</b> {$page_views_total|default="0"}
+				</div>
+				<div class="col-sm-6">
+					<b>总订单:</b> {$total_order_items_total|default="0"}
+				</div>
+				<div class="col-sm-6">
+					<b>总转化:</b> <span class="red">{$total_order_items_total/$sessions_total|round=###,3}</span>
+				</div>
+				<div class="col-sm-6">
+					<b>总销售额:</b> {$ordered_product_sales_total|default="0"} <b>{$original_currency}</b>
+				</div>
+				<div class="col-sm-6">
+					<b>总销量:</b> {$units_ordered_total|default="0"}
+				</div>
+				
+			</div>
+			<div class="col-sm-6">
+				<div class="col-sm-12">
+					广告统计 在统计时间内的汇总
+				</div>
+				
+				<div class="col-sm-6">
+					<b>总广告费:</b> {$spend_cny_all_total|default="0"} <b class="red">元</b> | {$spend_all_total|default="0"} <b class="red">{$original_currency}</b>
+				</div>
+				<div class="col-sm-6">
+					<b>每个点击广告费:</b> <?php echo round($spend_cny_all_total/$clicks_all_total,3)?> <b class="red">元</b>
+				</div>
+				<div class="col-sm-6">
+					<b>总曝光:</b> {$impressions_all_total|default="0"}
+				</div>
+				<div class="col-sm-6">
+					<b>总点击:</b> {$clicks_all_total|default="0"}
+				</div>	
+				<div class="col-sm-6">
+					<b>总点击率:</b> <?php echo round($clicks_all_total/$impressions_all_total,4)?>
+				</div>	
+				<div class="col-sm-6">
+					<b>总广告出单:</b> {$ppc_order_total|default="0"}
+				</div>
+				<div class="col-sm-6">
+					<b>广告转化率:</b> <b class="red"><?php echo round($ppc_order_total/$clicks_all_total,3)?></b>
+				</div>
+			</div>
+			<div class="col-sm-6">
+			</div>
+			<div class="col-sm-6">
+				<div class="col-sm-12">
+					<b>每个广告单广告费:</b> <?php echo round($spend_cny_all_total/$ppc_order_total,2)?> <b class="red">元</b>
+					(总广告费 / 总广告出单)
+				</div>
+				<div class="col-sm-12">
+					<b>每个销量广告费:</b> <?php echo round($spend_cny_all_total/$units_ordered_total,2)?> <b class="red">元</b>
+					(总广告费 / 自然订单加广告订单总数)
+				</div>
+			</div>
+			<div class="col-sm-12">
+				<hr>
+			</div>
+			<div class="col-sm-12 align-center">
+				<div id="canvasDiv" style="height:600px;width:98%;">
+					<!-- <div class="col-sm-12 chart_list" id='canvasDiv'></div>		 -->
+				</div>		
+			</div>
+		</div>
+	</div>
+</form>
+
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+
+<script type="text/javascript">
+//PUBLIC
+var label_list=<?php echo json_encode($label_list); ?>;
+
+var variation_legend_list=<?php echo json_encode($label_name_list); ?>;
+var variation_data= <?php echo json_encode($chartByCount); ?>	
+var variation_option  = {
+	    tooltip : {
+	        trigger: 'axis'
+	    },
+	    legend: {
+	    	selected: {	
+	    		"浏览次数":false,
+	    		"BuyBox比例":false,
+	    		"销售额($)":false,
+	    		"销售量":false,
+	    		"广告曝光":false,
+	    		"广告点击率":false,
+	    		"平均点击费":false,
+	        },
+	        data:variation_legend_list,
+	        // orient:"vertical",
+	        x:"left",
+	    },
+	    toolbox: {
+	        show : true,
+	        feature : {
+	            // mark : {show: true},
+	            // dataView : {show: true, readOnly: false},
+	            // magicType : {show: true, type: ['bar', 'line']},
+	            // restore : {show: true},
+	            // saveAsImage : {show: true}
+	        }
+	    },
+	    calculable : true,
+	    xAxis : [
+	        {
+	            type : 'category',
+	            boundaryGap : true,
+
+	            data : label_list,
+	        }
+	    ],
+	    yAxis : [
+	        {
+	            type : 'value',
+	            
+	        }
+	    ],
+
+	    series :variation_data,
+	};           
+
+var variationChart = function(){
+	// 路径配置
+	require.config({
+	    paths: {
+	        echarts: '__PUBLIC__/js/echarts/build/dist'
+	    }
+	});
+	// 使用
+    require(
+        [
+            'echarts',
+            'echarts/chart/bar',
+            'echarts/chart/line',
+        ],
+        function (ec) {
+            // 基于准备好的dom，初始化echarts图表
+            var myChart = ec.init(document.getElementById('canvasDiv')); 
+              // 为echarts对象加载数据 
+	        myChart.setOption(variation_option);
+	    }
+    );
+}
+
+// 关闭悬浮框
+function closeDetailBox(){
+	if(parent.$("#order-detail-box").length>0){
+		parent.$("#order-detail-box").css({display:"none"});
+	}else{
+		window.close();
+	}
+}
+
+$(function($){
+
+	if($("#owner_uid").length > 0){
+		$("#owner_uid").select2();
+	}
+	
+	$("#account_id").select2();
+	$("#website_id").select2();
+
+	variationChart();
+
+	$(".showInNewWindow").click(function(){
+		$("#detail_form").attr("target","_blank").submit();
+		$("#detail_form").attr("target","")
+	});
+})
+</script>

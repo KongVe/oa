@@ -1,0 +1,64 @@
+    $(function(){
+    $(document).on("click", ".new-tab li", function() {debugger
+      $(document).off("click", ".tab-item")
+       var myLinks = $(this).parent().find('li');
+       for(var i = 0; i < myLinks.length; i++){
+        if(myLinks[i] == this){
+          debugger
+          var ul_list = $(myLinks[i])
+            myLinks.removeClass('actives');
+            ul_list.addClass('actives');
+            var url = ul_list.attr("href")
+            window.location.href = '../../'+url
+        }
+      }
+       $(document).on("click", ".tab-item", function() {
+      if(this.className.indexOf('tab-item') > -1){
+       var myLinks = document.querySelectorAll('.tab-item');
+       for(var i = 0; i < myLinks.length; i++){
+        if(myLinks[i] == this){
+          
+          var ul_list = $(myLinks[i].children[myLinks[i].children.length-1])
+          if(!ul_list.hasClass('show')&&!ul_list.hasClass('hide')){
+            ul_list.addClass('show');
+          }else if(ul_list.hasClass('show')){
+            ul_list.removeClass('show');
+            ul_list.addClass('hide');
+          }else{
+            ul_list.removeClass('hide');
+            ul_list.addClass('show');
+          }
+        }else{
+          $(myLinks[i].children[myLinks[i].children.length-1]).removeClass('show');
+          $(myLinks[i].children[myLinks[i].children.length-1]).removeClass('hide');
+          $(myLinks[i].children[myLinks[i].children.length-1]).addClass('hide')
+        }
+      }
+    }
+  })
+        })
+      $(document).on("click", ".tab-item", function() {
+      if(this.className.indexOf('tab-item') > -1){
+       var myLinks = document.querySelectorAll('.tab-item');
+       for(var i = 0; i < myLinks.length; i++){
+        if(myLinks[i] == this){
+          
+          var ul_list = $(myLinks[i].children[myLinks[i].children.length-1])
+          if(!ul_list.hasClass('show')&&!ul_list.hasClass('hide')){
+            ul_list.addClass('show');
+          }else if(ul_list.hasClass('show')){
+            ul_list.removeClass('show');
+            ul_list.addClass('hide');
+          }else{
+            ul_list.removeClass('hide');
+            ul_list.addClass('show');
+          }
+        }else{
+          $(myLinks[i].children[myLinks[i].children.length-1]).removeClass('show');
+          $(myLinks[i].children[myLinks[i].children.length-1]).removeClass('hide');
+          $(myLinks[i].children[myLinks[i].children.length-1]).addClass('hide')
+        }
+      }
+    }
+  })
+})    

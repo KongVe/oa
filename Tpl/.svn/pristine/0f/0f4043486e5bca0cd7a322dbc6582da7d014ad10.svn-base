@@ -1,0 +1,245 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" id="form_search" method="post" class="form-inline">
+	<input type="hidden" name="_order" id="order" value="{$order}">
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">{$title}</h1>
+	<div class="col-sm-10">
+
+	    <div class="form-group col-xs-2">
+			<div class="input-group">
+				<!-- <span class="input-group-addon">
+					供应商
+				</span> -->
+				<input name="supplier_id" type="hidden" class="tag-input-style" id="supplier_id" style="width:100%"  value="{$Think.request.supplier_id}"/>	
+			</div>
+		</div>
+
+		<div class="form-group col-sm-2">
+	        <div class="input-group">
+	            <span class="input-group-addon">
+	                货源货号
+	            </span>
+	            <input class="form-control " type="text" name="item_number" id="item_number" value="{$Think.request.item_number}"  placeholder="货号">
+	        </div>
+	    </div>
+
+	    <div class="form-group col-sm-3">
+	        <div class="input-group">
+	            <span class="input-group-addon">
+	                添加用户
+	            </span>
+	            <select name="add_uid[]" id="add_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+	                <option value="">选择用户</option>
+	                <volist name="user_list" id="user">
+	                    <option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['add_uid'])){echo 'selected="selected"';} ?> >{$user.show_name}</option>
+	                </volist>
+	            </select>
+	        </div>
+	    </div>
+
+	    <div class="form-group col-sm-2">
+	        <div class="input-group">
+	            <span class="input-group-addon">
+	                序号
+	            </span>
+	            <input class="form-control " type="text" name="ids" id="ids" value="{$Think.request.ids}"  placeholder="序号">
+	        </div>
+	    </div>
+
+		<div class="input-group col-sm-3">
+			<div class="input-group">
+				<input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="规格SKU,商品SKU,商品简述,货源标题名称"/>
+				<span class="input-group-btn">
+					<button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-125 icon-search"></i> </button>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<!-- <a data-url="{:U('edit')}" class="showBox btn btn-danger">添加商品</a> -->
+		</div>
+	</div>
+</div>
+
+<div class="message-container" id="container_table" style="width:100%;">
+
+	<table class="table table-hover table-bordered">
+
+		<include file="Layout:title_v2"/>
+
+		<volist name="list" id="sku_data" key="tr_key">
+			<tbody style="height: auto;">
+	      		<tr  class="success tr_show">
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$sku_data.id}" />
+							<span class="lbl"></span>
+							{$sku_data.id}
+						</label>
+					</td>
+	  				<td>
+	  					{$sku_data.parent_sku}
+	  				</td>
+	  				<td>
+	  					<a class="thumbnail"  href="{$sku_data.thumbnail}" target="_blank">
+	  						<img src="{$sku_data.thumbnail}" width="60" />
+	  					</a>
+	  				</td>
+	  				<td style="min-width:300px;" colspan="2" >
+	  					{$sku_data.product_name}
+					</td>
+					<td>
+	  					商品状态:<br><b>{$sku_data.status|L}</b>
+					</td>
+					<td style="width:200px;" colspan="3">
+					</td>
+					<!-- <td style="width:80px;">
+	  					{$sku_data.add_time|date="Y-m-d H:i:s",###}
+					</td>
+					<td>
+	  					{$sku_data.add_user_name}
+					</td>
+					<td></td>
+					 -->
+					<td style="width:240px;">
+						<a data-url="{:U('sourceEdit')}?parent_sku_id={$sku_data.id}" class="showBox btn btn-danger btn-xs">添加货源</a>
+	  				</td>
+	       		</tr>
+			
+				<tr class="tr_box">
+					<th style="border:none;text-align:right;">货源ID</th>
+					<th>添加用户</th>
+					<th>货源状态</th>
+					<th colspan="2">货源名称</th>
+					<th>价格</th>
+					<th>供应商</th>
+					<th>联系人</th>
+					<th>备注</th>
+					<th>操作</th>
+				</tr>
+      			<volist name="sku_data.source_list" id="vo" key="vo_key">
+            		<tr class="tr_box">
+						<td  style="border:none;text-align:right;" >
+							<!-- <label class="inline pull-left">
+								<input class="ace" type="checkbox" name="sku_id[]" value="{$vo.id}" />
+								<span class="lbl"></span>
+								{$vo.id}
+							</label> -->
+							{$vo.id}
+						</td>
+						<td style="width:100px;" >
+							{$vo.add_user_name}
+						</td>
+						<td style="width:100px;" >
+							{$vo.stock_status|L}
+						</td>
+						<td colspan="2">
+							{$vo.source_name}
+
+						</td>
+						<td style="width:100px;" >
+							<b class="red">{$vo.price}</b> 元
+						</td>
+						<td>
+							<a href="{$vo.link}" target="_blank" title="{$vo.link}">{$vo.supplier_name}</a>
+
+
+							<notempty name="vo.item_number">
+								<br>
+								<b>货号:</b> {$vo.item_number}
+							</notempty>
+
+						</td>
+						<td>
+							{$vo.contacts}
+						</td>
+						
+						<td style="width:120px;" >
+							<span class="V2EditMemo" data-field="memo" data-table-name="v2_source" data-field-value="{$vo.id}"><pre>{$vo.memo}</pre></span>
+						</td>
+						<td>
+							<a data-url="{:U('sourceEdit')}?parent_sku_id={$sku_data.id}&id={$vo['id']}" class="showBox btn btn-info btn-xs">修改货源</a>
+							<!-- <a href="{:U('supplierIndex')}?ids={$vo.supplier_id}" class="btn btn-inverse btn-xs" target="_blank" title="{$vo.supplier_name}">供应商信息</a> -->
+							<a data-url="{:U('supplierView')}?id={$vo.supplier_id}" class="showBox btn btn-inverse btn-xs">供应商信息</a>
+							<a data-url="{:U('OperateLog/view')}?id={$vo.id}&table_name=v2_source" class="showBox btn btn-info btn-xs">日志</a>
+						</td>
+					</tr>
+				</volist>
+    		</tbody>	
+		</volist>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+
+<div id="tmp" class="display-none">
+	<form name="form_tmp" id="form_tmp" method="post" class="form-inline">
+	</form>
+</div>
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+<script type="text/javascript">
+jQuery(function($){
+	
+	$("#add_uid").select2();
+
+
+	var init_data = {$supplier_list|default=""|json_encode};
+	var input_data = {};
+	$('#supplier_id').select2({
+	    placeholder          : "搜索供应商 或 联系人",
+	    minimumInputLength   : 1,
+	    multiple             : true,
+	    // separator            : "",                          // 分隔符
+	    // maximumSelectionSize : 1,                               // 限制数量
+	    initSelection        : function (element, callback) {   // 初始化时设置默认值
+	        callback(init_data);
+	    },
+	    // createSearchChoice   : function(term, data) {           // 创建搜索结果（使用户可以输入匹配值以外的其它值）
+	    //     return { id: term, text: term };
+	    // },
+	    formatSelection : function (item) { return item.show_name; },  // 选择结果中的显示
+	    formatResult    : function (item) { return item.show_name; },  // 搜索列表中的显示
+	    ajax : {
+	        url      : "{:U('V2Source/ajaxGetSupplierList')}",              // 异步请求地址
+	        dataType : "json",                  // 数据类型
+	        data     : function (term, page) {  // 请求参数（GET）
+	            return { q: term };
+	        },
+	        results      : function (data, page) {
+	        		input_data = data.data;
+					return {results:data.data}; 
+				},  
+	         // 构造返回结果
+	        escapeMarkup : function (m) { return m; }               // 字符转义处理
+	    }
+	});
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox a").attr("href",$("img",this).attr("src"));
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+	
+
+})
+
+</script>

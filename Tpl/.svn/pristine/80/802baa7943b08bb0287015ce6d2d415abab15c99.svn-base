@@ -1,0 +1,41 @@
+<div class="panel panel-default">
+	<div class="panel-heading">
+		已存在的关联SKU
+	</div>
+	<div class="panel-body">
+		<?php
+			if(count($sku_List)<=0){
+		?>
+			<table class="table">
+				<tr>
+					<th>不存在该主SKU的关联</th>
+				</tr>
+			</table>
+		<?php
+			}else{
+		?>
+
+			<table class="table">
+				<tr>
+					<th>主sku</th>
+					<th>关联sku</th>
+					<th>帐号</th>
+					<th>线上Product_id</th>
+					<th>操作</th>
+				</tr>
+				<foreach name="sku_List" item="sku">
+					<tr>
+						<td>{$sku.sku}</td>
+						<td>{$sku.relate_sku}</td>
+						<td>{$sku.account_name}</td>
+						<td>{$sku.online_product_id}</td>
+						<td><a class="btn btn-danger btn-xs" onclick="delRelateSku('{$sku.id}')">删除</a></td>
+					</tr>
+				</foreach>
+			</table>
+
+		<?php
+			}
+		?>
+	</div>
+</div>

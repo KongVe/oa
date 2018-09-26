@@ -1,0 +1,189 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="id" value="{$Think.request.id}" />
+<div class="page-header clearfix">
+	<h1 class="col-sm-4">{$title}</h1>
+	<div class="col-sm-6 pull-right">
+			<div class="input-group col-sm-4">
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="order_time" id="order_time" value="{$Think.request.order_time}" placeholder="下单时间">
+			</div>	
+			<div class="input-group col-sm-6">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索 订单号、产品ID、产品名称、小号名称&邮箱"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div>
+	</div>
+</div>
+
+
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a class="showBox btn btn-sm btn-primary" data-url="{:U('importOrderTrackingView')}" >导入订单跟踪号</a>	
+		</div>
+		
+	</div>
+</div>
+
+
+<div class="message-container">
+	<table class="table table-striped table-hover">
+			<include file="Layout:title" />
+			<tbody class="tbody">
+			<volist name="list" id="vo">
+				<tr>
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td>{$vo.website}</td>
+					<td style="word-break: break-word; ">{$vo.store}</td>
+					<td>
+						<a href="{$vo.product_thumbnail}" class="thumbnail" target="_blank">
+							<img src="{$vo.product_thumbnail}" width=60  />
+						</a><br>
+						<a href="{$vo.product_url}" target="_blank" title="{$vo.product_name}"><?php echo substr($vo['product_name'], 0,30) ."..." ;  ?></a>
+					</td>
+					<td>
+						<?php if(isAdmin()){ ?> 
+						<a href="{:U('FalsePlan/index')}?ids={$vo.plan_id}" target="_blank">{$vo.plan_id}</a>
+						<?php }else{ ?> 
+							{$vo.plan_id}
+						<?php } ?>
+					</td>
+					<td>
+						{$vo.vpn_server_id}:
+						<br>
+						{$vo.vpn_server_address}
+					</td>
+					<td style="word-break: break-word; ">
+						{$vo.pay_id}: {$vo.pay_type}: 
+						<br>
+						{$vo.pay_card_number}: {$vo.pay_username}
+					</td>
+					<td style="word-break: break-word; ">
+						{$vo.account_id}: 
+						<br>
+						{$vo.account_username}
+					</td>
+					<td style="word-break: break-word; ">
+						{$vo.online_order_id}
+						<notempty name="vo.false_package_id">
+							<br>
+							<br>
+							<b>包裹ID:</b><br>
+							{$vo.false_package_id}
+						</notempty>
+						<notempty name="vo.false_local_tracking_number">
+							<br>
+							<br>
+							<b>跟踪号:</b><br>
+							{$vo.false_local_tracking_number}
+						</notempty>
+					</td>
+					<td style="word-break: break-word; ">{$vo.product_id}</td>
+					<td><?php echo date("Y-m-d H:i",$vo['order_time']); ?></td>
+					<td>
+						{$vo.user_name}
+					</td>
+					<td>
+						{$vo.status}
+					</td>
+					<td>
+						{$vo.review_status}
+					</td>
+					<td>
+						<eq name="vo.finished_status" value="Fail">
+							<b class="text-danger">{$vo.finished_status}</b>
+						<else/>
+							{$vo.finished_status}
+						</eq>
+					</td>
+					<td>{$vo.environment_type}</td>
+					<td style="word-break: break-word;width:200px;"><span class="editStatic" field="memo" onclick="editStatic(this,'{:U('saveMemo')}?id={$vo.id}','textarea')">{$vo.memo}</span></td>
+					<td style="width:80px;">
+						<div class="form-group">
+							<a class="btn btn-danger btn-sm"    onclick="edit({$vo.id})">修改</a>
+						</div>
+						<div class="form-group">
+
+						<?php
+							if(in_array($vo['status'], array("Waiting review")) ){
+						?>
+							<eq name="vo.allow_review" value="No">
+								<notempty name="vo.review_content">
+									<a onclick="showBox('middleBox','<?php echo U('review');?>?id={$vo.id}')"   class="btn btn-info btn-sm">修改草稿</a> 
+								<else/>
+									<a onclick="showBox('middleBox','<?php echo U('review');?>?id={$vo.id}')"   class="btn btn-primary btn-sm">评价</a> 
+								</notempty>
+								 
+							<else/>
+								<a onclick="showBox('middleBox','<?php echo U('review');?>?id={$vo.id}')"   class="btn btn-inverse btn-sm">修改评价</a> 
+							</eq>
+						<?php
+							}elseif($vo['status'] == "Reviewed"){
+						?>
+							<b>评价完成</b>
+						<?php
+							}elseif($vo['review_status'] == "Fail"){
+						?>
+							<b class="text-danger">评价失败</b>
+						<?php
+							}else{
+								echo "不能评价";
+							}
+						?>
+						</div>
+						
+						<?php 
+							if(isAdmin()){
+						?>
+							<div class="form-group">
+								<a onclick="showBox('middleBox','<?php echo U('read');?>?id={$vo.id}')"   class="btn btn-info btn-sm">查看</a>
+							</div>
+							<div class="form-group">
+								<eq name="vo.environment_type" value="Software">
+									<a data-url="{:U('trackingEdit')}?id={$vo.id}" class="showBox btn btn-primary btn-sm">修改跟踪号</a> 
+								</eq>
+							</div>
+						<?php 
+							}
+						?>
+					</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" height="300px" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxLabel" aria-hidden="true">
+	<div class="modal-dialog" style="height:100%">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<style>
+.showBottomBox{cursor: pointer;}
+</style>

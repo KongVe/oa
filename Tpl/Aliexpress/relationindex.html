@@ -1,0 +1,11 @@
+<layout name='Layout/ace_layout' />
+{:W('PageHeader',array('name'=>'生成Aliexpress关联产品'))}
+
+<!-- 列表显示区域  -->
+<div class="row">
+	<form action="{:U('generateRelation')}" method="POST" enctype="multipart/form-data" class="form">
+		<textarea name="goodsList" style="margin: 2px; width: 952px; height: 355px;"></textarea>
+		<p>把每个产品链接上在上面，每行一个</p>
+		<input type="submit" name="submit" class="btn btn-primary" value="submit"/>
+	</form>	
+</div>

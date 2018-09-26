@@ -1,0 +1,223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+
+<title>{$express.express_name}</title>
+
+<style type="text/css">
+
+
+*{font-size:14px; margin:0px;padding:0px;}
+body {background-color:#fff; }
+input{
+border:none;background:none;
+}
+
+
+
+.kdbody{
+width:869px;
+height:480px; 
+/*margin:0px auto;  */
+position:relative;
+background:url(img/kdd/guotong.jpg);
+}
+.kdbodynobg{
+width:869px;
+height:480px; 
+/*margin:0px auto;  */
+position:relative;
+background:none;
+}
+.move_div{
+	position:absolute;
+}
+
+<volist name="vo.template" id="vv1">
+
+
+#{$vv1['name']}{
+	position: absolute;
+	left: {$vv1['left']};
+	top: {$vv1['top']};
+}
+
+</volist>
+
+
+</style>
+
+<script src="__PUBLIC__/js/jquery.js"></script>
+<!-- <script language="javascript" type="text/javascript" src="java/kddd.js"></script> -->
+
+
+
+
+</head>
+
+
+
+<body>
+<?php
+
+
+
+
+
+
+$jijianren="寄件人";//寄件人
+$shifadiprovice="始发地省";//始发地省
+
+$shifadi="始发地市";//始发地市
+$jijiandanwei="寄件单位";//寄件单位
+
+
+$jijianaddr="寄件地址";//寄件地址
+$jijianphone="寄件联系电话";//寄件联系电话
+
+
+
+$gname="收件人";//收件人
+
+$gprovice="收件人省";//收件人省
+
+$city="收件人城市";//收件人城市
+$shoujiandanwei="收件人单位";//收件人单位
+$address="收件人地址";//收件人地址
+$tel="收件人手机";//收件人手机
+
+
+// $printTimeY="年";//年
+// $printTimeM="月";//月
+// $printTimeD="日";//日
+
+
+$juanshu="数量";//数量
+
+// $printTimeY=date('Y');//年
+// $printTimeM=date('m');//月
+// $printTimeD=date('d');//日
+
+
+for($i=1;$i<=1;$i++){
+ ?>
+
+
+<div  id="kdddiv" class="kdbody">
+
+<volist name="vo.template" id="vv1">
+
+
+<input readonly='readonly' onclick="Drag(this);" class="move_div" id="{$vv1['name']}" title="{$vv1['cn_name']}"  value="{$vv1['cn_name']}" />
+
+</volist>
+
+
+</div>
+
+<?php } ?>
+<div style="width:100px;height:600px; position:fixed; right:0px; top:0px; " onclick="changegb()" ></div>
+
+<div style="width:100px;height:600px; margin-left:100px;margin:300px;"  >
+	<button onclick="save()">保存</button> &nbsp;&nbsp; 
+	<button onclick="parent.$('#middleBox').modal('hide')">关闭</button>
+</div>
+
+<script type="text/javascript">
+$(".move_div").mousedown(function(e){
+	Drag(this,e);
+});
+
+function Drag(id,e) {
+    
+ 
+	dv_id = $(id).attr('id');
+	var dv = document.getElementById(dv_id);
+ 	   var d = document;
+    var page = {
+        event: function (evt) {
+            var ev = evt || window.event;
+            return ev;
+        },
+        pageX: function (evt) {
+            var e = this.event(evt);
+            return e.pageX || (e.clientX + document.body.scrollLeft - document.body.clientLeft);
+        },
+        pageY: function (evt) {
+            var e = this.event(evt);
+            return e.pageY || (e.clientY + document.body.scrollTop - document.body.clientTop);
+
+        },
+        layerX: function (evt) {
+            var e = this.event(evt);
+            return e.layerX || e.offsetX;
+        },
+        layerY: function (evt) {
+            var e = this.event(evt);
+            return e.layerY || e.offsetY;
+        }
+    }     
+    /*// console.log(page);        */
+    var x = page.layerX(e);
+    var y = page.layerY(e);        
+    if (dv.setCapture) {
+        dv.setCapture();
+    }
+    else if (window.captureEvents) {
+        window.captureEvents(Event.MOUSEMOVE | Event.MOUSEUP);
+    }
+    d.onmousemove = function (e) {                    
+        var tx = page.pageX(e) - x;
+        var ty = page.pageY(e) - y;
+        if(tx>800 || ty>500){
+        
+        }else{
+        	dv.style.left = tx + "px";
+      	  dv.style.top = ty + "px";
+        }
+        
+    }
+    d.onmouseup = function () {
+        if (dv.releaseCapture) {
+            dv.releaseCapture();
+        }
+        else if (window.releaseEvents) {
+            window.releaseEvents(Event.MOUSEMOVE | Event.MOUSEUP);
+        }
+        d.onmousemove = null;
+        d.onmouseup = null;
+    }
+
+}
+
+function save(){
+	var list = $(".move_div");
+	var data = {};
+	for (var i = 0; i < list.length; i++) {
+		var kk = list.eq(i).attr("id");
+		var cn_name = list.eq(i).val();
+		var left_v = list.eq(i).css("left");
+		var top_v = list.eq(i).css("top");
+		data[i] = {left:left_v,top:top_v,name:kk,cn_name:cn_name};
+	};
+	var id= "{$_REQUEST['id']}";
+	var save_data ={template:data,id:id};
+	$.post("{:U('TaobaoOrder/expressSave')}",save_data,function(msg){
+		if(msg.status){
+			alert(msg.info);
+		}else{
+			alert(msg.info);
+		}
+	}).error(function(){
+		alert("网络错误，请重试");
+	})		
+}
+</script>
+</body>
+
+</html>
+

@@ -1,0 +1,127 @@
+<layout name='Layout/ace_box' />
+	{:W('PageHeader',array('name'=>'提交完成任务'))}
+<style>
+.reason_pictures_wrap{padding:5px;}
+</style>
+
+<form method='post' id="editForm" name="editForm" action="{:U('finishSave')}"  enctype="multipart/form-data"   class="well form-horizontal col-sm-12">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	<input type="hidden" id="id" name="id" value="{$vo.id}">
+	<input type="hidden" id="add_file" name="feedback_file" value="{$vo.feedback_file}">
+
+	<div class="form-group col-sm-12">
+		<label class="col-sm-2 control-label" for="task_title" >标题：</label>
+		<div class="col-sm-6">
+			{$vo.task_title}
+		</div>
+
+		<div class="col-sm-4 ">
+			<a href="{$vo.thumbnail}" class="thumbnail" target="_blank" style="width:100px;"><img src="{$vo.thumbnail}"  height="100" /></a>
+		</div>
+		
+	</div>
+
+	<div class="form-group col-sm-6">
+		<label class="col-sm-4 control-label" >设计人：</label>
+		<div class="col-sm-6">
+			<span><b>{$_SESSION['user_name']}</b></span>
+			<input type="hidden" name="designer_uid" id="designer_uid" value="{$_SESSION['authId']}">
+		</div>
+	</div>
+
+	
+
+	<div class="form-group col-sm-12">
+
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label" for="runner_uid">执行人：</label>
+			<div class="col-sm-5">
+				{$vo.runner_user_name}
+			</div>
+		</div>
+
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label" for="checker_uid">检查人：</label>
+			<div class="col-sm-5">
+				{$vo.checker_user_name}
+			</div>
+		</div>
+
+	</div>
+
+	
+	
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label" for="priority">优先级：</label>
+			<div class="col-sm-8">
+				<b>{$vo.priority}</b> ( 10 最优先，默认为 5 )
+			</div>
+		</div>
+		
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label">截止日期：</label>
+			<div class="col-sm-8">
+				{$vo.end_time|default=" "|date="Y-m-d",###}
+			</div>
+		</div>
+		
+	</div>
+
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label">要求附件：</label>
+			<div class="col-sm-8">
+				<volist name="require_file_list" id="file">
+					<li class="tbody">
+						<a target="_blank" href="{:U('down?attach_id='.f_encode($file['id']))}">{$file.name}</a>
+					</li>
+				</volist>
+			</div>
+		</div>
+	</div>
+	
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label">任务分类：</label>
+			<div class="col-sm-8">
+				<b>{$vo.category|L}</b>
+			</div>
+		</div>
+
+		
+	</div>
+
+	<div class="form-group col-sm-12" id="action_div">{$action_content}</div>
+	
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label">反馈附件：</label>
+			<div class="col-sm-8">
+				<include file="Widget:uploader" />
+			</div>
+		</div>
+	</div>
+
+	<div class="col-sm-12 panel-default">
+		<div class="form-group col-sm-4">
+		</div>
+
+		<div class="form-group col-sm-4">
+			<input type="button" data-loading-text="正在保存..." data-close="1" data-reload="1" class="defaultEditFormSubmit btn btn-primary" data-target="bottomBoxIframe"  value="保存提交" />
+			<a class="close_box_button btn btn-danger">取消</a>
+		</div>
+
+	</div>
+
+</form>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<script type="text/javascript">
+
+$(function(){
+
+	
+});
+</script>

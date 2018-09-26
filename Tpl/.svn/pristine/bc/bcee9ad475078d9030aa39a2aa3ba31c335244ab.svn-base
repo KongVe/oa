@@ -1,0 +1,144 @@
+
+<div class="form-group col-sm-12">
+	<label class="col-sm-2 control-label">
+		关联对象：
+	</label>
+	<div class="col-sm-10">
+		<foreach name="sellyours_list" item="sellyours_vo" key="pk">
+			&nbsp;&nbsp;&nbsp;<a href="{:U('amazon_sellyours/index')}?q={$sellyours_vo.asin}" target="_blank">{$sellyours_vo.asin}</a>
+			<if condition=" $pk EGT 10">
+				&nbsp;等等...
+			<?php break;?>
+			</if>
+		</foreach>
+		
+	</div>
+</div>
+<div class="form-group col-sm-12">
+	<label class="col-sm-2 control-label">
+		动作完成反馈：
+	</label>
+	<div class="col-sm-10" id="action_wrap">
+		
+		<volist name="amazon_optimization_list" id="vv1" key="k1">
+
+			<div class="col-sm-12">
+				<hr>
+				<hr>
+
+				<div class="col-sm-2">
+					<b>动作{$k1}: </b> {$vv1.action_name}
+				</div>
+				<div class="col-sm-5">
+					<b>动作要求: </b><pre>{$vv1.action_require}</pre>
+				</div>
+				<div class="col-sm-5">
+					相关图片：
+					<div class="col-sm-12">
+				        <?php for($key=0; $key<10; $key++){ ?>
+				        	<notempty name="vv1['action_images'][$key]">
+								<div class="col-sm-4">
+					                <a href="{$vv1.action_images.$key}" class="thumbnail" target="_blank" style="height:100px;"><img src="<?php echo $vv1['action_images'][$key]; ?>"  style="height:100px;"/></a>
+					            </div>
+					        </notempty>
+
+				        <?php } ?>
+
+				    </div>
+				</div>
+			</div>
+			
+			<div class="col-sm-12">
+				<hr>
+				<hr>
+
+				<div class="col-sm-2">
+					完成反馈：
+				</div>
+				<div class="col-sm-5">
+					<b>完成反馈内容: </b><pre>{$vv1.action_feedback}</pre>
+				</div>
+				<div class="col-sm-5">
+					相关图片：
+					<div class="col-sm-12">
+				        <?php for($key=0; $key<10; $key++){ ?>
+				        	<notempty name="vv1['feedback_images'][$key]">
+								<div class="col-sm-4">
+					                <a href="{$vv1.feedback_images.$key}" class="thumbnail" target="_blank" style="height:100px;"><img src="<?php echo $vv1['feedback_images'][$key]; ?>"  style="height:100px;"/></a>
+					            </div>
+					        </notempty>
+
+				        <?php } ?>
+
+				    </div>
+				</div>
+			</div>
+
+			<div class="col-sm-12">
+				<hr>
+				<input type="hidden" name="amazon_optimization_id[{$k1}]" value="{$vv1.id}">
+
+				<div class="col-sm-2">
+					审核任务：
+				</div>
+				<?php  if(in_array($vv1['action_status'], array("Waiting review","Finish","Failure"))){ ?>
+
+					
+					<div class="col-sm-5">
+							<textarea name="action_review[{$k1}]" style="width:100%;height:100px;" >{$vv1.action_review}</textarea>
+					</div>
+					<div class="col-sm-5">
+						相关图片：
+						<div class="col-sm-12">
+					        <?php for($key=0; $key<10; $key++){ ?>
+
+					        	<?php if($vv1['review_images'][$key-1] || $vv1['review_images'][$key] || $key==0){ ?>
+								
+									<div class="reason_pictures_wrap col-sm-12">
+					        	
+					        	<?php }else{ ?> 
+								
+									<div class="reason_pictures_wrap col-sm-12 hidden">
+					        	<?php } ?>
+
+							            <div class="col-sm-7">
+							                <input class="form-control thumbnail_clipboard review_images" data-nextdiv="1" type="text" name="review_images[{$k1}][]" value="<?php echo $vv1['review_images'][$key]; ?>"    placeholder="相关图片截图后Ctrl+V" >
+							            </div>
+							            <div class="col-sm-5">
+							                <a href="{$vv1['review_images'][$key]}" class="thumbnail" target="_blank" style="height:100px;"><img src="<?php echo $vv1['review_images'][$key]; ?>"  height=60/></a>
+							            </div>
+					        		</div>
+
+					        <?php } ?>
+
+					    </div>
+					</div>
+				<?php }else{ ?>
+					<div class="col-sm-5">
+						此动作当前状态为: <b>{$vv1.action_status|L}</b> 还不能审核
+					</div>
+				<?php } ?>
+
+			</div>
+		</volist>
+		
+	</div>
+
+</div>
+
+<hr>
+
+<script type="text/javascript">
+
+
+$(".thumbnail_clipboard").click(function(){
+	$(this).parents('.reason_pictures_wrap').next().removeClass("hidden");
+});
+
+$(function(){
+	if($("input.thumbnail_clipboard").length > 0){
+		downloadThumbnailClipboard();
+	}
+});
+
+</script>

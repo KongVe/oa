@@ -1,0 +1,73 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>"查看包裹详情"))}
+
+<form action="{:U('orderPackageSave')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+    <input type="hidden" id="ajax" name="ajax" value="1"/>
+    <volist name="order_list" id="order">
+        <input type="hidden" name="order_auto_id[]" value="{$order.id}"/>
+    </volist>
+    <div class="panel panel-primary">
+        <div class="panel panel-heading">
+            <span>包含的订单产品详情</span>
+        </div>
+        <div class="panel-body">
+            <div class="form-group">
+                <table class="table table-hover table-bordered">
+                    <tr>
+                        <th>订单ID</th>
+                        <th>规格SKU</th>
+                        <th>SKU名称</th>
+                        <th>SKU图片</th>
+                        <th>该包裹包含的本地商品数量</th>
+                    </tr>
+                    <volist name="vo.order_data_list" id="order_vo" key="order_key">
+                        <volist name="order_vo.local_product_data_list" id="local_product" key="product_key">
+                            <tr>
+                                <if condition=" $product_key eq 1 ">
+                                    <td rowspan="{$order_vo.order_row}" style="width:200px;word-break:break-all;">
+                                        订单ID: {$order_vo.online_order_id}
+                                    </td>
+                                </if>
+                                <td>
+                                    {$local_product.sku}
+                                </td>
+                                <td>
+                                    {$local_product.sku_name}
+                                </td>
+                                <td>
+                                    <a href="{$local_product.thumbnail}" class="thumbnail" target="_blank"><img src="{$local_product.thumbnail}" width="60" /></a>
+                                </td>
+                                <td>
+                                    <b class="red">{$local_product.product_quantity}</b> 个
+                                </td>
+                            </tr>
+                        </volist>   
+                    </volist>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-info">
+        <div class="panel panel-heading">
+            <span>包裹分配产品情况</span>
+        </div>
+        <div class="panel-body">
+            <div class="form-group">
+                
+            </div>
+        </div>
+    </div>
+
+    <div class="panel-default">
+        <div class="form-group text-center">
+            <a class="close_box_button btn btn-danger">取消</a>
+        </div>
+    </div>
+
+</form>
+
+
+<script type="text/javascript">
+
+</script>

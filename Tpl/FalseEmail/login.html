@@ -1,0 +1,10 @@
+var inputList = document.getElementsByTagName("input");
+for(var i=0; i < inputList.length; i++){
+	if(inputList[i].type == 'password'){
+		inputList[i].value = '{$email.password}';
+	}
+
+	if(inputList[i].type == 'email'){
+		inputList[i].value = '{$email.email}';
+	}
+}

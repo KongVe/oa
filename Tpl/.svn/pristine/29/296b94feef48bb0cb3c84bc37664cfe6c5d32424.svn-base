@@ -1,0 +1,53 @@
+<layout name='Layout/ace_popup' />
+    {:W('PageHeader',array('name'=>"格式化参数"))}
+
+    <form action="{:U('changeParamTypeView')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+        <input type="hidden" id="ajax" name="ajax" value="1"/>
+
+		<input type="hidden" id="id" name="id" value="{$vo.id}">
+		<input type="hidden" id="opmode" name="opmode" value="edit">
+
+        <div class="panel panel-primary">
+            <div class="panel panel-heading">
+                <span>修改信息</span>
+            </div>
+            <div class="panel-body">
+                <div class="col-sm-12">
+                    <notempty name="return_str">
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <label class="text-right col-sm-2" for="str">格式化结果: </label>
+                                <div class="col-sm-9">
+                                    {$return_str}
+                                </div>
+                            </div>
+                        </div>
+                    </notempty>
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="str">订单号（换行分隔）: </label>
+                            <div class="col-sm-9">
+                                <textarea class="form-control" type="text" id="str" name="str" style="height:500px;" placeholder="订单号（换行分隔）"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="panel-default">
+            <div class="form-group text-center">
+                <input type="submit" class=" btn btn-primary" value="提交" />
+                <a class="close_box_button btn btn-danger">取消</a>
+            </div>
+        </div>
+    
+    </form>
+
+
+<script type="text/javascript">
+
+
+</script>

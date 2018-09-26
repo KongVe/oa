@@ -1,0 +1,172 @@
+<meta name="description" content="overview &amp; stats" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<link rel="stylesheet" href="__PUBLIC__/assets-v3/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="__PUBLIC__/assets-v3/font-awesome/4.5.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/jquery-ui.custom.min.css" />
+    <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/fonts.googleapis.com.css" />
+    <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/ace.min.css" class="ace-main-stylesheet" id="main-ace-style" />
+    <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/ace-skins.min.css" />
+    <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/ace-rtl.min.css" />
+    <link rel="stylesheet" type="text/css" href="__PUBLIC__/assets-v3/css/select2.min.css"/>
+    <link rel="stylesheet" type="text/css" href="__PUBLIC__/assets-v3/css/bootstrap-datepicker3.min.css">
+  <link rel="stylesheet" type="text/css" href="__PUBLIC__/assets-v3/css/bootstrap-datetimepicker.min.css">
+    <script src="__PUBLIC__/assets-v3/js/ace-extra.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/jquery-2.1.4.min.js"></script>   
+    <script type="text/javascript">
+      if('ontouchstart' in document.documentElement) document.write("<script src='__PUBLIC__/assets-v3/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+    </script>
+    <script src="__PUBLIC__/assets-v3/js/bootstrap.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/jquery-ui.custom.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/jquery.ui.touch-punch.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/markdown.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/bootstrap-markdown.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/jquery.hotkeys.index.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/bootstrap-wysiwyg.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/bootbox.js"></script>   
+    <script src="__PUBLIC__/assets-v3/js/ace-elements.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/ace.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/moment.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/bootstrap-datepicker.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/select2.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/common.js"></script>
+  <style type="text/css">
+  .checkbox, .radio{
+      margin-bottom: 0;
+      margin-top: 0;
+          padding: 5px 4px 6px;
+              border: 1px solid #D5D5D5;
+    }
+</style>
+<div class="modal-body form-control" id="form-edit">
+
+     <!--   <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">序号</label>
+        <div class="col-sm-9">
+          <input type="text" name="id" class="form-control" disabled/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">分类</label>
+        <div class="col-sm-9">
+          <input type="text" name="category_id" class="form-control" disabled/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">标题</label>
+        <div class="col-sm-9">
+          <input type="text" name="title" class="form-control" disabled/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">内容</label>
+        <div class="col-sm-9">
+          <input type="text" name="content" class="form-control" disabled/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">分数类型</label>
+        <div class="col-sm-9">
+          <input type="text" name="score_type" class="form-control" disabled/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">分数</label>
+        <div class="col-sm-9">
+          <input type="text" name="score" class="form-control" disabled/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">状态</label>
+        <div class="col-sm-9">
+          <input type="text" name="status" class="form-control" disabled/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">来源</label>
+        <div class="col-sm-9">
+          <input type="text" name="source_type" class="form-control" disabled/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">创建人</label>
+        <div class="col-sm-9">
+          <input type="text" name="add_uid" class="form-control" disabled/>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">创建时间</label>
+        <div class="col-sm-9">
+          <input type="text" name="add_time" class="form-control" disabled/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">审核人</label>
+        <div class="col-sm-9">
+          <input type="text" name="owner_uid" class="form-control" disabled/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">审核时间</label>
+        <div class="col-sm-9">
+          <input type="text" name="review_time" class="form-control" disabled/>
+        </div>
+      </div> -->
+    </div>
+
+<script>
+  var category_list = {$category_list|default=""|json_encode};
+  var vo = {$vo|default=""|json_encode};
+  var config_data = {$config_data|default=""|json_encode};
+ $(function(){
+  $('#search_body').hide()
+  $('#form-edit').height($(window).height())
+  get_form_list(config_data.edit_setting,'form-edit');
+  for(var key in vo){
+    switch( $('input[name="'+key+'"],select[name="'+key+'"],textarea[name="'+key+'"],select[name="'+key+'[]"],select[name="'+key+'"]').attr('data-edit_type')){
+      case 'text':
+      case 'number':
+      case 'hidden':
+      case 'password':
+      $('input[name="'+key+'"]').val(vo[key]);
+      break;
+      case 'rich_text':
+      $('#'+key+'_rich').text(vo[key]);
+      break;
+      case 'textarea':
+      $('textarea[name="'+key+'"]').text(vo[key]);
+      break;
+      case 'date_choose':
+      $('input[name="'+key+'"]').val(formatDate(vo[key],'yyyy-MM-dd hh:mm'));
+       break;
+      case 'date_range':
+       $('input[name="'+key+'"]').datepicker('setDate',formatDate(vo[key],'yyyy-MM-dd'));
+      break;
+      case 'select_singer':
+       $('#'+key+'_select2').val([vo[key]]).trigger("change");
+      break;
+      case 'select_multiple':
+       $('#'+key+'_select2').val([vo[key]]).trigger("change");
+      break;
+      case 'radio':
+       $('input[name="'+key+'"][value="'+vo[key]+'"]').attr('checked',true);
+       break;
+      case 'checkbox':
+      if(vo[key].indexOf(',') == -1){
+       $('input[name="'+key+'"][value="'+vo[key]+'"]').attr('checked',true);
+      }else{
+        var key_list = vo[key].split(',');
+        for(var keys in key_list){
+          $('input[name="'+key+'"][value="'+key_list[keys]+'"]').attr('checked',true);
+        }
+      }
+      break;
+    }
+ })
+ function newCustom(id,data){
+
+}
+</script>
+</body>
+</html>

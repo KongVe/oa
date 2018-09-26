@@ -1,0 +1,242 @@
+<layout name='Layout/ace_popup' />
+	<notempty name="vo.id">
+    	{:W('PageHeader',array('name'=>"编辑货源"))}
+    <else/>
+    	{:W('PageHeader',array('name'=>"新增货源"))}
+    </notempty>
+	<form action="{:U('sourceSave')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" id="ajax" name="ajax" value="1"/>
+
+        <notempty name="vo.id">
+            <input type="hidden" id="id" name="id" value="{$vo.id}">
+            <input type="hidden" id="opmode" name="opmode" value="edit">
+        <else/>
+            <input type="hidden" id="opmode" name="opmode" value="add">
+        </notempty>
+
+       	<notempty name="parent_sku_data">
+
+	    	<input type="hidden" id="parent_sku_id" name="parent_sku_id" value="{$parent_sku_data.id}">
+
+	    	<div class="col-sm-12">
+				<img src="{$parent_sku_data.thumbnail}" width="100" />
+			</div>
+	    	<div class="col-sm-12">
+				绑定商品SKU: <b>{$parent_sku_data.parent_sku}</b>
+			</div>
+			
+			<div class="col-sm-12">
+				商品名称简述: <b>{$parent_sku_data.product_name|default="无"}</b>
+			</div>
+			<div class="col-sm-12">
+				所有规格SKU: 
+				<volist name="parent_sku_data.sku_data_list" id="sku_data">
+					<span class="label arrowed arrowed-right">{$sku_data.sku}</span>
+
+					<input type="hidden" name="sku_id_list[]" value="{$sku_data.id}">
+				</volist>
+			</div>
+		<!-- 	<div class="col-sm-12 blue">
+				注：保存后会自动更新该 商品SKU 和 货源 的映射
+			</div> -->
+		</notempty>
+
+		<div class="form-group">
+			<label class="control-label red" for="supplier_id">供应商</label> 
+
+			<a href="{:U("supplierIndex")}" target="_blank" class="btn btn-primary btn-xs">供应商管理</a>
+			<!-- <a onclick="showMiddleBox('{:U('supplierEdit')}');" target="_blank" class="btn btn-inverse btn-xs">添加供应商</a> -->
+
+			<div class="tag-input-style">
+				<input name="supplier_id" type="hidden" class="tag-input-style" id="supplier_id" style="width:100%"  value="{$vo.supplier_id}" />
+			</div>
+			<span class="help-block" id="supplier_id_help" style="display:none;">
+				<a onclick="if(!$('#supplier_id').val()){return false;}window.open('{:U("supplierIndex")}?id='+$('#supplier_id').val());" target="_blank" class="btn btn-primary btn-sm">查看供应商</a>
+			</span>
+		</div>
+
+	<!-- 	<div class="form-group">
+			<label class="control-label red" for="parent_sku_id">商品主SKU</label>
+			<div class="tag-input-style">
+				<input name="parent_sku_id" type="hidden" class="tag-input-style" id="parent_sku_id" style="width:100%"  value="{$vo.parent_sku_id}" />
+			</div>
+			<span class="help-block">
+				预先绑定主SKU
+			</span>
+		</div> -->
+
+		<div class="form-group">
+			<label class="control-label red" for="link">网址</label>
+			<input class="form-control" type="text" id="link" name="link" value="{$vo.link}" check='require' msg="请输入网址" placeholder="请输入网址">
+		</div>
+
+		<div class="form-group">
+			<label class="control-label red" for="source_name">标题名称</label>
+			<input class="form-control" type="text" id="source_name" name="source_name" value="{$vo.source_name}" check="require" msg="请输入标题名称" placeholder="请输入标题名称">
+		</div>
+
+		<div class="form-group">
+			<label class="control-label red" for="price">单价(不含运费)</label>
+			<input class="form-control" type="text" id="price" name="price" value="{$vo.price}" check="require" msg="请输入价格" placeholder="请输入价格">
+			<notempty name="vo.id">
+				<span class="help-block">注:修改价格将需要提交审核</span>
+			</notempty>
+		</div>
+
+		<div class="form-group">
+			<label class="control-label" for="item_number">货号</label>
+			<input class="form-control" type="text" id="item_number" name="item_number" value="{$vo.item_number}" placeholder="请输入货号">
+		</div>
+
+		<div class="form-group">
+			<label class="control-label" for="stock_status">库存状态</label>
+			<select name="stock_status" class="form-control">
+				<option value="In stock" <eq name="vo.stock_status" value="In stock">selected</eq> >有货</option>
+				<option value="Stockout" <eq name="vo.stock_status" value="Stockout">selected</eq> >无货</option>
+			</select>
+		</div>
+		<div class="form-group text-center">
+			<a data-loading-text="正在保存..."  data-close="1" class="editFormSubmit btn btn-primary">保存</a>
+			<a class="close_box_button btn btn-danger">取消</a>
+		</div>
+	</form>
+<script type="text/javascript">
+$(function(){
+	var supplier_data = {$vo.supplier_data|default=""|json_encode};
+	$('#supplier_id').select2({
+	    placeholder          : "请输入搜索的供应商名称",
+	    minimumInputLength   : 1,
+	    multiple             : true,
+	    // separator            : "",                          // 分隔符
+	    maximumSelectionSize : 1,                               // 限制数量
+	    initSelection        : function (element, callback) {   // 初始化时设置默认值
+	        var data = [];
+	        data.push(supplier_data);
+	        callback(data);
+	    },
+	    // createSearchChoice   : function(term, data) {           // 创建搜索结果（使用户可以输入匹配值以外的其它值）
+	    //     return { id: term, text: term };
+	    // },
+	    formatSelection : function (item) { return item.supplier_name+" ("+item.contacts+") "+item.platform_name; },  // 选择结果中的显示
+	    formatResult    : function (item) { return item.supplier_name+" ("+item.contacts+") "+item.platform_name; },  // 搜索列表中的显示
+	    ajax : {
+	        url      : "{:U('V2Source/ajaxGetSupplierList')}",              // 异步请求地址
+	        dataType : "json",                  // 数据类型
+	        data     : function (term, page) {  // 请求参数（GET）
+	            return { q: term };
+	        },
+	        results      : function (data, page) { return {results:data.data}; },  // 构造返回结果
+	        escapeMarkup : function (m) { return m; }               // 字符转义处理
+	    }
+	});
+	
+	$("#supplier_id").change(function(){
+		if($(this).val()){
+			$("#supplier_id_help").show();
+		}else{
+			$("#supplier_id_help").hide();
+		}
+		
+	}).change();
+
+	//在编辑页面自动采集货源信息, 并解析URL监测本地是否已经存在
+	$("#link").change(function(){
+		$.post("{:U('collectSourceInfo')}",{url:$(this).val()},function(msg){
+			if(msg.status){
+
+			}else{
+
+			}
+		}).error(function(r){
+
+		});
+	});
+
+	//编辑页面表单ajax提交 按钮
+	$(".editFormSubmit").click(function(r){
+		var msg = $(this).attr("data-msg");
+		var close = $(this).attr("data-close");
+		var form_id = "editForm";
+		if(!msg){
+			msg = "确认保存?";
+		}
+		if(!confirm(msg)){
+			return false;
+		}
+		var data = $("#"+form_id).serialize();
+		var url = $("#"+form_id).attr("action");
+		
+		var btn = $(this);
+		btn.button('loading');
+		if (check_form(form_id)) {
+			if(typeof(editor)!="undefined"){
+				editor.sync();	
+			}
+			sendForm(form_id,url,false,function(msg){
+				btn.button('reset');
+
+				if(msg.status==1){
+					alertWarning(msg.info);
+					if(close){
+						closeBox();
+						parent.window.location.reload();
+					}else{
+						alertWarning(msg.info,1);
+					}
+				}else if(msg.status==2){
+					//提交审核
+					if(!confirm(msg.info)){
+						
+						return false;
+					}else{
+						$("#ajax").val(0);
+						var thumbnail="";
+						var title = "修改货源ID: <b>"+msg.data.old_data.id+"</b> 货源名称: <b>"+msg.data.old_data.source_name+"</b>";
+						var content = "";
+						content += "<b>原信息: </b><br>货源名称: "+msg.data.old_data.source_name+"<br>货源链接: "+msg.data.old_data.link+"<br>货源价格: "+msg.data.old_data.price+"<br>";
+						content += "<b>新信息: </b><br>货源名称: "+msg.data.new_data.source_name+"<br>货源链接: "+msg.data.new_data.link+"<br>货源价格: "+msg.data.new_data.price+"<br>";
+						if(msg.data.sku_data){
+							content += "<b>相关规格SKU: </b><br>";
+
+							console.log(content);
+
+							for (var i = 0; i < msg.data.sku_data.length; i++) {
+								content += ( msg.data.sku_data[i].sku+" ("+msg.data.sku_data[i].sku_name+") ");
+
+								console.log(content);
+
+								content += ('<a href="{:U("V2SkuProduct/index")}?id='+msg.data.sku_data[i].id+'" class="btn btn-primary btn-xs" target="_blank">查看</a><br> ');
+
+								console.log(content);
+
+								if(msg.data.sku_data[i].thumbnail){
+									thumbnail+=((thumbnail?"|||":"")+msg.data.sku_data[i].thumbnail);
+								}
+							};
+						}
+						content += ('<a href="{:U('v2_source/index')}?id='+msg.data.old_data.id+'" class="btn btn-primary btn-xs" target="_blank">查看货源</a>');
+						
+						console.log(content);
+						
+						var form_data = {
+                            title:title,
+                            content:content,
+                            thumbnail:thumbnail,
+                            audit_action_id:5,
+                            param_json:$.param(msg.data.new_data),
+                        };
+                        console.log(content);
+                        tmpSendForm("{:U('V2AuditFlow/addView')}",form_data,"_self");
+						return false;
+					}		
+				}else{
+					alertWarning(msg.info);
+				}
+			});
+		}else{
+			btn.button('reset');
+		}
+	});
+
+})
+</script>

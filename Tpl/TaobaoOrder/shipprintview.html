@@ -1,0 +1,41 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'关闭订单'))}
+
+<form method='post' id="form_data" name="form_data" class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	
+	<input type="hidden" id="id" name="id" value="{$Think.request.id}">	
+	
+	<input type="hidden" id="add_file" name="add_file" value="{$vo.add_file}">
+	<input type="hidden" id="opmode" name="opmode" value="<notempty name="_REQUEST['id']">edit<else/>add</notempty>">
+
+
+	<div class="form-group col-sm-12">
+		<select id="express_id" name="express_id">
+			<volist name="express_list" id="vv">
+				<option value="">请选择快递单模板</option>
+				<option value="{$vv.id}">{$vv.express_name}</option>
+			</volist>
+		</select>
+	</div>
+	
+	<div class="action">
+		<input type="hidden" name="model_name" value="place"> 
+		<input class="btn btn-sm btn-primary" type="button" value="确定" onclick="save();">
+		<input  class="btn btn-sm btn-default" type="button" value="取消" onclick="parent.$('#middleBox').modal('hide');">
+	</div>
+</form>
+
+<script type="text/javascript">
+	function save() {
+		var express_id = $("#express_id").val();
+		if(!express_id || express_id==undefined){
+			alertWarning("请选择快递单模板");
+			return false;
+		}
+		window.open("{:U('TaobaoOrder/expressPrint')}?id={$_REQUEST['id']}&express_id="+express_id);
+		
+	}
+
+	
+</script>

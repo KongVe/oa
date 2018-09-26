@@ -1,0 +1,66 @@
+<layout name='Layout/ace_box' />
+<div class="panel panel-default">
+	<div class="panel-body">
+		<div class="tab-pane fade active in" id="product">
+			<input type="hidden" name="tr_key" id="tr_key" value="{$Think.request.tr_key}" />
+			<foreach name="productList" item="product">
+				<input type="hidden" name="product_id[]" value="{$product.id}" />
+			</foreach>
+			<table class="table table-striped table-hover table-bordered table-condensed">
+				<tr>
+					<th>操作</th>
+					<th>价格</th>
+					<th>货源简称</th>
+					<th>档口位置</th>
+					<th>货号</th>
+					<th>库存状态</th>
+					<th>备注</th>						
+				</tr>
+				<tbody class="tbody">
+					<foreach name="sourceList" item="source" key="pK">
+						<tr>
+							<th>
+								<table class="purchase-action" >
+									<tr>
+										<td>
+											<a href="" onclick="delSource({$source.id})">删除</a>
+											<br>
+											<a href="" onclick="editSource({$source.id})">修改</a>
+										</td>
+										<td>
+											<a class="btn btn-primary btn-sm pull-left" onclick="purchase({$source.id})">采购</a>
+											<input class="pull-left form-control input-purchase" id="quantity_{$source.id}" name="quantity_{$source.id}" value="{$quantity}" />
+											<span class="pull-left span-purchase">&nbsp;件 单价：</span>
+											<input class="pull-left form-control input-purchase" id="price_{$source.id}"  name="price_{$source.id}" value="{$source.price}"/>
+
+										</td>
+									</tr>
+								</table>
+								
+							</th>
+							<td>￥<span class="editStatic" field="price" onclick="editStatic(this,'{:U('OrderSource/save')}?id={$source.id}')">{$source.price}</span></td>
+							<td><a href="{$source.link}" target="_blank">{$source.name}</a></td>
+							<td><span class="editStatic" field="location" onclick="editStatic(this,'{:U('OrderSource/save')}?id={$source.id}')">{$source.location}</span></td>								
+							<td><span class="editStatic" field="item_number" onclick="editStatic(this,'{:U('OrderSource/save')}?id={$source.id}')">{$source.item_number}</span></td>
+							<td>{$source.stock}</td>
+							<td><span class="editStatic" field="memo" onclick="editStatic(this,'{:U('OrderSource/save')}?id={$source.id}','textarea')">{$source.memo}</span></td>
+						</tr>
+					</foreach>
+				</tbody>
+			</table>
+			<button class="btn btn-primary btn-xs" id="addProduct" onclick="addProduct('{$product.sku}')">新增</button>
+			<eq name="ifStock" value="true"><button class="btn btn-primary btn-xs" id="stock" onclick="stockDetail('{$product.sku}',{$quantity})">库存</button></eq>
+			<button class="btn btn-danger btn-xs" id="addProduct" onclick="refund('{$product.sku}')">退款</button>
+			<button class="btn btn-danger btn-xs pull-right"  onclick="closeBox()">关闭</button>
+		</div>
+	</div>
+</div>
+<div class="adjustPriceBox popover fade bottom in">
+	<div class="arrow"></div>
+	<div class="popover-content">
+		<a class="btn btn-success btn-xs" data-price="3">+3</a>
+		<a class="btn btn-success btn-xs" data-price="5">+5</a>
+		<a class="btn btn-success btn-xs" data-price="8">+8</a>
+
+	</div>
+</div>

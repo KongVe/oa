@@ -1,0 +1,104 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" name="id" value="{$vo.id}">
+		<input type="hidden" id="opmode" name="opmode" value="{$vo.opmode}" >
+		<div class="form-group">
+			<label class="control-label" for="server_address">服务器地址</label>
+			<input class="form-control" type="text" id="server_address" name="server_address" value="{$vo.server_address}">
+		</div>		
+		<div class="form-group">
+			<label class="control-label" for="type">类型</label>
+			<select class="form-control" name="type" id="type">
+				<option value="pptp" <eq name="vo.type" value="pptp">selected</eq> >pptp</option>
+				<option value="l2tp" <eq name="vo.type" value="l2tp">selected</eq> >l2tp</option>
+			</select>
+		</div>	
+		<div class="form-group">
+			<label class="control-label" for="vpn_ids">vpn 账号</label>
+			<select class="form-control" name="vpn_ids[]" id="vpn_ids" multiple="multiple">
+				<volist name="vpnList" id="vpn">
+					<option value="{$vpn.id}" <?php if( $vpn['selected'] == true ){ echo "selected"; } ?> >{$vpn.website}: {$vpn.username} = {$vpn.connection_max}</option>
+				</volist>
+			</select>
+		</div>		
+		<div class="form-group">
+			<label class="control-label" for="status">状态</label>
+			<select class="form-control" name="status" id="status">
+				<option value="Normal" <eq name="vo.status" value="Normal">selected</eq>>Normal</option>
+				<option value="Disabled" <eq name="vo.status" value="Disabled">selected</eq>>Disabled</option>
+				<option value="Suspended" <eq name="vo.status" value="Suspended">selected</eq>>Suspended</option>
+				<option value="Terminated" <eq name="vo.status" value="Terminated">selected</eq>>Terminated</option>
+			</select>
+		</div>		
+
+		<div class="form-group">
+			<label class="control-label" for="memo">备注</label>
+			<textarea name="memo" id="memo" class="form-control">{$vo.memo}</textarea>
+		</div>		
+		<div class="form-group text-center">
+			<input type="submit" id="editFormSubmit" data-loading-text="正在保存..."  class="btn btn-primary" value="保存" />
+			<a class="btn btn-success" id="cancel">取消</a>
+			<a class="btn btn-danger" id="delete">删除</a>
+		</div>
+	</form>
+<script type="text/javascript">
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);
+
+	$("#cancel").click(function(){
+		parent.$("#middleBox").modal("hide");
+	})
+	$("#delete").click(function(){
+		
+		if(window.confirm("Delete? ")){
+			$(this).attr("disabled","disabled");
+			$("#opmode").val("del");
+			var data = $("#editForm").serialize();
+			var url = $("#editForm").attr("action");
+			$.post(url,data,function(r){
+
+				if(r.status){
+
+					//parent.$("#middleBox").modal("hide");
+					parent.window.location.reload();
+
+				}else{
+					$(this).attr("disabled",null);
+					alert(r.info);
+					return false;
+				}
+			})
+		}else{
+			return false;
+		}
+
+		return false;
+	})
+
+	$("#editFormSubmit").click(function(){
+		var data = $("#editForm").serialize();
+		var url = $("#editForm").attr("action");
+		$(this).attr("disabled","disabled");
+		$.post(url,data,function(r){
+			if(r.status){
+
+				//parent.$("#middleBox").modal("hide");
+				parent.window.location.reload();
+
+			}else{
+				$(this).attr("disabled",null);
+				alert(r.info);
+				return false;
+			}
+		})
+		return false;
+	})
+})
+
+
+</script>

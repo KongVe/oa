@@ -1,0 +1,60 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+{:W('PageHeader',array('name'=>'导入广告CSV数据','search'=>'N'))}
+</form>
+<form method='POST' id="form_data" action="{:U('import')}"  class="well form-horizontal clearfix">
+	<input type="hidden" name="opmode" value="import">
+	<input type="hidden" name="add_file" id="add_file" value="" />
+
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="password">选择要导入的文件</label>
+		<include file="Widget:uploader" />
+	</div>	
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="password">选择数据的帐号</label>
+		<div class="form-group col-sm-4">
+			<select name="account_id" id="account_id" style="width:100%;">
+				<option value=''>请选择帐号</option>
+				<volist name="accountList" id="account">
+					<option value="{$account.id}">{$account.website_name} => {$account.proxy_host} => {$account.account_name} {$account.status_name}</option>
+				</volist>
+			</select>
+		</div>
+	</div>	
+
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="password">选择数据类型</label>
+		<div class="form-group col-sm-4">
+			<select name="data_type" id="data_type" style="width:100%;">
+				<option value=''>请选择数据类型</option>
+				<!-- <option value='KEYWORDS_REPORT'>关键词</option> -->
+				<option value='ADS_REPORT'>已推广的商品</option>
+				<option value='SEARCH_TERMS_REPORT'>搜索词</option>
+				
+			</select>
+		</div>
+	</div>	
+	
+	<div class="form-group text-center">
+		<a class="btn btn-sm btn-primary" id="submit">导入</a>
+	</div> 
+</form>
+
+
+<script type="text/javascript">
+$(function($){
+
+    $("#account_id").select2();
+
+    $("#submit").click(function(){
+		if(window.confirm("确认导入的是数据是账号：" + $("#account_id option:selected").html())){
+			$("#form_data").submit();
+		}else{
+			return false;
+		}
+	});
+
+	$("input[type='file']").attr("accept",'csv');
+
+});
+</script>

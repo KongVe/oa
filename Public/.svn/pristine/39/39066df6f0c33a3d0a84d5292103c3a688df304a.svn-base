@@ -1,0 +1,109 @@
+<script>
+    export default {
+        props: ['user', 'search']
+    };
+</script>
+
+<template>
+    <section class="aui-flexView">
+            <header class="aui-navBar">
+                <a href="javascript:;">
+                    <i class="icon"></i>
+                </a>
+                <div class="aui-center">
+                    <span class="aui-center-title">信息</span>
+                </div>
+                <a href="javascript:;" class="aui-navBar-item select">
+                    <i class="icon icon-add"></i>
+                    <div class="aui-dow-box selectList">
+                        <div class="aui-dow-box-list">
+                            <div href="javascript:;" class="aui-dow-box-item">
+                                <div class="aui-dow-box-item-image">
+                                    <img src="images/icon-we01.png" alt="">
+                                </div>
+                                <div class="aui-dow-box-item-title">发起群聊</div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </header>
+            <section class="aui-scrollView">
+                <div class="aui-search">
+                    <div class="aui-search-box">
+                        <input type="text" placeholder="搜索" v-model="search">
+                        <span class="aui-search-box-search">
+                            <i class="icon icon-search"></i>
+                        </span>
+                        <span class="aui-search-box-voice">
+                            <i class="icon icon-voice"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="aui-flex-list">
+                    <a href="javascript:;" class="aui-flex-list-item">
+                        <div class="aui-flex-list-image">
+                            <img :alt="user.name" :src="user.img">
+                        </div>
+                        <div class="aui-flex-list-text">
+                            <h4>{{user.name}}</h4>
+                            <p>民航局处罚“国航飞机急降”：削减航班量，吊销机长与副驾驶执照</p>
+                        </div>
+                        <span class="aui-flex-list-right">11:10</span>
+                    </a>
+                    
+                </div>
+            </section>
+        </section>
+</template>
+<link rel="stylesheet" type="text/css" href="/Public/service/wxMessages/css/style.css">
+<script type="text/javascript" src="js/jquery.min.js"></script>
+ <script type="text/javascript">
+
+            $(function() {
+
+                var oDropDown = $('.select');
+                var oChangeA = $('.listA');
+                oDropDown.click(function() {
+                    $(this).find('.selectList').toggle().siblings('.xl-icon').toggleClass('sq-icon');
+                });
+
+                oDropDown.mouseleave(function() {
+                    $(this).find('.selectList').hide().siblings('.xl-icon').removeClass('sq-icon');
+                });
+
+            });
+        </script>
+<style style="less">
+    .m-card {
+        padding: 12px;
+        border-bottom: solid 1px #24272C;
+        
+        footer {
+            margin-top: 10px;
+        }
+        
+        .avatar, .name {
+            vertical-align: middle;
+        }
+        .avatar {
+            border-radius: 2px;
+        }
+        .name {
+            display: inline-block;
+            margin: 0 0 0 15px;
+            font-size: 16px;
+        }
+        .search {
+            padding: 0 10px;
+            width: 100%;
+            font-size: 12px;
+            color: #fff;
+            height: 30px;
+            line-height: 30px;
+            border: solid 1px #3a3a3a;
+            border-radius: 4px;
+            outline: none;
+            background-color: #26292E;
+        }
+    }
+</style>

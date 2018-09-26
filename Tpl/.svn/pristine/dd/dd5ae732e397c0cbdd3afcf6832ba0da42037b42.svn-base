@@ -1,0 +1,60 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+{:W('PageHeader',array('name'=>'导入销售数据','search'=>'N'))}
+</form>
+<form method='POST' id="form_data" action="{:U('import')}"  class="well form-horizontal clearfix">
+	<input type="hidden" name="opmode" value="import">
+	<input type="hidden" name="add_file" id="add_file" value="" />
+
+	<!-- <div class="form-group">
+		<label class="col-sm-2 control-label" for="password">选择要导入的文件</label>
+		<include file="Widget:uploader" />
+	</div>	 -->
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="password">选择数据的帐号</label>
+		<div class="form-group col-sm-4">
+			<select name="account_id" id="account_id" style="width:100%;">
+				<option value=''>请选择帐号</option>
+				<volist name="accountList" id="account">
+					<option value="{$account.id}">{$account.website_name} => {$account.proxy_host} => {$account.account_name} {$account.status_name}</option>
+				</volist>
+			</select>
+		</div>
+	</div>	
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="account_cookie">平台登陆Cookie</label>
+		<textarea class="from-control" name="account_cookie" style="width:600px;height:200px;"></textarea>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="ignore_check">不检查ubid-main和sid</label>
+		<div class="col-sm-4">
+			<input type="checkbox" class="from-control" name="ignore_check" />
+		</div>
+	</div>	
+	<div class="form-group text-center">
+		<a class="btn btn-sm btn-primary" id="submit">导入</a>
+	</div> 
+</form>
+<div class="panel panel-success">
+	<div class="panel-heading">
+		<h4 class="panel-title">最近上传的20个文件</h4>
+	</div>
+	<div class="panel-body">
+		<table class="table table-striped table-bordered table-condensed ">
+			<tr>
+				<th>File name</th>
+				<th>Import type</th>
+				<th>Import time</th>
+				<th>Account</th>
+			</tr>
+			<volist name="report_log_list" id="report_log">
+				<tr>
+					<td>{$report_log.file_name}</td>
+					<td>{$report_log.import_type}</td>
+					<td>{$report_log.import_time}</td>
+					<td>{$report_log.account.show_name}</td>
+				</tr>
+			</volist>
+		</table>
+	</div>
+</div>

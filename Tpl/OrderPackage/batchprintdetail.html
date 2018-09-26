@@ -1,0 +1,301 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'批量打印'))}
+	<form action="{:U('batchPackagePrint')}" method="POST" class="well form-horizontal clearfix">
+		
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<a href="#" onclick="batchPrintLabel()"   class="btn btn-success btn-sm"  style="margin:0 10px;">批量打印标签</a>  
+				<span>
+					<!-- <a class="btn btn-xs btn-danger" onclick="reDownloadPDF();">重新下载标签</a> -->
+				</span>
+			</div>
+
+			<notempty name="package.noDownloadPDF">
+				<div class="alert alert-danger" id="checkDownloadPDF{$package.package_id}">
+					该包裹打印标签未下载，当前正在下载中...<br>
+					<div id="package{$package.package_id}"></div>
+				</div>
+
+				<script type="text/javascript">
+					// downloadPDF('{$package.package_id}');
+				</script>
+
+			</notempty>
+
+			<notempty name="package.noConfirmedMoney">
+				<div class="alert alert-danger">
+					注意，该订单仍未通过风险控制，还不能发货。需确认是否可以发货，请先同步该订单。
+				</div>
+			</notempty>
+
+			<notempty name="package.hasSameTrackingOrder">
+				<div class="alert alert-danger">
+					注意，还有另一个订单<b style="color:red;">线上跟踪号</b>使用了相同的跟踪号，请使用跟踪号查询！！！
+				</div>
+			</notempty>
+
+			<notempty name="package.hasSameForwarderTrackingOrder">
+				<div class="alert alert-danger">
+					注意，还有另一个订单<b style="color:red;">货代跟踪号</b>使用了相同的跟踪号，请检查是否打印新标签！！！
+				</div>
+			</notempty>
+			
+			<notempty name="package.noDownloadPDF">
+				<!-- <div class="alert alert-danger">
+					该美国订单未下载PDF，请等E邮宝操作人员下载好PDF再发货！！！
+				</div> -->
+			</notempty>
+
+			<notempty name="hasOtherOrder">
+				<if condition="$cannotCombine eq true">
+					<div class="alert alert-danger">
+						注意，还有其它订单是属于同一个客户：{$hasOtherOrder.shipping_first_name}&nbsp;{$hasOtherOrder.shipping_last_name}"，但是属于不同帐号且代理ip不一样,不能合成同一个包裹, 
+						<br>
+						<b>注意检查申报名称！</b>
+					</div>
+				<else/>
+					<div class="alert alert-danger">
+						注意，还有其它订单是属于同一个客户：<input value="{$hasOtherOrder.shipping_first_name}&nbsp;{$hasOtherOrder.shipping_last_name}"/><a href='{:U("OrderDetail/index?q=".$hasOtherOrder[shipping_first_name]." ".$hasOtherOrder[shipping_last_name])}' class='btn btn-danger btn-xs' target="_blank">搜索</a>，可以合成同一个包裹, 
+						<br>
+						<b>注意检查申报名称！</b>
+					</div>
+				</if>			
+			</notempty> 
+
+			<table class="table table-hover table-bordered table-condensed">
+				<tr>
+					<th>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id-toggle-all" id="id-toggle-all" checked />
+							<span class="lbl"></span>
+							<br>
+							全选
+						</label>	
+					</th>
+					<th>订单序号</th>
+					<th>包裹号</th>
+					<th>PDF下载</th>
+					<th>数量</th>
+					<th>已打印</th>
+					<th>图片</th>
+					<th style="width: 120px;">规格</th>
+					<th style="width: 120px;">订单备注</th>
+					<th style="width: 120px;">产品备注</th>
+					<th>提醒</th>
+				</tr>
+				<tbody class="tbody">
+					<foreach name="list" item="product">
+						<tr>
+							<th>
+								<label class="inline pull-left">
+									 <eq  name="product.product_local_state"  value="Shipped">
+									 	<span>Shipped</span>
+									 <else />
+									 	<input class="ace" type="checkbox" name="package_ids[{$product.package_auto_id}][]" value="{$product.product_auto_id}" 
+										 	<?php
+										 		if($product['package_state']=="Really ship"){
+										 			echo "disabled";
+										 		}else{
+										 			if($product['package_code'] && $product['is_download_pdf']){
+											 			echo " checked";
+											 		}else{
+											 			echo " ";
+											 		}
+										 		}
+										 	?>  
+									 	/>
+									 	<span class="lbl"></span>
+									 </eq>
+								</label>
+								<!-- <span><br>{$product.order_auto_id}</span> -->
+							</th>
+							<td>{$product.order_auto_id}</td>
+							<td style="width:120px;word-break:break-all;">{$product.package_code}</td>
+							<td>
+								<if condition="$product.is_download_pdf eq 1">
+								OK
+								<else/>
+								未下载
+								</if>
+							</td>
+							<td>
+								{$product.quantity}
+								<input type="hidden" name="quantity[{$product.package_auto_id}]" value="{$product.quantity}"/> 
+							</td>
+							<td>
+								<notempty name="product.is_print">
+									已打印<br>
+									{$product.local_print_time|date="y-m-d"}<br>
+									{$product.local_print_time|date="H:i:s"}<br>
+								<else/>
+									未打印
+								</notempty>
+								
+								<input type="hidden" name="quantity[{$product.package_auto_id}]" value="{$product.quantity}"/> 
+							</td>
+							<td style="  width: 100px; "><a href="{$product.thumbnail}" class="thumbnail" target="_blank"><img src="{$product.thumbnail}" width="100" /></a></td>
+							<td>{$product.variation}</td>
+							<td>
+								<span>{$product.detail_memo}</span>
+							</td>	
+							<td>
+								<span>{$product.product_memo}</span>
+							</td>
+							<td>
+								<span>
+									无
+								</span>
+							</td>								
+						</tr>
+					</foreach>
+				</tbody>
+			</table>
+			
+			<div class="form-group text-center" style="margin-top:10px;">
+				
+				<input type="submit"   class="FormSubmit btn btn-primary" value="批量完成打印" />
+						
+				<input type="button" id="cancelSumit"  class="btn btn-danger" value="关闭" onclick="closeBox()" />
+			</div>				
+			
+			
+		</div>
+		
+	</form>
+	
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:150px;" src="" /></a>
+</div>
+
+<script type="text/javascript">
+var labelWindow;
+
+function closeBox(){
+	if(labelWindow){
+		labelWindow.close();
+	}
+	parent.$("#middleBox").modal({backdrop:true}).modal("hide");
+	parent.$("#middleBoxIframe").attr("src","");
+	return false;
+}
+
+function batchPrintLabel(){
+	var product_id_list=$("tbody input[name^='package_ids']").serialize();
+	if(!product_id_list){
+		alertWarning("请选择产品");
+		return;
+	}
+	labelWindow = window.open('{:U("batchPrintLabel")}?' + product_id_list,'','width=600,height=400');
+	print(labelWindow);
+	
+	return false;
+}
+
+function print(labelWindow){
+	labelWindow.onload=function(){
+		//console.log(labelWindow.document.getElementsByTagName('embed'));
+        if(labelWindow.document.readyState=="complete"){     
+        	if(labelWindow.document.getElementsByTagName('embed').length!=0){
+				labelWindow.window.print();
+				return false;
+			}else{
+				print(labelWindow);
+			} 
+        }   
+	}
+}
+
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#bottomBoxIframe").css("height",height);
+
+	$(".FormSubmit").click(function(){
+		if(!confirm("确认完成打印？")){
+			return false;
+		}else{
+			var form = $(this.form),
+			data = form.serialize();
+			url = form.attr("action");
+
+			$.ajax({
+				url:url,
+				type:"POST",
+				async:false,
+				cache:false,
+				data:data,
+				error:function(r){
+					console.log(r);
+					alert(r + " 没有发货成功，请联系技术人员。。。");
+				},
+				success:function(r){
+					if(r.status){
+						if(labelWindow){
+							labelWindow.close();
+						}
+						parent.frames['order-detail-iframe'].location.reload(true);
+						parent.$("#bottomBox").modal({backdrop:true}).modal("hide");
+						parent.$("#bottomBoxIframe").attr("src","");
+						var tmp_top=parent.document.body.scrollTop;
+						//如果有搜索值，默认全选了搜索值
+						if(parent.$("#q").val() != ''){
+							parent.$("#q").focus().select();
+						}
+						if(parent.$("#oaid").val() != ''){
+							parent.$("#oaid").focus().select();
+						}
+	 
+					    parent.document.body.scrollTop=tmp_top;
+
+						parent.window.location.reload();
+
+					}else{
+						alert(r.info + " 没有发货成功，请联系技术人员。。。");
+
+					}
+				}
+			});
+		}
+		
+		return false;
+	})
+
+
+	//如果所有商品都没有包裹号，则自动新增包裹
+	<?php if($allNotPackage === true):?>
+		$("#addPackageAlert input").click();
+	<?php endif; ?>
+
+
+	$("input[name='package[local_tracking_number]']").change(function(){
+		var local_tracking_number = $(this).val(),
+			id = $(this).data("id"),
+			data = {'local_tracking_number':local_tracking_number, 'id':id,'opmode':'edit'};
+			$.post("{:U('save')}",data,function(r){
+				if(r.status){
+					$(this).parent().addClass("has-success")
+				}else{
+					alert(r.info);
+				}
+			});
+	});
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+})
+
+</script>

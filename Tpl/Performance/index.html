@@ -1,0 +1,148 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">{$title}</h1>
+	<div class="col-sm-3 ">
+		<div class="input-group">
+			<if condition="$admin eq 1">
+				<span>
+					<select name="user_id" onchange="$('#form_search').submit()" class="form-group">
+						<option value="">请选择用户</option>
+						<volist name="user_list" id="user">
+							<option value="{$user.id}" <if condition="$_REQUEST['user_id'] eq $user['id']">selected</if> >{$user.emp_name}</option>
+						</volist>
+					</select>
+				</span>
+			</if>
+		</div>
+	</div>
+	<div class="col-sm-7 ">
+		<div class=" ">
+		 	说明:<br>
+		 	1、商品统计时间按照商品 实际发货时间 计算<br>
+		 	2、变化业绩为上个月确认实发业绩后，该月商品出现 退款 或者 运费数据延时 等情况而产生的业绩变化<br>
+			3、全属业绩：自己开发和营销的产品业绩。继承业绩：修改产品，继承老员工的产品带来的业绩。<br>
+		</div>
+	</div>
+</div>	
+<div class="message-container">
+	<table class="table table-hover table-bordered">
+			<tr>
+				<th style="width:90px;" rowspan="2">年份</th>
+				<th rowspan="2">月份</th>
+				<th colspan="2">当前有效销售数(参考)</th>
+				<th colspan="2">有效业绩</th>
+				<th colspan="2">变化业绩</th>
+				<th colspan="2">实发业绩</th>
+				<th rowspan="2">操作</th>
+			</tr>
+			<tr>	
+				<th>全属</th>
+				<th>继承</th>
+				<th>全属</th>
+				<th>继承</th>
+				<th>全属</th>
+				<th>继承</th>
+				<th>全属</th>
+				<th>继承</th>
+
+			</tr>
+			<tbody class="tbody">
+			<volist name="list" id="info">
+				<tr id="tr_{$key}">
+					<!-- <td>
+						<input type="hidden" name="tr_key" value="{$key}" />
+						<foreach name="info.product_auto_id" item="pai" >
+							<input type="hidden" name="id[]" value="{$pai}"  />
+						</foreach>
+						<a href="{$info.thumbnail}" target="_blank" class="thumbnail"><img src="{$info.thumbnail}" width="60" /></a>
+					</td> -->
+					<td>{$info.Year}</td>
+					<td>{$info.Month}</td>
+					<td>{$info.owner_quantity_total}</td>
+					<td>{$info.inherit_quantity_total}</td>
+					<td>${$info.owner_price_total|sprintf="%.2f",###}</td>
+					<td>${$info.inherit_price_total|sprintf="%.2f",###}</td>
+					<td>
+						<?php
+							if(!$info['owner_performance']){
+								echo "未确认";
+							}else{
+								if($info['owner_performance_change']>=0){
+									echo "$".($info['owner_performance_change']);
+								}else{
+									echo str_replace('-', '-$', $info['owner_performance_change']);
+								}
+							}
+							
+						?>
+					</td>
+					<td>
+						<?php
+							if(!$info['inherit_performance']){
+								echo "未确认";
+							}else{
+								if($info['inherit_performance_change']>=0){
+									echo "$".($info['inherit_performance_change']);
+								}else{
+									echo str_replace('-', '-$', $info['inherit_performance_change']);
+								}
+							}
+							
+						?>
+					</td>
+					<td>
+						<if condition="$info.owner_performance neq ''">${$info.owner_performance}<else/>未确认</if>
+					</td>
+					<td>
+						<if condition="$info.inherit_performance neq ''">${$info.inherit_performance}<else/>未确认</if>
+					</td>
+					<td>
+						<?php
+							if($_REQUEST['user_id']!=''){
+								$user_id=$_REQUEST['user_id'];
+							}else{
+								$user_id=$_SESSION['authId'];
+							}
+							
+						?>
+						<span >
+							<a href="{:U( 'detail?user_id='.$user_id.'&year='.$info['Year'].'&month='.$info['Month'] )}" target="_blank" class="form-group">查看商品列表</a>
+						</span>
+
+						<if condition="$admin eq 1 && !$info['owner_performance']">
+							<span >
+								<a class="btn btn-info btn-xs form-group" onclick="confirmPerformance({$user_id},{$info['Year']},{$info['Month']},{$info['owner_price_total']},{$info['inherit_price_total']})">确认业绩</a>
+							</span>
+						</if>
+
+					</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+</div>
+</form>
+<script type="text/javascript">
+
+//清算业绩
+function confirmPerformance (uid,year,month,owner_price_total,inherit_price_total) {
+	if(!confirm("确认操作？")){
+		return;
+	}	
+	
+	$.post("{:U('confirmPerformance')}",{uid:uid,year:year,month:month,owner_performance:owner_price_total,inherit_performance:inherit_price_total},function(msg){
+		if(msg.status){
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+		
+
+	}).error(function(){
+		alertWarning("网络错误，请重试。");
+	})
+}
+
+</script>

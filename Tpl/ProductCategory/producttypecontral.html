@@ -1,0 +1,73 @@
+<layout name='Layout/ace_popup' />
+
+	
+	<div class="panel panel-default clearfix">
+
+		<h2 style="font-size:24px;">产品类型管理</h2>
+		<div class="col-sm-7 pull-right">
+			<input type="text" style="width:250px;" id="product_type_id" placeholder="输入新的产品类型英文名称">
+			<a onclick="addProductType()" class="btn btn-info btn-sm" >增加</a>
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<table cellpadding='0' cellspacing='0' border='0' style='width:98%' class='table table-condensed'>
+			<tr>
+					<th style='width:70%;'>英文名称</th>
+					<th>中文名称</th>
+					<th>操作</th>
+				</tr>
+			<volist name="product_type_list" id="product_type">
+				<tr>
+					<td style='width:70%;'><span class="editStatic" field="product_type" onclick="editStatic(this,'{:U('saveProductType')}?id={$product_type['id']}','textarea')">{$product_type['product_type']}</span></td>
+
+					<td class="warning"><span class="editStatic" field="product_type_name_cn" onclick="editStatic(this,'{:U('saveProductType')}?id={$product_type['id']}','textarea')">{$product_type['product_type_name_cn']}</span></td>
+
+					<td><a onclick="delProductType('{$product_type['id']}')" class="btn btn-danger btn-sm" >删除</a></td>
+				</tr>
+			</volist>
+		</table>
+	</div>
+
+
+<script type="text/javascript">
+
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#bottomBoxIframe").css("height",height);
+
+})
+
+function searchSubmit(){
+	parent.$('#search_list').val($("#search_list_value").val());
+	parent.$("#form_search").submit();
+}
+
+//增加产品类型
+function addProductType(){
+	$.post("{:U('addProductType')}",{product_type:$('#product_type_id').val()},function(msg){
+		if(msg.status==1){
+			alert(msg.info);
+			window.location.reload();
+		}else{
+			alert(msg.info);
+		}
+	});
+}
+
+//删除产品类型
+function delProductType(product_type_id){
+	if(confirm('是否删除该产品类型类型？')){
+		$.post("{:U('delProductType')}",{id:product_type_id},function(msg){
+			if(msg.status==1){
+				location.reload();
+			}else{
+				alert(msg.info);
+			}
+		});
+	}
+}
+</script>

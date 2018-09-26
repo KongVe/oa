@@ -1,0 +1,126 @@
+<layout name="Layout/ace_layout_v3"/>
+<link rel="stylesheet" href="__PUBLIC__/assets-v3/css/ui-jqgrid.min.css"/>
+<script  src="__PUBLIC__/assets-v3/js/jquery.jqGrid.min.js"></script>
+<script src="__PUBLIC__/assets/js/jqGrid/i18n/grid.locale-cn.js"></script>
+<style type="text/css">
+.ui-jqgrid .ui-jqgrid-htable th div{
+  text-align: center;
+}
+.gritter-close{
+  left: auto;
+}
+</style>
+<span style="display: none;opacity: 0" id="len_arr"></span>
+<div class="form-group" id="button_list">
+  <button class="btn btn-info" onclick="btn_add()">新增</button>
+</div>
+<div style="display: table;width: 100%;" id="grid-page">
+  <table id="grid-table"></table> 
+  <div id="grid-pager"></div>
+</div>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="" role="document"style="height: auto;">
+   <div class="modal-content" style="height:100%">
+    <div class="modal-header">
+     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+     <h4 class="modal-title" id="myModalLabel">{$title}</h4>
+   </div>
+   <iframe src="" id="table-content" class="col-xm-12" width="100%" ></iframe>
+   <div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span>关闭</button>
+    <button type="button" id="btn_submit" class="btn btn-primary" ><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>保存</button>
+  </div>
+</div>
+</div>
+</div>
+<script type="text/javascript">
+  var filter_list = {$filter_list|default=""|json_encode};
+  var config_data = {$config_data|default=""|json_encode};
+  var colModel = [];
+  var list_len = config_data.title_list.length;
+
+  $(function() {
+    serch_list('search_table');
+    button_list_push('button_list',config_data.button_control);
+    $(window).on('resize', function() {
+      $('#grid-table').setGridWidth($('#search_body').width());
+      $('#grid-pager').setGridWidth($('#search_body').width());
+      $('.ui-jqgrid-bdiv').width($('.ui-jqgrid-htable').width());
+      $('#search_table select[id]').each(function(i,v){
+        $('#'+v.id).select2({
+          width:'100%',
+          placeholder:$(v).attr('placeholder')
+        })
+      })
+    });
+    $.ajax({
+      url:config_data.search_url,
+      type:'GET',
+      dataType:'json',
+      success:function(data){
+        data.data = {};
+        data.data['results'] = (data.results);
+        data.data['p']=(data.p);
+        data.data['page_count']=(data.page_count);
+        data.data['list_total_count']=(data.list_total_count);
+       clomodel('grid-table',data.data,'#grid-pager',config_data.search_url);
+       $('div[role="grid"]').css('overflow','auto');
+       $('#grid-table').setGridWidth($('#search_table').width());
+     }
+   })
+  })
+  function get_list(post_list){
+   $("#grid-table").jqGrid("setGridParam", {
+    postData: post_list,
+  }).trigger("reloadGrid");
+
+ }
+ function btn_add(){
+   if(IsPC() != false){
+    $('#myModal').find('div').eq(0).removeClass('modal-full').addClass('modal-dialog');
+    var height_content = document.documentElement.clientHeight-61-69-60 ;
+    $('#table-content').height(height_content);
+  }else{
+    $('#myModal').find('div').eq(0).addClass('modal-full').removeClass('modal-dialog');
+    var height_content = document.documentElement.clientHeight-61-69;
+    $('#table-content').height(height_content);
+  }
+  $("#myModalLabel").text("新增");
+  $('#myModal').find('#btn_submit').show();
+  $('#myModal').find('#btn_submit').attr("onclick","post_data_list('grid-table','myModal','add','table-content')");
+  $('#table-content').empty().attr('src','').attr('src',window.location.href.replace('index','edit'))
+  $('#myModal').modal({backdrop: 'static'});
+}
+function edit(data){
+ if(IsPC() != false){
+  $('#myModal').find('div').eq(0).removeClass('modal-full').addClass('modal-dialog');
+  var height_content = document.documentElement.clientHeight-61-69-60 ;
+  $('#table-content').height(height_content);
+}else{
+  $('#myModal').find('div').eq(0).addClass('modal-full').removeClass('modal-dialog');
+  var height_content = document.documentElement.clientHeight-61-69;
+  $('#table-content').height(height_content);
+}
+$("#myModalLabel").text("编辑");
+$('#myModal').find('#btn_submit').show();
+$('#myModal').find('#btn_submit').attr("onclick","post_data_list('grid-table','myModal','eidt','table-content',"+data+")");
+$('#table-content').empty().attr('src','').attr('src',window.location.href.replace('index','edit')+'?id='+data)
+$('#myModal').modal({backdrop: 'static'});
+}
+function detail(data){
+ if(IsPC() != false){
+  $('#myModal').find('div').eq(0).removeClass('modal-full').addClass('modal-dialog');
+  var height_content = document.documentElement.clientHeight-61-69-60 ;
+  $('#table-content').height(height_content);
+}else{
+  $('#myModal').find('div').eq(0).addClass('modal-full').removeClass('modal-dialog');
+  var height_content = document.documentElement.clientHeight-61-69;
+  $('#table-content').height(height_content);
+}
+$("#myModalLabel").text("详情");
+$('#myModal').find('#btn_submit').hide().removeAttr("onclick");
+$('#table-content').empty().attr('src','').attr('src',window.location.href.replace('index','detail')+'?id='+data)
+$('#myModal').modal({backdrop: 'static'});
+}
+</script>

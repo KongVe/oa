@@ -1,0 +1,21 @@
+<script type="text/javascript">
+jQuery(function($){
+	
+	$(".thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).offset(),
+			outerWidth = $(this).outerWidth(true),
+			outerHeight = $(this).outerHeight(true),
+			content_offset = $('.main-content').offset(),
+			box_top = position.top - content_offset.top - 100,
+			box_left = position.left - content_offset.left + outerWidth -5;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+})
+
+</script>

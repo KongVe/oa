@@ -1,0 +1,9 @@
+<layout name='Layout/m_ace_layout' />
+
+<style>
+.showBottomBox{cursor: pointer;}
+</style>
+
+<script type="text/javascript">
+	var filter_list = {$filter_list|default=""};
+</script>

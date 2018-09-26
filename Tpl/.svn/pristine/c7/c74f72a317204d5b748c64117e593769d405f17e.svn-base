@@ -1,0 +1,134 @@
+<layout name='Layout/ace_popup' />
+	{:W('PageHeader',array('name'=>"上诉复审"))}
+
+	<form action="{:U('saveReview')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" id="ajax" name="ajax" value="1"/>
+
+		<input type="hidden" id="id" name="id" value="{$vo.id}">
+		<input type="hidden" id="opmode" name="opmode" value="edit">
+		
+		<include file="V2AuditFlow:baseinfo" />
+
+		<div class="panel panel-primary">
+			<div class="panel panel-heading">
+				<span>提审原因</span>
+			</div>
+			<div class="panel-body">
+				<div class="form-group">
+					<div class="col-sm-12 info" style="overflow-x:scroll;">
+						{$vo.submit_reason}
+					</div>
+				</div>
+			</div>
+		</div>
+<!-- 
+		<div class="panel panel-primary ">
+			<div class="panel panel-heading">
+				<span>审核反馈</span>
+			</div>
+			<div class="panel-body">
+				<div class="form-group">
+					<div class="col-sm-12" style="overflow-x:scroll;">
+						{$vo.audit_content}
+					</div>
+				</div>
+			</div>
+		</div>
+ -->
+		<div class="panel panel-info ">
+			<div class="panel panel-heading">
+				<span>复审原因</span>
+			</div>
+			<div class="panel-body">
+				<div class="form-group">
+					<label class="text-right col-sm-2">复审人：</label>
+					<div class="col-sm-8">
+						<?php
+							if($_SESSION['v2_action_flow']['review_uid']){
+								$review_uid_selected = $_SESSION['v2_action_flow']['review_uid'];
+							}else{
+								$review_uid_selected = $action_data['review_uid'];
+							}
+						?>
+						<select name="review_uid" id="review_uid" style="width:50%;">
+							<option value="">请选择复审人</option>
+							<volist name="user_list" id="user">
+								<option value="{$user.id}" <eq name="user.id" value="$review_uid_selected">selected="selected"</eq> >{$user.emp_name}</option>
+							</volist>
+						</select>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-12">
+						<label class="text-right col-sm-2"></label>
+						<div class="col-sm-8">
+							<textarea class="show_editor col-sm-12" placeholder="点击添加复审原因">{$vo.review_reason}</textarea>
+						</div>
+						
+						<div class="col-sm-12">
+							<script id="editor" type="text/plain" style="width:1024px;height:500px;">{$vo.review_reason}</script>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	  
+		<div class="panel-default">
+			<div class="form-group text-center">
+				<div class="col-sm-6">
+					<a data-loading-text="正在处理中..." data-type="1" class="editFormSubmit btn btn-primary">提交</a>
+				</div>
+				<div class="col-sm-6">
+					<a class="close_box_button btn btn-danger">取消</a>
+				</div>
+			</div>
+		</div>
+	
+	</form>
+
+
+<script type="text/javascript">
+$(function(){
+	//UE编辑器
+	var ue;
+	$(".show_editor").click(function(){
+		$(this).remove();
+		ue = UE.getEditor('editor', {
+		    initialFrameWidth:"80%",
+		    initialFrameHeight:350,
+		    autoHeightEnabled: true,
+		    textarea:"review_reason",
+		    focus:true,
+		});	
+	});
+
+	$("#review_uid").select2();
+
+	$(".editFormSubmit").click(function(){
+		$("input").attr("disabled",null);
+		var data = $("#editForm").serialize();
+		var url = $("#editForm").attr("action");
+		var review_uid = $("#review_uid").val();
+		if(!review_uid){
+			alertWarning("请选择复审人");
+			return false;
+		}
+		var btn = $(".editFormSubmit");
+		btn.button('loading');
+		$.post(url,data,function(r){
+			if(r.status){
+				closeBox();
+				parent.window.location.reload();
+			}else{
+				alertWarning(r.info);
+			}
+			btn.button('reset');
+		}).error(function(r){
+			alertWarning("网络错误，请刷新后重试");
+			btn.button('reset');
+		});
+		return false;
+	});
+});
+</script>

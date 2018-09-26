@@ -1,0 +1,342 @@
+<div class="adv_search panel panel-default display-none"  id="adv_search" style="">
+	<div class="panel-heading">
+		<div class="row">
+			<h4 class="col-sm-6">高级搜索</h4>
+			<div class="col-sm-6 text-right">
+				<button class="btn btn-sm btn-info" type="submit"> <i class="bigger-125 icon-search"></i> </button>
+				<a  class="btn btn-sm " onclick="close_adv_search();">关闭</a>
+			</div>
+		</div>
+	</div>
+	<div class="panel-body">
+		<?php 
+			for ($ii=1; $ii < 4; $ii++) { 
+				if(empty($_REQUEST['adv_search_list'][$ii])){
+					if($_SESSION['adv_search_list'][$ii]){
+						$add_search_name = $_SESSION['adv_search_list'][$ii];
+					}else{
+						$add_search_name = "";
+					}
+				}else{
+					$add_search_name = $_REQUEST['adv_search_list'][$ii];
+				}
+		?>
+			<div class="form-group col-sm-2">
+				<div class="pull-left input-group">
+					<span class="input-group-btn">
+						
+						<select name="adv_search_list[{$ii}]" id="{$ii}" style="height: 34px;">
+							<option value="">选择条件{$ii}</option>
+							<option value="sku_name" <?php if($add_search_name == "sku_name"){ echo 'selected="selected"';} ?> >规格名称</option>
+							<option value="online_product_auto_id" <?php if($add_search_name == "online_product_auto_id"){ echo 'selected="selected"';} ?> >子订单序号</option>
+							<option value="online_sku" <?php if($add_search_name == "online_sku"){ echo 'selected="selected"';} ?> >线上SKU</option>
+							<option value="online_item_id" <?php if($add_search_name == "online_item_id"){ echo 'selected="selected"'; } ?>  >子订单ID</option>
+							<option value="online_snapshot_id" <?php if($add_search_name == "online_snapshot_id"){ echo 'selected="selected"'; } ?>  >快照ID</option>
+							<option value="online_product_name"<?php if($add_search_name == "online_product_name"){ echo 'selected="selected"'; } ?>  >产品标题</option>
+							<option value="online_color" <?php if($add_search_name == "online_color"){ echo 'selected="selected"'; } ?>  >线上颜色</option>
+							<option value="online_size" <?php if($add_search_name == "online_size"){ echo 'selected="selected"'; } ?>  >线上尺码</option>
+							<option value="online_variation_id" <?php if($add_search_name == "online_variation_id"){ echo 'selected="selected"'; } ?>  >线上规格ID</option>
+							<option value="online_tracking_number" <?php if($add_search_name == "online_tracking_number"){ echo 'selected="selected"'; } ?>  >线上跟踪号</option>
+							<option value="shipping_name" <?php if($add_search_name == "shipping_name"){ echo 'selected="selected"';} ?> >收件人</option>
+							<option value="local_shipping_street_address_1" <?php if($add_search_name == "local_shipping_street_address_1"){ echo 'selected="selected"';} ?> >街道1</option>
+							<option value="local_shipping_street_address_2" <?php if($add_search_name == "local_shipping_street_address_2"){ echo 'selected="selected"';} ?> >街道2</option>
+							<option value="local_shipping_city" <?php if($add_search_name == "local_shipping_city"){ echo 'selected="selected"';} ?> >城市</option>
+							<option value="local_shipping_state" <?php if($add_search_name == "local_shipping_state"){ echo 'selected="selected"';} ?> >省份</option>
+							<option value="local_shipping_zipcode" <?php if($add_search_name == "local_shipping_zipcode"){ echo 'selected="selected"';} ?> >邮编</option>
+							<option value="local_shipping_phone" <?php if($add_search_name == "local_shipping_phone"){ echo 'selected="selected"';} ?> >电话</option>
+							<option value="history_express_data" <?php if($add_search_name == "history_express_data"){ echo 'selected="selected"'; } ?>  >包裹历史</option>
+						</select>
+					</span>
+					<input type="text" name="input_add_search[{$ii}]" id="input_add_search_{$ii}" value="{$_REQUEST.input_add_search.$ii}" placeholder="请输入搜索内容" class="form-control">
+				</div>
+			</div>
+		<?php 
+			}
+		?>
+
+		<div class="form-group col-sm-2">
+			<div class="input-group">
+				<span class="input-group-addon">
+					所属者
+				</span>
+				<select name="owner_uid[]" id="owner_uid" style="width:100%;" placeholder="请选择用户" multiple="multiple" size=1>
+					<option value="0">无用户</option>
+					<volist name="user_list" id="user">
+						<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['owner_uid'])){ echo 'selected="selected"';}?> >{$user.show_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+
+		<div class="form-group col-sm-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					线上地址修改时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="online_address_change_time" id="online_address_change_time" value="{$Think.request.online_address_change_time}" placeholder="线上地址修改时间">
+			</div>
+		</div>
+		<div class="form-group col-sm-2">
+			<div class="input-group">
+				<span class="input-group-addon">
+					订单序号
+				</span>
+				<input class="form-control" type="text" id="order_auto_id" name="order_auto_id" value="{$Think.request.order_auto_id}"  placeholder="订单序号, 英文逗号分隔" />
+			</div>
+		</div>
+
+		<div class="form-group col-sm-2">
+			<div class="input-group">
+				<span class="input-group-addon">
+					产品ID
+				</span>
+				<input class="form-control" type="text" id="online_product_id" name="online_product_id" value="{$Think.request.online_product_id}"  placeholder="产品ID" />
+			</div>
+		</div>
+
+		<div class="form-group col-sm-2">
+			<div class="input-group">
+				<span class="input-group-addon">
+					规格SKU
+				</span>
+				<input class="form-control" type="text" id="sku" name="sku" value="{$Think.request.sku}"  placeholder="规格SKU" />
+			</div>
+		</div>
+
+		<div class="form-group col-sm-2">
+			<div class="input-group">
+				<span class="input-group-addon">
+					发货地
+				</span>
+				<select class="form-control" id="ship_from_country_code" name="ship_from_country_code" placeholder="请选择发货地">
+					<option value="">请选择发货地</option>
+					<option value="CN" <?php if(in_array("CN", array($_REQUEST['ship_from_country_code']))){ echo 'selected="selected"';}?> >中国</option>
+					<option value="US" <?php if(in_array("US", array($_REQUEST['ship_from_country_code']))){ echo 'selected="selected"';}?> >美国</option>
+
+					<option value="UK" <?php if(in_array("UK", array($_REQUEST['ship_from_country_code']))){ echo 'selected="selected"';}?> >英国</option>
+				</select>
+			</div>
+		</div>
+		<div class="form-group col-sm-2">
+			<div class="input-group">
+				<span class="input-group-addon">
+					发货方
+				</span>
+				<select class="form-control" id="fulfill_by" name="fulfill_by" placeholder="请选择发货方">
+					<option value="">请选择发货方</option>
+					<option value="Merchant" <?php if(in_array("Merchant", array($_REQUEST['fulfill_by']))){ echo 'selected="selected"';}?> >商家</option>
+					<option value="Amazon" <?php if(in_array("Amazon", array($_REQUEST['fulfill_by']))){ echo 'selected="selected"';}?> >Amazon</option>
+				</select>
+			</div>
+		</div>		
+
+
+
+		<div class="form-group col-sm-2">
+			<div class="input-group">
+				<span class="input-group-addon">
+					发货仓库
+				</span>
+				<select name="warehouse_id[]" id="warehouse_id" style="width:100%;" placeholder="请选择发货地" multiple="multiple">
+					<option value="">请选择仓库</option>
+					<volist name="warehouse_list" id="warehouse">
+						<option value="{$warehouse.id}" <?php if(in_array($warehouse['id'], $_REQUEST['warehouse_id'])){ echo 'selected="selected"';}?> >{$warehouse.warehouse_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		
+
+
+		<div class="form-group col-sm-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					物流方式
+				</span>
+				<select style="width:100%;" id="express_type_id" name="express_type_id[]" multiple="multiple" size="1" placeholder="请选择物流方式">
+					<option value="">请选择物流方式</option>
+					<volist name="express_type_list" id="express_type">
+						<option value="{$express_type.id}" <?php if(in_array($express_type['id'], $_REQUEST['express_type_id'])){ echo 'selected="selected"';}?> >{$express_type.forwarder_name} {$express_type.express_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group col-sm-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					目的国
+				</span>
+				<select style="width:100%;" id="local_country_code" name="local_country_code[]" multiple="multiple" placeholder="目的国">
+					<volist name="country_list" id="country_data">
+						<option value="{$country_data.country_code}" <?php if(in_array($country_data['country_code'], $_REQUEST['local_country_code'])){ echo 'selected="selected"';}?> >{$country_data.country} {$country_data.name_cn} ({$country_data.country_code})</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group col-sm-2">
+			<div class="input-group">
+				<span class="input-group-addon">
+					包裹号
+				</span>
+				<input class="form-control" type="text" id="package_code" name="package_code" value="{$Think.request.package_code}"  placeholder="包裹号,英文逗号分隔" />
+			</div>
+		</div>
+
+		<div class="form-group col-sm-2">
+			<div class="input-group">
+				<span class="input-group-addon">
+					跟踪号
+				</span>
+				<input class="form-control" type="text" id="forwarder_tracking_number" name="forwarder_tracking_number" value="{$Think.request.forwarder_tracking_number}"  placeholder="跟踪号,英文逗号分隔" />
+			</div>
+		</div>
+
+		<div class="form-group col-sm-2">
+	        <div class="input-group">
+	            <span class="input-group-addon">
+	                包裹序号
+	            </span>
+	            <input class="form-control " type="text" name="package_auto_id" id="package_auto_id" value="{$Think.request.package_auto_id}"  placeholder="包裹序号,英文逗号分隔">
+	        </div>
+	    </div>
+		
+		<div class="form-group col-sm-2">
+			<div class="input-group">
+				<span class="input-group-addon">
+					下单时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="order_time" id="order_time" value="{$Think.request.order_time}"    placeholder="下单时间">
+			</div>
+		</div>
+
+
+		<div class="form-group col-sm-2">
+			<div class="input-group">
+				<span class="input-group-addon">
+					提审时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="forwarder_submit_time" id="forwarder_submit_time" value="{$Think.request.forwarder_submit_time}" placeholder="提审时间">
+			</div>
+		</div>
+
+		<div class="form-group col-sm-2">
+			<div class="input-group control-group">
+				<span class="input-group-addon">
+					发货时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="local_send_time" id="local_send_time" value="{$Think.request.local_send_time}"    placeholder="发货时间">
+			</div>
+		</div>
+
+		<div class="form-group col-sm-2">
+			<div class="input-group">
+				<span class="input-group-addon">
+					出仓时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="local_out_storage_time" id="local_out_storage_time" value="{$Think.request.local_out_storage_time}"    placeholder="发货时间">
+			</div>
+		</div>
+	
+		<div class="form-group col-sm-2">
+			<div class="input-group">
+				<span class="input-group-addon">
+					指定物流
+				</span>
+				<select name="customer_online_express_type_id[]" id="customer_online_express_type_id" style="width:100%;" placeholder="请选择发货地" multiple="multiple">
+					<option value="">买家指定物流</option>
+					<volist name="customer_online_express_type_list" id="customer_online_express">
+						<option value="{$customer_online_express.id}" <?php if(in_array($customer_online_express['id'], $_REQUEST['customer_online_express_type_id'])){ echo 'selected="selected"';}?> >{$customer_online_express.online_express_type}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+		
+
+		<div class="form-group col-sm-2">
+			<div class="input-group">
+				<span class="input-group-addon">
+					合并时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="related_order_time" id="related_order_time" value="{$Think.request.related_order_time}" placeholder="合并时间">
+			</div>
+		</div>
+	
+
+		<div class="form-group col-sm-12">
+			<label>
+                <input type="checkbox" class="ace input-lg" name="have_picking" value="1" <notempty name="Think.request.have_picking">checked="checked"</notempty> />
+                <span class="lbl">
+                    包含配货
+                </span>
+            </label>
+            <label>
+                <input type="checkbox" class="ace input-lg" name="locking_picking" value="1" <notempty name="Think.request.locking_picking">checked="checked"</notempty> />
+                <span class="lbl">
+                   	配货锁定中
+                </span>
+            </label>
+            <label>
+                <input type="checkbox" class="ace input-lg" name="have_returned" value="1" <notempty name="Think.request.have_returned">checked="checked"</notempty> />
+                <span class="lbl">
+                    包含退货
+                </span>
+            </label>
+        	<label>
+                <input type="checkbox" class="ace input-lg" name="related_order" value="1" <notempty name="Think.request.related_order">checked="checked"</notempty> />
+                <span class="lbl">
+                    合并订单
+                </span>
+            </label>
+            <label>
+                <input type="checkbox" class="ace input-lg" name="have_disabled_product" value="1" <notempty name="Think.request.have_disabled_product">checked="checked"</notempty> />
+                <span class="lbl">
+                    包含废弃
+                </span>
+            </label>
+            
+            <label>
+                <input type="checkbox" class="ace input-lg" name="not_cost_finished" value="1" <notempty name="Think.request.not_cost_finished">checked="checked"</notempty> />
+                <span class="lbl">
+                    成本未统计
+                </span>
+            </label>
+
+            <label>
+                <input type="checkbox" class="ace input-lg" name="is_loss" value="1" <notempty name="Think.request.is_loss">checked="checked"</notempty> />
+                <span class="lbl">
+                    亏本订单
+                </span>
+            </label>
+
+            <label>
+            	<select name="show_false_order" style="color:blue;">
+            		<option value="0">包含刷单订单</option>
+            		<option value="1" <eq name="Think.request.show_false_order" value="1">selected="selected"</eq> >不显示刷单</option>
+            		<option value="2" <eq name="Think.request.show_false_order" value="2">selected="selected"</eq> >只显示刷单</option>
+            	</select>
+            </label>
+
+            <label>
+            	<select name="loan_status">
+            		<option value="0">筛选放款</option>
+            		<option value="1" <eq name="Think.request.loan_status" value="1">selected="selected"</eq> >已放款</option>
+            		<option value="2" <eq name="Think.request.loan_status" value="2">selected="selected"</eq> >未放款</option>
+            	</select>
+            </label>
+		</div>
+
+	</div>
+</div>
+<script type="text/javascript">
+$(function($){
+	$("#owner_uid").select2();
+	$("#warehouse_id").select2();
+	$("#customer_online_express_type_id").select2();
+	$("#express_type_id").select2();
+	$("#local_country_code").select2();
+})
+</script>

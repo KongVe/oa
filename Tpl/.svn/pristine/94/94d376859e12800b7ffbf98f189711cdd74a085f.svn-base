@@ -1,0 +1,227 @@
+<script type="text/javascript">
+	//PUBLIC
+	var label_list=<?php echo json_encode($label_list); ?>;
+
+	//personal
+	var sku_legend_list=['产品销售量 总：'+{$sku_total}];
+	var sku_data= <?php echo json_encode($chartByCount); ?>;
+
+	var sku_option = {
+		    tooltip : {
+		        trigger: 'axis'
+		    },
+		    legend: {
+		        data:sku_legend_list
+		    },
+		    toolbox: {
+		        show : true,
+		        feature : {
+		            mark : {show: true},
+		            dataView : {show: true, readOnly: false},
+		            magicType : {show: true, type: ['line', 'bar']},
+		            restore : {show: true},
+		            saveAsImage : {show: true}
+		        }
+		    },
+		    calculable : true,
+		    xAxis : [
+		        {
+		            type : 'category',
+		            boundaryGap : true,
+		            data : label_list,
+		        }
+		    ],
+		    yAxis : [
+		        {
+		            type : 'value'
+		        }
+		    ],
+		    series :sku_data,
+		};   
+
+
+	var variation_legend_list=<?php echo json_encode($variation_name_list); ?>;
+	var variation_data= <?php echo json_encode($chartByVariation); ?>	
+	var variation_option  = {
+		    tooltip : {
+		        trigger: 'axis'
+		    },
+		    legend: {
+		        data:variation_legend_list,
+		        orient:"vertical",
+		        x:"left",
+		    },
+		    toolbox: {
+		        show : true,
+		        feature : {
+		            mark : {show: true},
+		            dataView : {show: true, readOnly: false},
+		            magicType : {show: true, type: ['bar', 'line']},
+		            restore : {show: true},
+		            saveAsImage : {show: true}
+		        }
+		    },
+		    calculable : true,
+		    xAxis : [
+		        {
+		            type : 'category',
+		            boundaryGap : true,
+
+		            data : label_list,
+		        }
+		    ],
+		    yAxis : [
+		        {
+		            type : 'value',
+		            
+		        }
+		    ],
+
+		    series :variation_data,
+		};           
+
+      
+
+	function skuChart(){
+		$("#show").val("sku");
+		
+		// 路径配置
+		require.config({
+		    paths: {
+		        echarts: '__PUBLIC__/js/echarts/build/dist'
+		    }
+		});
+		// 使用
+	    require(
+	        [
+	            'echarts',
+	            'echarts/chart/line',
+	            'echarts/chart/bar',
+	        ],
+	        function (ec) {
+	            // 基于准备好的dom，初始化echarts图表
+	            var myChart = ec.init(document.getElementById('canvasDiv')); 
+	            // 为echarts对象加载数据 
+	            myChart.setOption(sku_option);
+	        }
+	    );
+	}
+
+	var variationChart =function(){
+		$("#show").val("variation");
+
+		
+		// 路径配置
+		require.config({
+		    paths: {
+		        echarts: '__PUBLIC__/js/echarts/build/dist'
+		    }
+		});
+		// 使用
+	    require(
+	        [
+	            'echarts',
+	            'echarts/chart/bar',
+	            'echarts/chart/line',
+	        ],
+	        function (ec) {
+	            // 基于准备好的dom，初始化echarts图表
+	            var myChart = ec.init(document.getElementById('canvasDiv')); 
+	              // 为echarts对象加载数据 
+		        myChart.setOption(variation_option); 
+		    }
+	    );
+	}
+
+	<?php
+
+		if($_SESSION['search_data']['show']=="sku"){
+			echo "skuChart();";
+		}else{
+			echo "variationChart();";
+		}
+	?>
+	
+	//显示或关闭图例菜单
+	function showlegend(){
+
+	}
+
+	// 关闭悬浮框
+	function closeBox(){
+		if(parent.$("#order-detail-box").length>0){
+			parent.$("#order-detail-box").css({display:"none"});
+		}else{
+			window.close();
+		}
+		
+	}
+
+	function getRequest() {
+	  
+	  var url = location.search; //获取url中"?"符后的字串
+	   var theRequest = new Object();
+	   if (url.indexOf("?") != -1) {
+	      var str = url.substr(1);
+	      strs = str.split("&");
+	      for(var i = 0; i < strs.length; i ++) {
+	      	var kk=strs[i].split("=")[0];
+	         theRequest[kk]=(strs[i].split("=")[1]);
+	      }
+	   }
+	   return theRequest;
+	}
+
+	//提交
+	// function sendForm () {
+	// 	var url_data=getRequest();
+	// 	var request=url_data;
+		
+	// 	var post_data=$('#detail_form').serializeArray();
+	// 	for (var i = 0; i < post_data.length; i++) {
+	// 		request[post_data[i].name]=post_data[i].value;
+	// 	};
+	// 	var send_data="";
+	// 	console.log(request);
+	// 	for(var key in request){
+	// 		if(send_data==""){
+	// 			//第一个数据 
+	// 			send_data="?"+key+"="+request[key];
+	// 		}else{
+	// 			send_data+=("&"+key+"="+request[key]);
+	// 		}
+		   
+	// 	}
+	// 	//window.location.href="{:U('detail')}"+send_data;
+	// 	//var send_data=;
+	// }
+</script>
+
+
+
+<!-- 
+<script type="text/javascript">
+	$(function(){
+		if(order_day_list==null){
+			$('#canvasDiv').html('无数据');
+		}else{
+			setProductChart();
+		}
+		
+	});
+
+	// 关闭悬浮框
+	function closeBox(){
+		parent.$("#order-detail-box").css({display:"none"});
+	}
+
+	//提交
+	function sendForm () {
+		$('#detail_form').submit();
+	}
+</script>
+
+
+<script type="text/javascript">
+$("[width='77' && height='19']").src="";
+</script> -->

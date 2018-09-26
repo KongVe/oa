@@ -1,0 +1,35 @@
+<layout name="Layout/ace_box_v3"/>
+<table class="select-list">
+	<tr>
+		<th>序号</th>
+	</tr>
+</table>
+<script type="text/javascript">
+	var selected_list = [];
+	var select_list = [];
+	$(function () {
+		getChooseOnlineListingList();
+		getRalateOnlineListingList();
+	})
+	function getChooseOnlineListingList(){
+		$.ajax({
+			url:'../AmazonSellyoursAddReview/getChooseOnlineListingList',
+			type:'GET',
+			dataType:'json',
+			success:function(data){debugger;
+				selected_list = data;
+			}
+		})
+	}
+	function getRalateOnlineListingList(){
+		$.ajax({
+			url:'../AmazonSellyoursAddReview/getRalateOnlineListingList',
+			type:'GET',
+			dataType:'json',
+			success:function(data){
+				debugger;
+				select_list = data;
+			}
+		})
+	}
+</script>

@@ -1,0 +1,195 @@
+<layout name='Layout/m_ace_layout' />
+
+<style>
+.showBottomBox{cursor: pointer;}
+.list-block{
+	margin:0;
+
+}
+.panel-left .list-block{
+	padding-bottom:2.8rem;
+}
+</style>
+<div class="page">
+	<div class="list-block" id="card-list">
+
+	</div>
+</div>
+<script type="text/javascript">
+	var filter_list = {$filter_list|default=""|json_encode};
+	var push_list  = new Array();
+	var push_all_list;
+	function init(index){
+		$.ajax({
+			url:'{:U('V2TransferShipment/getTransferShipmentList')}',
+			data:index,
+			type:'GET',
+			dataType:'json',
+			success:function(msg){
+				push_all_list = msg;
+				list_push(push_all_list);
+			},error:function(){
+
+			},beforeSend:function(){
+				$.showIndicator() 
+			},complete:function(){
+				$.hideIndicator()
+			}
+		})
+	}
+	function list_msg(data){
+		$.modal({
+      title:  '<div class="buttons-row">'+
+                '<a href="#tab1" class="button active tab-link">备注历史</a>'+
+                '<a href="#tab2" class="button tab-link">新增备注</a>'+
+              '</div>',
+      text: '<div class="tabs">'+
+              '<div class="tab active" id="tab1"></div>'+
+              '<div class="tab" id="tab2">'+
+              '<input name="remark"/>'+
+              '</div>'+
+            '</div>',
+      buttons: [
+        {
+          text: '关闭',
+          bold: true
+        },
+        {
+          text: '提交新增',
+          close: false,
+          onClick: function() {
+          	var remark = $('#tab2').find('input[name="remark"]').val();
+          	if(!remark){
+          		$.toast("提交数据不能为空");
+          	}else{
+          		return $.closeModal(data)
+          	}
+          }
+        },
+      ]
+    })
+	}
+	function list_push(msg,index){
+		
+		$.each(msg.data.results,function(i,v){
+			if(i>index){
+				return false;
+			}else{
+				
+				var lists = document.createElement('div');
+				lists.className = 'card';
+				lists.setAttribute('data-href', '{:U('V2TransferShipment/v2index_list')}');
+				lists.setAttribute('onclick','list_msg(this)');
+				var card_head = document.createElement('div');
+				var card_contnet = document.createElement('div');
+				var list_block = document.createElement('div');
+				var list_ul = document.createElement('ul');
+				var ltem_content = document.createElement('li');
+				var item_media = document.createElement('div');
+				var img_item_media = document.createElement('img');
+				var item_inner = document.createElement('div');
+				var item_title_row = document.createElement('div');
+				var item_title = document.createElement('div')
+				var item_subtitle = document.createElement('div')
+				var address_sub = v.ship_to_address?JSON.parse(v.ship_to_address):''
+				item_subtitle.textContent = address_sub?('接收人信息:'+address_sub.Name+' '+address_sub.AddressLine1+' '+address_sub.City+' '+address_sub.StateOrProvinceCode+' '+address_sub.CountryCode+' '+address_sub.PostalCode):'';
+				var card_footer = document.createElement('div');
+				var span_1 = document.createElement('span');
+				var span_2 = document.createElement('span');
+				var card_footer_2 = document.createElement('div')
+				var button = document.createElement('button');
+				card_head.className = 'card-header';
+				card_head.textContent = v.id;
+				card_contnet.className = "card-content";				
+				list_block.className = 'list-block media-list';
+				ltem_content.className="item-content";
+				item_media.className = 'item-media';				
+				img_item_media.width = '100';
+				img_item_media.src = 'http://gqianniu.alicdn.com/bao/uploaded/i4//tfscom/i3/TB10LfcHFXXXXXKXpXXXXXXXXXX_!!0-item_pic.jpg_250x250q60.jpg';
+				item_media.appendChild(img_item_media)
+				item_inner.className = 'item-inner';
+				item_title_row.className = 'item-title-row';
+				item_title.className='item-title';
+				item_title.textContent = v.online_shipment_name
+				item_title_row.appendChild(item_title)
+				item_subtitle.className='item-subtitle';
+				item_inner.appendChild(item_title_row);
+				item_inner.appendChild(item_subtitle);
+				ltem_content.appendChild(item_media)
+				ltem_content.appendChild(item_inner);
+				list_ul.appendChild(ltem_content);
+				list_block.appendChild(list_ul);
+				card_contnet.appendChild(list_block)
+				lists.appendChild(card_head)
+				lists.appendChild(card_contnet);
+				card_footer.className='card-footer';
+				span_1.textContent='仓库:'+v.online_shipment_id
+				span_2.textContent=v.create_time
+				card_footer.appendChild(span_1);
+				card_footer.appendChild(span_2);
+				lists.appendChild(card_footer);				
+				card_footer_2.className = 'card-footer';
+				button.type = 'submit';
+				button.className = ''
+				$('#card-list').append(lists)
+				push_list.push(v);
+			}
+// 				
+})
+		for(var i = 0;i<push_all_list.data.results.length;i++){
+			for(var j = 0;j<push_list.length;j++){
+				if(push_all_list.data.results[i] == push_list[j]){
+					$.inArray(i, push_all_list.data.results)
+					push_all_list.data.results.splice(i,1)
+				}
+			}
+		}
+	}
+	var loading = false;
+    var maxItems = 100;
+    var lastIndex = 20;
+    var itemsPerLoad = 1;
+	$(function(){
+		serch_list();
+		init(itemsPerLoad,lastIndex);
+		$(document).on('infinite', '.infinite-scroll',function() {
+        // 如果正在加载，则退出
+        if (loading) return;
+
+        // 设置flag
+        loading = true;
+        itemsPerLoad++;
+        setTimeout(function() {
+            loading = false;
+
+            if (lastIndex >= maxItems) {
+                $.detachInfiniteScroll($('.infinite-scroll'));
+                $('.infinite-scroll-preloader').remove();
+                return;
+            }
+
+            init(itemsPerLoad, lastIndex);
+            lastIndex = $('.list-container li').length;
+        }, 1000);
+    });
+	})
+	
+	function get_list(post_list){
+		$.post('{:U('V2TransferShipment/getTransferShipmentList')}',post_list,function(data,s){
+
+			if(data.status == 0){
+				$.showPreloader(data.info)
+				setTimeout(function () {
+					$.hidePreloader();
+				}, 2000);
+				return false;
+			}
+			re_form()
+			$.closePanel()
+			$.showIndicator() 
+			$('#card-list').empty();
+			list_push(data)
+			$.hideIndicator()
+		});
+	}
+</script>

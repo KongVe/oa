@@ -1,0 +1,184 @@
+<layout name='Layout/ace_box' />
+{:W('PageHeader',array('name'=>'编辑任务模板'))}
+
+<form method='post' id="form_data" name="form_data" enctype="multipart/form-data"   class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="0">
+	<input type="hidden" id="add_file" name="add_file" value="{$vo.design_file}">
+	<input type="hidden" id="type" name="type" value="{$type}">
+	<input type="hidden" id="folder" name="folder" value="{$folder}">
+	<input type="hidden" id="fid" name="fid" value="{$folder}">
+
+	<if condition="$_REQUEST['id'] neq ''">
+		<input type="hidden" id="id" name="id" value="{$vo.id}">
+		<input type="hidden" id="opmode" name="opmode" value="edit">
+	<else/>
+		<input type="hidden" id="opmode" name="opmode" value="add">
+	</if>
+
+		<div class="form-group col-sm-12">
+			<div class="form-group col-sm-6">
+				<label class="col-sm-3 control-label" for="title" >标题：</label>
+				<div class="col-sm-9">
+					<input class="form-control" type="text" id="title" name="title" value="{$vo.title}"  check="require" msg="请输入标题" placeholder="标题">
+				</div>
+			</div>
+		</div>
+
+		<div class="form-group col-sm-6">
+			<label class="col-sm-3 control-label" >设计人：</label>
+			<div class="col-sm-9">
+
+				<select name="designer">
+					<volist name="user_list" id="user">
+						<option value="{$user.emp_name}" <eq name="vo.designer" value="$user.emp_name">selected</eq> >{$user.emp_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group col-sm-6">
+			<label class="col-sm-3 control-label" for="performer">执行人：</label>
+			<div class="col-sm-9">
+				<select name="performer">
+					<volist name="user_list" id="user">
+						<option value="{$user.emp_name}" <eq name="vo.performer" value="$user.emp_name">selected</eq> >{$user.emp_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group col-sm-6">
+			<label class="col-sm-3 control-label" for="checker">检查员：</label>
+			<div class="col-sm-9">
+				<?php
+					//先确定要检查员的默认选择
+					$checker_selected="";
+					if($vo['checker'] && $vo['checker']!=$vo['performer']){
+						$checker_selected=$vo['checker'];
+					}else{
+						$checker_selected=$_SESSION['user_name'];
+					}
+				?>
+				<select name="checker">
+					<volist name="user_list" id="user">
+						<option value="{$user.emp_name}" <if condition="$user['emp_name'] eq $checker_selected" > selected</if>	>{$user.emp_name}</option>
+
+					</volist>
+				</select>
+			</div>
+		</div>
+		
+		<div class="form-group col-sm-6">
+			<label class="col-sm-3 control-label" for="priority">优先级：</label>
+			<div class="col-sm-9">
+				<select name="priority">
+					<volist name="priority_list" id="vv">
+						<option value="{$vv}" <if condition="$vo['priority'] eq $vv" > selected</if>>{$vv}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group col-sm-6">
+			<label class="col-sm-3 control-label" for="task_type">必选做：</label>
+			<div class="col-sm-9">
+				<label class="col-sm-3 control-label" for="task_type1">
+					<b>必做 </b><input type="radio" class="control-label" name="task_type" id="task_type1" value="必做"  <if condition="$vo['task_type'] eq '' || $vo['task_type'] eq '必做' " > checked="checked"</if> >
+				</label>
+				<label class="col-sm-3 control-label" for="task_type2">
+					<b>选做 </b><input type="radio" class="control-label" name="task_type" id="task_type2" value="选做" <if condition="$vo['task_type'] eq '选做'" > checked="checked"</if> >
+				</label>				
+			</div>
+		</div>
+
+		<div class="form-group col-sm-12">
+			<div class="form-group col-sm-6">
+				<label class="col-sm-3 control-label" for="time_length">任务时长：</label>
+				<div class="col-sm-9">
+					<span class="col-sm-6">
+						<input type="text" id="time_length_hours" name="time_length_hours" msg="任务时长 小时" placeholder="任务时长 小时" class="col-sm-7" value="<?php if($vo['time_length']){echo (int)($vo['time_length']/3600);}?>">
+						<span class="col-sm-5">小时</span>
+					</span>
+					<span class="col-sm-6">
+						<input type="text" id="time_length_minutes" name="time_length_minutes" msg="分钟" placeholder="分钟" value="<?php if($vo['time_length']){echo (int)(($vo['time_length']%3600)/60);}?>" class="col-sm-6">
+						<span class="col-sm-6">分钟</span>
+					</span>
+				</div>
+			</div>
+
+			<div class="form-group col-sm-6">
+				<label class="col-sm-3 control-label" for="name" >截止日期：</label>
+				<div class="col-sm-9">
+					在任务创建后 <input type="text" style="width:40px;" name="time_days" value="{$vo['time_days']}" > 天
+				</div>
+			</div>
+			
+		</div>
+
+		<div class="form-group col-sm-12">
+
+			<div class="form-group col-sm-5">
+				<label class="col-sm-3 control-label" for="reward">奖励米粒：</label>
+				<div class="col-sm-9">
+					<select name="reward">
+						<?php
+							for ($i=10; $i >=1 ; $i--) { 
+						?>
+							<option value='{$i}' <if condition="$i eq $vo['reward']">selected</if> >{$i} 米粒</option>
+						<?php
+							}
+						?>
+					</select>
+				</div>
+			</div>
+
+			<div class="form-group col-sm-7">
+				<label class="col-sm-3 control-label" for="name">附件：</label>
+				<div class="col-sm-9">
+					<include file="Widget:uploader" />
+				</div>
+			</div>
+		</div>
+
+	<div class="form-group">
+		<div class="col-xs-12">
+			<textarea id="content" name="content" style="width:100%;height:300px;" check="require" msg="请输入内容">{$vo.content}</textarea>
+		</div>
+	</div>
+
+	<div class="action">
+		<if condition="$_REQUEST['id'] neq ''">
+			<input class="btn btn-sm btn-primary" type="button" value="保存" onclick="save();">
+		<else/>
+			<input class="btn btn-sm btn-primary" type="button" value="创建" onclick="save();">
+		</if>
+
+		<input class="btn btn-sm btn-default" type="button" value="关闭" onclick="parent.closeBox();">
+	</div>
+</form>
+
+<script type="text/javascript">
+	function save() {
+		var hours=parseInt($("#time_length_hours").val(),10);
+		var minutes=parseInt($("#time_length_minutes").val(),10);
+
+		if( (minutes>60) ||(minutes<=0 && hours <=0) || ( $("#time_length_hours").val() == '' || $("#time_length_minutes").val() == '')){
+			alertWarning("请输入正确的任务时长");
+			return;
+		}
+		$("#ajax").val(1);
+		editor.sync();
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('taskTemplateSave')}",'',function(msg){
+				alert(msg.info);
+				if(msg.status){
+					parent.location.reload();	
+				}
+			});
+		}
+	}
+
+	function changeTitle(obj){
+		$('#title').val($(obj).val());
+	}
+</script>

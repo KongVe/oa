@@ -1,0 +1,539 @@
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	// ace.settings.sidebar_collapsed(true);
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+	$("tbody.tbody tr").click(function(){
+		$("tbody.tbody tr").removeClass("success");
+		$(this).addClass("success");
+		var order_detail_box = $("div.order-detail-box");
+		var id = $(this).find("input[name='id[]']").val();
+	
+		if(typeof(id)=='undefined'){
+			id = $(this).find("input[name='order_auto_id[]']").val();
+		}
+		
+		if($("#order-detail-iframe").attr("src").indexOf(id) > 0 ){
+			order_detail_box.show();
+			return true;
+		}
+			
+		
+		var box_top = document.documentElement.clientHeight - order_detail_box.height();
+		var box_width = window.screen.availWidth;
+		order_detail_box.css({display:"block",top:box_top + "px",width:box_width + "px"});
+		$("#order-detail-iframe").attr("src","{:U('orderDetail/detail')}?id=" + id + "&_"+  Math.round(new Date().getTime()/1000));
+	});
+
+
+	//如果只有一条记录，默认打开详细框
+	if($("tbody.tbody tr").length == 1){
+		$("tbody.tbody tr").click();
+	}
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}
+	if($("#oaid").val() != ''){
+		$("#oaid").focus().select();
+	}
+	$("#oaid").click(function(){
+		$(this).select();
+	})
+
+
+	$(".input-date-range").daterangepicker( { format : 'YYYY-MM-DD',} );	
+})
+
+
+
+////////////////--dylan////////////
+
+
+//同步CK1 
+function syncCK1Submit(choose){
+	
+	$(".tbody input[name='id[]']").attr("name","order_auto_id[]"); //转换一下ID名称
+	if($("#purchase").val() == "page"){
+		$(".tbody input[name='order_auto_id[]']").prop("checked",true);
+	}
+	var chk_value =[];  
+	$('input[name="order_auto_id[]"]:checked').each(function(){  
+		chk_value.push($(this).val());  
+	});
+	if(chk_value.length==0 && $("#orderTime").val()==""){
+		alert('你还没有选择任何内容！');  
+	}else{
+		syncCK1(chk_value,choose);
+	}
+	
+}
+
+function syncCK1(chk_value,choose){
+	//ajax获取所有格式正确的出口易PackageCode
+	var dataArr=new Array();
+	var j=0;
+	var errorListArr=new Array();
+
+	var success_count=0;
+	//var error_count=0;
+
+	$("#syncCK1").html("正在同步..");
+
+	$.ajax({
+		type:'POST',
+		url:'{:U("OrderSyn/getLocalRightCK1PackageCodeList")}',
+		data:{ key:"888",choose:choose, order_auto_id:chk_value, order_time:$("#orderTime").val() },
+		success:function(data){
+			if(data.status==0){
+				alert(data.info);
+				$("#syncCK1").html("");
+			}else{
+				ajaxSyncCK1(data,0,choose,0);//递归	
+			}			
+		}
+	});
+}
+
+//递归 ajax异步提交
+function ajaxSyncCK1(data,ii,choose,success_count){
+	var dataArr=new Array();
+	var j=0;
+
+	for(i=ii;i<data.data.length;i++){
+
+		dataArr[j]=data.data[i];
+			j++;
+		if( (i>0 && i%10==0) ||( ( i==(data.data.length-1) ) && ((i%10!=0)||i==0) )){
+			console.log(dataArr);
+			
+			$.ajax({
+				type: 'POST',
+				//async:false,
+				url: '{:U("OrderSyn/SyncCK1")}',
+				data: {PackageCodeArr:[dataArr],choose:choose},
+			    success:function (data2){
+
+			    	$("#syncCK1").html(parseInt(((i+1)/data.data.length)*100)+"%");				    	
+			    	
+			    	if(data2.status==1){
+			    		success_count+=dataArr.length;
+			    	}	
+
+					if(data2.status=="error"){
+					//报error时停止执行
+
+						alert(data2.info);
+						return false;
+					}
+
+					if(data2.status==0){
+						success_count=success_count+dataArr.length-data2.data;
+					}
+
+					if(i>=data.data.length-1){
+
+						$("#syncCK1").html(parseInt(((i+1)/data.data.length)*100)+"%");	
+
+						alert("获取跟踪号完毕");
+
+						if(data.data!=0){
+							alert("总共处理条数:"+data.data.length+" 条,成功："+success_count+" 条"); //"错误："+error_count+" 条");
+			 			}else{
+			 				$("#syncCK1").html("");
+			 			}
+						return;
+					}
+					ajaxSyncCK1(data,i+1,choose,success_count);
+
+				}
+			});
+
+			break;//跳出循环
+		}	
+	}	
+}
+
+
+//运费要用出口易v3 API，有数量限制，所以分开执行
+function syncCK1ShippingFee(){
+	//ajax获取所有格式正确的出口易PackageCode
+	var dataArr=new Array();
+	var j=0;
+	var errorListArr=new Array();
+	$.post('{:U("OrderPackage/getAllNoShippingFee")}',{ key:"888"},function(data,info,status){
+		var tmp1=0;
+		for(i=0;i<data.data.length;i++){
+
+			$("#syncCK1").html(parseInt((i+1/data.data.length)*100)+"%");
+
+			dataArr[j]=data.data[i];
+				j++;
+			if((i>0 && i%50==0)||(data.data.length-i)<50){
+				$.ajax({
+				  type: 'POST',
+				  async:false,
+				  url: '{:U("OrderPackage/SyncCK1ShippingFee")}',
+				  data: {PackageCodeArr:[dataArr]},
+				  success: function (data,info,status){
+								if(data.status=="error"){
+									alert(data.info);
+									tmp1=1;
+									//根据package_code保存错误到errorListArr，提供报错
+								}else if(data.status==0){
+									//根据package_code保存错误到errorListArr，提供报错
+								}else if(i==data.data.length-1){
+									alert("操作完毕");
+								}
+							}
+				});
+				if(tmp1==1){
+					tmp1=0;
+					break;
+				}
+				dataArr.length=0;
+				j=0;
+			}	
+			if(i==data.data.length && errorListArr!=""){
+				//一次批量上传的错误报告，先不写
+			}
+		}	
+	});
+}
+///////////////////////////////////////////////
+//跟踪号同步wish
+
+
+var tmpstate=1;	//防止登录wish死循环;
+var choose="";//登录wish后的操作选择序号
+var account_list=[]; //同步所有订单时的帐号列表
+var intervalName=0;  // 定时器句柄 监听上一个帐号是否同步完成
+var monitorSyncState=1;//监听上一个帐号是否同步完成的状态，被改为1时，则触发下一个帐号同步
+
+function syncWish(account_name,choose_num){
+	choose=choose_num;
+	$(".message-container").html('<div id="sync-iframe"><iframe src="" id="wish-sync-iframe" name="wish-sync-iframe" width="90%" height="800px" frameborder="no" marginheight="-50px" ></iframe></div>');
+	$(".message-container").css('width','90%');
+	$('#syncCK1').html('');
+	$('#syncWish').html('');
+	if(choose_num >=3 ){
+		//同步所有帐号
+		account_list=[];
+		clearInterval(intervalName)//取消定时器
+		var length=$('.account_name').length;
+		for (var i = 0; i < length; i++) {
+			account_list.push($('.account_name').eq(i).html());
+		};
+		monitorSyncState=1;
+		intervalName=setInterval(monitorSync,300);
+	}else{
+		//其它操作
+		getWishIframe(account_name);
+	}
+	
+}
+//监听上一个帐号是否同步完成的状态
+function monitorSync(){
+	
+	if(monitorSyncState==1){
+		monitorSyncState=0;
+		var account_name=account_list.pop();
+
+		console.log(account_name);
+
+		if(typeof(account_name)=="undefined"){
+			clearInterval(intervalName)//取消定时器
+			alert('帐号操作完毕');
+		}
+		getWishIframe(account_name);//执行下一个帐号
+	}else{
+		return;
+	}
+}
+
+function getWishIframe(account_name){
+	if(account_name=="null" || typeof(account_name)=="undefined" || (!account_name) ){
+		return false;
+	}
+
+	window.tmpstate=0;
+
+	// if(window.intervalName){
+	// 	for (var u = 0; u < window.intervalName.length; u++) {
+	// 		clearInterval(window.intervalName[u])//取消定时器
+	// 	}
+	// 	window.intervalName=new Array;
+	// }
+
+	$.post("{:U('OrderService/index')}",{account_name:account_name,w_Name:"meeshine"},function(data){
+		
+		var diyIframe = document.getElementById("wish-sync-iframe"); 
+		diyIframe.src = "https://merchant.wish.com/login?next=%2Ftickets%2Faction_required";
+
+		if (diyIframe.attachEvent){ 
+			diyIframe.attachEvent("onload", function(){ 
+				goOn(data);
+			}); 
+		}else{ 
+			diyIframe.onload = function(){ 
+				goOn(data);
+			}; 	
+		} 
+		document.getElementById('sync-iframe').appendChild(diyIframe);
+		
+	});
+}
+function goOn(data){
+	var result = "";for(var i = data.pp.length; i > 0; i--){ result += data.pp.charAt(i-1);}
+	pp=result;
+	account=data.order_account;
+	var iframe = window.frames['wish-sync-iframe'];
+	var myForm = iframe.document.createElement("form");   
+  	myForm.method="POST"; 
+  	myForm.action = "https://merchant.wish.com/api/login" ;     
+    var myInput = document.createElement("input") ;   
+    myInput.setAttribute("name", "username") ;   
+    myInput.setAttribute("value", account); 
+    myForm.appendChild(myInput) ; 
+    var myInput2 = document.createElement("input") ;   
+    myInput2.setAttribute("name", "password") ;   
+    myInput2.setAttribute("value", pp);
+    myForm.appendChild(myInput2) ;    
+  	iframe.document.body.appendChild(myForm) ;   
+  	myForm.submit();
+
+ 	iframe.document.body.removeChild(myForm) ;
+ 	
+ 	window.accountName=account;
+ 	window.tmpstate=1;
+ 	var newIframe=document.getElementById('wish-sync-iframe');
+	
+	
+ 	if (newIframe.attachEvent){ 
+		newIframe.attachEvent("onload", function(){ 
+			newIframe.src="https://merchant.wish.com/";
+			if (newIframe.attachEvent){ 
+				newIframe.attachEvent("onload", function(){		
+        		trackingNumSyncWish(data.account_name);
+				}); 
+			}else{ 
+				newIframe.onload = function(){ 					
+        		trackingNumSyncWish(data.account_name);
+				}; 	
+			} 
+		}); 
+	}else{ 
+		newIframe.onload = function(){ 
+			newIframe.src="https://merchant.wish.com/";
+			if (newIframe.attachEvent){ 
+				newIframe.attachEvent("onload", function(){			
+        		trackingNumSyncWish(data.account_name);
+				}); 
+			}else{ 
+				newIframe.onload = function(){ 
+        		trackingNumSyncWish(data.account_name);
+				}; 	
+			}
+		};
+	} 
+}
+
+function trackingNumSyncWish(account){
+	var iframe = window.frames['wish-sync-iframe'];
+
+	//var regx=/(Store|店)[:|：]\s*(.*)\s*<\/a/;
+	var regx=/data\-mid[\S\s]+?>\s*([\s\S]+?)\s*<\/li>/;
+	var rs=regx.exec(iframe.$('#header').html());
+	console.log(rs);
+	account=$.trim(account.toLowerCase());
+	account=account.replace(/ /g,'');
+
+	var account2 =$.trim(rs[1].toLowerCase());
+	account2=account2.replace(/ /g,'');
+
+	console.log(account);
+	console.log(account2);
+
+	if(account!=account2){
+		alert("帐号获取错误,当前操作帐号："+account+" 请刷新重试，或联系技术人员");
+	}else{
+		//0:wish跟踪号核对同步,1:核对所有帐号跟踪号,
+		//2:同步wish Action页面订单,3:同步wish History页面订单
+		switch(choose){
+			case 0:
+				//帐号核对修改跟踪号
+			case 1:
+				//帐号提交wish
+				iframe.$("body").append("<script type='text\/javascript' src='{:U('OrderSyn/checkWishTrackingCode','',true,false,true)}?choose="+choose+"&account="+account+"'><\/script>");
+				break;
+
+			case 4:
+				//所有wish帐号核对修改跟踪号
+				iframe.$("body").append("<script type='text\/javascript' src='{:U('OrderSyn/checkWishTrackingCode','',true,false,true)}?choose="+choose+"&account="+account+"'><\/script>");
+				break;
+
+			case 5:
+				//所有帐号提交wish
+				iframe.$("body").append("<script type='text\/javascript' src='{:U('OrderSyn/checkWishTrackingCode','',true,false,true)}?choose="+choose+"&account="+account+"'><\/script>");
+				break;
+
+
+			case 2:
+				//同步选定的wish帐号的订单
+			case 3:
+				//同步所有 wish帐号的订单
+				synchWishOrder('Action');
+				break;
+			default:
+				alert('操作错误，请重试');
+				break;
+		}
+		
+	}
+}
+
+//同步wish订单
+var this_page_name;
+
+function synchWishOrder(page_name){
+	this_page_name=page_name;
+	var url;
+	
+	if(page_name=="Action"){
+		url="https://merchant.wish.com/transactions/action";
+	}else if(page_name=="History"){
+		url="https://merchant.wish.com/transactions/history";
+	}else{
+		//结束此帐号同步
+		monitorSyncState=1;//
+		if(choose!=3){
+			alert('同步完毕');
+			return;
+		}
+		return false;
+	}
+	
+	$('#syncCK1').html('准备同步...');
+
+	var iframe = window.frames['wish-sync-iframe'];
+	var newIframe=document.getElementById('wish-sync-iframe');
+	setTimeout(synchAction,5000);
+	// newIframe.src=url;;
+	// if (newIframe.attachEvent){ 
+	// 	newIframe.attachEvent("onload", function(){			
+	// 		setTimeout(synchAction,5000);
+	// 	}); 
+	// }else{ 
+	// 	newIframe.onload = function(){ 
+	// 		setTimeout(synchAction,5000);
+	// 	}; 	
+	// }
+
+}
+
+function synchAction(){
+	var iframe = window.frames['wish-sync-iframe'];
+	var newIframe=document.getElementById('wish-sync-iframe');
+
+	var synch_order_count=$('#synch_order_count').val();
+	
+	iframe.synch_order_count=synch_order_count;
+
+	iframe.$("body").append('<script type="text/javascript">var page_name="'+this_page_name+'";<\/script><script type="text/javascript" src="{:U('OrderSyn/synchWishOrder','',true,false,true)}"><\/script>');
+	// newIframe.onload=function(){
+	// 	iframe.$("body").append('<script type="text/javascript" src="{:U('OrderSyn/synchWishOrder','',true,false,true)}"><\/script>');
+	// }
+}
+
+/**********************************
+
+	调用 Wish API 同步订单
+
+**********************************/
+var account_id_list=[];
+function synchApiWish(account_name,account_id){
+	$('#syncWish').html('');
+
+	if(account_name!=""){
+		//同步单个帐号订单 
+		getAccountOrderList(account_name,account_id);
+		
+	}else{
+		//同步所有帐号
+		account_id_list=[];
+
+		var length=$('.api_account_id').length;
+		for (var i = 0; i < length; i++) {
+			account_id_list.push($('.api_account_id').eq(i).val());
+			account_list.push($('.api_account_name').eq(i).html());
+		};
+		account_id=account_id_list.pop();
+		account_name=account_list.pop();
+		getAccountOrderList(account_name,account_id,1);
+	}
+}
+
+function getAccountOrderList(account_name,account_id,isAll){
+	$.ajax({
+		url:"{:U('getAccountOrderList')}",
+		data:{account_name:account_name,id:account_id},
+		success:function(msg){
+			if(msg.status==1){
+				synchOneOrder(account_name,account_id,msg.data,msg.data,isAll);
+			}else{
+				alert(msg.info);
+			}
+		},
+		error:function(){
+			alert('服务器错误，未获取数据');
+		}
+	})
+}
+
+function synchOneOrder(account_name,account_id,counts,remain,isAll){
+
+	$.post("{:U('synchOneAccount')}",{key:"888"},function(msg){
+		if(msg.status==1 && msg.data=="next"){
+			remain--;
+			$('#syncCK1').html(" "+account_name+": "+parseInt(remain/counts)+"% ");
+			//递归，继续同步
+			synchOneOrder(account_name,account_id,counts,remain);
+
+		}else if(msg.status==1 && msg.data=="end"){
+			//结束同步此帐号
+			$('#syncWish').html($('#syncWish').html()+" "+account_name+" 同步成功");
+			
+			if(isAll==1){
+				account_name=account_list.pop();
+				account_id=account_id_list.pop();
+				if(typeof(account_name)=="undefined"){
+					alert('帐号同步完毕');
+				}else{
+					getAccountOrderList(account_name,account_id,1);
+				}
+			
+			}
+
+		}else{
+			alert(msg.info);
+		}
+	});	
+}
+
+// --></mce:script>
+</script>

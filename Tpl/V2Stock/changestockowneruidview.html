@@ -1,0 +1,328 @@
+<layout name='Layout/ace_popup' />
+
+{:W('PageHeader',array('name'=>'修改库存所属'))}
+
+<form method='post' action="{:U('V2Stock/changeStockOwnerUid')}" id="editForm" class="well form-horizontal clearfix">
+	<input type="hidden" id="ajax" value="1"/>
+	<input type="hidden" id="id" name="id" value="{$Think.request.id}">
+
+	<div class="panel panel-primary">
+		<div class="panel panel-heading">
+			<span>虚拟SKU关联数据</span>
+		</div>
+		<div class="panel-body">
+
+			<div class="form-group col-xs-12">
+				<table class="table table-hover table-bordered">
+					<tr>
+						<th class="text-center" colspan="4">当前选择的虚拟SKU</th>
+					</tr>
+					<tr>
+						<th>虚拟规格SKU</th>
+						<th>SKU名称</th>
+						<th>图片</th>
+					</tr>
+					<tr class="success">
+						<td>
+							{$virtual_sku_data.sku}
+						</td>
+						<td>
+							{$virtual_sku_data.sku_name}
+						</td>
+						<td>
+							<a class="thumbnail" style="width:80px;" href="{$virtual_sku_data.thumbnail}" target="_blank">
+		  						<img src="{$virtual_sku_data.thumbnail}" width="80" />
+		  					</a>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="4">
+							<table class="table">
+								<tr>
+									<th class="text-center" colspan="5">
+										绑定的规格SKU及数量
+									</th>
+								</tr>
+								<tr>
+									<th style="width:120px;">SKU序号</th>
+									<th>规格SKU</th>
+									<th>SKU名称</th>
+									<th>图片</th>
+									<th>绑定数量</th>
+								</tr>
+								<volist name="virtual_sku_data.sku_product_list" id="vo">
+									<tr>
+										<td>
+											{$vo.id}
+										</td>
+										<td>
+											{$vo.sku}
+										</td>
+										<td>
+											{$vo.sku_name}
+										</td>
+										<td>
+											<a class="thumbnail"  href="{$vo.thumbnail}" target="_blank">
+						  						<img src="{$vo.thumbnail}" width="60" />
+						  					</a>
+										</td>
+										<td>
+											<b>{$vo.quantity}</b> 个
+										</td>
+									</tr>
+								</volist>
+							</table>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<div class="panel panel-info">
+		<div class="panel panel-heading">
+			<span>合并库存</span>
+		</div>
+		<div class="panel-body">
+
+			<div class="form-group col-xs-12">
+				<table class="table table-hover table-bordered">
+					<tr>
+						<th class="text-center" colspan="5">当前可用的库存</th>
+					</tr>
+					<tr>
+						<th>SKU序号</th>
+						<th>规格SKU</th>
+						<th>SKU名称</th>
+						<th>图片</th>
+						<th>
+							货架位数量
+							
+						</th>
+					</tr>
+					<volist name="stock_list" id="stock">
+						<tr>
+							<td>
+								{$stock.sku_id}
+							</td>
+							<td>
+								{$stock.sku}
+
+								<input type="hidden" name="stock_id[]" value="{$stock.id}">
+
+							</td>
+							<td>
+								{$stock.sku_name}
+							</td>
+							<td>
+								<a class="thumbnail"  href="{$stock.thumbnail}" target="_blank">
+			  						<img src="{$stock.thumbnail}" width="60" />
+			  					</a>
+							</td>
+							<td>
+
+								<table class="table" id="combine_table_{$stock.id}">
+									<tr>
+										<th>货架位</th>
+										<th>可用数量</th>
+										<th>提供数量</th>
+									</tr>
+									<volist name="stock.map_place_list" id="map_place">
+										<tr>
+											<td>
+												{$map_place.place_name}
+											</td>
+											<td>
+												{$map_place.available_quantity}
+											</td>
+											<td>
+												<input type="number" data-sku_id="{$stock.sku_id}" data-max="{$map_place.available_quantity}" data-bak="{$map_place.available_quantity}" class="combine_input" name="combine_data[{$stock.sku_id}][{$map_place.place_id}]" style="width:100px;" value="{$map_place.available_quantity}">
+											</td>
+										</tr>
+									</volist>
+									<tr>
+										<td>
+										</td>
+										<td>
+										</td>
+										<td>
+											该SKU总提供: <b id="quantity_total_{$stock.sku_id}">0</b> 个 ，
+											
+											应提供: <b id="suggest_quantity_total_{$stock.sku_id}" class="red">0</b> 个
+										</td>
+									</tr>
+								</table>
+								
+							</td>
+						</tr>
+					</volist>
+					<tr>
+						<th class="text-center" colspan="5">
+							<div class="pull-right">
+								当前提供的数量可以合并：<b id="combine_quantity" class="red" style="font-size:24px;"></b> 个虚拟SKU
+							</div>
+						</th>
+					</tr>
+					<tr>
+						<th colspan="5">
+							<div class="col-xs-2">
+							</div>
+							<div class="col-xs-10">
+								<div class="col-xs-2">
+									仓库: {$warehouse_data.warehouse_name} 
+								</div>
+								<div class="col-xs-3 input-group">
+									<span class="input-group-addon">
+										区域:
+									</span>
+									<select class="form-control" id="region_select" name="region_id" onchange="ajaxGetChildrenList($(this).val(),'shelf','region');"></select>
+								</div>
+								<div class="col-xs-3 input-group">
+									<span class="input-group-addon">
+										货架:
+									</span>
+									<select class="form-control" id="shelf_select" name="shelf_id" onchange="ajaxGetChildrenList($(this).val(),'place','shelf');"></select>
+								</div>
+								<div class="col-xs-3 input-group">
+									<span class="input-group-addon">
+										货架位:
+									</span>
+									<select class="form-control" id="place_select" name="place_id" check="require" msg="请选择货架位"></select>
+								</div>
+							</div>
+						</th>
+					</tr>
+				</table>
+				
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12 text-center">
+		
+		<div class="col-sm-4">
+			<input class="defaultEditFormSubmit btn btn-sm btn-primary" type="button" value="确认合并">
+		</div>
+		<div class="col-sm-4">
+			<input class="close_box_button btn btn-sm btn-default" type="button" value="关闭">
+		</div>
+		<div class="col-sm-4">
+			<input class="btn btn-sm btn-danger" type="button" value="返回上一页" onclick="window.history.go(-1);">
+		</div>
+
+	</div>
+</form>
+
+<script type="text/javascript">
+var sku_map = {$virtual_sku_data.sku_product_list|default=""|json_encode}
+
+//货架位
+<include file="V2StockPlace:getchildrenlistjs" />
+
+$(function(){
+
+	var choose_warehouse = {$warehouse_id|default="false"};
+	var choose_region = {$_REQUEST['region_id']|default="false"};
+	var choose_shelf = {$_REQUEST['shelf_id']|default="false"};
+	var choose_place = {$_REQUEST['place_id']|default="false"};
+
+	ajaxGetChildrenList(false,false,false,choose_warehouse);
+	ajaxGetChildrenList(choose_warehouse,'region','warehouse',choose_region);
+	ajaxGetChildrenList(choose_region,'shelf','region',choose_shelf);
+	ajaxGetChildrenList(choose_shelf,'place','shelf',choose_place);
+
+
+	$(".combine_input").change(function(){
+		var quantity_bak = parseInt($(this).data("bak"));
+		if(isNaN(quantity_bak)){
+			quantity_bak = 0;
+		}
+		var re = countStockQuantity();
+		if(!re){
+			$(this).val(quantity_bak);
+			return false;
+		}else{
+			$(this).data("bak",$(this).val());
+		}
+
+	});
+
+	countStockQuantity();
+
+});
+
+function countStockQuantity(){
+	var list = $(".combine_input");
+	var quantity_data = {}
+	for (var i = 0; i < list.length; i++) {
+
+		var sku_id = list.eq(i).data("sku_id");
+		var quantity = parseInt(list.eq(i).val());
+		var quantity_max = parseInt(list.eq(i).data("max"));
+
+		if(isNaN(quantity)){
+			quantity = 0;
+		}
+		if(isNaN(quantity_max)){
+			quantity_max = 0;
+		}
+		if(quantity < 0 || isNaN(quantity)){
+			return false;
+		}
+		if(quantity > quantity_max){
+			return false;
+		}
+		
+		if(!quantity_data[sku_id] || isNaN(quantity_data[sku_id])){
+			quantity_data[sku_id] = 0;
+		}
+		quantity_data[sku_id] = quantity_data[sku_id] + quantity;
+	};
+
+	for(var key in quantity_data){
+		var tmp = quantity_data[key];
+		if(tmp <= 0 || isNaN(tmp)){
+			tmp = 0;
+		}
+		$("#quantity_total_"+key).html(tmp);
+	}
+
+	var tmp_combine_quantity = false;
+	for (var i = 0; i < sku_map.length; i++) {
+		var sku_quantity = sku_map[i].quantity;
+		var sku_id = sku_map[i].sku_id;
+		if(!sku_id || sku_id == undefined){
+			alertWarning("系统错误,请联系技术人员");
+			break;
+		}
+		var tmp_quantity =  quantity_data[sku_id];
+
+		
+		if(isNaN(tmp_quantity) || tmp_quantity<=0){
+			tmp_combine_quantity = 0;
+		}
+		var tmp = tmp_quantity / sku_quantity;
+		if(tmp_combine_quantity === false){
+			tmp_combine_quantity = tmp;
+		}
+		tmp = parseInt(tmp);
+		if(isNaN(tmp)){
+			tmp = 0;
+		}
+		if(tmp < tmp_combine_quantity){
+			tmp_combine_quantity = tmp;
+		}
+	};
+	for (var i = 0; i < sku_map.length; i++) {
+		var sku_id = sku_map[i].sku_id;
+		var sku_quantity = sku_map[i].quantity;
+		if($("#suggest_quantity_total_"+sku_id).length > 0){
+			$("#suggest_quantity_total_"+sku_id).html(tmp_combine_quantity*sku_quantity);
+		}
+	}
+	
+	$("#combine_quantity").html(tmp_combine_quantity);
+
+	return 1;
+}
+</script>

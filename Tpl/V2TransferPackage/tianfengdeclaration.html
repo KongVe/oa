@@ -1,0 +1,41 @@
+<table>
+	<volist name="box_list" id="box">
+		<tr>
+			<td>{$box.fba_label}</td>
+			<td>{$box.box_type.length}</td>
+			<td>{$box.box_type.width}</td>
+			<td>{$box.box_type.height}</td>
+			<td>{$box.real_weight}</td>
+		</tr>
+	</volist>
+</table>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+
+<table>
+	<volist name="list" id="vo">
+		<tr>
+			<td>{$vo.fba_label}</td>
+			<td>{$vo.sku.declare_name_en}</td>
+			<td>{$vo.quantity}</td>
+			<td>{$vo.sku.cost}</td>
+			<td></td>
+			<td>{$vo.sku.declare_name_en}</td>
+			<td>{$vo.sku.declare_name_en}</td>
+			<td>{$vo.sku.weight}</td>
+			<td>10*5*5</td>
+			<td>{$vo.sku.hs_code}</td>
+		</tr>
+	</volist>
+</table>

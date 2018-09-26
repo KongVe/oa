@@ -1,0 +1,406 @@
+	// 手机公用函数
+	+function ($) { "use strict";
+
+  // 导航子菜单
+  // =========================
+
+  var backdrop = '.dropdown-backdrop'
+  var toggle   = '[data-toggle=dropdown]'
+  var Dropdown = function (element) {
+  	var $el = $(element).on('click.bs.dropdown', this.toggle)
+  }
+
+  Dropdown.prototype.toggle = function (e) {
+  	var $this = $(this)
+
+  	if ($this.is('.disabled, :disabled')) return
+
+  		var $parent  = getParent($this)
+  	var isActive = $parent.hasClass('open')
+
+  	clearMenus()
+
+  	if (!isActive) {
+  		if ('ontouchstart' in document.documentElement && !$parent.closest('.navbar-nav').length) {
+        // if mobile we we use a backdrop because click events don't delegate
+        $('<div class="dropdown-backdrop"/>').insertAfter($(this)).on('click', clearMenus)
+    }
+
+    $parent.trigger(e = $.Event('show.bs.dropdown'))
+
+    if (e.isDefaultPrevented()) return
+
+    	$parent
+    .toggleClass('open')
+    .trigger('shown.bs.dropdown')
+
+    $this.focus()
+}
+
+return false
+}
+
+Dropdown.prototype.keydown = function (e) {
+	if (!/(38|40|27)/.test(e.keyCode)) return
+
+		var $this = $(this)
+
+	e.preventDefault()
+	e.stopPropagation()
+
+	if ($this.is('.disabled, :disabled')) return
+
+		var $parent  = getParent($this)
+	var isActive = $parent.hasClass('open')
+
+	if (!isActive || (isActive && e.keyCode == 27)) {
+		if (e.which == 27) $parent.find(toggle).focus()
+			return $this.click()
+	}
+
+	var $items = $('[role=menu] li:not(.divider):visible a', $parent)
+
+	if (!$items.length) return
+
+		var index = $items.index($items.filter(':focus'))
+
+    if (e.keyCode == 38 && index > 0)                 index--                        // up
+    if (e.keyCode == 40 && index < $items.length - 1) index++                        // down
+    	if (!~index)                                      index=0
+
+    		$items.eq(index).focus()
+    }
+
+    function clearMenus() {
+    	$(backdrop).remove()
+    	$(toggle).each(function (e) {
+    		var $parent = getParent($(this))
+    		if (!$parent.hasClass('open')) return
+    			$parent.trigger(e = $.Event('hide.bs.dropdown'))
+    		if (e.isDefaultPrevented()) return
+    			$parent.removeClass('open').trigger('hidden.bs.dropdown')
+    	})
+    }
+
+    function getParent($this) {
+    	var selector = $this.attr('data-target')
+
+    	if (!selector) {
+    		selector = $this.attr('href')
+      selector = selector && /#/.test(selector) && selector.replace(/.*(?=#[^\s]*$)/, '') //strip for ie7
+  }
+
+  var $parent = selector && $(selector)
+
+  return $parent && $parent.length ? $parent : $this.parent()
+}
+
+
+  // DROPDOWN PLUGIN DEFINITION
+  // ==========================
+
+  var old = $.fn.dropdown
+
+  $.fn.dropdown = function (option) {
+  	return this.each(function () {
+  		var $this = $(this)
+  		var data  = $this.data('dropdown')
+
+  		if (!data) $this.data('dropdown', (data = new Dropdown(this)))
+  			if (typeof option == 'string') data[option].call($this)
+  		})
+  }
+
+  $.fn.dropdown.Constructor = Dropdown
+
+
+  // DROPDOWN NO CONFLICT
+  // ====================
+
+  $.fn.dropdown.noConflict = function () {
+  	$.fn.dropdown = old
+  	return this
+  }
+
+
+  // APPLY TO STANDARD DROPDOWN ELEMENTS
+  // ===================================
+
+  $(document)
+  .on('click.bs.dropdown.data-api', clearMenus)
+  .on('click.bs.dropdown.data-api', '.dropdown form', function (e) { e.stopPropagation() })
+  .on('click.bs.dropdown.data-api'  , toggle, Dropdown.prototype.toggle)
+  .on('keydown.bs.dropdown.data-api', toggle + ', [role=menu]' , Dropdown.prototype.keydown)
+
+}(window.jQuery);
+// 子菜单结束
+//======================================
+function openleft(){//打开左侧栏
+	$.openPanel('#left');
+
+}
+
+function openright(){//打开右侧栏
+	$.openPanel('#panel-right');
+
+}
+function nav_show(){//显示导航
+	$('#nav-overlady').removeClass('hide');
+	$('#nav-menu-list').show();
+	$('#nav-float').css('z-index','20000');
+	$('.content').css('overflow','hidden')
+	$('#nav-float i').removeClass('icon-menu')
+	$('#nav-float i').addClass('icon-up')
+	$('#nav-float').attr('onclick','menu_hide()')
+	$('.content').removeClass('infinite-scroll')
+}
+function Get_menu_list (data){//填充页面数据
+	var list = "";
+	var list_list = '';
+	var len = data.menu_tree.length;
+	$.each(data.menu_tree,function(i,e){
+		var list_tree2 = '';
+		var list_tree = '';
+		if(e._child.length > 0){
+			for(var j = 0; j<e._child.length;j++){
+				if(j == 0){
+					list_tree2 += '<ul class="dropdown-menu infinite-scroll">'
+				}
+				list_tree2 += 
+				'<li>'+
+				'<a  id="'+e._child[j].id+'" data-pid="'+e._child[j].pid+'" href="'+e._child[j].url+'">'+e._child[j].name+'</a>'+
+				'</li>'
+				
+
+				
+			}
+			list_tree2+= '</ul>'
+
+		}
+		if(e._child.length > 0){
+			list_tree += '<li><a href="#" class="dropdown-toggle" data-toggle="dropdown" data-pid="'+e.pid+'">'+e.name+'<b class="caret"/></a>'+
+			list_tree2+
+			'</li>';
+		}else{
+			list_tree += '<li><a href="'+e.url+'"  data-pid="'+e.pid+'">'+e.name+'</a></li>'+
+			list_tree2;
+		}
+		list_list +=list_tree
+	});
+	list +=
+
+	list_list
+
+	$('#nav-menu-list .navbar-nav').append(list)
+
+	
+}
+function menu_hide(){//隐藏导航
+	$('#nav-overlady').addClass('hide');
+	$('#nav-menu-list').hide();
+	$('#nav-float').css('z-index','9999');
+	$('.content').css('overflow','auto')
+	$('#nav-float i').addClass('icon-menu')
+	$('#nav-float i').removeClass('icon-up')
+	$('#nav-float').attr('onclick','nav_show()')
+	$('.content').addClass('infinite-scroll')
+
+}
+function GetRequest() {
+   var url = location.search; //获取url中"?"符后的字串
+   var theRequest = new Object();
+   if (url.indexOf("?") != -1) {
+   	var str = url.substr(1);
+   	strs = str.split("&");
+   	for(var i = 0; i < strs.length; i ++) {
+   		theRequest[strs[i].split("=")[0]]=unescape(strs[i].split("=")[1]);
+   	}
+   }
+   return theRequest;
+}
+function serch_list(){//搜索条件添加
+	$('.panel-left').find('.button_fixed').remove();
+	$('.panel-left .list-block ul').empty();
+	$.each(filter_list,function(i,data){
+		switch (data.filter_type) {
+			case 'str_in_array':
+					// 英文逗号分隔，如 33,533,64,text文本
+					'<li>'
+					'<div class="item-content">'
+					'<div class="item-inner">'
+					'<div class="item-title label">'+data.title+'</div>'
+					' <div class="item-input">'
+					'   <input type="text" placeholder="'+(data.memo||data.title)+'" name="'+data.name+'" data-filter_type="'+data.filter_type+'">'
+					'</div>'
+					'</div>'
+					'</div>'
+					'</li>'
+					break;
+					case 'time_between':
+					//1个或者2个input type=text,时间用" - "分隔，如 2018-04-01 - 2018-04-18
+					$('.panel-left .list-block ul').append('<li>'+
+						'<div class="item-content">'+
+						'<div class="item-inner">'+
+						'<div class="item-title label">'+data.title+'</div>'+
+						' <div class="item-input">'+
+						'   <input type="text" placeholder="开始'+data.title+'"id="'+data.name+'" name="'+data.name+'start" data-filter_type="'+data.filter_type+'"/>-<input type="text" placeholder="结束'+data.title+'"id="'+data.name+'" name="'+data.name+'end"  data-filter_type="'+data.filter_type+'"/>'+
+						'</div>'+
+						'</div>'+
+						'</div>'+
+						'</li>');
+					
+					$('.panel-left .list-block ul li:last').find('[name="'+data.name+'start"]').calendar({
+						dateFormat:'yyyy-mm-dd',
+						monthNames:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+						dayNamesShort:['一','二','三','四','五','六','日']
+					})
+					$('.panel-left .list-block ul li:last').find('[name="'+data.name+'end"]').calendar({
+						dateFormat:'yyyy-mm-dd',
+						monthNames:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+						dayNamesShort:['一','二','三','四','五','六','日']
+					})
+					break;
+					case 'multi_select'://多选
+					$('.panel-left .list-block ul').append('<li>'+
+						'<div class="item-content">'+
+						'<div class="item-inner">'+
+						'<div class="item-title label">'+data.title+'</div>'+
+						' <div class="item-input">'+
+						'   <select type="select" id="'+data.name+'_select2" size="1" multiple="multiple"  placeholder="'+data.title+'" name="'+data.name+'[]"data-filter_type="'+data.filter_type+'"></div>'+
+						'</div>'+
+						'</div>'+
+						'</div>'+
+						'</li>')
+					var list = [];
+					var list_name = '';
+					$.each(data.filter_data,function(e,q){
+						// list.push({id:q.key,name:q.val});
+						// list += q.key +',';
+						// list_name += q.val+',';
+						list += '<option value="'+q.key+'">'+q.val+'</option>';
+					})
+					
+					// list = list.substr(0,list.length-1);
+					// list_name = list_name.substr(0,list_name.length-1);
+					// $('#'+data.name+'_select2').select2({
+					// 	tags:list,
+					// })
+					$('#'+data.name+'_select2').append(list);
+
+					break;
+					case 'like_left'://模糊搜索 左侧模糊查询
+					$('.panel-left .list-block ul').append('<li>'+
+						'<div class="item-content">'+
+						'<div class="item-inner">'+
+						'<div class="item-title label">'+data.title+'</div>'+
+						' <div class="item-input">'+
+						'   <input type="text"  placeholder="'+(data.memo||data.title)+'" name="'+data.name+'"data-filter_type="'+data.filter_type+'">'+
+						'</div>'+
+						'</div>'+
+						'</div>'+
+						'</li>')
+					break;
+					case 'like_right'://模糊搜索 右侧模糊查询
+					$('.panel-left .list-block ul').append('<li>'+
+						'<div class="item-content">'+
+						'<div class="item-inner">'+
+						'<div class="item-title label">'+data.title+'</div>'+
+						' <div class="item-input">'+
+						'   <input type="text"  placeholder="'+(data.memo||data.title)+'" name="'+data.name+'"data-filter_type="'+data.filter_type+'">'+
+						'</div>'+
+						'</div>'+
+						'</div>'+
+						'</li>')
+					break;
+					case 'like_between'://模糊搜索 匹配左右模糊查询
+					$('.panel-left .list-block ul').append('<li>'+
+						'<div class="item-content">'+
+						'<div class="item-inner">'+
+						'<div class="item-title label">'+data.title+'</div>'+
+						' <div class="item-input">'+
+						'   <input type="text"  placeholder="'+data.title+'"id="'+data.name+'" name="'+data.name+'start"data-filter_type="'+data.filter_type+'">-<input type="text"  placeholder="'+data.title+'"id="'+data.name+'" name="'+data.name+'end"data-filter_type="'+data.filter_type+'">'+
+						'</div>'+
+						'</div>'+
+						'</div>'+
+						'</li>')
+					break;
+					case 'eq'://精确查询
+					$('.panel-left .list-block ul').append('<li>'+
+						'<div class="item-content">'+
+						'<div class="item-inner">'+
+						'<div class="item-title label">'+data.title+'</div>'+
+						' <div class="item-input">'+
+						'   <input type="text"  placeholder="'+(data.memo||data.title)+'" name="'+data.name+'"data-filter_type="'+data.filter_type+'">'+
+						'</div>'+
+						'</div>'+
+						'</div>'+
+						'</li>')
+					break;
+					case 'number_between'://最小值和最大值
+					$('.panel-left .list-block ul').append('<li>'+
+						'<div class="item-content">'+
+						'<div class="item-inner">'+
+						'<div class="item-title label">'+data.title+'</div>'+
+						' <div class="item-input">'+
+						'   <input type="number"  placeholder="'+data.title+'最小值" id="'+data.name+'" name="'+data.name+'start"data-filter_type="'+data.filter_type+'">-<input type="text"  placeholder="'+data.title+'最大值"id="'+data.name+'" name="'+data.name+'end"data-filter_type="'+data.filter_type+'">'+
+						'</div>'+
+						'</div>'+
+						'</div>'+
+						'</li>')
+					break;
+					default:
+					// 默认为文本输出
+
+					$('.panel-left .list-block ul').append('<li>'+
+						'<div class="item-content">'+
+						'<div class="item-inner">'+
+						'<div class="item-title label">'+data.title+'</div>'+
+						' <div class="item-input">'+
+						'   <input type="text"  placeholder="'+(data.memo||data.title)+'" name="'+data.name+'"data-filter_type="'+data.filter_type+'">'+
+						'</div>'+
+						'</div>'+
+						'</div>'+
+						'</li>')
+					break;
+				}
+				
+			})
+//加载查询表单按钮
+$('.panel-left').append('<div class="button_fixed">'+
+	'<div class="row">'+
+	'<div class="col-50"><a href="#" class="button button-big button-fill button-danger" onclick="re_form()">重置</a></div>'+
+	'<div class="col-50"><a href="#" class="button button-big button-fill button-success" onclick="submit_form()">提交</a></div>'+
+	'</div>'+
+	'</div>')
+$('.panel-left select').each(function(){
+	$(this).select2({
+		width:100%,
+	});
+})
+
+}
+function re_form(){
+	$('.panel-left .list-block ul').find('input').val('')
+}
+function submit_form(){
+	var post_list = new Array();
+	post_list['filter'] = {};
+	$('.panel-left .list-block ul').find('input[name]').each(function(i,q){
+		if(!$(q).attr('id')){
+			var name = $(q).attr('name')
+			post_list.filter[""+$(q).attr('data-filter_type')+""] = {}
+			post_list.filter[""+$(q).attr('data-filter_type')+""][""+name+""] = $(q).val()
+		}else{
+			var id = $(q).attr('id');
+			var id_start ='start'
+			var id_end = 'end'
+			post_list.filter[""+$(q).attr('data-filter_type')+""] = {};
+			post_list.filter[""+$(q).attr('data-filter_type')+""][""+id+""] = {}
+			post_list.filter[""+$(q).attr('data-filter_type')+""][""+id+""]["0"]=$('input[name="'+id_start+'"]').val();
+			post_list.filter[""+$(q).attr('data-filter_type')+""][""+id+""]["1"]=$('input[name="'+id_end+'"]').val();
+		}
+
+	})
+	get_list(post_list);
+
+}

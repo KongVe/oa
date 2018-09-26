@@ -1,0 +1,72 @@
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	//ace.settings.sidebar_collapsed(true);
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+
+
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}
+
+	//updateStock();
+})
+
+function solved(id){
+	if(window.confirm("Confirm ?")){
+		$("#btn_solved_" + id).attr("disabled","disabled");
+		data = {
+			id:id,
+			opmode:'edit',
+			status:'Solved'
+		}
+		$.post("{:U('save')}",data,function(r){
+			if(r.status){
+				$("#form_search").submit();
+			}else{
+				alertWarning(r.info);
+			}
+		})	
+	}
+
+
+}
+function edit(id){
+	$("#middleBoxIframe").attr("src","<?php echo U("AmazonSellyoursIssue/edit"); ?>?id="+ id +"&_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+function getStockMapList(sellyours_id){
+	$("#middleBoxIframe").attr("src","<?php echo U("AmazonSellyoursStock/index"); ?>?sellyours_id=" +sellyours_id+ "&_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+
+</script>

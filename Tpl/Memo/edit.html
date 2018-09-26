@@ -1,0 +1,155 @@
+<layout name='Layout/ace_popup' />
+	{:W('PageHeader',array('name'=>"编辑备注"))}
+
+	<form action="{:U('editSave')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" id="ajax" name="ajax" value="1"/>
+
+		<input type="hidden" id="table_name" name="table_name" value="{$Think.request.table_name}">
+		<input type="hidden" id="field" name="field" value="{$Think.request.field}">
+		<input type="hidden" id="field_value" name="field_value" value="{$Think.request.field_value}">
+
+		<input type="hidden" id="opmode" name="opmode" value="edit">
+
+		<div class="panel panel-primary ">
+			<div class="panel panel-heading">
+				<span>编辑备注</span>
+			</div>
+			<div class="panel-body">
+				<div class="form-group">
+					<div class="col-sm-12">
+						<table class="table table-bordered">
+								<tr>
+									<th colspan="4" style="font-size:18px;">备注记录</th>
+								</tr>
+							<tr>
+								<th>时间</th>
+								<th>用户</th>
+								<th>备注内容</th>
+								<th>操作</th>
+							</tr>
+							<volist name="list" id="vo">
+								<tr>
+									<td>
+										{$vo.add_time|default=" "|date="Y-m-d H:i:s",###}
+									</td>
+									<td>
+										{$vo.add_user_name}
+									</td>
+									<td>
+										<eq name="vo.is_del" value="Yes">
+											<del><pre>{$vo.memo}</pre></del>
+										<else/>
+											<pre>{$vo.memo}</pre>
+										</eq>
+									</td>
+									<td>
+										<eq name="vo.is_del" value="Yes">
+											<span class="red">已标记删除</span>
+											<br>
+											删除用户: {$vo.del_user_name}
+											<br>
+											时间: {$vo.del_time|default=" "|date="Y-m-d H:i:s",###}
+										<else/>
+											<eq name="vo.add_uid" value="$_SESSION['authId']">
+												<a class="del_memo btn btn-danger btn-xs" data-id="{$vo.id}">标记删除</a>
+											</eq>
+										</eq>
+										<?php 
+											if(isAdmin()){
+										?>
+											<a data-force="1" class="del_memo btn btn-inverse btn-xs" data-id="{$vo.id}">强制删除(管理员)</a>
+										<?php
+											}
+										?>
+									</td>
+								</tr>
+							</volist>
+						</table>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<div class="col-sm-12">
+                        <label class="text-right col-sm-2">添加备注: </label>
+                        <div class="col-sm-9">
+                           <textarea class="form-control" name="memo" id="memo"></textarea>
+                        </div>
+					</div>
+				</div>
+			</div>
+		</div>
+	  
+		<div class="panel-default">
+			<div class="form-group text-center">
+				<div class="col-sm-6">
+					<a data-loading-text="正在处理中..." data-type="1" class="editFormSubmit btn btn-primary">提交</a>
+				</div>
+				<div class="col-sm-6">
+					<a class="close_box_button btn btn-danger">关闭</a>
+				</div>
+			</div>
+		</div>
+	
+	</form>
+
+
+<script type="text/javascript">
+$(function(){
+	
+	$("#memo").focus();
+	
+	$(".del_memo").click(function(){
+		
+		var id = $(this).data("id");
+		var force = $(this).data("force");
+		var btn = $(this);
+
+		if(force){
+			if(!confirm("确认强制删除？管理员权限才能操作")){
+				return false;
+			}
+		}else{
+			if(!confirm("确认标记删除？")){
+				return false;
+			}
+		}
+		btn.button('loading');
+		$.post('{:U("del")}',{id:id,field:$("#field").val(),force:force},function(r){
+			btn.button('reset');
+			if(r.status){
+				alertWarning(r.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(r.info);
+			}
+		}).error(function(r){
+			alertWarning("网络错误，请刷新后重试");
+			btn.button('reset');
+		});
+		return false;
+	});
+
+	$(".editFormSubmit").click(function(){
+		$("input").attr("disabled",null);
+		var data = $("#editForm").serialize();
+		var url = $("#editForm").attr("action");
+		
+		var btn = $(".editFormSubmit");
+		btn.button('loading');
+		$.post(url,data,function(r){
+			if(r.status){
+				closeBox();
+				parent.window.location.reload();
+			}else{
+				alertWarning(r.info);
+			}
+			btn.button('reset');
+		}).error(function(r){
+			alertWarning("网络错误，请刷新后重试");
+			btn.button('reset');
+		});
+		return false;
+	});
+
+});
+</script>

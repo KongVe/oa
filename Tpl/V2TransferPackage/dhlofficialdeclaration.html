@@ -1,0 +1,40 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('V2TransferPackage/saveDHLOfficialPackage')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">	
+		<input type="hidden" name="transfer_shipment_id" value="{$shipment.id}">
+		<input type="hidden" id="ajax" value="1" />
+		<table class="table">
+			<volist name="package_list" id="package">
+				<tr>
+					<td width=300>{$package.js.js_html}</td>
+					<td>
+						<label>请输入跟踪号</label>
+						<input name="tracking_number[{$package.id}]" >
+					</td>
+				</tr>
+
+			</volist>
+		</table>
+
+		<div class="form-group text-center">
+			<a id="editFormSubmit" data-close="true" data-reload="true" data-loading-text="正在保存..."  class="btn btn-primary "  />保存</a>
+			<a class="btn btn-danger close_box_button">取消</a>
+		</div>
+	</form>
+<script type="text/javascript">
+
+$(function(){
+	$("#editFormSubmit").click(function(){
+		$("#editFormSubmit").attr("disabled","disabled");
+		var data = $("#editForm").serialize();
+		var url = $("#editForm").attr("action");
+		$.post(url,data,function(r){
+			if(r.status){
+				parent.window.location.href = "{:U('V2TransferPackage/index')}?transfer_shipment_id={$shipment.id}"
+			}else{
+				alertWarning(r.info);
+			}
+		})
+	})
+})
+
+</script>

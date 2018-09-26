@@ -1,0 +1,84 @@
+<layout name="Layout/ace_layout_v3"/>
+<link rel="stylesheet" href="__PUBLIC__/assets-v3/css/ui-jqgrid.min.css"/>
+<script  src="__PUBLIC__/assets-v3/js/jquery.jqGrid.min.js"></script>
+<script src="__PUBLIC__/assets/js/jqGrid/i18n/grid.locale-cn.js"></script>
+<style type="text/css">
+  .ui-jqgrid .ui-jqgrid-htable th div{
+    text-align: center;
+  }
+</style>
+<span style="display: none;opacity: 0" id="len_arr"></span>
+<button class="btn btn-info" onclick="btn_add()">新增</button>
+<div style="display: table;width: 100%;" id="grid-page">
+  <table id="grid-table"></table> 
+  <div id="grid-pager"></div>
+</div>
+<div class="modal-dialog modal-full" role="document">
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document"style="height: 100%;">
+     <div class="modal-content"style="height: 100%;">
+      <div class="modal-header">
+       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h4 class="modal-title" id="myModalLabel">{$title}</h4>
+       </div>
+      <iframe src="" id="table-content" class="col-xm-12" width="100%" height="100%"></iframe>
+    <div class="modal-footer">
+  <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span>关闭</button>
+  <button type="button" id="btn_submit" class="btn btn-primary" data-dismiss="modal"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>保存</button>
+</div>
+ </div>
+</div>
+</div>
+</div>
+<script type="text/javascript">
+  var filter_list = {$filter_list|default=""|json_encode};
+  var config_data = {$config_data|default=""|json_encode};
+  var colModel = [];
+  var list_len = config_data.title_list.length;
+  
+
+  $(function() {
+    serch_list('search_table');
+    $.ajax({
+      url:config_data.search_url,
+      type:'GET',
+      dataType:'json',
+      success:function(data){
+
+       clomodel('grid-table',data.data.results,'#grid-pager')
+       $('div[role="grid"]').css('overflow','auto')
+       $('#grid-table').setGridWidth($('#search_table').width())
+     }
+   })
+  })
+  function get_list(post_list){
+    $.post(config_data.search_url,post_list,function(data,s){
+
+      if(data.status == 0){
+        return false;
+      }
+      $("#grid-table").jqGrid("setGridParam", {
+        data: data.data.results
+      }).trigger("reloadGrid");
+      
+    });
+  }
+  function btn_add(){debugger
+    // window.location.href = window.location.href.replace('index','edit');
+    $("#myModalLabel").text("新增");
+    $('#table-content').empty().attr('src','').attr('src',window.location.href.replace('index','edit'))
+    $('#myModal').modal();
+  }
+  function edit(data){debugger
+    // window.location.href = window.location.href.replace('index','edit')+'?id='+data
+    $("#myModalLabel").text("编辑");
+     $('#table-content').empty().attr('src','').attr('src',window.location.href.replace('index','edit')+'?id='+data)
+    $('#myModal').modal();
+  }
+  function detail(data){debugger
+    // window.location.href  = window.location.href.replace('index','detail')+'?id='+data
+     $("#myModalLabel").text("详情");
+     $('#table-content').empty().attr('src','').attr('src',window.location.href.replace('index','detail')+'?id='+data)
+    $('#myModal').modal();
+  }
+</script>

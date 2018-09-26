@@ -1,0 +1,569 @@
+<layout name='Layout/ace_popup_v2' />
+	<form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix" role="form">
+		<input type="hidden" name="id" id="id" value="{$vo.id}">
+		<input type="hidden" name="issue_id" value="<?php echo $_REQUEST['issue_id']; ?>">
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				<b>基本</b>
+			</div>
+			<div class="panel-body">
+				<div class="form-group col-sm-12">
+					<label class="col-xs-1" for="rule_name">规则名称</label> 
+					<input class="col-xs-6" type="text" id="rule_name" name="rule_name" value="{$vo.rule_name}">
+				</div>
+				<div class="form-group col-sm-12">
+					<label class="col-xs-1" for="rule_description">规则说明</label> 
+					<textarea name="rule_description" id="rule_description" class="col-xs-6" rows="4">{$vo.rule_description}</textarea>
+				</div>
+				<div class="form-group col-sm-12">
+					<div class="pull-left" style="margin-right:100px;">
+						<label class="pull-left" style="margin-right:20px;" for="active_crontab">有效时间</label> 
+						<div class="pull-left" style="margin-right:20px;">
+							<input type="text" id="active_crontab" name="active_crontab" value="{$vo.active_crontab}">
+						</div>
+						<span class="help-button pull-left" data-toggle="tooltip" data-trigger="hover" data-placement="right" title="注明该规则只在有效时间内，才会有效。如果不填，则代表何时都有效<br>
+						分值不能包含 / 字符<br>*　　*　　*　　*　　*<br>分　时　日　月　周<br>第1列表示分钟1～59 每分钟用*或者 */1表示 <br>
+						第2列表示小时1～23（0表示0点） <br>
+						第3列表示日期1～31 <br>
+						第4列表示月份1～12 <br>
+						第5列标识号星期0～6（0表示星期天） <br>">?</span>
+					</div>
+					<div class="pull-left" style="margin-right:100px;">
+						<label class="pull-left" style="margin-right:20px;">上架状态:</label>
+						<div class="pull-left">
+							<label>
+								<input name="listing_status" class="ace ace-switch ace-switch-3" type="checkbox" <?php if(empty($vo['listing_status']) || $vo['listing_status'] == 'Active'){ echo "checked"; } ?>  value="Active" />
+								<span class="lbl" data-lbl="上架 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;下架"></span>
+							</label>
+						</div>
+						<span class="help-button pull-left" data-toggle="tooltip" data-trigger="hover" data-placement="left" title="这套规则生效时，是否上架或下架 Listing.常用于到时间了上架或下架一批产品">?</span>
+					</div>
+				</div>
+				<div class="from-group col-sm-12">
+					<div class="pull-left" style="margin-right:100px;">
+						<label class="pull-left" style="margin-right:20px;" for="trigger_crontab">触发时间</label> 
+						<div class="pull-left" style="margin-right:20px;">
+							<input type="text"  id="trigger_crontab" name="trigger_crontab" value="{$vo.trigger_crontab}">
+						</div>
+						
+						<span class="help-button pull-left" data-toggle="tooltip" data-trigger="hover" data-placement="left" title="注明该规则所关联的SKU，会在指定时间内触发改价，并且使用该规则。如果不填，则无按时触发效果。<br>
+							f1 f2 f3 f4 f5<br>
+							其中 f1 是表示分钟，f2 表示小时，f3 表示一个月份中的第几日，f4 表示月份，f5 表示一个星期中的第几天。<br>
+							当 f1 为 * 时表示每分钟都要执行，f2 为 * 时表示每小时都要执行程序，其馀类推 <br>
+							当 f1 为 a-b 时表示从第 a 分钟到第 b 分钟这段时间内要执行，f2 为 a-b 时表示从第 a 到第 b 小时都要执行，其馀类推 <br>
+							当 f1 为 */n 时表示每 n 分钟个时间间隔执行一次，f2 为 */n 表示每 n 小时个时间间隔执行一次，其馀类推 <br>
+							当 f1 为 a, b, c,... 时表示第 a, b, c,... 分钟要执行，f2 为 a, b, c,... 时表示第 a, b, c...个小时要执行，其馀类推 ">?</span>
+					</div>
+					<?php if(isAdmin()){ ?>
+					<div class="pull-left" style="margin-right:100px;">
+						<label class="pull-left" style="margin-right:20px;">触发状态:</label>
+						<div class="pull-left">
+							<label>
+								<input name="rule_status" class="ace ace-switch ace-switch-3" type="checkbox" <?php if($vo['rule_status'] == 'New'){ echo "checked"; } ?>  value="New" />
+								<span class="lbl" data-lbl="New &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;End"></span>
+							</label>
+						</div>
+					</div>
+					<?php }else{ ?> 
+					<input type="hidden" name="rule_status" value="End" />
+					<?php } ?>
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-warning">
+			<div class="panel-heading">
+				<b>抢Buy box的设定</b>
+				<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="right" title="当开启抢buy box的设定后，智能调价将失效。">?</span>
+			</div>
+			<div class="panel-body">
+				<div class="form-group col-sm-12">
+					<label class="pull-left" for="config_winBuyBox_state" style="margin-right:20px;">开启状态:</label>
+					<label class="pull-left">
+						<input name="config[winBuyBox][state]" id="config_winBuyBox_state" class="ace ace-switch ace-switch-6" type="checkbox" <?php if($vo['config']['winBuyBox']['state'] == 'Active'){ echo "checked"; } ?>  value="Active" />
+						<span class="lbl"></span>
+					</label>
+				</div>
+				<div class="form-group col-sm-12">
+					<label class="" for="" style="margin-right:20px;">降价区间:</label>
+					<label class="">最小</label>
+					<input type="text" size=4 name="config[winBuyBox][minReduceMoney]" value="{$vo.config.winBuyBox.minReduceMoney|default='0.00'}" />
+					<span> - </span>
+					<label class="">最大</label>
+					<input type="text" size=4 name="config[winBuyBox][maxReduceMoney]" value="{$vo.config.winBuyBox.maxReduceMoney|default='0.00'}" />
+					<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="right" title="每次降价时会从最小至最大的价格之间随机挑一个值降价。<br>两者一样大时则是以固定值降价。">?</span>
+				</div>
+				<div class="form-group col-sm-12">
+					<label class="pull-left"  style="margin-right:20px;">遇到这些商家调价:</label>
+					<div class="pull-left">
+						<input type="text" size="4" name="config[winBuyBox][closedListing][repriceCompetitor][value]" value="{$vo.config.winBuyBox.closedListing.repriceCompetitor.value|default=''}" class="seller_id_tag">
+					</div>
+					<span class="pull-left" style="margin-right:10px;">&nbsp;&nbsp;就下架</span>
+					<div class="pull-left" style="margin-right:10px;">
+						<input type="text" size="4" name="config[winBuyBox][closedListing][hours]" value="{$vo.config.winBuyBox.closedListing.hours|default='1'}">
+					</div>
+					<span class="pull-left" style="margin-right:20px;">&nbsp;&nbsp;小时</span>			
+					<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="left" title="如果遇到这些商家也调整价格了，则自动下架这个listing。<br>避免被人投诉。<br>all 代表所有商家">?</span>
+				</div>
+				<div class="form-group col-sm-12">
+					<label class="pull-left"  style="margin-right:20px;">遇到这些商家调价:</label>
+					<div class="pull-left" style="margin-right:10px;">
+						<input type="text" size="4" name="config[winBuyBox][autoRerpice][repriceCompetitor][value]" value="{$vo.config.winBuyBox.autoRerpice.repriceCompetitor.value|default=''}" class="seller_id_tag">
+					</div>
+					<span class="pull-left" style="margin-right:10px;">&nbsp;&nbsp;就执行 保持竞争智能调价设定</span>
+					<div class="pull-left" style="margin-right:10px;">
+						<input type="text" size="4" name="config[winBuyBox][autoRerpice][hours]" value="{$vo.config.winBuyBox.autoRerpice.hours|default='1'}">
+					</div>
+					<span class="pull-left" style="margin-right:20px;">&nbsp;&nbsp;小时</span>
+					<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="left" title="如果遇到这些商家也调整价格了，则在这个小时数内都保持智能调价。<br>避免把价格拉低。<br>all 代表所有商家">?</span>
+				</div>
+				<div class="form-group col-sm-12">
+					<label class="pull-left" style="margin-right:20px;">最小价格保障预设设定:</label>
+					<div class="pull-left" style="margin-right:20px;">
+						<select name="config[winBuyBox][minPriceInsurance]" id="config_winBuyBox_minPriceInsurance" >
+							<option value="ignore">继续执行</option>
+							<option value="maxPrice">最大价格</option>
+							<option value="minPrice">最小价格</option>
+						</select>
+						<notempty name="vo.config.winBuyBox.minPriceInsurance">
+							<script type="text/javascript">
+								$("#config_winBuyBox_minPriceInsurance").val('{$vo.config.winBuyBox.minPriceInsurance}');
+							</script>
+						</notempty>							
+					</div>
+					<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="right" title="抢Buy box的设定 会调整您的价格等于或低于最小价格，您的价格反而会自动按照下面的设置重新调整。">?</span>
+				</div>					
+			</div>
+		</div>
+		<div class="panel panel-success">
+			<div class="panel-heading">
+				<b>Buy box winner时的设定</b>
+				<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="right" title="当您在黄金购物车里，这是唯一将被使用的设置。">?</span>
+			</div>
+			<div class="panel-body">
+				<div class="form-group col-sm-12">
+
+					<label class="pull-left" for="config[buyBox][method]">Buy box设定</label> 
+					<div class="pull-left " style="margin-right:20px;">
+						<select class="from-control" name="config[buyBox][method]" id="config_buy_box_method">
+							<option value="reduceOrIncrease">降低或提高黄金购物车价格</option>
+							<?php /*<option value="increase">提高我的黄金购物车价格最大化利润</option>
+							<option value="reduce">降低我的黄金购物车内价格以保持竞争力</option>
+								这两个暂时没想出有什么实际作用
+							 */  ?>
+							<option value="ignore">不要改变我的黄金购物车价格</option>
+							<option value="suspend">暂停黄金购物车设定</option>
+						</select>
+						<notempty name="vo.config.buyBox.method">
+							<script type="text/javascript">
+								$("#config_buy_box_method").val('{$vo.config.buyBox.method}');
+							</script>
+						</notempty>							
+					</div>
+					<div class="pull-left" style="margin-right:20px;">
+						<div class="config_buy_box_method_wrap" id="reduceOrIncrease_wrap">
+							<div>
+								<span>比自己低时调整</span>
+								<span><input type="text" name="config[buyBox][param][reduceOrIncrease][reduceMoney]" id="config_buyBox_param_reduceOrIncrease_reduceMoney" value="{$vo.config.buyBox.param.reduceOrIncrease.reduceMoney|default='-0.00'}" size=4 /></span>
+								<span>/ 比自己高时调整</span>
+								<span><input type="text" name="config[buyBox][param][reduceOrIncrease][increaseMoney]" id="config_buyBox_param_reduceOrIncrease_increaseMoney" value="{$vo.config.buyBox.param.reduceOrIncrease.increaseMoney|default='-0.00'}" size=4 /></span>
+								<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="left" title="<b>竞争对手价格</b><br>
+									我们会自动调整您的价钱确保最低价，或当竞争对手调高价格，我们也会跟着抬高价格。<br>
+									<br>
+									<b>范例1:</b>降低购物车价格: 竞争对手价格- $0.01<br>
+									<br>
+									竞争者 1(非特色): $10.00<br>
+									竞争者 2(FBA): $11.00<br>
+									您的购物车价格: $12.00<br>
+									竞争者 3: $13.00<br>
+									<br>
+									当竞争对手拥有最低价格，我们会让您的价格比最低价且有购物车资格的竞争者少$0.01<br>
+									<br>
+									调价后,您的新价格<br>
+									=竞争者2 - $0.01<br>
+									= $11.00 - $0.01 = $10.99<br>
+									<br>
+									<b>范例2:</b>提高购物车价格: 后一位竞争对手价格- $0.01<br>
+									<br>
+									您的价格: $10.00<br>
+									竞争者 1(非特色): $11.00<br>
+									竞争者 2(FBA): $12.00<br>
+									竞争者 3(FBM): $13.00<br>
+									<br>
+									您拥有最低价，但当竞争对手提高价格，我们也会随着调整，让您跟有购物车资格的竞争者2有一样的价格，再减 $0.01<br>
+									调价后,您的新价格<br>
+									=竞争者2 - $0.01<br>
+									= $12.00 - $0.01 = $11.99">?</span>								
+							</div>
+							<div>
+								<span>当调整后的价格高于最大价格:</span>
+								<select name="config[buyBox][param][reduceOrIncrease][overMax][method]" id="config_buyBox_param_reduceOrIncrease_overMax_method">
+									<option value="Ignore">不智能调价</option>
+									<option value="maxPrice">使用最大价格</option>
+								</select>
+
+								<notempty name="vo.config.buyBox.param.reduceOrIncrease.overMax.method">
+									<script type="text/javascript">
+										$("#config_buyBox_param_reduceOrIncrease_overMax_method").val('{$vo.config.buyBox.param.reduceOrIncrease.overMax.method}');
+									</script>
+								</notempty>	
+							</div>
+						</div>
+						<div class="config_buy_box_method_wrap" id="increase_wrap">
+							<div>
+								<span>调整</span>
+								<span><input type="text" name="config[buyBox][param][increase][money]" id="config_buyBox_param_increase_money" value="{$vo.config.buyBox.param.increase.money}" size=4 /></span>
+								<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="right" title="<b>提高我的黄金购物车价格最大化利润</b><br/>			拿下进入黄金购物车第二顺位的对手价格并提高此价格。<br><br>
+				                    <b>范例:</b> 在我的黄金购物车价格提高$0.01<br><br>
+				                    竞争者1 (FBA): $10.00<br>
+				                    我的黄金购物车价格: $11.00<br>
+				                    竞争者2 (非特色): $12.00<br>
+				                    竞争者3 (FBA): $13.00<br><br>
+				                    当竞争对手提高价钱, 我们也会让黄金购物车价格提高 $0.01.<br><br>
+									调价后, 我新的黄金购物车价格<br>
+				                    =竞争者3 - $0.01<br>
+				                    = $13.00 - $0.01 = $12.99">?</span>
+							</div>
+							<div>
+								<span>当调整后的价格高于最大价格:</span>
+								<select name="config[buyBox][param][increase][overMax][method]" id="config_buyBox_param_increase_overMax_method">
+									<option value="Ignore">不智能调价</option>
+									<option value="maxPrice">使用最大价格</option>
+								</select>
+								<notempty name="vo.config.buyBox.param.increase.overMax.method">
+									<script type="text/javascript">
+										$("#config_buyBox_param_increase_overMax_method").val('{$vo.config.buyBox.param.increase.overMax.method}');
+									</script>
+								</notempty>	
+							</div>
+						</div>
+						<div class="config_buy_box_method_wrap" id="reduce_wrap">
+							<span>调整</span>
+							<span><input type="text" name="config[buyBox][param][reduce][money]" id="config_buyBox_param_reduce_money" value="{$vo.config.buyBox.param.reduce.money}" size=4 /></span>
+							<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="right" title="<b>降低我黄金购物车价格以保持竞争力</b><br/>拿下进入黄金购物车最后顺位的对手价格并降低此价格。<br><br> <b>范例:</b>让我黄金购物车内价格降低 $0.01<br><br>竞争者1 (非特色卖家): $10.00<br>竞争者2 (FBA): $11.00<br> 我的黄金购物车: $12.00<br>竞争者3 (FBA): $13.00<br><br>当竞争对手有最低黄金购物车价格, 我们会让您的价格比最低价的竞争者少 $0.01.<br><br>调价后, 我新的黄金购物车价格<br> = 竞争者 2 - $0.01<br> = $11.00 - $0.01 = $10.99">?</span>
+						</div>
+						<div class="config_buy_box_method_wrap" id="ignore_wrap">
+							<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="right" title="<b>不要改变我的黄金购物车价格</b><br>无论你是否在黄金购物车，此设定会将黄金购物车设定停止,并不会再执行其他智能调价设定">?</span>
+						</div>
+						<div class="config_buy_box_method_wrap" id="suspend_wrap">
+							<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="right" title="<b>暂停黄金购物车设定</b><br>无论你是否在黄金购物车，此设定会将黄金购物车设定停止，并且套用智能调价设定.即不管Buy bow winner时设定">?</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>		
+		<div class="panel panel-primary">
+			<div class="panel-heading">
+				<b>保持竞争智能调价设定</b>
+				<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="right" title="当您不是在黄金购物车里，这些都是将要使用的设置。">?</span>
+			</div>
+			<div class="panel-body">
+				<div class="form-group col-sm-12">
+					<label class="pull-left" style="margin-right:20px;">当竞争对手高于最小价格:</label>
+					<div class="pull-left" style="margin-right:20px;">
+						<select name="config[intelligent][criteria][greaterMinPrice][item1]" id="config_intelligent_criteria_greaterMinPrice_item1]" >
+							<option value="competitorPrice">对手的竞争价格</option>
+							<option value="minPrice">最小价格</option>
+							<option value="maxPrice">最大价格</option>
+						</select>
+						<notempty name="vo.config.intelligent.criteria.greaterMinPrice.item1">
+							<script type="text/javascript">
+								$("#config_intelligent_criteria_greaterMinPrice_item1").val('{$vo.config.intelligent.criteria.greaterMinPrice.item1}');
+							</script>
+						</notempty>							
+					</div>
+					<div class="pull-left"  style="margin-right:20px;">
+						<input type="text" size="4" name="config[intelligent][criteria][greaterMinPrice][item2]" value="{$vo.config.intelligent.criteria.greaterMinPrice.item2|default='-0.00'}">
+					</div>
+					<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="right" title="<b>竞争对手价格</b><br>我们会自动调整您的价钱确保最低价，或当竞争对手调高价格，我们也会跟着抬高价格。<br><br><b>范例1</b>竞争对手价格- $0.01<br><br>竞争者 1: $10.00<br>竞争者 2: $11.00<br>您的价格: $12.00<br>竞争者 3: $13.00<br><br>当竞争对手拥有最低价格，我们会让您的价格比最低价的竞争者1少$0.01<br><br>调价后,您的新价格<br>=竞争者1 - $0.01<br>
+							= $10.00 - $0.01 = $9.99<br>
+							<br>
+							<b>范例2:</b>竞争对手价格- $0.01<br>
+							<br>
+							您的价格: $10.00<br>
+							竞争者 1: $11.00<br>
+							竞争者 2: $12.00<br>
+							竞争者 3: $13.00<br>
+							<br>
+							您拥有最低价，但当竞争对手提高价格，我们也会随着调整让您跟竞争者1有一样的价格再减 $0.01<br>
+							调价后,您的新价格<br>
+							=竞争者1 - $0.01<br>
+							= $11.00 - $0.01 = $10.99">?</span>
+				</div>
+				<div class="form-group col-sm-12">
+					<label class="pull-left" style="margin-right:20px;">当竞争对手低于最小价格:</label>
+					<div class="pull-left" style="margin-right:20px;">
+						<select name="config[intelligent][criteria][lesserMinPrice][item1]" id="config_intelligent_criteria_lesserMinPrice_item1">
+							<option value="auto">使用自动竞争</option>
+							<option value="competitorPrice">对手的竞争价格</option>
+							<option value="minPrice">最小价格</option>
+							<option value="maxPrice">最大价格</option>
+							<option value="ignore">不智能调价</option>
+						</select>
+						<notempty name="vo.config.intelligent.criteria.lesserMinPrice.item1">
+							<script type="text/javascript">
+								$("#config_intelligent_criteria_lesserMinPrice_item1").val('{$vo.config.intelligent.criteria.lesserMinPrice.item1}');
+							</script>
+						</notempty>							
+					</div>
+					<div class="pull-left"  style="margin-right:20px;">
+						<input type="text" size="4" name="config[intelligent][criteria][lesserMinPrice][item2]" value="{$vo.config.intelligent.criteria.lesserMinPrice.item2|default='-0.00'}">
+					</div>
+					<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="right" title="<b>当竞争者价格小于您的最小价格，且其他竞争者都介于最小&最大价格之间
+
+						</b><br>
+
+						竞争者1 = $10.00<br>
+
+						<span class=red>最小价格 = $11.00</span><br>
+
+						竞争者 2 = $12.00<br>
+
+						您的价格 = $13.00<br>
+
+						竞争者 3 = $14.00<br>
+
+						<span class=red>最大价格 = $15.00</span><br>
+
+						竞争者 4 = $16.00<br><br>
+
+						使用自动竞争会让您自动寻找下一位低价的竞争者(竞争者2)<br><br>
+
+						调价之后，您的新价格为<br>
+
+						= 竞争者2 - $0.01<br>
+
+						= $12.00 - $0.01 = $11.99">?</span>
+				</div>
+				<div class="form-group col-sm-12">
+					<label class="pull-left" style="margin-right:20px;">当竞争对手等于最小价格:</label>
+					<div class="pull-left" style="margin-right:20px;">
+						<select name="config[intelligent][criteria][equalMinPrice][item1]" id="config_intelligent_criteria_equalMinPrice_item1">
+							<option value="auto">使用自动竞争</option>
+							<option value="competitorPrice">对手的竞争价格</option>
+							<option value="minPrice">最小价格</option>
+							<option value="maxPrice">最大价格</option>
+							<option value="ignore">不智能调价</option>
+						</select>
+						<notempty name="vo.config.intelligent.criteria.equalMinPrice.item1">
+							<script type="text/javascript">
+								$("#config_intelligent_criteria_equalMinPrice_item1").val('{$vo.config.intelligent.criteria.equalMinPrice.item1}');
+							</script>
+						</notempty>							
+					</div>
+					<div class="pull-left"  style="margin-right:20px;">
+						<input type="text" size="4" name="config[intelligent][criteria][equalMinPrice][item2]" value="{$vo.config.intelligent.criteria.equalMinPrice.item2|default='-0.00'}">
+					</div>
+					<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="right" title="<b>当竞争者价钱等于您的最小价格，且其他竞争者都介于最小&最大价格之间</b><br>竞争者 1 = $10.00<br><span class=red>最小价格 = $10.00</span><br>竞争者 2 = $12.00<br>您的价格 = $13.00<br>竞争者3 = $14.00<br><span class=red>最大价格 = $15.00</span><br>竞争者 4 = $16.00<br><br>使用自动竞争会让您自动寻找下一位低价的竞争者(竞争者2)<br><br>调价之后，您的新价格为 <br>= 竞争者2 - $0.01<br>= $12.00 - $0.01 = $11.99">?</span>
+				</div>	
+				<div class="form-group col-sm-12">
+					<label class="pull-left" style="margin-right:20px;">无竞争:</label>
+					<div class="pull-left" style="margin-right:20px;">
+						<select name="config[intelligent][criteria][notCompetitor][item1]" id="config_intelligent_criteria_notCompetitor_item1">
+							<option value="maxPrice">最大价格</option>
+							<option value="minPrice">最小价格</option>
+							<option value="ignore">不智能调价</option>
+						</select>
+						<notempty name="vo.config.intelligent.criteria.notCompetitor.item1">
+							<script type="text/javascript">
+								$("#config_intelligent_criteria_notCompetitor_item1").val('{$vo.config.intelligent.criteria.notCompetitor.item1}');
+							</script>
+						</notempty>							
+					</div>
+					<div class="pull-left"  style="margin-right:20px;">
+						<input type="text" size="4" name="config[intelligent][criteria][notCompetitor][item2]" value="{$vo.config.intelligent.criteria.notCompetitor.item2|default='-0.00'}">
+					</div>
+					<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="right" title="<b>当您的商品没有任何竞争者时 ( 竞争者为0 ), 您是唯一的卖家</b> <br> <span class=red>最小价格 = $12.00</span><br> 您的价格 = $13.00<br> <span class=red>最大价格 = $14.00</span>">?</span>
+				</div>
+				<div class="form-group col-sm-12">
+					<label class="pull-left" style="margin-right:20px;">当竞争对手高于最大价格:</label>
+					<div class="pull-left" style="margin-right:20px;">
+						<select name="config[intelligent][criteria][greaterMaxPrice][item1]" id="config_intelligent_criteria_greaterMaxPrice_item1" >
+							<option value="maxPrice">最大价格</option>
+							<option value="competitorPrice">对手的竞争价格</option>
+							<option value="minPrice">最小价格</option>
+						</select>
+						<notempty name="vo.config.intelligent.criteria.greaterMaxPrice.item1">
+							<script type="text/javascript">
+								$("#config_intelligent_criteria_greaterMaxPrice_item1").val('{$vo.config.intelligent.criteria.greaterMaxPrice.item1}');
+							</script>
+						</notempty>							
+					</div>
+					<div class="pull-left"  style="margin-right:20px;">
+						<input type="text" size="4" name="config[intelligent][criteria][greaterMaxPrice][item2]" value="{$vo.config.intelligent.criteria.greaterMaxPrice.item2|default='-0.00'}">
+					</div>
+					<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="right" title="<b>当没有任何竞争者在您的最小价格&最大价格之间</b><br>
+						竞争者1 = $10.00<br>
+						竞争者2 = $11.00<br>
+						 <span class=red>最小价格 = $12.00</span><br>
+						您的价格 = $13.00<br>
+						 <span class=red>最大价格 = $14.00</span><br>
+						竞争者3 = $15.00<br>
+						竞争者4 = $16.00<br><br>
+						您可以选择要维持原价、使用最小价格或是最大价格。">?</span>
+				</div>	
+				<div class="form-group col-sm-12">
+					<label class="pull-left" style="margin-right:20px;">最小价格保障预设设定:</label>
+					<div class="pull-left" style="margin-right:20px;">
+						<select name="config[intelligent][criteria][minPriceInsurance][item1]" id="config_intelligent_criteria_minPriceInsurance_item1" >
+							<option value="ignore">继续执行</option>
+							<option value="maxPrice">最大价格</option>
+							<option value="minPrice">最小价格</option>
+						</select>
+						<notempty name="vo.config.intelligent.criteria.minPriceInsurance.item1">
+							<script type="text/javascript">
+								$("#config_intelligent_criteria_minPriceInsurance_item1").val('{$vo.config.intelligent.criteria.minPriceInsurance.item1}');
+							</script>
+						</notempty>							
+					</div>
+					<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="right" title="[智能调价设定]会调整您的价格等于或低于最小价格，您的价格反而会自动按照下面的设置重新调整。">?</span>
+				</div>				
+			</div>
+		</div>
+		<div class="panel panel-danger">
+			<div class="panel-heading">
+				<b>比价卖家筛选</b>
+				<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="right" title="自订您要排除, 或只想进行竞争的竞争对手（这会限制您的竞争对手)">?</span>
+			</div>
+			<div class="panel-body">
+				<div class="form-group col-sm-12">
+					<label class="pull-left" style="margin-right:20px;">选择竞争对手:</label>
+					<div class="pull-left" style="margin-right:20px;">
+						<?php /*<label>
+							 <input type="checkbox" name="config[competitorFilter][competitor][Amazon]" value="Amazon" class="ace ace-switch ace-switch-6" <?php if($vo['config']['competitorFilter']['competitor']['Amazon']){ echo "checked"; } ?>  />
+							 <span class="lbl">Amazon</span>
+						</label> */ ?>
+						<label>
+							 <input type="checkbox" name="config[competitorFilter][competitor][FBA]" value="FBA" class="ace ace-switch ace-switch-6" <?php if($vo['config']['competitorFilter']['competitor']['FBA']){ echo "checked"; } ?> />
+							 <span class="lbl">FBA</span>
+						</label>
+						<label>
+							 <input type="checkbox" name="config[competitorFilter][competitor][FBM]" value="FBM" class="ace ace-switch ace-switch-6" <?php if($vo['config']['competitorFilter']['competitor']['FBM']){ echo "checked"; } ?> />
+							 <span class="lbl">FBM</span>
+						</label>
+						<label>
+							 <input type="checkbox" name="config[competitorFilter][competitor][notFeaturedMerchant]" value="notFeaturedMerchant" class="ace ace-switch ace-switch-6" <?php if($vo['config']['competitorFilter']['competitor']['notFeaturedMerchant']){ echo "checked"; } ?> />
+							 <span class="lbl">非特色卖家</span>
+						</label>
+					</div>
+					<span class="help-button" data-toggle="tooltip" data-trigger="hover" data-placement="right" title="透过使用自动竞争，您将开始与选择价格最低的竞争者竞争，您可以与多达20名竞争对手进行竞争.<br>自动竞争积极寻找后一个价格的竞争对手来竞争，并适用于[当竞争对手高于您的最低价格]">?</span>
+				</div>				
+				<div class="form-group col-sm-12">
+					<label class="pull-left" style="margin-right:20px;">排除或按ID与这些​​卖家竞争:</label>
+					<div class="pull-left" style="margin-right:20px;">
+						<select name="config[competitorFilter][seller_id][method]" id="config_competitorFilter_seller_id_method" >
+							<option value="exclude">排除</option>
+							<option value="onlyInclude">只跟竞争</option>
+						</select>
+						<notempty name="vo.config.competitorFilter.seller_id.method">
+							<script type="text/javascript">
+								$("#config_competitorFilter_seller_id_method").val('{$vo.config.competitorFilter.seller_id.method}');
+							</script>
+						</notempty>							
+					</div>
+					<div class="pull-left"  style="margin-right:20px;">
+						<input type="text" size="4" class="seller_id_tag" name="config[competitorFilter][seller_id][value]" value="{$vo.config.competitorFilter.seller_id.value|default=''}" id="config_competitorFilter_seller_id_value">
+					</div>			
+				</div>
+				<div class="form-group col-sm-12">
+					<label class="pull-left" style="margin-right:20px;">排除卖家反馈评级低于:</label>
+					<div class="pull-left"  style="margin-right:20px;">
+						<input type="text" size="4" name="config[competitorFilter][feedback_rating][value]" value="{$vo.config.competitorFilter.feedback_rating.value|default='0'}">%
+					</div>			
+				</div>
+				<div class="form-group col-sm-12">
+					<label class="pull-left" style="margin-right:20px;">排除卖家总反馈数量小于:</label>
+					<div class="pull-left"  style="margin-right:20px;">
+						<input type="text" size="4" name="config[competitorFilter][feedback_count][value]" value="{$vo.config.competitorFilter.feedback_count.value|default='0'}">
+					</div>			
+				</div>
+			</div>
+		</div>
+		<div class="form-group col-sm-12 text-center">
+			<input type="submit" id="editFormSubmit" data-loading-text="正在保存..."  class="btn btn-primary" value="保存" />
+			<a class="btn btn-warning" id="cancel">取消</a>
+			<input type="submit" id="delete" class="btn btn-danger pull-right" value="删除" />
+		</div>
+	</form>
+<style type="text/css">
+.config_buy_box_method_wrap{display:none;}
+</style>
+<script type="text/javascript" src="/Public/assetsv2/js/bootstrap-tag.js"></script>
+<script type="text/javascript">
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);
+	$('[data-toggle="tooltip"]').tooltip({html:true,container:'body',template:'<div class="tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner" style="max-width:100%;text-align:left;"></div></div'});
+
+	$("#config_buy_box_method").change(function(){
+		var method = $(this).val();
+		$(".config_buy_box_method_wrap").hide();
+		$("#" + method + "_wrap").show();
+	}).change();
+
+	$(".seller_id_tag").tag({
+		source:function(query,process){
+			$.get("{:U('AmazonSellerName/fetchID')}?q=" + encodeURIComponent(query),function(r){
+				if(r.status){
+					process(r.data);
+				}else{
+					alertWarning(r.info);
+				}
+			})
+		}
+	});
+
+
+	$("#cancel").click(function(){
+		parent.$("#middleBox").modal("hide");
+	})
+	$("#delete").click(function(){
+		if(window.confirm("Delete? ")){
+			var data = {
+				id:$("#id").val()
+			}
+			$.post("{:U('del')}",data,function(r){
+				if(r.status){
+
+					parent.$("#form_search").submit();
+
+					//parent.window.location.reload();
+
+				}else{
+					alertWarning(r.info);
+					return false;
+				}
+			})
+		}else{
+			return false;
+		}
+
+		return false;
+	})
+
+	$("#editFormSubmit").click(function(){
+		$("#editFormSubmit").attr("disabled","disabled");
+		var data = $("#editForm").serialize();
+		var url = $("#editForm").attr("action");
+		$.post(url,data,function(r){
+			$("#editFormSubmit").attr("disabled",null);
+			if(r.status){
+
+				//parent.$("#middleBox").modal("hide");
+				parent.$("#form_search").submit();
+				//parent.window.location.reload();
+
+			}else{
+				alert(r.info);
+				return false;
+			}
+		})
+		return false;
+	})
+})
+
+
+</script>

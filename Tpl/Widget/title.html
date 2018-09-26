@@ -1,0 +1,41 @@
+<foreach name="titleArr" item="voTitle" key="titleKey">
+	<th>
+		<div class="btn-group" <?php  if($voTitle['dropdown']){echo 'style="width:' . (strlen($voTitle['title']) * 6 + 20) . 'px;"';} ?> >
+			
+				<eq name="titleKey" value="$order">
+					<a type="botton" class="btn btn-xs sort_button btn-primary" name="{$titleKey}">
+					<eq name="sortImg"	value="asc">
+						<i class="icon-sort-up"></i>
+					</eq>
+					<eq name="sortImg"	value="desc">
+						<i class="icon-sort-down"></i>
+					</eq>
+				<else/>
+					<a type="botton" class="btn btn-xs sort_button " name="{$titleKey}">
+				</eq>
+			 {$voTitle.title}
+			</a>
+			<notempty name="voTitle.dropdown">
+				<a class="btn btn-xs dropdown-toggle <notempty name="_POST['filter'][$titleKey]">btn-danger</notempty>  " data-toggle="dropdown"><i class="icon-caret-down"></i></a>
+				<ul class="dropdown-menu" role="menu">
+					<foreach name="voTitle.dropdown" item="voDrop" key="dropKey" >
+						<li >
+							<input style="cursor:pointer;" type="checkbox" name="filter[{$titleKey}][{$dropKey}]" value="{$dropKey}" class="filter_checkbox" id="dropdown_{$titleKey}_{$dropKey}"
+								<?php if(isset($_POST['filter'][$titleKey][$dropKey])){ echo 'checked="checked"';
+									unset($_POST['filter'][$titleKey][$dropKey]);
+								} ?>
+							/>
+							<label style="cursor:pointer;" for="dropdown_{$titleKey}_{$dropKey}">{$voDrop}</label>
+						</li>
+						
+
+					</foreach>
+					<?php 
+					foreach($_POST['filter'][$titleKey] as $ttk=>$ttv){
+						echo '<input type="hidden" name="filter[' .$titleKey. ']['.$ttk.']" value="' .$ttv. '" />';
+					} ?>			
+          		</ul>	
+			</notempty>
+		</div>
+	</th>
+</foreach>

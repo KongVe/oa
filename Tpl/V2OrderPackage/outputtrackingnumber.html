@@ -1,0 +1,13 @@
+<table border="1" style="border-collapse:collapse">
+	<tr>
+		<td colspan="8" style="text-align:center;">共 {$number_count} 个包裹</td>
+	</tr>
+    <volist name="table_list" id="col_list">
+        <tr>
+            <volist name="col_list" id="vo">
+                <td>{$vo}</td>
+                <td></td>
+            </volist>
+        </tr>
+    </volist>
+</table>

@@ -1,0 +1,79 @@
+<div id="navbar" class="navbar navbar-default          ace-save-state">
+		<div class="navbar-container ace-save-state" id="navbar-container">
+			<button type="button" class="navbar-toggle menu-toggler pull-left" id="menu-toggler" data-target="#sidebar">
+				<span class="sr-only">Toggle sidebar</span>
+
+				<span class="icon-bar"></span>
+
+				<span class="icon-bar"></span>
+
+				<span class="icon-bar"></span>
+			</button>
+
+			<div class="navbar-header pull-left">
+				<a  class="navbar-brand">
+					<small>
+						<i class="fa fa-leaf"></i>
+						{:get_system_config("SYSTEM_NAME")}
+					</small>
+				</a>
+			</div>
+
+			<div class="navbar-buttons navbar-header pull-right" role="navigation">
+				<ul class="nav ace-nav">
+					<li class="grey dropdown-modal">
+						<a data-toggle="dropdown" class="dropdown-toggle" href="{:U('V2Task/index')}">
+							<i class="ace-icon fa fa-tasks"></i>
+							<span class="badge badge-grey">{$task_alert_count}</span>
+						</a>
+
+						
+					</li>
+
+					<li class="purple dropdown-modal">
+						<a data-toggle="dropdown" class="dropdown-toggle" href="{:U('v2_audit_flow/index')}">
+							<i class="ace-icon fa fa-bell icon-animated-bell"></i>
+							<span class="badge badge-important">{$audit_flow_alert}</span>
+						</a>
+
+					</li>
+
+					<li class="green dropdown-modal">
+						<a data-toggle="dropdown" class="dropdown-toggle" href="{:U('mail/index')}">
+							<i class="ace-icon fa fa-envelope icon-animated-vertical"></i>
+							<span class="badge badge-success">{$new_mail}</span>
+						</a>
+
+						
+					</li>
+
+					<li class="light-blue dropdown-modal">
+						<a data-toggle="dropdown" href="#" class="dropdown-toggle">
+							<img class="nav-user-photo" src="/{:C('SAVE_PATH')}{$Think.session.user_pic}?_=<?php echo time();?>"  />
+							<span class="user-info">
+								{$Think.session.user_name}
+							</span>
+
+							<i class="ace-icon fa fa-caret-down"></i>
+						</a>
+
+						<ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+							<li>
+							<a href="{:U('Profile/index')}"> <i class="ace-icon fa fa-user"></i> 用户资料 </a>
+						</li>
+						<li>
+							<a href="{:U('Profile/password')}"><i class="ace-icon fa fa-lock"></i> 修改密码</a>
+						</li>
+						<li>
+							<a href="{:U('UserConfig/index')}"> <i class="ace-icon fa fa-cog"></i> 用户设置 </a>
+						</li>
+						<li class="divider"></li>
+						<li>
+							<a href="{:U('login/logout')}"> <i class="ace-icon fa fa-off"></i> 退出 </a>
+						</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+		</div><!-- /.navbar-container -->
+	</div>

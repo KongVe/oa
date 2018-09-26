@@ -1,0 +1,80 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'编辑区域'))}
+
+<form method='post' id="form_data" name="form_data" class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	<notempty name="vo.id">
+		<input type="hidden" id="id" name="id" value="{$vo.id}">	
+	</notempty>
+	
+	<input type="hidden" id="add_file" name="add_file" value="{$vo.add_file}">
+	<input type="hidden" id="opmode" name="opmode" value="<notempty name="_REQUEST['id']">edit<else/>add</notempty>">
+
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="region_name">区域名称：</label>
+		<div class="col-sm-10">
+			<input class="form-control" type="text" id="region_name" name="region_name" value="{$vo.region_name}"  check="require" msg="请输入区域名称">
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="memo">所属仓库：</label>
+		<div class="col-sm-10">
+			<select name="warehouse_id" id="warehouse_select" check="require" msg="请选择仓库">
+				
+			</select>
+		</div>
+	</div>
+
+	<div class="action">
+		<input type="hidden" name="model_name" value="region"> 
+		<input class="btn btn-sm btn-primary" type="button" value="保存" onclick="save();">
+		<input  class="btn btn-sm btn-default" type="button" value="取消" onclick="parent.$('#middleBox').modal('hide');">
+	</div>
+</form>
+<script type="text/javascript">
+	function save() {
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('layoutSave')}",false,function(msg){
+				if(msg.status){
+					if(parent.$("#middleBox").length>0){
+						parent.window.location.reload();
+						parent.$("#middleBox").modal('hide');
+
+					}else{
+						alertWarning(msg.info,1);
+					}
+				}else{
+					alertWarning(msg.info);
+				}
+			});
+		}
+	}
+
+	function ajaxGetChildrenList(id,next_model_name,model_name){
+		var data={};
+		if(model_name){
+			data['model_name']=model_name;
+		}
+		if(id){
+			data['id']=id;
+		}
+		if(!next_model_name){
+			next_model_name="warehouse";
+		}
+		$.post("{:U('OrderStock/ajaxGetChildrenList')}",data,function(msg){
+			if(msg.status && msg.data){
+				$("#"+next_model_name+"_select").html('<option value="">请选择</option>');
+				for (var i = 0; i < msg.data.length; i++) {
+					$("#"+next_model_name+"_select").append('<option value="'+msg.data[i].id+'">'+msg.data[i][next_model_name+"_name"]+'</option>');
+				};
+			}else{
+				$("#"+next_model_name+"_select").html("");
+				$("#"+next_model_name+"_select").append("<option>获取数据失败</option>");
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+		})
+	}
+	ajaxGetChildrenList();
+</script>

@@ -1,0 +1,30 @@
+<layout name="Layout/ace_layout_v3"/>
+
+<div class="col-xs-12">
+  <!-- PAGE CONTENT BEGINS -->
+
+  <table id="grid-table"></table>
+
+  <div id="grid-pager"></div>
+
+  <!-- PAGE CONTENT ENDS -->
+</div>
+<script type="text/javascript">
+  var filter_list = {$filter_list|default=""|json_encode};
+    var config_data = {$config_data|default=""|json_encode};
+  $(function() {
+    $.ajax({
+      url:'',
+      type:'GET',
+      dataType:'json',
+      success:function(data){
+        debugger
+      }
+    })
+  })
+  function Get_Grid(){
+    $('#grid-table').jqGrid({
+
+    })
+  }
+</script>

@@ -1,0 +1,23 @@
+<layout name='Layout/ace_layout' />
+{:W('PageHeader',array('name'=>'导入服务数据','search'=>'N'))}
+<form method='post' id="form_data" action="{:U('import')}" enctype="multipart/form-data">
+	<input type="hidden" name="opmode" value="import">
+	<ol>
+		<li class="col-xs-12 line-height-32">
+			选择要导入的文件&nbsp;
+			<input type="file" name="file"   class="form-control col-30">
+		</li>
+		<li class="col-xs-12 line-height-32">
+			选择数据的帐号&nbsp;
+			<select name="account_id">
+				<option value=''>请选择帐号</option>
+				<volist name="accountList" id="account">
+					<option value="{$account.id}">{$account.account_name}</option>
+				</volist>
+			</select>
+		</li>
+	</ol>
+	<div class="action">
+		<input class="btn btn-sm btn-primary" type="submit" value="导入">
+	</div>
+</form>

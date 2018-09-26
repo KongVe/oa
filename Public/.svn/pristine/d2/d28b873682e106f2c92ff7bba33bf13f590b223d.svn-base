@@ -1,0 +1,65 @@
+$(function() {
+	var sjPager = window.sjPager = {
+          opts: {
+              //默认属性
+              pageSize: 10,
+              preText: "pre",
+              nextText: "next",
+              firstText: "First",
+              lastText: "Last",
+              shiftingLeft: 3,
+             shiftingRight: 3,
+             preLeast: 2,
+             nextLeast: 2,
+             showFirst: true,
+             showLast: true,
+             url: "",
+             type: "POST",
+             dataType: "JSON",
+             searchParam: {},
+             beforeSend: null,
+             success: null,
+             complete: null,
+             error: function () {
+                 alert("抱歉,请求出错,请重新请求！");
+             },
+         },
+         pagerElement: null,//分页dom元素
+         commonHtmlText: {
+             //公共文本变量
+         },
+         init: function (obj, op) {
+             //对象初始化
+         },
+         doPage: function (index, pageSize, searchParam) {
+             //执行分页方法
+         },
+         getTotalPage: function () {
+             //获取总页数
+         },
+         createPreAndFirstBtn: function (pageTextArr) {
+             //创建上一页、首页按钮链接
+         },
+         createNextAndLastBtn: function (pageTextArr) {
+             //创建下一页、尾页按钮链接
+         },
+         createIndexBtn: function (pageTextArr) {
+             //中间分页索引按钮链接
+         },
+         renderHtml: function (pageTextArr) {
+             //渲染分页控件到页面
+         },
+         createSpan: function (text, className) {
+             //创建span
+         },
+         createIndexText: function (index, text) {
+             //创建索引文本
+         },
+         jumpToPage: function () {
+             //跳转到
+         }
+     }
+$.fn.sjAjaxPager = function (option) {
+        return sjPager.init($(this), option);
+     };
+})  

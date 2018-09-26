@@ -1,0 +1,106 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" id="form_search" method="post" class="form-inline">
+	<input type="hidden" name="_order" id="order" value="{$order}">
+<div class="page-header clearfix">
+	<h1 class="col-xs-3">{$title}</h1>
+	<div class="col-xs-9 pull-right">
+		<div class="form-group col-sm-3">
+			<label>
+                <input type="checkbox" class="ace input-lg" name="is_confirm_loan" value="All" <notempty name="Think.request.is_confirm_loan">checked="checked"</notempty> />
+                <span class="lbl">
+                    搜索已确认
+                </span>
+            </label>
+		</div>	
+
+		
+		<div class="input-group col-sm-3">
+	        <div class="input-group">
+	            <input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="搜索 settlement_id"/>
+	            <span class="input-group-btn">
+	                <button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+	            </span>
+	        </div>
+	    </div>
+
+	</div>
+</div>	
+<div class="message-container" id="container_table" style="width:100%;overflow:scroll;">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			
+		</div>
+	</div>
+
+	<table class="table table-hover table-bordered">
+		<tr>	
+			<td>账号</td>
+			<td>Settlement ID</td>
+			<td>账单日期</td>
+			<td>放款日期</td>
+			<td>金额</td>
+			<td>操作</td>
+		</tr>
+		<tbody class="tbody ">
+		<volist name="list" id="vo">
+			<tr>
+				<td>{$vo.account.show_name}</td>
+				<td>{$vo.settlement_id}</td>
+				<td>{$vo.settlement_start_date|date="Y-m-d H:i",###} - {$vo.settlement_end_date|date="Y-m-d H:i",###}</td>
+				<td>{$vo.deposit_date|date="Y-m-d H:i",###}</td>
+				<td>{$vo.total_amount} {$vo.currency}</td>
+				<td>
+					<eq name="vo.is_confirm_loan" value="Yes">
+						<a class="btn btn-info btn-sm" id="btn_confirmLoan_{$vo.settlement_id}" onclick="confirmLoan({$vo.settlement_id})" >重新确认</a> 
+					<else/>
+						<a class="btn btn-danger btn-sm" id="btn_confirmLoan_{$vo.settlement_id}" onclick="confirmLoan({$vo.settlement_id})" >确认</a> 
+					</eq>
+				</td>
+			</tr>
+		</volist>
+		</tbody>
+	</table>
+
+</div>
+</form>
+
+
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+
+<!-- 模态弹窗-->
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxLabel" aria-hidden="true">
+	<div class="modal-dialog" style="height:100%;width:65%;">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:100%;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<div class="modal fade" id="RightBox" role="dialog"  tabindex="-1" aria-labelledby="RightBoxIframe" aria-hidden="true">
+	<div class="modal-dialog" style="width:100%;height:100%;margin-left: 20%;padding-bottom:0px;">
+		<iframe src=""  id="RightBoxIframe" name="RightBoxIframe"  style="width:80%;z-index:100;height:100%;" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+</script>
+<script type="text/javascript">
+
+function confirmLoan(settlement_id){
+	if(!confirm("确认操作？")){
+		return false;
+	}
+	$("#btn_confirmLoan_" + settlement_id).attr("disabled","disabled");
+	$.post("{:U('confirmLoan')}",{settlement_id:settlement_id},function(msg){
+		$("#btn_confirmLoan_" + settlement_id).attr("disabled",null);
+		if(msg.status){
+			alert(msg.info);
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	});
+}
+</script>

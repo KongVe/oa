@@ -1,0 +1,14 @@
+<layout name='Layout/ace_layout' />
+{:W('PageHeader',array('name'=>'导入Email','search'=>'N'))}
+<form method='post' id="form_data" action="{:U('import')}" enctype="multipart/form-data">
+	<input type="hidden" name="opmode" value="import">
+	<ol>
+		<li class="col-xs-12 line-height-32">
+			选择要导入的文件&nbsp;
+			<input type="file" name="file"   class="form-control col-30">
+		</li>
+	</ol>
+	<div class="action">
+		<input class="btn btn-sm btn-primary" type="submit" value="导入">
+	</div>
+</form>

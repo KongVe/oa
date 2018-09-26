@@ -1,0 +1,122 @@
+<div class="col-sm-12 panel">
+	<div class="col-sm-12" style="min-height:100px;">
+		<div class="col-sm-12">
+			<label class="col-sm-4 " for="content" >任务内容：</label>
+			<div class="col-sm-8 ">
+				{$vo.content}
+			</div>
+		</div>
+	</div>
+	
+	<if condition="$design_file_list neq ''" >
+		<div class="col-sm-12" style="min-height:50px;">
+			<div class="col-sm-6">
+				<label class="col-sm-3 control-label" for="name">设计附件：</label>
+				<div class="col-sm-9">
+					<div style="position:relative;">
+						<ul id="design_file_list">
+							<notempty name="design_file_list">
+								<volist name="design_file_list" id="file">
+									<li class="tbody">
+										<div class="loading"></div>
+										<div class="data">
+											<span class="del text-center"> <a class="link down" target="_blank" href="{:U('down?attach_id='.f_encode($file['id']))}">下载</a> </span>
+											<span class="size" >{$file.size|reunit}</span>
+											<span class="auto autocut" title="{$file.name}">{$file.name}
+												<eq name="file.extension" value="mp4">
+													(<a class="link down" target="_blank" onclick='winopen("{:U("file/player?attach_id=".f_encode($file["id"]))}",730,460)' >播放</a> )
+												</eq> </span>
+										</div>
+									</li>
+								</volist>
+							</notempty>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</if>
+</div>
+
+<if condition=" $vo.perform_content neq ''" >
+	<div class="col-sm-12 panel" >
+		<div class="col-sm-12" style="min-height:100px;">
+			<label class="col-sm-4 " for="perform_content" >任务执行反馈：</label>
+			<div class="col-sm-8 ">
+				{$vo.perform_content}
+			</div>
+		</div>
+
+		<if condition="$perform_file_list neq ''" >
+			<div class="col-sm-12" style="min-height:50px;">
+				<div class="col-sm-6">
+					<label class="col-sm-3 control-label" for="name">执行附件：</label>
+					<div class="col-sm-9">
+						<div style="position:relative;">
+							<ul id="perform_file_list">
+								<notempty name="perform_file_list">
+									<volist name="perform_file_list" id="file">
+										<li class="tbody">
+											<div class="loading"></div>
+											<div class="data">
+												<span class="del text-center"> <a class="link down" target="_blank" href="{:U('down?attach_id='.f_encode($file['id']))}">下载</a> </span>
+												<span class="size" >{$file.size|reunit}</span>
+												<span class="auto autocut" title="{$file.name}">{$file.name}
+													<eq name="file.extension" value="mp4">
+														(<a class="link down" target="_blank" onclick='winopen("{:U("file/player?attach_id=".f_encode($file["id"]))}",730,460)' >播放</a> )
+													</eq> </span>
+											</div>
+										</li>
+									</volist>
+								</notempty>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</if>
+	</div>
+</if>
+
+<if condition="$vo.check_content neq '' " >
+	<div class="col-sm-12 panel" >
+		<div class="col-sm-12" style="min-height:100px;">
+			<label class="col-sm-4 " for="check_content" >任务检查反馈：</label>
+			<div class="col-sm-8 ">
+				{$vo.check_content}
+			</div>
+		</div>
+
+		<if condition="$check_file_list neq ''" >
+			<div class="col-sm-12" style="min-height:50px;">
+				<div class="col-sm-6">
+					<label class="col-sm-3 control-label" for="name">检查附件：</label>
+					<div class="col-sm-9">
+						<div style="position:relative;">
+							<ul id="check_file_list">
+								<notempty name="check_file_list">
+									<volist name="check_file_list" id="file">
+										<li class="tbody">
+											<div class="loading"></div>
+											<div class="data">
+												<span class="del text-center"> <a class="link down" target="_blank" href="{:U('down?attach_id='.f_encode($file['id']))}">下载</a> </span>
+												<span class="size" >{$file.size|reunit}</span>
+												<span class="auto autocut" title="{$file.name}">{$file.name}
+													<eq name="file.extension" value="mp4">
+														(<a class="link down" target="_blank" onclick='winopen("{:U("file/player?attach_id=".f_encode($file["id"]))}",730,460)' >播放</a> )
+													</eq> 
+												</span>
+											</div>
+										</li>
+									</volist>
+								</notempty>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</if>
+
+
+	</div>
+</if>

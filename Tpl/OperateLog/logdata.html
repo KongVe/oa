@@ -1,0 +1,19 @@
+<div class="panel panel-info">
+	<div class="panel panel-heading">
+		<span>日志信息</span>
+	</div>
+	<div class="panel-body">
+		<?php if(empty($log_data)): ?>
+			<div class="form-group">
+				<div class="col-sm-12">
+					无相关日志
+				</div>
+			</div>
+		<?php endif; ?>
+		<?php if(is_array($log_data)): $i = 0; $__LIST__ = $log_data;if( count($__LIST__)==0 ) : echo "" ;else: foreach($__LIST__ as $key=>$vo): $mod = ($i % 2 );++$i;?><div class="form-group">
+				<div class="col-sm-12">
+					<b>用户:</b> <span><?php echo ($vo["user_name"]); ?></span> <b>操作:</b> <span><?php echo ($vo["log_text"]); ?></span> <b>时间:</b> <span><?php echo (date("Y-m-d H:i:s",$vo["log_time"])); ?></span>
+				</div>
+			</div><?php endforeach; endif; else: echo "" ;endif; ?>			
+	</div>
+</div>

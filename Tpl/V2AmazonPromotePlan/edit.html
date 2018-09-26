@@ -1,0 +1,155 @@
+<layout name='Layout/ace_popup' />
+    {:W('PageHeader',array('name'=>"PPC推广设置"))}
+
+    <form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+        <input type="hidden" id="ajax" name="ajax" value="1"/>
+
+        <input type="hidden" id="id" name="id" value="{$vo.id}">
+        <input type="hidden" id="sellyours_id" name="sellyours_id" value="{$vo.sellyours_id}">
+        <input type="hidden" id="issue_id" name="issue_id" value="{$vo.issue_id}">
+
+        <div class="panel panel-primary">
+            <div class="panel panel-heading">
+                <span>PPC推广设置</span>
+            </div>
+            <div class="panel-body">
+                
+                <div class="col-sm-12">
+
+                    <div class="form-group">
+                        <label class="text-right col-sm-2">ASIN: </label>
+                        <div class="col-sm-8">
+                            <b>{$sellyours_data.asin}</b>
+                        </div>
+                    </div>
+
+                    <notempty name="vo.id">
+
+                        <div class="form-group">
+                            <label class="text-right col-sm-2">推广状态: </label>
+                            <div class="col-sm-8">
+                                <b>{$vo.status|L}</b>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="text-right col-sm-2">添加用户: </label>
+                            <div class="col-sm-8">
+                                {$vo.add_user_name}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="text-right col-sm-2">添加时间: </label>
+                            <div class="col-sm-8">
+                                {$vo.add_time|date="Y-m-d H:i:s",###}
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="text-right col-sm-2">执行时间: </label>
+                            <div class="col-sm-8">
+                                {$vo.promote_time|default=" "|date="Y-m-d H:i:s",###}
+                            </div>
+                        </div>
+                    </notempty>
+                    
+                    <div class="form-group">
+                        <label class="text-right col-sm-2" for="title">广告组标题(英文)</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" type="text" id="title" name="title" value="{$vo.title}" placeholder="广告组标题，用于辨认产品，不能重复">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="text-right col-sm-2" for="keywords_str">关键词(换行分隔): </label>
+                        <div class="col-sm-8">
+                            <textarea name="keywords_str" class="form-control" style="height:150px;" >{$vo.keywords_str}</textarea>
+                            <div class="help-block">
+                                填核心关键词(换行分隔，数量不限)，不用使用双引号 <b>(注 <span class="red">未执行</span> 状态才可编辑，否则请联系推广人员)</b>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="text-right col-sm-2" for="keywords_str">关键词(转换成小写): </label>
+                        <div class="col-sm-8">
+                            {$vo.keywords_str_lower}
+                        </div>
+                    </div>
+
+                    
+                    <div class="form-group">
+                        <label class="text-right col-sm-2" for="shipping_fee_total">产品中文名称</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" type="text" id="name_cn" name="name_cn" value="{$vo.name_cn}" placeholder="产品中文名称">
+                            <div class="help-block">
+                                产品中文名称，如 蛋糕模
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="text-right col-sm-2" for="reason">推荐原因: </label>
+                        <div class="col-sm-8">
+                            <textarea name="reason" class="form-control" style="height:120px;" >{$vo.reason}</textarea>
+                            <div class="help-block">
+                                如 新品已有review<br>
+                                产品近两个星期流量总数和流量订单转换率(>10%)表现良好
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="text-right col-sm-2" for="status">是否多变体: </label>
+                        <div class="col-sm-2">
+                            <input name="is_variant" class="form-control" id="is_variant" type="checkbox" value="1" <eq name="vo.is_variant" value="Yes">checked="checked"</eq> >
+                        </div>
+                    </div>
+
+
+                    <if condition=" isAdmin(61) ">
+                        <div class="form-group">
+                            <label class="text-right col-sm-2" for="status">PPC状态(admin)</label>
+                            <div class="col-sm-4">
+                                <select name="status" class="form-control">
+                                    <option value="New" <?php if("New" == $vo['status']){ echo "selected"; } ?> >未执行</option>
+                                    <option value="Advertising" <?php if("Advertising" == $vo['status']){ echo "selected"; } ?> >执行中</option>
+                                    
+                                    <option value="Pause" <?php if("Pause" == $vo['status']){ echo "selected"; } ?> >暂停中</option>
+                                    <option value="End" <?php if("End" == $vo['status']){ echo "selected"; } ?> >已停止</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="text-right col-sm-2" for="ad_memo">推广备注(admin): </label>
+                            <div class="col-sm-8">
+                                <textarea name="ad_memo" class="form-control">{$vo.ad_memo}</textarea>
+                                <div class="help-block">
+                                    推广人员才能看到的备注
+                                </div>
+                            </div>
+                        </div>
+                    </if>
+                    
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-default">
+            <div class="form-group text-center">
+                <input type="button" data-loading-text="正在保存..." data-close="1" data-reload="1" class="defaultEditFormSubmit btn btn-primary" value="保存" />
+                <a class="close_box_button btn btn-danger">取消</a>
+            </div>
+        </div>
+    
+    </form>
+
+
+<script type="text/javascript">
+$(function($){
+
+});
+</script>

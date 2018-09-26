@@ -1,0 +1,25 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'买家备注'))}
+
+<form method='post' id="form_data" name="form_data" class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	
+	<input type="hidden" id="id" name="id" value="{$Think.request.id}">	
+	
+	<input type="hidden" id="memo_type" name="memo_type" value="{$Think.request.memo_type}">	
+
+	<input type="hidden" id="opmode" name="opmode" value="edit">
+
+	<div class="form-group col-xs-12">	
+		<label class="col-sm-2 control-label" for="variation">备注内容：</label>	
+		<div class="col-sm-10 " >
+
+			{$vo.seller_memo}
+		</div>
+	</div>
+	
+	<div class="action">
+		<input type="hidden" name="model_name" value="place"> 
+		<input  class="btn btn-sm btn-default" type="button" value="关闭" onclick="parent.$('#middleBox').modal('hide');">
+	</div>
+</form>

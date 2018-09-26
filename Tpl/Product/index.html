@@ -1,0 +1,328 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">产品列表</h1>
+	<div class="col-sm-10 pull-right">
+		<div class="btn-group pull-left col-sm-12">
+			<div class="col-sm-6">
+				<div class="col-sm-6">
+					<div class="input-group">
+						<span class="input-group-addon">
+							更新时间:
+						</span>
+						<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="last_update" id="last_update" value="{$Think.request.last_update}"  placeholder="更新时间">
+					</div>
+				</div>
+				<div class="col-sm-6">
+					<div class="input-group">
+						<span class="input-group-addon">
+							采集时间:
+						</span>
+						<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}"  placeholder="采集时间">
+					</div>
+					
+				</div>					
+			</div>
+			<select name="show_status" style="width:150px;">
+				<option value="0" <eq name="Think.request.show_status" value="0">selected</eq> > 显示全部用户数据</option>
+				<option value="{$_SESSION['authId']}"> 显示当前用户数据</option>
+			
+				<volist name="user_list" id="user">
+					<option value="{$user['id']}" <eq name="Think.request.show_status" value="$user['id']">selected</eq> >{$user['emp_name']}</option>
+				</volist>	
+
+			</select>
+		</div>
+	</div>
+
+	<div class="col-sm-12">
+		<div class="input-group col-sm-10 pull-right">
+			<div class="input-group col-sm-1">
+				<label>
+					<input type="checkbox" name="is_del" value='1' <eq name="Think.request.is_del" value="1">checked</eq>> 
+					已删除
+				</label>
+			</div>
+
+			<div class="input-group col-sm-2">
+				<select name="category_id"  style="width:100%;" id="category_id"></select>
+			</div>
+			
+			<div class="input-group col-sm-2">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="sku" id="sku" value="{$Think.request.sku}" placeholder="搜索 SKU"/>	
+			</div>
+			<div class="input-group col-sm-2">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="advanced_q" id="advanced_q" value="{$Think.request.advanced_q}" placeholder="精确搜索 id序号 , sku_id "/>	
+			</div>
+			<div class="input-group col-sm-4">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索产品中文、英文名称; SKU;货源链接"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="this.form.q.value='';;this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</div>	
+<div class="message-container">
+	<div class="panel panel-default">
+		<div class="panel-body">
+
+			<div class="btn-group">
+				<a onclick="addProduct();" class="btn btn-inverse btn-sm " >新增产品</a>
+			</div>
+
+			<div class="btn-group">
+				<a onclick="delChoose();" class="btn btn-danger btn-sm " >删除已选</a>
+			</div>
+
+			<div class="btn-group">
+				<a onclick="getSkuBySkuIdView();" class="btn btn-info btn-sm " >生成SKU</a>
+			</div>
+
+			<div class="btn-group">
+				<a class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">特殊操作 <i class="icon-caret-down"></i></a>
+				<ul class="dropdown-menu">
+					<li><a href="{:U('Aliexpress/RelationIndex')}" target="_blank">生成速卖通关联产品</a></li>
+					<li><a onclick='checkAdminUser()'>分配产品(管理员权限)</a></li>
+				</ul>
+			</div>
+
+			<div class="btn-group">
+				<a class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">操作 <i class="icon-caret-down"></i></a>
+				<ul class="dropdown-menu">
+					<li><a onclick='getCategory()'>修改所选分类</a></li>
+				</ul>
+			</div>
+			<div class="btn-group" id="change_category" style="display:none;">
+				<select name="change_category_id" class="col-sm-11 form-control" id="change_category_id" style="width:80px;display;">
+				</select>
+				<a onclick="changeAllCategory()" class="btn btn-sm">确认</a>
+			</div>
+			<div class="btn-group"  id="product_uid" style="display:none;">
+				<select name="product_uid" class="col-sm-11 form-control">
+					<volist name="user_list" id="user">
+						<option value="{$user['id']}" <eq name="Think.request.product_uid" value="$user['id']">selected</eq> >{$user['emp_name']}</option>
+					</volist>	
+				</select>
+				<a onclick='distributeProduct()' class="btn btn-primary btn-sm btn-group">确认分配</a>
+				<a onclick="$('#product_uid').hide();" class="btn btn-danger btn-sm btn-group">取消</a>
+			</div>
+
+		
+			<div class="input-group col-sm-2">
+				<input class="form-control" type="text" id="local_sku"  placeholder="请输入本地SKU"/>
+				<span class="input-group-btn">
+					<a class="btn btn-primary btn-sm" onclick="window.open('{:U("Product/getAMZLinkBySku")}?sku='+$('#local_sku').val())">查看AMZ链接</a>
+				</span>
+			</div>
+			
+		</div>
+	</div>
+	<table class="table table-hover table-bordered">
+		<!-- <tr>
+			<th width="80">
+				<label class="inline pull-left">
+					<input class="ace" type="checkbox" name="id-toggle-all" id="id-toggle-all" />
+					<span class="lbl"></span>
+					<b>序号</b>
+				</label>
+			</th>
+
+			<th width="80">sku_id</th>
+			<th width="80">sku (已弃用)</th>
+			<th width="150">图片</th>
+			<th width="60">拿货价</th>
+			<th width="250px">名称</th>
+			<th style="min-width:80px;">所属分类</th>
+			<th>库存状态</th>
+		
+			<th>新增时间</th>
+			<th>更新时间</th>
+			<th>发布状态</th>
+			<th>货源</th>
+			<th>添加用户</th>
+			<th>操作
+				
+			</th>
+		</tr> -->
+
+		<include file="Layout:title_v2"/>
+
+		<tbody class="tbody">
+		<volist name="list" id="vo">
+			<if condition="$vo.copy_product_list neq ''">
+				<?php
+					$copy_product_list_count=count($vo['copy_product_list']);
+				?>
+				<foreach name="vo.copy_product_list" item="copy_product" key="copy_key">
+					<tr id="tr_{$copy_product.id}"   <if condition="$copy_key eq 0">style="border-top-style:ridge;"</if> >
+						<td  style="vertical-align:middle;">
+							<label class="inline pull-left">
+								<input class="ace" type="checkbox" name="id[]" value="{$copy_product.id}" />
+								<span class="lbl"></span>
+								{$copy_product.id}
+							</label>
+						</td>
+
+						<td style="vertical-align:middle;width:80px;">
+							{$copy_product.sku_id}
+						</td>
+						<td style="vertical-align:middle;width:150px;">
+							{$copy_product.sku}
+						</td>
+						<td>
+							<a href="{:U('product/edit?id='.$copy_product[id])}" target="_blank" class="thumbnail"><img src="{$copy_product.image}" width="50" /></a>
+						</td>
+						<td style="width:60px;">{$copy_product.price}</td>
+						<td style="width:250px"><span class="text-success">{$copy_product.name_cn}</span><br>
+							<span>{$copy_product.name_en}</span></td>
+						<td style="min-width:80px;">{$copy_product.category_name}</td>
+						<td>{$copy_product.stock_state}</td>
+						<td>{$copy_product.add_time|date="y-m-d H:i:s",###}</td>
+						<td>{$copy_product.last_update|date="y-m-d H:i:s",###}</td>
+
+						<td><if condition="$copy_product.release_state eq Ready"><b style="color:red;">{$copy_product.release_state}</b><else/>{$copy_product.release_state}</if></td>
+
+						<td>
+							<a href="{$copy_product.source_link}" target="_blank">{$copy_product.source_type}</a>
+							<br>
+							<a href="{$copy_product.source_link}" class="btn btn-xs"target="_blank">Go!</a>
+							<br>
+							{$copy_product.supplier}
+						</td>
+						<td>
+							<eq name="copy_product.uid" value="$_SESSION['authId']"> 
+								<b style="color:blue;">
+									{$copy_product.uname}
+								</b>
+							<else/>
+								{$copy_product.uname}
+							</eq>
+						</td>
+						<td style="vertical-align:middle;">
+							<a href="{:U('product/edit?id='.$copy_product[id])}" class="btn btn-danger btn-xs" target="_blank"  onclick="">修改</a>
+								<br>
+								<br>
+							<a class="btn btn-info btn-xs" target="_blank"  onclick="cloneProduct('{$copy_product.id}',this)">复制</a>
+							<br>
+							<br>
+							<empty name="copy_product.is_del">
+								<a class="btn btn-warning btn-xs" onclick="delProduct({$copy_product.id})">删除</a>
+							<else/>
+								<a class="btn btn-warning btn-xs" onclick="recoverProduct({$copy_product.id})">恢复</a>
+							</empty>
+							<eq name="copy_product.release_state" value="Ready">
+								<br>
+								<br>
+								<a class="btn btn-inverse btn-xs" href="{:U('Product/downZip?id='.$copy_product['id'])}" target="_blank">图片下载</a>
+							</eq>
+						</td>
+					</tr>
+				</foreach>	
+			<else/>
+				<tr id="tr_{$vo.id}" style="border-top-style:ridge;">
+					<td  style="vertical-align:middle;">
+							<label class="inline pull-left">
+								<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+								<span class="lbl"></span>
+								{$vo.id}
+							</label>
+						</td>
+					<td style="vertical-align:middle;">
+						{$vo.sku_id}
+					</td>
+					<td style="vertical-align:middle;">
+							{$vo.sku}
+						</td>
+					<td>
+						<a href="{:U('product/edit?id='.$vo[id])}" target="_blank" class="thumbnail"><img src="{$vo.image}" width="50" /></a>
+					</td>
+					<td>{$vo.price}</td>
+					<td><span class="text-success">{$vo.name_cn}</span><br>
+						<span>{$vo.name_en}</span></td>
+					<td>{$vo.category_name}</td>
+					<td>{$vo.stock_state}</td>
+					<td>{$vo.add_time|date="y-m-d H:i:s",###}</td>
+					<td>{$vo.last_update|date="y-m-d H:i:s",###}</td>
+
+					<td><if condition="$vo.release_state eq Ready"><b style="color:red;">{$vo.release_state}</b><else/>{$vo.release_state}</if></td>
+
+					<td>
+						<a href="{$vo.source_link}" target="_blank">{$vo.source_type}</a>
+						<br>
+						<a href="{$vo.source_link}" class="btn btn-xs"target="_blank">Go!</a>
+						<br>
+						{$vo.supplier}
+					</td>
+					<td>
+						<eq name="vo.uid" value="$_SESSION['authId']"> 
+							<b style="color:blue;">
+								{$vo.uname}
+							</b>
+						<else/>
+							{$vo.uname}
+						</eq>
+					</td>
+					<td style="vertical-align:middle;">
+						<a href="{:U('product/edit?id='.$vo[id])}" class="btn btn-danger btn-xs" target="_blank"  onclick="">修改</a>
+							<br>
+							<br>
+						<a class="btn btn-info btn-xs" target="_blank"  onclick="cloneProduct('{$vo.id}',this)">复制</a>
+						<br>
+						<br>
+						<empty name="vo.is_del">
+							<a class="btn btn-warning btn-xs" onclick="delProduct({$vo.id})">删除</a>
+						<else/>
+							<a class="btn btn-warning btn-xs" onclick="recoverProduct({$vo.id})">恢复</a>
+						</empty>
+
+						<eq name="vo.release_state" value="Ready">
+							<br>
+							<br>
+							<a class="btn btn-inverse btn-xs" href="{:U('Product/downZip?id='.$vo['id'])}" target="_blank">图片下载</a>
+						</eq>
+					
+					</td>
+				</tr>
+			</if>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+<!-- 警告弹窗 -->
+<div class="modal fade " id="alertBox" tabindex="-1" role="dialog" aria-labelledby="alertBoxLabel" aria-hidden="true">
+  <div class="modal-dialog">
+  	<div class="bs-example">
+      <div class="alert alert-danger fade in" id="alertStatus">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h4> </h4>
+        <p id="alerBody"></p>
+
+        <p>
+          <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal" id="alertConfirm">确认</button>
+        </p>
+      </div>
+    </div>   
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- 模态弹窗-->
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxIframe" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:800px;height:100%;min-height:500px;" scrolling="auto" ></iframe>
+	</div>
+</div>

@@ -1,0 +1,218 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="id" value="{$Think.request.id}" />
+<div class="page-header clearfix">
+	<h1 class="col-sm-4">数据同步</h1>
+	<div class="col-sm-5 pull-right">
+			<div class="input-group pull-left col-sm-2 " >
+				<input  class="form-control" onchange="cancelSelect();" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="oaid" id="oaid" value="{$Think.request.oaid}" placeholder="订单序号"/>								
+			</div>
+			<div class="input-group col-sm-10">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索 订单ID，产品名称，买家姓名，国家，包裹号，跟踪号"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="$('#oaid').val('');this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div>
+	</div>
+	<div class="form-group col-sm-3 pull-right">
+		<div class="col-sm-8 pull-right">
+			<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="order_time" id="order_time" value="{$Think.request.order_time}"    readonly="readonly" placeholder="下单时间">
+		</div>
+	</div>	
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">		
+
+		<div class="btn-group">
+			<a class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown">操作 <i class="icon-caret-down"></i></a>
+			<ul class="dropdown-menu" style="width:400px">
+				<li><a href="javascript:void(0);" data-loading-text="正在获取" onclick="syncCK1Submit(1)">获取CK1跟踪号</a>
+					<span class="col-sm-6">
+						<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range " type="text" name="orderTime" id="orderTime" value=""    readonly="readonly" placeholder="只根据时间获取CK1跟踪号">
+						
+					</span>
+					<span class="col-sm-6">
+						<a class="btn btn-sm btn-info" onclick="$('#orderTime').val('');">清空时间</a>
+					</span>		
+				</li>
+				<!-- <li><a href="javascript:void(0);" onclick="syncCK1Submit(0)">CK1核对跟踪号</a></li> -->
+				<!-- <li><a href="javascript:void(0);" onclick="syncCK1ShippingFee()">同步CK1运费</a></li> -->
+			</ul>
+		</div>
+
+		<div class="btn-group">
+			<a class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">跟踪号核对同步 <i class="icon-caret-down"></i></a>
+			<ul class="dropdown-menu">
+				<?php
+					if(isset($accountNameList[0])){
+						echo '<li><a href="javascript:void(0);" onclick="syncWish(\'all_account\',4)">核对所有帐号</a></li>';
+						foreach ($accountNameList as $k_a => $list_v) {
+							echo '<li><a href="javascript:void(0);" onclick="syncWish(\''.$list_v['account_name'].'\',0)">'.$list_v['account_name'].'</a></li>';
+						}
+					}else{
+						echo '<li><a href="javascript:void(0);" >无帐号信息</a></li>';
+					}
+				?>
+			</ul>
+		</div>
+
+		<div class="btn-group">
+			<a class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">wish跟踪号提交 <i class="icon-caret-down"></i></a>
+			<ul class="dropdown-menu">
+				<?php
+					if(isset($accountNameList[0])){
+						echo '<li><a href="javascript:void(0);" onclick="syncWish(\'\',5)">提交所有帐号</a></li>';
+						foreach ($accountNameList as $k_a => $list_v) {
+							echo '<li><a href="javascript:void(0);" onclick="syncWish(\''.$list_v['account_name'].'\',1)">'.$list_v['account_name'].'</a></li>';
+						}
+					}else{
+						echo '<li><a href="javascript:void(0);" >无帐号信息</a></li>';
+					}
+				?>
+			</ul>
+		</div>
+
+		<div class="btn-group ">
+			<a class="btn btn-sm btn-danger"  data-toggle="dropdown">同步订单<i class="icon-caret-down"></i></a>
+			<ul class="dropdown-menu">
+				<li><a href="javascript:void(0);" onclick="syncWish('',3)">同步所有</a></li>
+				<?php
+					if(isset($accountNameList[0])){
+						foreach ($accountNameList as $k_a => $list_v) {
+							echo '<li><a href="javascript:void(0);" class="account_name" onclick="syncWish(\''.$list_v['account_name'].'\',2)">'.$list_v['account_name'].'</a></li>';
+						}
+					}else{
+						echo '<li><a href="javascript:void(0);" >无帐号信息</a></li>';
+					}
+				?>
+			</ul>
+			
+		</div>
+		<div class="btn-group ">
+			<select id="synch_order_count" class="form-control">
+				<option value="100">最新100单</option>
+				<option value="150">最新150单</option>
+				<option value="200">最新200单</option>
+				<option value="250">最新250单</option>
+				<option value="500">最新500单</option>
+				<option value="1000">最新1000单</option>
+			</select>
+		</div>
+		
+		<div class="btn-group">
+			<div id="syncCK1"></div>
+			<div id="syncWish"></div>
+		</div>
+	</div>
+</div>
+<div class="message-container"style="width:1800px;">
+	<table class="table table-striped table-hover">
+		
+			<tr>
+				<th style="width:80px;">			
+					<label class="inline pull-left">
+						<input class="ace" type="checkbox" name="id-toggle-all" id="id-toggle-all" />
+						<span class="lbl"></span>
+						序号
+					</label>
+				</th>
+				<foreach name="titleArr" item="voTitle" key="titleKey">
+					<th>
+						<div class="btn-group" <?php  if($voTitle['dropdown']){echo 'style="width:' . (strlen($voTitle['title']) * 6 + 20) . 'px;"';} ?> >
+							<a type="botton" class="btn btn-xs sort_button" name="{$titleKey}">
+								<eq name="titleKey" value="$order">
+									<eq name="sortImg"	value="asc">
+										<i class="icon-sort-up"></i>
+									</eq>
+									<eq name="sortImg"	value="desc">
+										<i class="icon-sort-down"></i>
+									</eq>
+								</eq>
+							 {$voTitle.title}
+							</a>
+							<notempty name="voTitle.dropdown">
+								<a class="btn btn-xs dropdown-toggle" data-toggle="dropdown"><i class="icon-caret-down"></i></a>
+								<ul class="dropdown-menu" role="menu">
+									<foreach name="voTitle.dropdown" item="voDrop" key="dropKey" >
+										<li >
+											<input style="cursor:pointer;" type="checkbox" name="filter[{$titleKey}][{$dropKey}]" value="{$dropKey}" class="filter_checkbox" id="dropdown_{$titleKey}_{$dropKey}"
+												<?php if(isset($_POST['filter'][$titleKey][$dropKey])){ echo 'checked="checked"';
+												unset($_POST['filter'][$titleKey][$dropKey]);
+											} ?>
+											/>
+											<label style="cursor:pointer;" for="dropdown_{$titleKey}_{$dropKey}">{$voDrop}</label>
+										</li>
+										
+
+									</foreach>
+									<?php foreach($_POST['filter'][$titleKey] as $ttk=>$ttv){
+										echo '<input type="hidden" name="filter[' .$titleKey. ']['.$ttk.']" value="' .$ttv. '" />';
+									} ?>			
+			              		</ul>	
+							</notempty>
+						</div>
+					</th>
+				</foreach>
+			</tr>
+			<tbody class="tbody">
+			<volist name="list" id="vo">
+				<tr>
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td><a href="{$vo.order_link}" target="_blank" title="{$vo.order_link}">{$vo.order_id}</a></td>
+					<td>{$vo.order_time}</td>
+					<td>{$vo.ck1_sync_time}</td>
+
+					<td>{$vo.package_code}</td>
+					<td>{$vo.online_tracking_number}</td>
+					
+					<td>{$vo.forwarder_tracking_number}</td>
+					<td>{$vo.forwarder_tracking_state}</td>
+
+					<td>{$vo.local_state}</td>
+					
+					<!-- <td><span class="editStatic" field="memo" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$vo.id}','textarea')">{$vo.memo}</span></td> -->
+					<td>{$vo.order_state}</td>
+					<td><strong style="color:red">{$vo.quantity}</strong></td>
+					<td>{$vo.shipping_first_name} {$vo.shipping_last_name}</td>		
+					<td>{$vo.shipping_country}</td>
+					<td>{$vo.account}</td>
+					<td>{$vo.website}</td>
+
+					<td>{$vo.sync_last_update}</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" height="300px" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+<div class="modal fade" id="editProduct" role="dialog"  tabindex="-1" aria-labelledby="editProductLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="editProductIframe" name="editProductIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox1" role="dialog"  tabindex="-1" aria-labelledby="bottomBox1Label" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBox1Iframe" name="bottomBox1Iframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>

@@ -1,0 +1,451 @@
+<script type="text/javascript">
+var stock_list = {$stock_list_json};
+jQuery(function($){
+	
+		$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+	$(".use_stock_quantity").click(function(){
+		if(this.disabled == false){
+			$(this).focus().select();	
+		}
+	})
+
+	$(".use_stock_quantity").change(function(){
+		quantity = parseInt(this.value);
+		max_quantity = parseInt($(this).data("max-quantity"));
+		if(quantity > max_quantity){
+			alertWarning("使用数量不能超过库存数量：" + max_quantity);
+			this.value=0;
+		}
+
+		//如果是捆绑发货的，则先给每个捆绑的库存加数量先
+		if($(this).data("use-type") == 'map'){
+			stock_id = $(this).data("stock-id");
+			plan_id = $(this).data('plan-id');
+			
+			use_stock_quantity = $(this).val();
+			map_stock_list = stock_list[stock_id].map_stock_list;
+			stock = stock_list[stock_id];
+			$.each(map_stock_list,function(map_stock_id,map_stock){
+				need_map_stock_quantity = map_stock.per_ship_quantity * use_stock_quantity;
+				$.each(map_stock.place_list,function(place_id,place){
+					if(place.quantity >= need_map_stock_quantity){
+						$("#use_stock_quantity_" + map_stock.id + "_" + place.place_id + '_' + plan_id + ".map_stock_" + stock_id).val(need_map_stock_quantity).prev("a").addClass("btn-primary").removeClass("btn-success");
+						need_map_stock_quantity = 0;
+						//这里不能退出循环，还要让后面的的place设为0
+
+					}else{
+						$("#use_stock_quantity_" + map_stock.id + "_" + place.place_id + '_' + plan_id + '.map_stock_' + stock_id).val(place.quantity).prev("a").addClass("btn-primary").removeClass("btn-success");
+						need_map_stock_quantity = need_map_stock_quantity - place.quantity;
+						return true;
+					}
+				})
+			})			
+		}
+
+		$(this).prev("a").addClass("btn-primary").removeClass("btn-success");
+	})
+	$("input[type='file']").attr("accept",'csv');
+})
+
+//使用库存,先放进临时表,不直接扣库存先 
+function useStock(stock_id,place_id,fba_plan_id){       
+	
+	obj = $("#use_stock_btn_" + stock_id + "_" + place_id + "_" + fba_plan_id);
+	obj.attr("disabled","disabled");
+
+	use_stock_quantity = parseInt($("#use_stock_quantity_" + stock_id + "_" + place_id + "_" + fba_plan_id).val());
+	if(use_stock_quantity <= 0){	  
+		if(!window.confirm("确认没有发货么？")){
+			return false;
+		}
+	}  
+	var use_stock_list = [];
+	if(place_id == 0){
+		//如果没有place_id, 则应该捆绑使用的，
+		map_stock_list = stock_list[stock_id].map_stock_list;
+		$.each(map_stock_list, function(map_stock_id,map_stock){
+			$.each(map_stock.place_list,function(place_id,place){
+				map_use_stock_quantity = parseInt($("#use_stock_quantity_" + map_stock_id + "_" + place_id + "_" + fba_plan_id).val());
+				
+				use_stock_list.push({
+					stock_id:map_stock_id,
+					place_id:place_id,
+					quantity:map_use_stock_quantity,
+					fba_plan_id:fba_plan_id,
+					final_ship_quantity:use_stock_quantity,
+					ship_stock_id:stock_id
+				});
+			});
+		})
+		
+	}else{
+		use_stock_list.push({
+			stock_id:stock_id,
+			place_id:place_id,
+			quantity:use_stock_quantity,
+			fba_plan_id:fba_plan_id,
+			final_ship_quantity:use_stock_quantity,
+			ship_stock_id:stock_id
+		});
+	}
+	data = {
+		use_stock_list:use_stock_list
+	}
+	$.post("{:U('amazon_fba_plan_stock/save')}",data,function(r){
+		if(r.status){
+			obj.removeClass("btn-primary").addClass("btn-success");
+		}else{
+			obj.removeClass("btn-success").addClass("btn-primary");
+			alertWarning(r.info);
+		}
+		obj.attr("disabled",null);
+	})
+}
+
+//d确认当前用户的所使用库存都发货了
+function confirmShip(){
+	if(window.confirm("确认所有库存使用数据都正确，要发货了么？")){
+		$("#btn_confirm_ship").attr("disabled","disabled");
+		var data = {
+			account_id:$("#account_id").val()
+		}
+		$.post("{:U('amazon_fba_plan_stock/confirmShip')}",data,function(r){
+			if(r.status){
+				alert("发货成功");
+				$("#form_search").submit();
+			}else{
+				alertWarning(r.info);
+			}
+			$("#btn_confirm_ship").attr("disabled",null);
+		})
+	}
+}
+
+
+//生成FBA发货商品详细的表格
+function generateFBAExcel(){
+	$("#form_search").attr("action","{:U('amazon_fba_plan/generateFBAExcel')}").submit();
+	return false;
+	ids = $("input[name='id[]']:checked").serialize();
+	if(ids == ''){
+		alert("没有选择任何计划");
+
+		return false;
+	}
+	console.log(ids);
+	$("#btn_generate_fba_excel").attr("disabled","disabled");
+	$.post("{:U('amazon_fba_plan/generateFBAExcel')}",ids,function(r){
+		if(r.status){
+
+		}else{
+			alert(r.info);
+		}
+		$("#btn_generate_fba_excel").attr("disabled",null);
+	})
+}
+
+//第一次检查，预先检查当前所有产品中，在创建shipment后的调整数量中， 能够调整到与实发数量相符合的数量，不能与预期调整的则显示出FNSKU
+function firstCheckShipmentContents(){
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		alert("未选择任何ID");
+		return false;
+	}
+	data = {
+		id:id,
+		account_id:$("#account_id").val()
+	}
+	$("#btn_check_shipment_contents").attr("disabled","disabled");
+	$.post("{:U('amazon_fba_plan/firstCheckShipmentContents')}",data,function(r){
+		if(r.status){
+			alert(r.info);
+		}else{
+			if(r.info.indexOf('Retry') > 0){
+				firstCheckShipmentContents();
+				return true;
+			}
+			alertWarning(r.info);
+		}
+		$("#btn_check_shipment_contents").attr("disabled",null);
+	})
+}
+
+function secondCheckShipmentContents(){
+
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		alert("未选择任何ID");
+		return false;
+	}
+	$("#btn_second_check_shipment_contents").attr("disabled",'disabled');
+	data = {
+		id:id,
+	}
+	$.post("{:U('amazon_fba_plan/secondCheckShipmentContents')}",data,function(r){
+		alertWarning(r.info);
+		$("#btn_second_check_shipment_contents").attr("disabled",null);
+	})
+}
+
+
+//最终检查shipment里面的产品数量是否一样
+function finalCheckShipmentContents(){
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		alert("未选择任何ID");
+		return false;
+	}
+	data = {
+		id:id,
+		shipment_contents:$("#final_shipment_contents").val()
+	}
+	$("#btn_final_check_shipment_contents").attr("disabled","disabled");
+	$.post("{:U('amazon_fba_plan/finalCheckShipmentContents')}",data,function(r){
+		if(r.status){
+			alert("未发现错误计划，可以创建shipment了");
+		}else{
+			alertWarning(r.info);
+		}
+		$("#btn_final_check_shipment_contents").attr("disabled",null);
+	})
+}
+
+//提交FBA计划
+function sumbitFBAShipmentPlan(){
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		//如果没有选中一个，则默认全选，省了一个点击
+		$("input[name='id[]']").click();
+		id = $("input[name='id[]']:checked").serialize();
+	}
+	data = {
+		id:id,
+		account_id:$("#account_id").val(),
+		mode:$("#btn_submit_fba_shipment_plan_mode").val()
+	}
+	$("#btn_submit_fba_shipment_plan").attr("disabled","disabled");
+	$.post("{:U('amazon_fba_plan/sumbitFBAShipmentPlan')}",data,function(r){
+		$("#btn_submit_fba_shipment_plan").attr("disabled",null);
+		if(r.status){
+			alert("创建成功");
+		}else{
+			if(r.info.indexOf("Retry") > 0){
+				sumbitFBAShipmentPlan();
+			}else{
+				alertWarning(r.info);
+			}
+		}
+		
+	})
+}
+
+
+//显示手动提交FBA计划框
+function showFBAShipmentPlanManual(){
+	$("#manualSubmitFBAPlan").modal({backdrop:'static'}).modal("show");	
+}
+
+//提交手动提交FBA计划
+function sumbitFBAShipmentPlanManual(){
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		//如果没有选中一个，则默认全选，省了一个点击
+		$("input[name='id[]']").click();
+		id = $("input[name='id[]']:checked").serialize();
+	}
+	data = {
+		id:id,
+		account_id:$("#account_id").val(),
+		manual_data:$(".manual_input").serialize()
+	}
+	$("#btn_sumbitFBAShipmentPlanManual").attr("disabled","disabled");
+	$.post("{:U('amazon_fba_plan/sumbitFBAShipmentPlanManual')}",data,function(r){
+		$("#btn_sumbitFBAShipmentPlanManual").attr("disabled",null);
+		if(r.status){
+			alert("创建成功");
+			window.location.reload();
+		}else{
+			alertWarning(r.info);
+		}
+		
+	})
+}
+
+
+//提交保存箱子里的货物详情
+function submitBox(){
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		alert("未选择任何ID");
+		return false;
+	}
+	data = {
+		id:id,
+		account_id:$("#account_id").val(),
+		add_file:$("#add_file").val()
+	}
+	$("#btn_submit_box").attr("disabled","disabled");
+	$.post("{:U('amazon_fba_plan/submitBox')}",data,function(r){
+		$("#btn_submit_box").attr("disabled",null);
+		if(r.status){
+			alert("上传成功");
+			window.location.reload();
+		}else{
+			alertWarning(r.info);
+		}
+		
+	})
+}
+
+function getDeclarationDetail(){
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		alert("未选择任何ID");
+		return false;
+	}
+	var plan_list = new Array();
+	$("input[name='id[]']:checked").parents("tr").each(function(i){
+		id = $("input[name='id[]']",this).val();
+		final_ship_quantity = $.trim($("b.green",this).text());
+		plan_list[i] = {
+			id:id,
+			final_ship_quantity:final_ship_quantity
+		};
+	})
+	data = {
+		account_id:$("#account_id").val(),
+		plan_list:plan_list
+	}
+	$("#btn_get_declaration_detal").attr("disabled","disabled");
+	$.post("{:U('amazon_fba_plan/getDeclarationDetail')}",data,function(r){
+		$("#btn_get_declaration_detal").attr("disabled",null);
+		if(r.status){
+			alert("成功");
+		}else{
+			alertWarning(r.info);
+		}
+		
+	})	
+}
+
+function getDeclaration(){
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		alert("未选择任何ID");
+		return false;
+	}
+	data = {
+		id:id,
+		account_id:$("#account_id").val(),
+		box_per_declaration:$("#box_per_declaration").val()
+	}
+	$("#btn_get_declaration").attr("disabled","disabled");
+	$.post("{:U('amazon_fba_plan/getDeclaration')}",data,function(r){
+		$("#btn_get_declaration").attr("disabled",null);
+		if(r.status){
+			alert("成功");
+		}else{
+			alertWarning(r.info);
+		}
+		
+	})	
+}
+
+function closeBox(){
+	parent.$("#order-detail-box").hide("fast");
+}
+
+function edit(id){
+	parent.$("#middleBoxIframe").attr("src","<?php echo U("AmazonFbaPlan/edit"); ?>?id=" + id);
+	parent.$("#middleBox").modal("show");
+}
+
+function del(id){
+	if(window.confirm("确定删除？")){
+		$("#btn_del_" + id).attr("disabled","disabled");
+		data = {
+			id:id,
+			opmode:'del',
+			edit_plan_ship_quantity:1
+		}
+		$.post("{:U('save')}",data,function(r){
+			if(r.status){
+				$("#form_search").submit();
+			}else{
+				alertWarning(r.info);
+			}
+			$("#btn_del_" + id).attr("disabled",null);
+		})
+	}
+}
+
+function printFNSKU(id){
+	quantity = $("#fnsku_quantity_" + id).val();
+	labelWindow = window.open('{:U("amazon_sellyours_issue/printfnsku")}?id=' + id + "&quantity=" + quantity,'','width=600,height=400');
+	print(labelWindow);
+	
+	return false;	
+}
+
+function print(labelWindow){
+	labelWindow.onload=function(){
+		//console.log(labelWindow.document.getElementsByTagName('embed'));
+        if(labelWindow.document.readyState=="complete"){     
+        	if(labelWindow.document.getElementsByTagName('embed').length!=0){
+				labelWindow.window.print();
+				return false;
+			}else{
+				print(labelWindow);
+			} 
+        }   
+	}
+}
+
+//更新库存相关的信息，如采购状态、库存状态、各种状态的数量
+function updateStock(){
+	$.get("{:U('updateStock')}",function(r){
+		if(r.status){
+			if(r.data.new_stock_list == null){
+				//如果没有新库存产品提示，则不用理。
+			}else{
+				$("#middleBoxIframe").attr("src","<?php echo U("AmazonSellyours/getStockMapList"); ?>?_" + Math.round(new Date().getTime()/1000));
+				$("#middleBox").modal({backdrop:'static'}).modal("show");	
+			}
+		}else{
+			alert(r.info);
+		}
+	})
+}
+
+
+function getStockMapList(sellyours_id){
+	$("#middleBoxIframe").attr("src","<?php echo U("AmazonSellyoursStock/index"); ?>?sellyours_id=" +sellyours_id+ "&_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+</script>

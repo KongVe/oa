@@ -1,0 +1,261 @@
+<layout name='Layout/m_ace_layout' />
+
+<style>
+.showBottomBox{cursor: pointer;}
+.list-block{
+	margin:0;
+
+}
+.panel-left .list-block{
+	padding-bottom:2.8rem;
+	width: 100%;
+}
+#card-list{
+	overflow-x: hidden;
+}
+.list-block .item-title{
+	max-width: 95%
+}
+
+</style>
+<div class="page">
+	<div class="list-block" id="card-list">
+	</div>
+</div>
+
+<script type="text/javascript">
+	var filter_list = {$filter_list|default=""|json_encode};
+	var config_data = {$config_data|default=""|json_encode};
+	var push_list  = new Array();
+	var push_all_list;
+	var loading = false;
+	var maxItems = 100;
+	var lastIndex = 20;
+	var itemsPerLoad = 1;
+	function init(index){
+		$.ajax({
+			url:config_data.search_url,
+			data:{p:index},
+			type:'GET',
+			dataType:'json',
+			success:function(msg){
+				push_all_list = msg;
+				maxItems = msg.data.list_total_count;
+				itemsPerLoad = msg.data.p;
+				list_push(push_all_list);
+			},error:function(error){
+				$.alert(error.statusText);
+			},beforeSend:function(){
+				$.showPreloader('正在加载') 
+			},complete:function(){
+				$.hidePreloader()
+			}
+		})
+	}
+	// function list_msg(data){
+		// $.modal({
+		// 	title:  '<div class="buttons-row">'+
+		// 	'<a href="#tab1" class="button active tab-link">备注历史</a>'+
+		// 	'<a href="#tab2" class="button tab-link">新增备注</a>'+
+		// 	'</div>',
+		// 	text: '<div class="tabs">'+
+		// 	'<div class="tab active" id="tab1"></div>'+
+		// 	'<div class="tab" id="tab2">'+
+		// 	'<button type="submit" class="button button-fill" onclick="add_remark(this)">添加新增</button>'+
+		// 	'</div>'+
+		// 	'</div>',
+		// 	buttons: [
+		// 	{
+		// 		text: '关闭',
+		// 		bold: true
+		// 	},
+
+		// 	]
+		// })
+		// $.popup('.popup-services');
+	// } 
+	function list_msg(data){debugger
+		$('#content-popup-title ul').html('<li>'+
+        '<a href="#" class="item-content">'+
+          '<div class="item-inner">'+
+            '<div class="item-title-row">'+
+             '<div class="item-title">Facebook</div>'+
+              '<div class="item-after">17:14</div>'+
+            '</div>'+
+            '<div class="item-subtitle">子标题</div>'+
+            '<div class="item-text">此处是文本内容...此处是文本内容...此处是文本内容...此处是文本内容...此处是文本内容...此处是文本内容...</div>'+
+          '</div>'+
+        '</a>'+
+      '</li>');
+		$('#content-popup-content-all').html('<div class="content-block">'+
+    '<div class="row">'+
+      '<div class="col-50"><input id="remark_add" type="text"/></div>'+
+      '<div class="col-50"><a href="#" class="button button-big button-fill button-success">新增</a></div>'+
+    '</div>'+
+  '</div>'+
+'</div>')
+		$.popup('.popup-services');
+	}
+	function config_url(data){
+		$.showPreloader('正在跳转'); 
+		setTimeout(function () {
+				$.hidePreloader();
+			}, 2000);
+		window.location.href = $(data).attr('data-href')+'?transfer_shipment_id='+$(data).attr('data-transfer_shipment_id')
+	}
+	function list_push(msg){
+		var len = msg.data.results.length;
+		$.each(msg.data.results,function(i,v){
+			if(i>len){
+				return false;
+			}else{
+				
+				var lists = document.createElement('div');
+				lists.className = 'card';
+				
+				
+				
+				var card_head = document.createElement('div');
+				var card_contnet = document.createElement('div');
+				var list_block = document.createElement('div');
+				var list_ul = document.createElement('ul');
+				var ltem_content = document.createElement('li');
+				var item_media = document.createElement('div');
+				var img_item_media = document.createElement('img');
+				var item_inner = document.createElement('div');
+				var item_title_row = document.createElement('div');
+				var item_title = document.createElement('div')
+				var item_subtitle = document.createElement('div')
+				var address_sub = v.ship_to_address?JSON.parse(v.ship_to_address):''
+				item_subtitle.textContent ='目的地:'+ (address_sub?(address_sub.Name+' '+address_sub.AddressLine1+' '+address_sub.City+' '+address_sub.StateOrProvinceCode+' '+address_sub.CountryCode+' '+address_sub.PostalCode):'');
+				var card_footer = document.createElement('div');
+				var span_1 = document.createElement('span');
+				var span_2 = document.createElement('span');
+				var card_footer_2 = document.createElement('div')
+				var button = document.createElement('button');
+				card_head.className = 'card-header';
+				card_head.textContent = v.id;
+				card_contnet.className = "card-content";				
+				list_block.className = 'list-block media-list';
+				ltem_content.className="item-content";
+				item_media.className = 'item-media';				
+				img_item_media.width = '100';
+				img_item_media.src = 'http://gqianniu.alicdn.com/bao/uploaded/i4//tfscom/i3/TB10LfcHFXXXXXKXpXXXXXXXXXX_!!0-item_pic.jpg_250x250q60.jpg';
+				item_media.appendChild(img_item_media)
+				item_inner.className = 'item-inner';
+				item_title_row.className = 'item-title-row';
+				item_title.className='item-subtitle';
+				item_title.textContent = '仓库:'+v.online_center_id+"  "+v.online_shipment_id
+				item_title_row.appendChild(item_title)
+				item_subtitle.className='item-subtitle';
+				item_inner.appendChild(item_title_row);
+				
+
+				var item_subtitle_1 = item_subtitle.cloneNode(true)
+				item_subtitle_1.textContent  = "物流:"+v.forwarder;
+				item_inner.appendChild(item_subtitle_1);
+				var item_subtitle_1 = item_subtitle.cloneNode(true)
+				item_subtitle_1.textContent  = "sky数量:"+v.transfer_product_count;
+				item_inner.appendChild(item_subtitle_1);
+				var item_subtitle_1 = item_subtitle.cloneNode(true)
+				item_subtitle_1.textContent  = "发货数量:"+v.transfer_quantity;
+				item_inner.appendChild(item_subtitle_1);
+				var item_subtitle_1 = item_subtitle.cloneNode(true)
+				item_subtitle_1.textContent  = "发货箱数:"+v.transfer_box_count;
+				item_inner.appendChild(item_subtitle_1);
+				var item_subtitle_1 = item_subtitle.cloneNode(true)
+				item_subtitle_1.textContent  = "确认发货时间:"+v.online_shipment_name;
+				item_inner.appendChild(item_subtitle_1);
+				var item_subtitle_1 = item_subtitle.cloneNode(true)
+				item_subtitle_1.id = "memo";
+				item_subtitle_1.innerHTML   = '备注:'+v.memo.replace('<br>','&nbsp;');
+				item_inner.appendChild(item_subtitle_1);
+				
+				item_inner.appendChild(item_subtitle);
+
+
+				ltem_content.appendChild(item_media)
+				ltem_content.appendChild(item_inner);
+				list_ul.appendChild(ltem_content);
+				list_block.appendChild(list_ul);
+				card_contnet.appendChild(list_block)
+				lists.appendChild(card_head)
+				lists.appendChild(card_contnet);
+				card_footer.className='card-footer';
+				button.type = 'submit';
+				button.className = 'button button-fill open-popup';
+				button.textContent = '备注';
+				button.setAttribute('onclick','list_msg(this)');
+				// span_2.textContent=v.create_time
+				card_footer.appendChild(button);
+				var button1 = button.cloneNode(true)
+				button1.setAttribute('data-href', '{:U('V2TransferShipment/v2index_list')}');
+				button1.textContent = '详情';
+				button.className = 'button button-fill button-success';
+				button1.setAttribute('onclick','config_url(this)');
+				button1.setAttribute('data-transfer_shipment_id',v.id)
+				card_footer.appendChild(button1);
+				lists.appendChild(card_footer);				
+				
+				$('#card-list').append(lists)
+				push_list.push(v);
+			}
+// 				
+})
+for(var i = 0;i<push_all_list.data.results.length;i++){
+	for(var j = 0;j<push_list.length;j++){
+		if(push_all_list.data.results[i] == push_list[j]){
+			$.inArray(i, push_all_list.data.results)
+			push_all_list.data.results.splice(i,1)
+		}
+	}
+}
+}
+
+$(function(){
+	serch_list();
+	init(itemsPerLoad,lastIndex);
+	$(document).on('infinite', '.infinite-scroll',function() {
+        // 如果正在加载，则退出
+        if (loading) return;
+
+        // 设置flag
+        loading = true;
+        itemsPerLoad++;
+        setTimeout(function() {
+        	loading = false;
+        	debugger
+        	if (Number(lastIndex) >= Number(maxItems)) {
+        		$.detachInfiniteScroll($('.infinite-scroll'));
+        		$('.infinite-scroll-preloader').remove();
+        		if($('#card-list .content-padded').length <1)
+        			$('#card-list').append('<div class="content-padded" align="center"><p>到头了</p></div>')
+        		return;
+        	}
+        	init(itemsPerLoad,lastIndex);
+        	lastIndex = $('#card-list .card').length;
+        }, 100);
+    });
+})
+
+function get_list(post_list){
+	$.post(config_data.search_url,post_list,function(data,s){
+
+		if(data.status == 0){
+			$.showPreloader(data.info)
+			setTimeout(function () {
+				$.hidePreloader();
+			}, 2000);
+			return false;
+		}
+		push_all_list = data;
+		re_form()
+		$.closePanel()
+		$.showPreloader('正在加载') 
+		$('#card-list').empty();
+		list_push(data)
+		$.hidePreloader()
+		$(document).off('infinite')
+	});
+}
+</script>

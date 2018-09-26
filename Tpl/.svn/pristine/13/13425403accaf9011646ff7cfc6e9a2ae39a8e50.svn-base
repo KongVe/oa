@@ -1,0 +1,399 @@
+<layout name='Layout/ace_popup' />
+    {:W('PageHeader',array('name'=>"编辑订单本地产品"))}
+
+    <form action="{:U('localProductSave')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+        <input type="hidden" id="ajax" name="ajax" value="1"/>
+        <input type="hidden" name="order_auto_id" value="{$Think.request.id}"/>
+        
+        <div class="panel-default">
+
+            <div class="form-group text-center">
+                <a  data-loading-text="正在保存..." data-close="1" data-target='order-detail-iframe'  data-reload='1' class="defaultEditFormSubmit btn btn-primary" >保存</a>
+                <a class="close_box_button btn btn-danger">取消</a>
+            </div>
+          
+        </div>
+
+        <div class="panel panel-primary">
+            <div class="panel panel-heading">
+                <span>基本信息</span>
+            </div>
+            <div class="panel-body">
+                <table class="table table-bordered table-condensed">
+                    <volist name="order_list" id="order">
+                        <tr>
+                            <td colspan="8">
+                                <?php
+                                    if(count($order_list)>1){
+                                ?>
+                                    <span class="red">合并订单</span> <b>{$key+1}</b>
+                                 <b>|</b>
+                                <?php
+                                    }
+                                ?>
+
+                                <b>订单ID:</b> {$order.online_order_id}
+
+                            </td>
+                        </tr>
+                        <volist name="order.online_product_data_list" id="online_product">
+
+                            <tr>
+                                <th>子订单ID</th>
+                                <th>图片</th>
+                                <th colspan="2">线上SKU</th>
+                                <th>线上颜色</th>
+                                <th>线上尺码</th>
+                                <th>数量</th>
+                                <th style="width:250px;">操作</th>
+                            </tr>
+                            <tr>
+                                <td style="width:150px;word-break:break-all;">{$online_product.online_item_id}</td>
+                                <td>
+                                    <a class="thumbnail"  href="{$online_product.thumbnail}" target="_blank">
+                                        <img src="{$online_product.thumbnail}" width="60" />
+                                    </a>
+                                </td>
+                                <td colspan="2">{$online_product.online_sku}</td>
+                                <td>
+                                    {$online_product.online_color}
+                                </td>
+                                <td>
+                                    {$online_product.online_size}
+                                </td>
+                                <td>
+                                    <b>{$online_product.quantity}</b>
+                                </td>
+                                <td>
+                                    <div class="input-group">
+                                        <div class="input-group-addon">
+                                            仓库
+                                        </div>
+                                        <select id="add_local_product_warehouse_id_{$online_product.id}" class="form-control">
+                                            <option value="">请选择仓库</option>
+                                            <volist name="warehouse_list" id="warehouse">
+                                                <option value="{$warehouse.id}">{$warehouse.warehouse_name}</option>
+                                            </volist>
+                                        </select>
+                                    </div>
+                                   
+
+                                    <br>
+
+                                    <input id="add_local_product_sku_id_{$online_product.id}" type="text" class="add_local_product_sku_id tag-input-style" style="width:100%;" value="{$vo.sku_id}"/>
+
+                                    <br>
+
+                                    数量:<input id="add_local_product_quantity_{$online_product.id}" type="number" style="width:70px;" value="1"/>个
+
+                                    <a data-id="{$online_product.id}" class="add_local_product btn btn-primary btn-xs">增加产品</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="8">
+                                    <table class="table">
+                                    <tbody id="tbody_{$online_product.id}">
+                                        <tr>
+                                            <th></th>
+                                            <th colspan="7" class="text-center">
+                                                关联的本地产品信息
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-right">序号</th>
+                                            <th>图片</th>
+                                            <th>规格SKU</th>
+                                            <th>SKU名称</th>
+                                            <th>配货状态</th>
+                                            <th>本地状态</th>
+                                            <th>数量</th>
+                                            <th>操作</th>
+                                        </tr>
+
+                                        <volist name="online_product.local_product_data" id="local_product">
+                                            <tr id="tr_{$local_product.id}">
+                                                <td class="text-right">{$local_product.id}</td>
+                                                <td>
+                                                    <a class="thumbnail"  href="{$local_product.thumbnail}" target="_blank">
+                                                        <img src="{$local_product.thumbnail}" width="60" />
+                                                    </a>
+                                                </td>
+                                                <td class="sku_td">
+                                                    {$local_product.sku}
+                                                    <br>
+                                                    <br>
+                                                    <b>仓库: </b>{$local_product.warehouse_data.warehouse_name}
+                                                </td>
+                                                <td>
+                                                    {$local_product.sku_name}
+                                                </td>
+                                                <td>
+                                                    {$local_product.picking_state|L}
+                                                </td>
+                                                <td>
+                                                    {$local_product.local_state|L}
+                                                </td>
+                                                <td class="quantity_td">
+                                                    <b>{$local_product.quantity}</b>
+                                                </td>
+                                                <td>
+                                                    <input type="hidden" id="sku_id_{$local_product.id}" value="{$local_product.sku_id}">
+                                                    <input type="hidden" id="local_product_quantity_{$local_product.id}" value="{$local_product.quantity}">
+                                                    
+                                                    <?php
+                                                        if($local_product['stockout_state'] == "Normal" && $local_product['reserved_quantity'] < $local_product['quantity'] && $local_product['local_refund_state'] == "Normal" && $local_product['local_returned_state'] == "Normal"){
+                                                    ?>
+                                                        <a data-id="{$local_product.id}" data-online_product_id="{$online_product.id}" class="edit_local_product btn btn-info btn-sm">修改</a>
+                                                        <a data-id="{$local_product.id}" class="del_local_product btn btn-danger btn-sm" onclick="delLocalProduct(this);">删除</a>
+                                                    <?php
+                                                        }else{
+                                                    ?>
+                                                        <b>该订单产品不可修改</b>
+                                                    <?php        
+                                                        }
+                                                    ?>
+                                                    
+                                                </td>
+                                            </tr>
+                                        </volist>
+                                    </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                           
+                            <tr class="warning">
+                                <th colspan="8" class="text-center">
+                                    <hr>
+                                </th>
+                            </tr>
+                        </volist>
+                    </volist>
+                </table>
+                <div class="col-xs-12 red">
+                    注意！编辑产品将会影响到该订单的包裹数据。请到包裹信息手动 <b>调整包裹</b>，或者通过点击 <b>自动处理</b> 来自动增加包裹。
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-default">
+
+            <div class="form-group text-center">
+                <a  data-loading-text="正在保存..." data-close="1" data-target='order-detail-iframe'  data-reload='1' class="editFormSubmit btn btn-primary" >保存</a>
+                <a class="close_box_button btn btn-danger">取消</a>
+            </div>
+          
+        </div>
+    
+    </form>
+
+
+<script type="text/javascript">
+var order_detail_data = {$vo|default=""|json_encode};
+var local_product_edit_list = [];
+var init_data = {};
+var sku_option = {
+    placeholder          : "请输入搜索SKU",
+    minimumInputLength   : 1,
+    multiple             : true,
+    // separator            : "",                          // 分隔符
+    maximumSelectionSize : 1,                               // 限制数量
+    initSelection        : function (element, callback) {   // 初始化时设置默认值
+        var data = [];
+        if(init_data.id){
+            data.push(init_data);
+            callback(data);
+        }
+    },
+    // createSearchChoice   : function(term, data) {           // 创建搜索结果（使用户可以输入匹配值以外的其它值）
+    //     return { id: term, text: term };
+    // },
+    formatSelection : function (item) { return item.sku_text; },  // 选择结果中的显示
+    formatResult    : function (item) { return item.sku_text; },  // 搜索列表中的显示
+    ajax : {
+        url      : "{:U('V2SkuProduct/ajaxGetSkuProduct')}",              // 异步请求地址
+        dataType : "json",                  // 数据类型
+        data     : function (term, page) {  // 请求参数（GET）
+            return { q: term };
+        },
+        results      : function (data, page) { return {results:data.data}; },  // 构造返回结果
+        escapeMarkup : function (m) { return m; }               // 字符转义处理
+    }
+}
+
+$(function($){
+    
+    //通用编辑页面表单ajax提交 按钮
+    $(".editFormSubmit").click(function(r){
+
+        for (var i = 0; i < $(".add_local_product_sku_id").length; i++) {
+            if($(".add_local_product_sku_id").eq(i).val()){
+                alertWarning("请点击增加产品");
+                return false;
+            }
+        };
+        
+        var msg = $(this).attr("data-msg");
+        var close = $(this).attr("data-close");
+        var reload = $(this).attr("data-reload");
+        var target = $(this).attr("data-target");
+        var form_id = "editForm";
+        if(!msg){
+            msg = "确认保存?";
+        }
+        if(!confirm(msg)){
+            return false;
+        }
+        var data = $("#"+form_id).serialize();
+        var url = $("#"+form_id).attr("action");
+        
+        var btn = $(this);
+        btn.button('loading');
+        if (check_form(form_id)) {
+            if(typeof(editor)!="undefined"){
+                editor.sync();  
+            }
+            sendForm(form_id,url,false,function(msg){
+                if(msg.status){
+                    alertWarning(msg.info,1);
+                    if(close){
+                        closeBox();
+                    }
+                    if(close && reload){
+                        if(target){
+                            parent.frames[target].window.location.reload();
+                        }else{
+                            parent.window.location.reload();    
+                        }
+                    }else if(reload){
+                        if(target){
+                            parent.frames[target].window.location.reload();
+                        }else{
+                            window.location.reload();
+                        }
+                    }
+                    btn.button('reset');
+                }else{
+                    alertWarning(msg.info);
+                    btn.button('reset');
+                }
+            });
+        }else{
+            btn.button('reset');
+        }
+    });
+
+    $('.add_local_product_sku_id').each(function(i){
+        $(this).select2(sku_option);
+    });
+    
+    $(".add_local_product").click(function(){
+        var online_product_auto_id = $(this).data("id");
+        var sku_id = $("#add_local_product_sku_id_"+online_product_auto_id).val();
+        var quantity = $("#add_local_product_quantity_"+online_product_auto_id).val();
+        var warehouse_id = $("#add_local_product_warehouse_id_"+online_product_auto_id).val();
+        var warehouse_name = $("#add_local_product_warehouse_id_"+online_product_auto_id+" option:selected").html();
+
+        if(!sku_id){
+            alertWarning("请输入搜索SKU");
+            return false;
+        }
+        if(!warehouse_id){
+            alertWarning("请选择仓库");
+            return false;
+        }
+        var btn = $(this);
+        btn.button('loading');
+        $.post("{:U('v2_sku_product/read')}",{id:sku_id,ajax:1},function(msg){
+            btn.button('reset');
+            if(msg.status){
+                var data = msg.data;
+                var new_local_product_id = "new_" + new Date().getTime() +""+ parseInt(Math.random()*1000);
+                var hh = '<tr id="tr_'+new_local_product_id+'"><td></td><td><a class="thumbnail" href="'+data.thumbnail+'" target="_blank"><img src="'+data.thumbnail+'" width="60" /></a></td><td class="sku_td">'+data.sku+'<br><br><b>仓库:</b> '+warehouse_name+'</td><td>'+data.sku_name+'</td><td>新增加</td><td>新增加</td><td class="quantity_td"><b>'+quantity+'</b></td><td><input type="hidden" name="new_local_product['+online_product_auto_id+']['+new_local_product_id+'][sku_id]" value="'+sku_id+'"><input type="hidden" name="new_local_product['+online_product_auto_id+']['+new_local_product_id+'][quantity]" value="'+quantity+'"><input type="hidden" name="new_local_product['+online_product_auto_id+']['+new_local_product_id+'][warehouse_id]" value="'+warehouse_id+'"><input type="hidden" id="sku_id_'+new_local_product_id+'" value="'+sku_id+'"><input type="hidden" id="local_product_quantity_'+new_local_product_id+'" value="'+quantity+'"><a data-new="1" data-id="'+new_local_product_id+'" data-online_product_id="'+online_product_auto_id+'" class="edit_local_product btn btn-info btn-sm">修改</a><a data-new="1" data-id="'+new_local_product_id+'" class="del_local_product btn btn-danger btn-sm" onclick="delLocalProduct(this);">删除</a></td></tr>';
+                $("#tbody_"+online_product_auto_id).append(hh);
+
+                $("#add_local_product_sku_id_"+online_product_auto_id).val("").select2(sku_option);
+
+                $(".edit_local_product").click(function(){
+                    editLocalProduct(this);
+                });
+            }else{
+                alertWarning(msg.info);
+                return false;
+            }
+            
+        }).error(function(){
+            btn.button('reset');
+            alertWarning("网络错误，请重试");
+            return false;
+        });
+    });
+
+    $(".edit_local_product").click(function(){
+        editLocalProduct(this);
+    });
+
+});
+
+function delLocalProduct(oo){
+    if(!confirm("确认删除？")){
+        return false;
+    }
+    obj = $(oo);
+    var local_product_auto_id = obj.data("id");
+    var new_product = obj.data("new");
+    if(!new_product){
+        $("#editForm").append('<input type="hidden" name="del_local_product_auto_id_list[]" value="'+local_product_auto_id+'">');
+    }
+    obj.parent().parent().remove();
+}
+
+function editLocalProduct(obj){
+    var local_product_auto_id = $(obj).data("id");
+    var online_product_auto_id = $(obj).data("online_product_id");
+    var sku_td = $("#tr_"+local_product_auto_id).find(".sku_td").eq(0);
+    var quantity_td = $("#tr_"+local_product_auto_id).find(".quantity_td").eq(0);
+    var sku_id = $("#sku_id_"+local_product_auto_id).val();
+    var quantity = $("#local_product_quantity_"+local_product_auto_id).val();
+    
+    if(!local_product_edit_list[local_product_auto_id]){
+        local_product_edit_list[local_product_auto_id] = {};
+    }
+    if(local_product_edit_list[local_product_auto_id].sku!=undefined){
+        var sku_td_init = local_product_edit_list[local_product_auto_id].sku.clone(true);
+    }else{
+        var sku_td_init = sku_td;
+        local_product_edit_list[local_product_auto_id].sku = sku_td.clone(true);
+    }
+    if(local_product_edit_list[local_product_auto_id].quantity!=undefined){
+        var quantity_td_init = local_product_edit_list[local_product_auto_id].quantity.clone(true);
+    }else{
+        var quantity_td_init = quantity_td;
+        local_product_edit_list[local_product_auto_id].quantity = quantity_td.clone(true);
+    }
+    var sku_html = '<div class="input-group" style=""><input id="edit_local_product_sku_id_'+local_product_auto_id+'" type="hidden" name="edit_local_product['+online_product_auto_id+']['+local_product_auto_id+'][sku_id]" value="'+sku_id+'"/><br>数量: <input id="edit_local_product_quantity_'+local_product_auto_id+'" type="number" name="edit_local_product['+online_product_auto_id+']['+local_product_auto_id+'][quantity]" style="width:60px;" value="'+quantity+'"/>个<a class="close" onclick="$(this).parent().remove();">×</a></div>';
+    //<input id="edit_local_product_sku_id_'+local_product_auto_id+'" type="text" name="edit_local_product['+online_product_auto_id+']['+local_product_auto_id+'][sku_id]" class="tag-input-style" style="width:100%;" value="'+sku_id+'"/>
+    sku_td.html(sku_td_init.html());
+    sku_td.append(sku_html);
+
+    // $.post("{:U('v2_sku_product/ajaxGetSkuProduct')}",{id:sku_id,ajax:1},function(msg){
+    //     if(msg.status){
+    //         var init_data = msg.data[0];
+    //         sku_option.initSelection = function(element, callback){
+    //             var data = [];
+    //             if(init_data.id){
+    //                 data.push(init_data);
+    //                 callback(data);
+    //             }
+    //         }
+    //         $("#edit_local_product_sku_id_"+local_product_auto_id).select2(sku_option);
+    //     }else{
+    //         alertWarning(msg.info);
+    //         return false;
+    //     }
+        
+    // }).error(function(){
+    //     alertWarning("网络错误，请重试");
+    //     return false;
+    // });
+}
+</script>

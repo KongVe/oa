@@ -1,0 +1,380 @@
+String.prototype.visualLength = function()
+{
+        var ruler = $("#len_arr");
+        ruler.show();
+        ruler.text(this);
+        var i = ruler[0].offsetWidth;
+        ruler.hide();
+        return i;
+}
+function clomodel(table ,data,pager){
+  $.each(config_data.title_list,function(i,v){
+    var k = v.key;
+      var obj = {};
+      if(v.sort_key){
+        obj['name'] = v.sort_key;
+        obj['index'] = v.key;
+        obj['formatter'] = function(cellvalue, options,rowObject){
+         
+         var name = '';
+         $.each(config_data.title_list,function(i,v){
+          if(options.colModel.name == v.sort_key){
+            name = rowObject[v.key];
+            return false;
+          }
+          
+         })
+         return name
+       }
+     }else{
+      obj['name'] = v.key;
+    }
+    if(v.val){
+      obj ['label'] = v.val;
+    }else{
+      obj['hidden'] = true
+    }
+    if(!v.sort){
+      obj['sortable'] =true;
+    }else{
+      obj['sortable'] = false;
+    }
+    if(k){
+      var len_arr_list=0;
+      $.each(data,function(i,v){
+        var a = v[k];
+        if(k == 'action_control'){
+          a = '';
+        }
+        if(a.visualLength()>len_arr_list)
+       len_arr_list = a.visualLength();
+     if(obj.label.visualLength()>len_arr_list){
+      len_arr_list = obj.label.visualLength();
+     }
+      })
+      if(len_arr_list<30){
+      	 obj['width'] = 30
+      }else if(len_arr_list>150){
+      	obj['width'] = 150
+      }else{
+      	obj['width'] = len_arr_list
+      }
+     
+    }
+    if(k== 'action_control'){
+    	obj['formatter']= function(cellvalue, options,rowObject){debugger
+    		// if(cellvalue){
+    		// 	if(cellvalue.action_control){
+    		// 		var name = '';
+    		// 		$.each(cellvalue.action_control,function(k,q){
+    		// 			name += '<a class="btn">'+q+'</a>'
+    		// 		})
+    		// 	}
+    		// }else{
+    		// 	return '';
+    		// }
+    		return '<a class="btn" onclick="edit('+rowObject+')">编辑</a>&nbsp;<a class="btn" onclick="detail('+rowObject+')">详情</a>'
+    	}
+    }
+    obj['align'] = 'center';
+      // obj['width'] = 100
+      colModel.push(obj);
+    })
+   Get_Grid(table,data,pager);
+}
+ function Get_Grid(table,data,pager){
+    console.log(colModel)
+    $('#'+table).jqGrid({
+     subGrid : true,
+     data:data,
+     datatype: "local",
+     subGridOptions : {
+      plusicon : "ace-icon fa fa-plus center bigger-110 blue",
+      minusicon  : "ace-icon fa fa-minus center bigger-110 blue",
+      openicon : "ace-icon fa fa-chevron-right center orange"
+    },
+
+          //for this example we are using local data
+          subGridRowExpanded: function (subgridDivId, rowId) {
+            var subgridTableId = subgridDivId + "_t";
+            $("#" + subgridDivId).html("<table id='" + subgridTableId + "'></table>");
+            $("#" + subgridTableId).jqGrid({
+              datatype: 'local',
+              data: {},
+              width:'100%',
+              colNames: ['No','Item Name','Qty'],
+              colModel: [
+              { name: 'id',value:'id', width: 50 },
+              { name: 'name',value:'名字', width: 150 },
+              { name: 'qty',value:'数量', width: 50 }
+              ]
+            });
+          },
+          // height:$(window).height(), 
+          autoheight:true,
+          width:$('#search_table').width(),
+          // autowidth: true,
+          shrinkToFit:true,
+          colModel:colModel,
+          viewrecords : true,
+          rowNum:10,
+          rowList:[10,50,100,500,1000],
+          pager : pager,
+          shrinkToFit: false,
+          autoScroll: true, 
+          multiselect: true,
+          gridComplete:function(data) {debugger
+          //表格加载执行
+          // $(this).closest('.ui-jqgrid-view').find('div.ui-jqgrid-hdiv').width($(this).closest('.ui-jqgrid-view').find('table').width());
+           // $('div.ui-jqgrid-view').width($(this).closest('.ui-jqgrid-view').find('table').width()+15);
+          // $('#grid-page').width($(this).closest('.ui-jqgrid-view').find('table').width())
+          // $(this).closest('.ui-jqgrid-view').find('div.ui-jqgrid-bdiv').width($(this).closest('.ui-jqgrid-view').find('table').width());
+          // $('#grid-pager').width($(this).closest('.ui-jqgrid-view').find('table').width())
+         
+          
+        },
+        loadComplete : function() {
+          var table = this;
+          setTimeout(function(){
+            updatePagerIcons(table);
+          }, 0);
+        }
+
+
+      })
+    // $('#lui_grid-table').hide();
+  }
+  function updatePagerIcons(table) 
+
+  {
+    var replacement = {
+      'ui-icon-seek-first' : 'ui-icon ace-icon fa fa-angle-double-left bigger-140',
+      'ui-icon-seek-prev' : ' ui-icon ace-icon fa fa-angle-left bigger-140',
+      'ui-icon-seek-next' : 'ui-icon ace-icon fa fa-angle-right bigger-140',
+      'ui-icon-seek-end' : ' ui-icon ace-icon fa fa-angle-double-right bigger-140'
+    };
+    $('.ui-pg-table:not(.navtable) > tbody > tr > .ui-pg-button > .ui-icon').each(function() {
+      var icon = $(this);
+      var $class = $.trim(icon.attr('class').replace('ui-icon', ''));
+      if ($class in replacement)
+        icon.attr('class', 'ui-icon ' + replacement[$class]);
+    });
+  }
+function menu_list_get(){//获取导航菜单数据
+				var test = window.location.protocol; 
+				test += '//'+ window.location.host+'/User/getUserInfo'; 
+				$.ajax({
+					url:test,
+					type:'GET',
+					dataType:'json',
+					success:function(data){
+						if(data.data.menu_tree.length>0){
+							Get_menu_list(data.data);
+						}
+					},
+				})
+			}
+			function Get_menu_list(data){//填充菜单
+				var list = '';
+				$.each(data.menu_tree,function(i,v){
+					var list_child = '';
+					if(v._child){
+						list_child = get_menu_child(v._child);
+						list += '<li><a node="'+v.id+'" href="'+v.url+'" class="dropdown-toggle"><i class="menu-icon fa fa-caret-right"></i><span class="menu-text"></span>'+v.name+'</a><b class="arrow fa fa-angle-down"></b>'+list_child+'</li>' 
+					}else{
+						list += '<li><a node="'+v.id+'" href="'+v.url+'" ><i class="menu-icon fa fa-caret-right"></i><span class="menu-text"></span>'+v.name+'</a><b class="arrow"></b></li>'
+					}
+				})
+				$('.nav-list').append(list);
+			}
+			function get_menu_child(data){//子级餐单填充
+				var list = '';
+				var data_len = data.length-1;
+				$.each(data,function(i,v){
+					var list_child = '';
+					if(i == 0){
+						list += '<ul class="submenu">';
+					}
+					if(v._child){
+						list_child = get_menu_child(v._child);
+						list += '<li><a node="'+v.id+'" href="'+v.url+'" class="dropdown-toggle"><i class="menu-icon fa fa-caret-right"></i><span class="menu-text"></span><b class="arrow fa fa-angle-down"></b>'+v.name+'</a><b class="arrow"></b>'+list_child+'</li>' 
+					}else{
+						list += '<li><a node="'+v.id+'" href="'+v.url+'" ><i class="menu-icon fa fa-caret-right"></i><span class="menu-text"></span>'+v.name+'</a><b class="arrow"></b></li>'
+					}
+					if(i == data_len){
+						list += '</ul>'
+					}
+				})
+				return list;
+			}
+function serch_list(id){//搜索条件添加
+	$('#'+id).empty().append('<div class="form-group"></div>');
+	$.each(filter_list,function(i,data){
+		switch (data.filter_type) {
+			case 'str_in_array':
+					// 英文逗号分隔，如 33,533,64,text文本
+					$('#'+id).find('.form-group:first-child').append(
+					'<div class="col-xs-12">'+
+					'<label class="col-sm-3 control-label no-padding-right">'+data.title+'</label>'+
+					' <div class="col-sm-6">'+
+					'   <input type="text"class="form-control" placeholder="'+(data.memo||data.title)+'" name="'+data.name+'" data-filter_type="'+data.filter_type+'">'+
+					'</div>'+
+					'</div>')
+					break;
+					case 'time_between':
+					//1个或者2个input type=text,时间用" - "分隔，如 2018-04-01 - 2018-04-18
+					$('#'+id).find('.form-group:first-child').append(
+					'<div class="col-xs-12">'+
+					'<label class="col-sm-3 control-label no-padding-right">'+data.title+'</label>'+
+					' <div class="col-sm-6">'+
+						'   <input type="text"class="col-xs-10 col-sm-5" placeholder="开始"id="'+data.name+'" name="'+data.name+'start" data-filter_type="'+data.filter_type+'"/>-<input type="text" placeholder="结束"id="'+data.name+'" name="'+data.name+'end"  data-filter_type="'+data.filter_type+'"/>'+
+						'</div>'+
+						'</div>');
+					
+					$('#'+id).find('[name="'+data.name+'start"]').datepicker({
+						language: 'zh-CN',//选择语言
+						autoclose: true,
+						todayHighlight: true
+					})
+					$('#'+id).find('[name="'+data.name+'end"]').datepicker({
+						language: 'zh-CN',//选择语言
+						autoclose: true,
+						todayHighlight: true
+					})
+					break;
+					case 'multi_select'://多选
+					$('#'+id).find('.form-group:first-child').append(
+					'<div class="col-xs-12">'+
+					'<label class="col-sm-3 control-label no-padding-right">'+data.title+'</label>'+
+					' <div class="col-sm-6">'+
+						'   <select type="select"class="form-control" id="'+data.name+'_select2" size="1" multiple="multiple"  placeholder="'+data.title+'"class="col-xs-10 col-sm-5" name="'+data.name+'[]"data-filter_type="'+data.filter_type+'"></div>'+
+						'</div>'+
+						'</div>')
+					var list = [];
+					var list_name = '';
+					$.each(data.filter_data,function(e,q){
+						list.push({id:q.key,text:q.val});
+						// list += q.key +',';
+						// list_name += q.val+',';
+						// list += '<option value="'+q.key+'">'+q.val+'</option>';
+					})
+					
+					// list = list.substr(0,list.length-1);
+					// list_name = list_name.substr(0,list_name.length-1);
+					$('#'+data.name+'_select2').select2({
+						data:list,
+					})
+					// $('#'+data.name+'_select2').append(list);
+
+					break;
+					case 'like_left'://模糊搜索 左侧模糊查询
+					$('#'+id).find('.form-group').append(
+					'<div class="col-xs-12">'+
+					'<label class="col-sm-3 control-label no-padding-right">'+data.title+'</label>'+
+					' <div class="col-sm-6">'+
+						'   <input type="text" class="form-control" placeholder="'+(data.memo||data.title)+'" name="'+data.name+'"data-filter_type="'+data.filter_type+'">'+
+						'</div>'+
+						'</div>')
+					break;
+					case 'like_right'://模糊搜索 右侧模糊查询
+					$('#'+id).find('.form-group').append(
+					'<div class="col-xs-12">'+
+					'<label class="col-sm-3 control-label no-padding-right">'+data.title+'</label>'+
+					' <div class="col-sm-6">'+
+						'   <input type="text" class="form-control" placeholder="'+(data.memo||data.title)+'" name="'+data.name+'"data-filter_type="'+data.filter_type+'">'+
+						'</div>'+
+						'</div>')
+					break;
+					case 'like_between'://模糊搜索 匹配左右模糊查询
+					$('#'+id).find('.form-group').append(
+					'<div class="col-xs-12">'+
+					'<label class="col-sm-3 control-label no-padding-right">'+data.title+'</label>'+
+					' <div class="col-sm-6">'+
+						'   <input type="text" class="col-xs-10 col-sm-5" placeholder="开始"id="'+data.name+'" name="'+data.name+'start"data-filter_type="'+data.filter_type+'">-<input type="text" class="col-xs-10 col-sm-5" placeholder="结束"id="'+data.name+'" name="'+data.name+'end"data-filter_type="'+data.filter_type+'">'+
+						'</div>'+
+						'</div>')
+					break;
+					case 'eq'://精确查询
+					$('#'+id).find('.form-group').append(
+					'<div class="col-xs-12">'+
+					'<label class="col-sm-3 control-label no-padding-right">'+data.title+'</label>'+
+					' <div class="col-sm-6">'+
+						'   <input type="text" class="form-control" placeholder="'+(data.memo||data.title)+'" name="'+data.name+'"data-filter_type="'+data.filter_type+'">'+
+						'</div>'+
+						'</div>')
+					break;
+					case 'number_between'://最小值和最大值
+					$('#'+id).find('.form-group').append(
+					'<div class="col-xs-12">'+
+					'<label class="col-sm-3 control-label no-padding-right">'+data.title+'</label>'+
+					' <div class="col-sm-6">'+
+						'   <input type="number" class="form-control" placeholder="最小值" id="'+data.name+'" name="'+data.name+'start"data-filter_type="'+data.filter_type+'">-<input type="text" class="col-xs-10 col-sm-5" placeholder="最大值"id="'+data.name+'" name="'+data.name+'end"data-filter_type="'+data.filter_type+'">'+
+						'</div>'+
+						'</div>')
+					break;
+					default:
+					// 默认为文本输出
+
+					$('#'+id).find('.form-group').append(
+					'<div class="col-xs-12">'+
+					'<label class="col-sm-3 control-label no-padding-right">'+data.title+'</label>'+
+					' <div class="col-sm-6">'+
+					'   <input type="text" class="form-control" placeholder="'+(data.memo||data.title)+'" name="'+data.name+'" data-filter_type="'+data.filter_type+'">'+
+					'</div>'+
+					'</div>')
+					break;
+				}
+				
+			})
+//加载查询表单按钮
+$('#'+id).find('.form-group').append('<div class="clearfix form-actions" >'+
+	'<div class="col-md-offset-3 col-xs-12"style="margin-top:.5rem">'+
+	'<button class="btn" onclick="re_form()">重置</button>&nbsp;&nbsp;&nbsp;&nbsp;'+
+	'<button  class="btn btn-info" onclick="submit_form()">提交</button>'+
+	'</div>'+
+	'</div>')
+// $('.panel-left select').each(function(){
+// 	$(this).select2({
+// 		width:'100%',
+// 	});
+// })
+
+}
+function re_form(id){
+	$('#'+id).find('input').val('')
+	$('#'+id).find('select[name]').each(function(i,q){
+		$("#"+$(q).attr('id')).select2().val("").trigger("change")
+	})
+}
+function submit_form(id){
+	var post_list = new Array();
+	post_list['filter'] = {};
+	$('#'+id).find('input[name]').each(function(i,q){
+		if(!$(q).attr('id')){
+			var name = $(q).attr('name')
+			if(post_list.filter[""+$(q).attr('data-filter_type')+""])
+			post_list.filter[""+$(q).attr('data-filter_type')+""] = {}
+			post_list.filter[""+$(q).attr('data-filter_type')+""][""+name+""] = $(q).val()
+		}else{
+			var id = $(q).attr('id');
+			var id_start ='start'
+			var id_end = 'end'
+			if(post_list.filter[""+$(q).attr('data-filter_type')+""])
+			post_list.filter[""+$(q).attr('data-filter_type')+""] = {};
+		if(post_list.filter[""+$(q).attr('data-filter_type')+""][""+id+""])
+			post_list.filter[""+$(q).attr('data-filter_type')+""][""+id+""] = {}
+			post_list.filter[""+$(q).attr('data-filter_type')+""][""+id+""]["0"]=$('input[name="'+id_start+'"]').val();
+			post_list.filter[""+$(q).attr('data-filter_type')+""][""+id+""]["1"]=$('input[name="'+id_end+'"]').val();
+		}
+
+	})
+	$('#'+id).find('select[name]').each(function(i,q){
+		var name = $(q).attr('id').replace('_select2');
+		if(post_list.filter[""+$(q).attr('data-filter_type')+""][""+id+""])
+		post_list.filter[""+$(q).attr('data-filter_type')+""] = {};
+		post_list.filter[""+$(q).attr('data-filter_type')+""][""+name+""] = $(q).attr('id').select2().val();
+
+	})
+	get_list(post_list);
+
+}

@@ -1,0 +1,143 @@
+<layout name='Layout/ace_box' />
+<div class="panel panel-default">
+	<div class="panel-body">
+		<ul id="orderDetail" class="nav nav-tabs">
+			<li><a href="#product" data-toggle="tab">产品明细</a></li>
+			<li><a href="#customer" data-toggle="tab">客户信息</a></li>
+			<li><a href="#package" data-toggle="tab">包裹信息</a></li>
+		</ul>
+		<div id="orderDetailContent" class="tab-content">
+			<div class="tab-pane fade active in" id="product">			
+				<?php
+					foreach ($order_product_list as $order_auto_id => $productList) {
+				?>
+				<span>订单序号：{$order_auto_id}</span>
+				<table class="table table-striped table-hover table-bordered table-condensed">
+					<tr>
+						<th>操作</th>
+						<th>ID</th>
+						<th>SKU</th>
+						<th>规格</th>
+						<th>数量</th>
+						<th>备注</th>
+						<th>图片</th>
+						<th>本地状态</th>
+						<th>商品状态</th>
+						<th>标题</th>
+						<th>成本</th>
+						<th>国际运费</th>
+						<th>预计可得</th>
+						
+						
+					</tr>
+					<tbody class="tbody">
+						<foreach name="productList" item="product" key="pK">
+							<tr>
+								<th  >
+									<input type="hidden" name="id[]" value="{$product.id}" />
+								<!--	<a href="" onclick="del_product({$product.id})">删除</a>
+									<br> -->
+									<div class="btn-group-vertical text-left">
+										<a class="btn btn-link" onclick="editProduct({$product.id})">修改</a>
+										<if condition="$product.local_state eq 'Shipped'">
+											<a class="btn btn-link" onclick="returnedProduct({$product.id})">退货登记</a>
+										<elseif condition="$product.local_state eq 'Returned'" />
+											<a class="btn btn-link" onclick="returnedProduct({$product.id})">增加退货</a>
+											<a class="btn btn-link" onclick="cancelReturned({$product.id})">取消退货登记</a>
+										</if>
+									</div>
+								</th>
+								<td style="width:100px;word-wrap: break-word;">{$product.snapshot_id}</td>
+								<td>{$product.sku}
+									<if condition="$product.combineSku eq 1">
+										<br>
+										<br>
+										<a class="btn btn-xs btn-primary" onclick="combineSku('{$product.id}',{$product.account_id},'{$product.product_id}','{$product.sku}');">映射SKU</a>
+									</if>
+								</td>
+								<td>{$product.variation}</td>
+								<td><strong style="color:red">{$product.quantity}</strong></td>
+								<td>
+									<span class="editStatic" field="memo" onclick="editStatic(this,'{:U('OrderProduct/save')}?id={$product.id}','textarea')">{$product.memo}</span>
+								</td>								
+								<td><a href="{$product.thumbnail}" class="thumbnail" target="_blank"><img src="{$product.thumbnail}" width="60" /></a></td>
+								<td>{$product.local_state}</td>
+								<td>{$product.product_state}</td>
+								
+								<td class="col-lg-2">
+									<a href="{$product.product_link}" target="_blank" title="{$product.product_name}">{:substr($product['product_name'],0,20)}...</a>
+									<br>产品ID：{$product.product_id}
+									<br><a href="{$product.snapshot_link}" target="_blank">快照</a>
+								</td>
+								<td>￥<span class="editStatic" field="cost" onclick="editStatic(this,'{:U('OrderProduct/save')}?id={$product.id}')">{$product.cost}</span></td>
+								<td>￥<span class="editStatic" field="shipping_cost" onclick="editStatic(this,'{:U('OrderProduct/save')}?id={$product.id}')">{$product.shipping_cost}</span></td>
+								
+								<td>{$product.estimate_total}</td>
+							
+								
+							</tr>
+						</foreach>
+					</tbody>
+				</table>
+				<?php
+					}
+				?>
+				<a class="btn btn-danger" id="addProduct" onclick="addProduct({$Think.request.id})">新增</a>
+				<a class="btn btn-danger" id="ship" onclick="printDetail({$Think.request.id})">打印</a>
+				<a class="btn btn-danger" id="ship" onclick="shipPrint({$Think.request.id})">打印发货</a>
+				<?php /**<eq name="canShip" value="true"><button class="btn btn-danger" id="ship" onclick="ship({$Think.request.id})">发货</button></eq>  **/?>
+			</div>
+			<div class="tab-pane fade" id="customer">
+				<b>姓名：</b><span class="editStatic" field="shipping_first_name" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$Think.request.id}')">{$order.shipping_first_name}</span> <span class="editStatic" field="shipping_last_name" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$Think.request.id}')">{$order.shipping_last_name}</span><br>
+
+				<b>街道地址1：</b><span class="editStatic" field="shipping_street_address_1" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$Think.request.id}')">{$order.shipping_street_address_1}</span><br>
+
+				<b>街道地址2：</b><span class="editStatic" field="shipping_street_address_2" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$Think.request.id}')">{$order.shipping_street_address_2}</span><br>
+
+				<b>城市：</b><span class="editStatic" field="shipping_city" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$Think.request.id}')">{$order.shipping_city}</span>, <br>
+
+				<b>省：</b><span class="editStatic" field="shipping_state" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$Think.request.id}')">{$order.shipping_state}</span>, <br>
+
+				<b>邮编：</b><span class="editStatic" field="shipping_zipcode" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$Think.request.id}')">{$order.shipping_zipcode}</span><br>
+
+				<b>国家：</b><span class="editStatic" field="shipping_country" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$Think.request.id}')">{$order.shipping_country}</span><br>
+
+				<b>电话号码：</b><span class="editStatic" field="shipping_phone" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$Think.request.id}')">{$order.shipping_phone}</span>
+			</div>			
+			<div class="tab-pane fade" id="package">
+
+				<foreach name="packageList" item="package">
+					<b>包裹号： </b>{$package.package_code}<br>
+					<b>包裹状态： </b>{$package.package_state}<br>
+					<b>本地发货时间： </b><?php 
+						if($package['local_send_time']){
+							echo date("y-m-d H:i:s",$package['local_send_time']);
+						}else{
+							echo "未发货";
+						}
+					?><br>
+					
+					<b>提审时间： </b><if condition="$package.forwarder_synch_time neq 0">{$package.forwarder_synch_time|date="Y-m-d H:i:s",###}<else/>未提审</if><br>
+					<b>线上跟踪号： </b>{$package.online_tracking_number}<br>
+					<!-- <b>本地跟踪号： </b>{$package.local_tracking_number}<br> -->
+					<b>货代跟踪号： </b>{$package.forwarder_tracking_number}<br>
+					<b>包裹总重(g)： </b>{$package.weight}<br>
+					<b>运费： </b>{$package.shipping_fee}<br>
+					<b>包裹备注： </b><br>{$package.memo}<br>
+					<hr>
+				</foreach>
+			</div>
+			<a class="btn btn-danger pull-right"  onclick="closeBox()" style="position: fixed;right: 12px;bottom: 15px;">关闭</a>
+		</div>
+	</div>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<iframe src="" id="saveThunbnail" style="visibility:hidden;height:1px;width:1px;"></iframe>
+
+
+
+
+
+

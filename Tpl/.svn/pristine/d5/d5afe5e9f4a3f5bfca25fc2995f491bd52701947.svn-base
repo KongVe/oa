@@ -1,0 +1,124 @@
+<layout name='Layout/ace_layout' />
+{:W('PageHeader',array('name'=>'编辑帐号'))}
+
+<form method='post' id="form_data" name="form_data" enctype="multipart/form-data"   class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="0">
+	<input type="hidden" id="type" name="type" value="{$type}">
+	<input type="hidden" id="folder" name="folder" value="{$folder}">
+	<input type="hidden" id="fid" name="fid" value="{$folder}">
+	<if condition="$_REQUEST['id'] neq ''">
+		<input type="hidden" id="id" name="id" value="{$vo.id}">
+		<input type="hidden" id="opmode" name="opmode" value="edit">
+	<else/>
+		<input type="hidden" id="opmode" name="opmode" value="add">
+	</if>
+
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label" for="order_account" >帐号：</label>
+			<div class="col-sm-8">
+				<input class="form-control" type="text" id="order_account" name="order_account" value="{$vo.order_account}"  check="require" msg="请输入帐号" placeholder="帐号">
+			</div>
+		</div>
+	</div>
+	
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label" for="account_name" >帐号昵称：</label>
+			<div class="col-sm-8">
+				<input class="form-control" type="text" id="account_name" name="account_name" value="{$vo.account_name}"  check="require" msg="请输入帐号" placeholder="帐号">
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group col-sm-12" style="display:none;">
+		<input class="form-control" type="text" id="website" name="website" value="taobao">
+		<input class="form-control" type="text" id="website_name" name="website_name" value="Taobao">
+	</div>
+	
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label" for="app_key" >app_key：</label>
+			<div class="col-sm-8">
+				<input class="form-control" type="text" id="app_key" name="app_key" value="{$vo.app_key}"  placeholder="app_key">
+			</div>
+		</div>
+	</div>
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label" for="app_secret" >app_secret：</label>
+			<div class="col-sm-8">
+				<input class="form-control" type="text" id="app_secret" name="app_secret" value="{$vo.app_secret}"   placeholder="app_secret">
+			</div>
+		</div>
+	</div>
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label" for="access_token" >access_token：</label>
+			<div class="col-sm-8">
+				<input class="form-control" type="text" id="access_token" name="access_token" value="{$vo.access_token}" placeholder="access_token">
+			</div>
+		</div>
+	</div>
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label" for="refresh_token" >refresh_token：</label>
+			<div class="col-sm-8">
+				<input class="form-control" type="text" id="refresh_token" name="refresh_token" value="{$vo.refresh_token}"   placeholder="refresh_token">
+			</div>
+		</div>
+	</div>
+	
+	<!-- <div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label" for="notice_email" >通知到用户：</label>
+			<div class="col-sm-8">
+				<select name="notice_uid">
+					<option value="">请选择用户</option>
+					<volist name="user_list" id="user">
+						<option value="{$user.id}" <eq name="user.id" value="vo.notice_uid"> selected</eq> >{$user.emp_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+	</div> -->
+	
+	
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label" for="disabled" >禁用：</label>
+			<div class="col-sm-8">
+				<input class="form-control" type="checkbox" id="disabled" name="disabled" value="1"  <notempty name="_REQUEST['disabled']"> checked="checked" </notempty> >
+			</div>
+		</div>
+	</div>
+	
+	<div class="action">
+		<if condition="$_REQUEST['id'] neq ''">
+			<input class="btn btn-sm btn-primary" type="button" value="保存" onclick="save();">
+		<else/>
+			<input class="btn btn-sm btn-primary" type="button" value="创建" onclick="save();">
+		</if>
+		
+	</div>
+</form>
+
+<script type="text/javascript">
+	function save() {
+		if($("#website").val()==""){
+			alertWarning("请选择平台");
+			return;
+		}
+		$("#ajax").val(1);
+		//editor.sync();
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('taobaoSave')}",'',function(msg){
+				alert(msg.info);
+				if(msg.status){
+					window.opener=null;window.open('','_self');window.close();
+				}
+			});
+		}
+	}
+
+</script>

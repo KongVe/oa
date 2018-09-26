@@ -1,0 +1,74 @@
+/*
+手机版首页样式
+*/
+img.icon.icon-ChatHead {
+    width: 1.45rem;
+    height: 1.45rem;
+  }
+
+  .item-content .success .badge {
+    background: red;
+    color:#FFFFFF;
+  }
+
+  .panel-left select option {
+    color: #000;
+  }
+  .icon-home:before {
+    content: "\e602";
+  }
+  .icon-star:before {
+    content: "\e60e";
+  }
+nav ul{
+margin: 0;
+padding: 0;
+ list-style:none; /* 去掉ul前面的符号 */
+ width: auto;
+}
+
+/*未展开子菜单*/
+.tab-item>div{
+    position:relative;
+    -webkit-box-sizing: border-box;
+}
+.tab-item>.new-tab{
+  position: absolute;
+    bottom: 2.5rem;
+    z-index: -1;
+    width: 100%;
+    list-style: none;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    display: none;
+   border-radius: 0.55rem;
+    background: #f7f7f8;
+}
+.tab-item>ul li{
+  float: none;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    line-height: 2rem;
+    background: -webkit-gradient(linear, 0 0, 100% 0, from(rgba(194,194,194,0.8)), to(rgba(194,194,194,0.8)), color-stop(50%, rgba(194,194,194,0.8)));
+    background-size: 80% 1px;
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    color: #929292;
+}
+.tab-item>.new-tab>.actives{
+color:#0c0c0c;
+}
+.tab-item.active>.new-tab{
+  display: block;
+}
+.sanjiao {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 0;
+    height: 0;
+    border: 5px solid transparent;
+    border-right: 5px solid #000;
+    border-bottom: 5px solid #000;
+    opacity: .5;
+}

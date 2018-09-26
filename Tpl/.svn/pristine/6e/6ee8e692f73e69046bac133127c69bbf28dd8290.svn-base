@@ -1,0 +1,353 @@
+<script type="text/javascript">
+
+function cacheImgAhead(){
+	var length=$('#gallery_box img').length;
+	var tmpList={};
+	cacheImgSubmit(0,length,tmpList);
+}
+
+function cacheImgSubmit(i,length,tmpList){
+
+	if(i>=length){
+		cacheSpecImg(0);
+		cacheImgH();
+		return true;
+	}
+
+	var img_obj=$('#gallery_box img').eq(i);
+
+	if(img_obj.height()>=0){
+		var img_url=img_obj.attr('src');
+
+		if(img_url.indexOf("http")!==0){
+			i++;
+			cacheImgSubmit(i,length,tmpList);
+			return;
+		}
+
+		img_obj.attr('src','');
+
+		var id_value=img_obj.attr('id');
+
+		var num=/[0-9]*$/.exec(id_value);
+		num=num[0];
+		var tmp_id=new Date().getTime();
+
+		var view="<div class='col-sm-12'><div id='tmp_id"+tmp_id+"'style='border:3px solid blue;width:"+$('#galleryImg'+num).width()+"px;height:"+$('#galleryImg'+num).height()+"px;display:block;'><b style='font-size:20px;'>该图片正在下载中...</b></div></div>"
+		$(view).insertAfter('#galleryImg'+num);
+		$('#galleryImg'+num).hide();
+
+		tmpList[num]=tmp_id;
+		$.ajax({
+			url:"{:U('cacheImgAhead')}",
+			type:'post',
+			dataType:'json',
+			data:{li_id:$('#li_id').val(),img_url:img_url,tmp_id:tmp_id,num:num},
+			success:function(msg){	
+	
+				if(msg.status){
+					var obj=$("#img"+msg.data.num);
+					$(obj).attr('src',msg.data.img_url);
+					$(obj).attr('alt',"图片正在加载中..");
+
+					$(obj).prev().val(msg.data.img_url);
+
+					$('#galleryImg'+msg.data.num).show();
+					$('#tmp_id'+msg.data.tmp_id).remove();
+				}else{
+
+					if($('#cacheAlert'+num).length<=1){
+						$("#imgDiv"+num).append("<div id='cacheAlert"+num+"' style='max-height:200px;'>"+msg.info+"</div>");
+						$("#img"+num).css({width:"200px",height:"100px"});
+					}
+					$('#galleryImg'+num).show();
+					$('#tmp_id'+tmp_id).remove();
+				}
+			
+				i++;
+				if(cacheImgSubmit(i,length,tmpList)){
+					return true;
+				}
+			},
+			error:function(){
+				for (var ii = 0; ii < length; ii++) {
+					var img_obj=$('#gallery_box img').eq(ii);
+					var id_value=img_obj.attr('id');
+					var num=/[0-9]*$/.exec(id_value);
+					num=num[0];
+					$('#galleryImg'+num).show();
+					if(typeof(num)!="undefined"){
+						$('#tmp_id'+tmpList[num]).remove();
+					}
+				}
+
+				i++;
+				if(cacheImgSubmit(i,length,tmpList)){
+					return true;
+				}
+			}
+		});
+	}
+}
+
+//下载主图到本地服务器
+function cacheImgH(){
+	var img_obj=$('#imgH');
+	var img_url=img_obj.attr('src');
+	var img_url_bak=img_url;
+
+	if(img_url.indexOf("http")!==0){
+		return;
+	}
+
+	img_obj.attr('title','主图正在加载中');
+	img_obj.attr('alt','主图正在加载中');
+	img_obj.attr('src','');
+	$.ajax({
+		url:"{:U('cacheImgAhead')}",
+		type:'post',
+		dataType:'json',
+		data:{
+			li_id:$('#li_id').val(),
+			img_url:img_url,
+		},
+		success:function(msg){	
+			if(msg.status==1){
+				img_obj.attr('src',msg.data.img_url);
+				img_obj.attr('alt','主图正在加载中');
+				$('#galleryH').val(msg.data.img_url);
+			}else{
+				//img_obj.attr('src',img_url_bak);
+				img_obj.attr('title','主图有误，请重新设置主图');
+				img_obj.attr('alt','主图有误，请重新设置主图');
+			}
+		},
+		error:function(){
+			img_obj.attr('title','主图有误，请重新设置主图');
+		}
+	});
+}
+
+//下载规格中的图片
+function cacheSpecImg(){
+	var length=$('.color_img img').length;
+	for (var i = 0; i < length; i++) {
+		var img_obj=$('.color_img img').eq(i);
+		var img_url=img_obj.attr('src');
+		if(img_url.indexOf("http")!==0){
+			continue;
+		}
+		img_obj.attr('src','');
+		img_obj.attr('alt','图片正在加载中');
+
+		$.ajax({
+			url:"{:U('cacheImgAhead')}",
+			type:'post',
+			dataType:'json',
+			data:{
+				li_id:$('#li_id').val(),
+				img_url:img_url,
+				key:i,
+			},
+			success:function(msg){
+				if(msg.status==1){
+					$('.color_img img').eq(msg.data.key).attr('src',msg.data.img_url);
+					$('.color_img img').eq(msg.data.key).attr('alt',"图片正在加载中");
+					$('.color_img img').eq(msg.data.key).parent().prev().val(msg.data.img_url);
+				}else{
+					$('.color_img img').eq(msg.data.key).attr('src','');
+					$('.color_img img').eq(msg.data.key).parent().prev().val("");
+					$('.color_img img').eq(msg.data.key).attr('alt','请匹配颜色');
+					$('.color_img img').eq(msg.data.key).attr('title','请匹配颜色');
+				}
+			},
+			error:function(){
+
+			}
+		});
+	};
+}
+
+
+///////////////end of 相册功能/////////////////
+
+
+//检测值是否含有品牌单词
+function checkBrandWord(obj){
+	var str = $(obj).val();
+	$.ajax({
+		url:"{:U('Product/checkBrandWord')}",
+		type:'post',
+		data:{str:str},
+		success:function(msg){
+			var id_name=$(obj).attr('id');
+				var alert_id='#'+id_name+'_alert';
+			
+			if(!msg.status){
+				$(alert_id).show();
+				$(alert_id).html(msg.info);
+			}else{
+				$(alert_id).hide();
+			}
+		},
+	});
+}
+
+$(function(){
+	checkBrandWord('#product_name');
+	checkBrandWord('#description');
+})
+
+//输入英文颜色功能
+var input_choose_key=0;
+var input_choose_list=[];
+var input_obj='';
+$(function(){
+	$('.tags_list_div').click(function(){
+		$('.li_input').show();
+	}),
+
+	$('.token-input').on('input',function(){
+		var input_tag=$.trim($(this).val());
+		if(input_tag.length>1){
+			getTagsSearch(input_tag);
+		}	
+	})
+
+	$(".token-input").focus(function(){
+		$("#tags_alert").hide();
+		$(document).bind('keydown',function(event){
+
+            if(event.keyCode == "13"){
+            	enterTags();
+            };
+            if(event.keyCode == "40"){
+				//down
+				if(choose_tags_key<tags_value_list.length){
+					choose_tags_key++;
+				}else{
+					choose_tags_key=1;
+				}
+				$(".token-input").eq(0).val(tags_value_list[choose_tags_key]);
+				setTagsListColor(choose_tags_key);
+			};
+			if(event.keyCode == "38"){
+				//up
+				if(choose_tags_key<=1){
+					choose_tags_key=tags_value_list.length;
+				}else{
+					choose_tags_key--;
+				}
+				$(".token-input").eq(0).val(tags_value_list[choose_tags_key]);
+				setTagsListColor(choose_tags_key);
+			};
+        });
+	}).blur(function(){
+		$(document).unbind('keydown');
+
+		$("#tags_alert").hide();
+		setTimeout("$('#contest_tags_menu').hide()",500);
+	}),
+
+
+	$('.tags_relation_list').click(function(){
+		var tag=$.trim($(this).html());
+		addTags('',tag);
+	})
+})
+
+//tags 相关功能
+var choose_tags_key=0;
+var tags_value_list=[];
+
+function enterTags(){
+	var input_tag=$.trim($(".token-input").eq(0).val());
+	
+	//含有× 分隔符，自动分隔为多个tags
+	if(input_tag.indexOf('×')!==false){
+		var input_tag_list=input_tag.split('×');
+		for (var i = 0; i < input_tag_list.length; i++) {
+			addTags('',input_tag_list[i]);
+		};
+	}else{
+		addTags('',input_tag);
+	}
+}
+
+function setTagsListColor(choose_tags_key){
+	for (var i = 0; i < $(".tags_value_list").length; i++) {
+		$(".tags_value_list").eq(i).attr('class','tags_value_list');
+	};
+	$(".tags_value_list").eq(choose_tags_key-1).attr('class','tags_value_list btn btn-info btn-xs');
+}
+
+
+function getTagsSearch(str){
+	$("#contest_tags_menu").html('');
+	$("#tags_alert").hide();
+	
+	$.post("{:U('searchTags')}",{q:str},function(msg){
+		console.log(msg);
+		if(msg.code===0 && msg.data.tags.length>0){
+			tags_value_list=[''];
+			$("#contest_tags_menu").html('');
+			for (var i = 0; i < msg.data.tags.length; i++) {
+				$("#contest_tags_menu").append("<li><a data-toggle='dropdown' class='tags_value_list' onclick='addTags(this)'>"+msg.data.tags[i].tag+"</a></li>");
+				//储存tag_list
+				tags_value_list.push(msg.data.tags[i].tag);
+				choose_tags_key='';
+			};
+		}else{
+			$("#contest_tags_menu").append("<li>无此tags</li>");
+		}
+		showTagsBox();
+		
+	}).error(function(){
+		$("#tags_alert").html("获取关联tags失败,请重新输入");
+		$("#tags_alert").show();
+	});
+}
+
+function showTagsBox(){
+	
+	var position=$('.li_input').position();
+	$('#contest_tags_menu').css({left:(position.left-12)+'px',top:'-2px'})
+	$("#contest_tags_menu").show();
+}
+
+function addTags(obj,value){
+	if($('.li_tag').length>=10){
+		$("#tags_alert").html("最多可输入10个tags");
+		$("#tags_alert").show();
+		return;
+	}
+	if($(obj).length<=0){
+		var tag=value;
+	}else{
+		var tag=$.trim( $(obj).html() );
+	}
+	if(tag){
+		$('.tags_list').append('<li class="li_tag" style="float:left;margin:2px 5px;list-style:none;display:block;">'+tag+'<a class="close btn-xs" onclick="delTags(this);" data-token="'+tag+'">×</a></li>');
+	
+	}else{
+		console.log('输入的TAG有问题')
+	}
+	setTagsVal();
+	$("#contest_tags_menu").hide();
+	$('.token-input').val('');
+}
+
+function delTags(obj){
+	$(obj).parent().remove();
+	var dd=$('#contest_tags').val();
+	setTagsVal();
+}
+function setTagsVal(){
+	var tag_list=[];
+	for (var i = 0; i < $('.li_tag').length; i++) {
+		tag_list.push($('.li_tag a').eq(i).attr('data-token'));
+	};
+	var tags_val=tag_list.join('|||');
+	$('#contest_tags').val(tags_val);
+}
+</script>

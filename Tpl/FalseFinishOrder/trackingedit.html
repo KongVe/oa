@@ -1,0 +1,48 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'编辑跟踪号'))}
+
+<form method='post' action="{:U('trackingSave')}" id="editForm" name="editForm" class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	<input type="hidden" id="id" name="id" value="{$_REQUEST['id']}">
+	
+	<div class="form-group">
+		<label class="col-sm-2 control-label">物流方式</label>
+		<div class="col-sm-6">
+			<?php
+				if($vo['false_local_express_type']){
+					$false_local_express_type_select = $vo['false_local_express_type'];
+				}else{
+					$false_local_express_type_select = $_SESSION['false_finish_order']['false_local_express_type'];
+				}
+			?>
+			<select name="false_local_express_type" check="require" msg="请选择物流方式">
+				<option value="">请选择物流方式</option>
+				<volist name="express_type_list" id="express_type">
+					<option value="{$express_type.express_type}" <eq name="express_type.express_type" value="$false_local_express_type_select">selected="selected"</eq> >{$express_type.express_type} {$express_type.express_name}</option>
+				</volist>
+			</select>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label">跟踪号</label>
+		<div class="col-sm-6">
+			<input class="form-control" type="text" id="false_local_tracking_number" name="false_local_tracking_number" value="{$vo.false_local_tracking_number}"  check="require" msg="请输入线上transaction_id">
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for=""></label>
+		<div class="col-sm-10">
+			<div class="action">
+				<input type="hidden" name="model_name" value="place">
+				<a data-close="1" class="defaultEditFormSubmit btn btn-sm btn-primary">保存</a>
+				<input class="close_box_button btn btn-sm btn-default" type="button" value="取消" >
+			</div>
+		</div>
+	</div>
+</form>
+<script type="text/javascript">
+$(function() {
+
+	
+});
+</script>

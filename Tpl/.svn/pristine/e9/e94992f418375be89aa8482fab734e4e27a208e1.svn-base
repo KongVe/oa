@@ -1,0 +1,166 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">{$title}</h1>
+
+	<div class="col-sm-10 pull-right">
+
+		<div class="col-sm-12">
+
+			<div class="form-group col-sm-3">
+				<div class="input-group">
+					<span class="input-group-addon">
+						所属用户
+					</span>
+					<select name="owner_uid[]" id="owner_uid" style="width:100%;" placeholder="请选择用户" multiple="multiple" size=1>
+						<option value="0">无用户</option>
+						<volist name="user_list" id="user">
+							<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['owner_uid'])){ echo 'selected="selected"';}?> >{$user.show_name}</option>
+						</volist>
+					</select>
+				</div>
+			</div>
+
+			<div class="form-group col-sm-3">
+				<div class="input-group">
+					<span class="input-group-addon">
+						关联用户
+					</span>
+					<select name="relation_uid[]" id="relation_uid" style="width:100%;" placeholder="请选择用户" multiple="multiple" size=1>
+						<option value="0">无用户</option>
+						<volist name="user_list" id="user">
+							<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['relation_uid'])){ echo 'selected="selected"';}?> >{$user.show_name}</option>
+						</volist>
+					</select>
+				</div>
+			</div>
+
+			<div class="form-group col-sm-3">
+		        <div class="input-group">
+		            <span class="input-group-addon">
+		                生效时间
+		            </span>
+		            <input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="active_time" id="active_time" value="{$Think.request.active_time}"  placeholder="生效时间">
+		        </div>
+		    </div>
+
+		    <div class="form-group col-sm-3">
+		        <div class="input-group">
+		            <span class="input-group-addon">
+		                结束时间
+		            </span>
+		            <input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="deactive_time" id="deactive_time" value="{$Think.request.deactive_time}"  placeholder="结束时间">
+		        </div>
+		    </div>
+
+			<div class="input-group col-sm-3">
+		        <div class="input-group">
+		            <input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="搜索 计算方法名称"/>
+		            <span class="input-group-btn">
+		                <button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+		            </span>
+		        </div>
+		    </div>
+		</div>
+	</div>
+</div>
+
+<div class="operate panel panel-default">
+	<div class="panel-body">
+
+		<div class="btn-group">
+			<a data-url="{:U('commissionUserRelationEdit')}" class="showBox btn btn-primary">添加用户关系</a>
+		</div>
+		
+	</div>
+</div>
+
+<div class="message-container">
+	<table class="table table-striped">
+			
+		<include file="Layout:title_v2"/>
+            
+        <tbody class="tbody">
+
+			<volist name="list" id="vo">
+				<tr id="tr_{$vo.id}" >
+					<td  >
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td >
+						{$vo.owner_user_name}
+					</td>
+					<td >
+						{$vo.relation_user_name}
+					</td>
+					<td >
+						{$vo.title}
+					</td>
+					<td >
+						{$vo.active_time|default="无"|date="Y-m-d",###}
+					</td>
+					<td >
+						<empty name="vo.deactive_time">
+							<b>至今</b>
+						<else/>
+							{$vo.deactive_time|default=""|date="Y-m-d",###}
+						</empty>
+					</td>
+					<td>
+						<span class="V2EditMemo" data-field="memo" data-table-name="v2_commission_user_relation" data-field-value="{$vo.id}"><pre>{$vo.memo}</pre></span>
+					</td>
+					<td >
+						<a data-url="{:U('commissionUserRelationEdit')}?id={$vo.id}" class="showBox btn btn-primary">编辑</a>
+
+						<a data-id="{$vo.id}" class="commissionUserRelationDel btn btn-danger" >删除</a>
+					</td>	
+				</tr>
+			</volist>
+
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;top:138px;width:71%;z-index:100;height:300px;left:30%;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+
+<script type="text/javascript">
+
+$(function($){
+	$("#owner_uid").select2();
+	$("#relation_uid").select2();
+
+	$(".commissionUserRelationDel").click(function(e){
+		if(!confirm("确认删除")){
+			return false;
+		}
+		var btn = $(".clone_sku").button('loading');
+		var id = $(this).attr("data-id");
+		$.post("{:U('commissionUserRelationDel')}",{id:id},function(msg){
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+			btn.button('reset');
+		}).error(function(){
+			btn.button('reset');
+		})
+	});
+});
+
+</script>

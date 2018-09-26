@@ -1,0 +1,48 @@
+<script type="text/javascript">
+
+function downloadPDF(package_id){
+	$.ajax({
+		url:"{:U(printLabel)}",
+		data:{isSubmmitPackage:1,package_id:package_id},
+		type:'POST',
+		success:function(msg){
+			if(msg.status){
+				$('#package'+package_id).html("下载成功");
+				$('#checkDownloadPDF'+package_id).attr("class","alert alert-success");
+			}else{
+				if(msg.info=='无处理号'){
+					$('#package'+package_id).html("该包裹还未提审，无处理号");
+				}else{
+					$('#package'+package_id).html('<textarea class="alert alert-danger" style="overflow-y: hidden; max-height: 100px;width: 581px;" disabled="disabled">结果：'+msg.info+"</textarea><br>该包裹打印标签下载失败，请点击打印标签再次重试下载打印");
+				}
+			}
+		},
+		error:function(){
+			$('#package'+package_id).html("该包裹打印标签下载失败，请点击打印标签再次重试下载打印");
+		}
+	});
+}
+
+function reDownloadPDF(package_id,re_download){
+	$.ajax({
+		url:"{:U(printLabel)}",
+		data:{isSubmmitPackage:1,package_id:package_id,re_download:re_download},
+		type:'POST',
+		success:function(msg){
+			if(msg.status){
+				alertWarning("下载成功",1);
+			}else{
+				if(msg.info=='无处理号'){
+					alertWarning("该包裹还未提审，无处理号");
+				}else{
+					alertWarning('<textarea class="alert alert-danger" style="overflow-y: hidden; max-height: 100px;width: 581px;" disabled="disabled">结果：'+msg.info+"</textarea><br>该包裹打印标签下载失败，请点击打印标签再次重试下载打印");
+				}
+			}
+		},
+		error:function(){
+			alertWarning("该包裹打印标签下载失败，请点击打印标签再次重试下载打印");
+		}
+	});
+}
+
+</script>

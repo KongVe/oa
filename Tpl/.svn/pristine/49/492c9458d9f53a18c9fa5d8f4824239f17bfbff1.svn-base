@@ -1,0 +1,73 @@
+<script type="text/javascript">
+$(function(){
+	// ace.settings.sidebar_collapsed(true);
+
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+
+	$("tbody.tbody tr").click(function(){
+		$("tbody.tbody tr").removeClass("success");
+		$(this).addClass("success");
+		var vars = $("input",this).serialize();
+		if($("#purchase-detail-iframe").attr("src").indexOf(vars) > 0 ){
+			$("#purchase-detail-iframe").show();
+			return true;
+		}
+			
+		var purchase_detail_box = $("div.purchase-detail-box");
+		var box_top = document.documentElement.clientHeight - purchase_detail_box.height();
+		var box_width = window.screen.availWidth;
+		purchase_detail_box.css({display:"block",top:box_top + "px",width:box_width + "px"});
+		$("#purchase-detail-iframe").attr("src","{:U('OrderProduct/purchase')}?" + vars + "&_"+  Math.round(new Date().getTime()/1000));
+	});
+
+	//保存远程图片
+	var ids = $(".tbody input[name='id[]']").serialize();
+	$("#saveThumbnail").attr("src","{:U('OrderImage/download')}?" + ids);
+
+	//清空采购车
+	$('#delCartAll').click(function(){
+		if(confirm('确认清空采购车？')){
+			$.get("{:U('delCartAll')}",{key:'888'},function(msg){
+				if(msg.status==1){
+					alertWarning(msg.info,1);
+				}else{
+					alertWarning(msg.info);
+				}
+			});
+		}
+	});
+
+	//批量采购购物车内容
+	$('#purchaseMulti').click(function(){
+		if(confirm('确认采购采购车中所有商品？')){
+			$.post("{:U('OrderPurchase/purchaseMulti')}",{key:'888'},function(msg){
+				if(msg.status==1){
+					alertWarning(msg.info,1);
+				}else{
+					alertWarning(msg.info);
+				}
+			});
+		}
+	});
+})
+//循环执行获取采购车数量
+window.setInterval(getCartCounts,3000); 
+function getCartCounts(){
+	$.get("{:U('getCartCounts')}",{key:888},function(msg){
+		$('#purchaseCartCounts').html(msg.data);
+	})
+}
+</script>

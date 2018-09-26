@@ -1,0 +1,90 @@
+<layout name='Layout/ace_popup' />
+<div class="panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a class="btn btn-sm btn-primary" onclick="cancel();" >返回</a>		
+		</div>
+		<div class="btn-group">
+			<a class="btn btn-sm btn-primary" id="toggleRefresh" >停止刷新</a>	
+		</div>
+	</div>
+</div>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<div>
+			线程状态:<b>{$exec_log_data.status} </b>
+			完成状态:<b>{$exec_log_data.finished_status}</b>
+		</div>
+		<span>
+			开始执行时间：<notempty name="exec_log_data.begin_time" >{:date("Y-m-d H:i",$exec_log_data["begin_time"])}<else/>无</notempty>
+		</span>
+		<span>
+			结束执行时间：<notempty name="exec_log_data.finished_time" >{:date("Y-m-d H:i",$exec_log_data["finished_time"])}<else/>无</notempty>
+		</span>
+	</div>
+	
+	<div class="panel-body">
+		执行信息:
+		<pre style="font-size:14px;">{$exec_log_data.temp_memo}</pre>
+	</div>
+	
+	<notempty name="exec_log_data.error_message" >
+		<div class="panel-body">
+			错误信息:
+			<pre style="font-size:14px;">{$exec_log_data.error_message}</pre>
+		</div>
+	</notempty>
+
+	<notempty name="exec_log_data.warning_message" >
+		<div class="panel-body">
+			警告信息:
+			<pre style="font-size:14px;">{$exec_log_data.warning_message}</pre>
+		</div>
+	</notempty>
+	
+	
+
+</div>
+
+<script type="text/javascript">
+var timout;
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);
+
+	$("#cancel").click(function(){
+		parent.$("#middleBox").modal("hide");
+	})
+
+	timeout = window.setTimeout(refresh,2000);
+
+	$("#toggleRefresh").click(function(){
+		if($(this).html() == '自动刷新'){
+			timeout = window.setTimeout(refresh,2000);
+			$(this).html("停止刷新");
+		}else{
+			$(this).html("自动刷新");
+			window.clearTimeout(timeout);
+		}
+	})
+
+	<?php if(in_array($exec_log_data['status'], array('Finished',"Error"))){
+		echo '$("#toggleRefresh").click();';
+	} ?>
+
+})
+function stopRefresh(){
+	
+
+}
+function refresh(){
+	window.location = "{$refreshUrl}";
+}
+function cancel(){
+	parent.$("#middleBox").modal("hide");
+}
+</script>

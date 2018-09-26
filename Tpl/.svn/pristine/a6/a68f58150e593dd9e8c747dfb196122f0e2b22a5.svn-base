@@ -1,0 +1,345 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo intval(!$sort); ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="account_id" id="account_id" value="{$Think.request.account_id}" />
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">FBA 发货计划</h1>
+	<div class="col-sm-10 pull-right">			
+
+			<div class="form-group col-sm-2 pull-left">
+				
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}"    readonly="readonly" placeholder="计划时间">
+				
+			</div>	
+			<div class="form-group col-sm-2 pull-left">
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="ship_time" id="ship_time" value="{$Think.request.ship_time}"    readonly="readonly" placeholder="发货时间">
+			</div>		
+			<div class="form-group col-sm-1 pull-left">
+				<select class="form-control" id="status" name="status">
+					<option value="">选择状态</option>
+					<option value="New" <?php echo ($_REQUEST['status'] == 'New') ? "selected" : ''; ?> >New</option>
+					<option value="Shipped" <?php echo ($_REQUEST['status'] == 'Shipped') ? "selected" : ''; ?> >Shipped</option>
+				</select>				
+			</div>	
+			<div class="form-group col-sm-1 pull-left">
+				<select class="form-control" id="add_uid" name="add_uid">
+					<option value="">选择计划者</option>
+					<volist name="added_user_list" id="user">
+						<option value="{$user.add_uid}" <?php if($_REQUEST['add_uid'] == $user['add_uid']){echo "selected"; } ?> >{$user.emp_name}</option>
+					</volist>
+				</select>				
+			</div>				
+			<div class="input-group col-sm-6">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索 FNSKU SKU ASIN 商品名称 "/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div>
+	</div>
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a class="btn btn-sm btn-info" id="btn_check_shipment_contents" onclick="firstCheckShipmentContents()" >发货预检</a>
+		</div>
+		<div class="btn-group">
+			<a class="btn btn-sm btn-danger" id="btn_confirm_ship" onclick="confirmShip()" >确认发货</a>
+		</div>		
+		<div class="btn-group">
+			<a class="btn btn-sm btn-primary" id="btn_submit_fba_shipment_plan" onclick="sumbitFBAShipmentPlan()" >提交FBA</a>
+			
+		</div>			
+		<?php if(isAdmin()){ ?>
+		<div class="btn-group">
+			<a class="btn btn-sm btn-success" id="btn_submit_fba_shipment_plan" onclick="showFBAShipmentPlanManual()" >手工提交FBA</a>
+			
+		</div>	
+		<div class="btn-group">
+			<a class="btn btn-sm btn-primary" id="btn_generate_fba_excel" onclick="generateFBAExcel()" >生成表单</a>
+			乘以
+			<input type="text" name="multiply_by" id="multiply_by" value="1" size=4/>
+		</div> 
+
+		<div class="btn-group">
+			<a class="btn btn-sm btn-warning" id="btn_second_check_shipment_contents" onclick="secondCheckShipmentContents()" >调整数量</a>
+		</div>
+		<div class="btn-group">
+			<a class="btn btn-sm btn-primary" id="btn_final_check_shipment_contents" onclick="finalCheckShipmentContents()" >最终检查</a>
+			<input type="text" name="final_shipment_contents" id="final_shipment_contents" value='' size=4 />
+		</div>
+
+		<!--<div class="btn-group">
+			<a class="btn btn-sm btn-success" id="btn_get_declaration" onclick="getDeclaration()" >获取申报单</a>
+			<input type="text" name="box_per_declaration" id="box_per_declaration" size=4 value="3" />
+		</div> 
+		<div class="btn-group">
+			<a class="btn btn-sm btn-success" id="btn_get_declaration_detal" onclick="getDeclarationDetail()" >获取申报单</a>
+		</div>-->
+		<?php } ?>
+		<div class="btn-group">
+			<input type="hidden" name="add_file" id="add_file" value="" />
+			<div class="col-xs-6">
+				<include file="Widget:uploader" />
+			</div>
+			<div class="col-xs-6">
+				<a class="btn btn-sm btn-primary" id="btn_submit_box" onclick="submitBox()" >提交box</a>
+			</div>
+		</div>
+
+
+		<div class="btn-group">
+			当前发货账号：{$account.proxy_host} => <b class="red">{$account.account_name}</b>
+			当前发货总数：<b class="red">{$final_ship_quantity_total}</b> SKU数量：<b class="red">{$stocked_sku_count}</b>
+			<br>
+			{$box_html}
+		</div>
+	</div>
+</div>
+<div class="message-container">
+	<table class="table table-striped table-hover">
+		 	<include file="Layout:title"/>
+			<tbody class="tbody">
+			<volist name="list" id="vo">
+				<tr>
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td>
+						{$vo.asin}<br>
+						{$vo.sku}<br>
+						{$vo.fnsku}
+					</td>
+					<td>
+						<input type="text" id="fnsku_quantity_{$vo.issue_id}" value="{$vo.plan_ship_quantity}" size=4/>
+						<br>
+						<a class="btn btn-xs btn-warning" onclick="printFNSKU({$vo.issue_id})">打印FNSKU</a>						
+					</td>
+					<td>
+						<a href="{$vo.thumbnail}" target="_blank" class="thumbnail" style="width:60px;"><img src="{$vo.thumbnail}" width="60" /></a>
+						<a href="{$vo.product_link}" target="_blank" title="{$vo.product_name}"><?php echo substr($vo['product_name'], 0,10) . "..."; ?></a>
+					</td>
+					<td style="width:120px;">
+						应发：<span class="red"><span class="editStatic" field="plan_ship_quantity" onclick="editStatic(this,'{:U('amazon_fba_plan/save')}?id={$vo.id}&edit_plan_ship_quantity=1','input')">{$vo.plan_ship_quantity}</span></span> 个
+						<br>
+						<br>
+						重：<span class="editStatic" field="real_package_weight" onclick="editStatic(this,'{:U('amazon_sellyours/save')}?id={$vo.sellyours_id}','input')">{$vo.real_package_weight}</span> g</span>
+					</td>
+					<td style="width:40px;">
+						<b class="green">
+							<eq name="vo.status" value="Shipped">
+								{$vo.final_ship_quantity}
+							<else/>
+								{$vo.plan_stock_quantity}
+							</eq>
+						</b>
+					</td>
+					<td style="width:120px;">
+						<span class="red"><span class="editStatic" field="priority" onclick="editStatic(this,'{:U('amazon_fba_plan/save')}?id={$vo.id}','input')">{$vo.priority}</span></span>
+						<br>
+						<a href="javascript:void(0)" onclick="getStockMapList({$vo.sellyours_id})" title="库存：{$vo.instock_quantity}" >{$vo.instock_status} : {$vo.instock_quantity}</a>
+						<br>
+						<?php if($vo['purchase_status'] == 'Purchasing'){ ?>
+						<a title="采购中: {$vo.purchasing_quantity}" >{$vo.purchase_status} : {$vo.purchasing_quantity}</a>
+						<br>
+						<?php } ?>
+					</td>
+					<td>
+						<eq name="vo.status"  value="New">
+							<table class="table table-bordered table-hover table-condensed">
+								<volist name="vo.stock_list" id="stock">
+									<tr>
+										<td style="width:40px;vertical-align:middle;">
+											<a class="thumbnail" href="{$stock.thumbnail}" style="width:40px;"><img src="{$stock.thumbnail}" width="40;" /></a>
+										</td>
+										<td style="vertical-align:middle; width:150px;" >
+												{$stock.sku}<br>{$stock.variation}
+										</td>
+										<td>
+											<?php if($stock['place_list']){  ?>
+												<table class="table table-bordered table-hover table-condensed">
+												<?php foreach($stock['place_list'] as  $place){  ?>
+													<tr class="success">
+														<td>{$place.place_name}</td>
+														<td>有 <b class="red">{$place.quantity}</b> 个</td>
+														<td><a class="btn <?php echo empty($place['final_ship_quantity']) ? "btn-primary" : "btn-success" ?> btn-xs use_stock_btn" 
+																id="use_stock_btn_{$stock.id}_{$place.place_id}_{$vo.id}" 
+																onclick="useStock({$stock.id},{$place.place_id},{$vo.id})">使用</a> 
+															<input type="input" 
+																id="use_stock_quantity_{$stock.id}_{$place.place_id}_{$vo.id}" 
+																class="use_stock_quantity" 
+																data-max-quantity="{$place.quantity}" 
+																size=4 
+																value="{$place.final_ship_quantity|default=0}" /> 个</td>
+													</tr>
+												<?php } ?>
+												</table>
+											<?php } ?>
+											<?php if($stock['map_stock_list']){ ?>
+												<table class="table table-bordered table-hover table-condensed">
+													<tr class="success">
+														<td>
+															捆绑
+														</td>
+														<td></td>
+														<td></td>
+														<td>
+															<a class="btn <?php echo empty($stock['final_ship_quantity']) ? "btn-primary" : "btn-success" ?> btn-xs use_stock_btn" 
+																id="use_stock_btn_{$stock.id}_0_{$vo.id}"  
+																onclick="useStock({$stock.id},0,{$vo.id})">使用</a> 
+															<input type="input" 
+																id="use_stock_quantity_{$stock.id}_0_{$vo.id}" 
+																data-use-type="map" 
+																data-stock-id="{$stock.id}"
+																data-plan-id="{$vo.id}" 
+																class="use_stock_quantity" 
+																data-max-quantity="{$stock.map_quantity}" 
+																size=4 
+																value="{$stock.final_ship_quantity|default='0'}" /> 套
+														</td>
+													</tr>
+													<volist name="stock.map_stock_list" id="map_stock" >
+														<tr>
+															<td style="vertical-align:middle;">{$map_stock.per_ship_quantity}</td>
+															<td style="width:40px;vertical-align:middle;">
+																<a class="thumbnail" href="{$map_stock.thumbnail}" style="width:40px;"><img src="{$map_stock.thumbnail}" width="40;" /></a>
+															</td>
+															<td style="vertical-align:middle;" >
+																{$map_stock.sku}<br>{$map_stock.variation}
+															</td>
+															<td>
+																<?php if($map_stock['place_list']){  ?>
+																	<table class="table table-bordered table-hover table-condensed">
+																	<?php foreach($map_stock['place_list'] as  $place){  ?>
+																		<tr class="danger">
+																			<td>{$place.place_name}</td>
+																			<td>有 <b class="red">{$place.quantity}</b> 个</td>
+																			<td>
+																				<a class="btn btn-xs <?php echo empty($place['final_ship_quantity']) ? "btn-primary" : "btn-success" ?> use_stock_btn" 
+																					disabled 
+																					onclick="useStock({$map_stock.id},{$place.place_id}_{$vo.id})">使用</a> 
+																				<input type="input" 
+																					class="use_stock_quantity map_stock_{$stock.id}" 
+																					id="use_stock_quantity_{$map_stock.id}_{$place.place_id}_{$vo.id}" 
+																					data-max-quantity="{$place.quantity}" 
+																					disabled 
+																					size=4 
+																					value="{$place.final_ship_quantity|default=0}" /> 个
+																			</td>
+																		</tr>
+																	<?php } ?>
+																	</table>
+																<?php } ?>
+															</td>
+														</tr>
+													</volist>
+												</table>
+											<?php } ?>
+										</td>
+									</tr>
+								</volist>
+							</table>
+						</eq>
+					</td>
+					<td><pre><span class="editStatic" field="memo" onclick="editStatic(this,'{:U('AmazonFbaPlan/save')}?id={$vo.id}','textarea')">{$vo.memo}</span></pre></td>
+					<td>{$vo.issue_empname}</td>
+					<td>{$vo.add_time}</td>
+					<td>{$vo.ship_empname}</td>
+					<td>{$vo.ship_time}</td>
+					<td>{$vo.status}</td>
+					<td>						
+						<a class="btn btn-danger btn-sm" id="btn_del_{$vo.id}"    onclick="del({$vo.id})">删除</a>
+					</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" height="300px" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+
+<div class="modal fade" id="editProduct" role="dialog"  tabindex="-1" aria-labelledby="editProductLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="editProductIframe" name="editProductIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<div class="business-report-box col-lg-12" id="business-report-box" style="position:fixed;top:138px;width:71%;z-index:1000;height:300px;left:30%;display:none;">
+	<iframe src="" id="business-report-iframe" frameborder="0" name="business-report-iframe" srolling="auto"  width="100%"></iframe>
+</div>
+
+
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox1" role="dialog"  tabindex="-1" aria-labelledby="bottomBox1Label" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBox1Iframe" name="bottomBox1Iframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<div class="modal fade" id="manualSubmitFBAPlan" role="dialog"  tabindex="-1" aria-labelledby="manualSubmitFBAPlan" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4>手动提交FBA计划</h4>
+			</div>
+			<div class="modal-body">
+				<table class="table">
+					<tr>
+						<td>Shipment ID</td><td><input type="text" class="manual_input" name="manual[online_shipment_id]" value="" /></td>
+					</tr>
+					<tr>
+						<td>Center ID</td><td><input type="text" class="manual_input" name="manual[online_center_id]" value="" /></td>
+					</tr>
+					<tr>
+						<td>Receiver Name</td><td><input type="text" class="manual_input" name="manual[ShipToAddress][Name]" value="" /></td>
+					</tr>
+					<tr>
+						<td>AddressLine1</td><td><input type="text" class="manual_input" name="manual[ShipToAddress][AddressLine1]" value="" /></td>
+					</tr>
+					<tr>
+						<td>AddressLine2</td><td><input type="text" class="manual_input" name="manual[ShipToAddress][AddressLine2]" value="" /></td>
+					</tr>
+					<tr>
+						<td>City</td><td><input type="text" class="manual_input" name="manual[ShipToAddress][City]" value="" /></td>
+					</tr>
+					<tr>
+						<td>StateOrProvinceCode</td><td><input type="text" class="manual_input" name="manual[ShipToAddress][StateOrProvinceCode]" value="" /></td>
+					</tr>
+					<tr>
+						<td>CountryCode</td><td><input type="text" class="manual_input" name="manual[ShipToAddress][CountryCode]" value="" /></td>
+					</tr>
+					<tr>
+						<td>PostalCode</td><td><input type="text" class="manual_input" name="manual[ShipToAddress][PostalCode]" value="" /></td>
+					</tr>
+				</table>
+			</div>
+			 <div class="modal-footer">
+				<a class="btn btn-primary" id="btn_sumbitFBAShipmentPlanManual" onclick="sumbitFBAShipmentPlanManual()" >提交</a>
+			</div>			
+		</div>
+
+	</div>
+</div>
+<style>
+.showBottomBox{cursor: pointer;}
+</style>

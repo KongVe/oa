@@ -1,0 +1,307 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" action="{:U()}" id="form_search" method="post" class="form-inline">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">{$title}</h1>
+	<div class="col-sm-10">
+
+		<div class="form-group col-sm-12">
+
+			<div class="form-group col-sm-3">
+				<div class="input-group">
+					<span class="input-group-addon">
+						设计时间
+					</span>
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}" placeholder="设计时间">
+				</div>
+			</div>
+
+			<div class="form-group col-sm-3">
+				<div class="input-group">
+					<span class="input-group-addon">
+						截止时间
+					</span>
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="end_time" id="end_time" value="{$Think.request.end_time}" placeholder="截止时间">
+				</div>
+			</div>
+
+			<div class="form-group col-sm-3">
+				<div class="input-group">
+					<span class="input-group-addon">
+						反馈时间
+					</span>
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="feedback_time" id="feedback_time" value="{$Think.request.feedback_time}" placeholder="反馈时间">
+				</div>
+			</div>
+		</div>
+		<div class="form-group col-sm-12">
+
+			<div class="form-group col-sm-3">
+	       		<div class="input-group">
+		            <span class="input-group-addon">
+		                序号:
+		            </span>
+		            <input class="form-control " type="text" name="ids" id="ids" value="{$Think.request.ids}"  placeholder="任务序号,英文逗号分隔">
+		        </div>
+	    	</div>
+			
+
+			<div class="form-group col-sm-3">
+				<div class="input-group">
+					<span class="input-group-addon">
+						审核时间
+					</span>
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="review_time" id="review_time" value="{$Think.request.review_time}" placeholder="审核时间">
+				</div>
+			</div>
+
+			<div class="form-group col-sm-3">
+				<div class="input-group">
+					<span class="input-group-addon">
+						完成时间
+					</span>
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="finish_time" id="finish_time" value="{$Think.request.finish_time}" placeholder="完成时间">
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group col-sm-2">
+       
+    </div>
+
+	<div class="col-sm-10">
+		<div class="form-group col-sm-12">
+			<div class="form-group col-sm-3">
+				<div class="input-group">
+					<span class="input-group-addon">
+						设计人
+					</span>
+					<select name="designer_uid[]" id="designer_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+						<option value="">选择用户</option>
+						<volist name="user_list" id="user">
+							<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['designer_uid'])){echo 'selected="selected"';} ?> >{$user.show_name}</option>
+						</volist>
+					</select>
+				</div>
+			</div>
+
+			<div class="form-group col-sm-3">
+				<div class="input-group">
+					<span class="input-group-addon">
+						执行人
+					</span>
+					<select name="runner_uid[]" id="runner_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+						<option value="">选择用户</option>
+						<volist name="user_list" id="user">
+							<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['runner_uid'])){echo 'selected="selected"';} ?> >{$user.show_name}</option>
+						</volist>
+					</select>
+				</div>
+			</div>
+
+			<div class="form-group col-sm-3">
+				<div class="input-group">
+					<span class="input-group-addon">
+						检查人
+					</span>
+					<select name="checker_uid[]" id="checker_uid" size="1" multiple="multiple"  style="width:100%;" placeholder="选择用户">
+						<option value="">选择用户</option>
+						<volist name="user_list" id="user">
+							<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['checker_uid'])){echo 'selected="selected"';} ?> >{$user.show_name}</option>
+						</volist>
+					</select>
+				</div>
+			</div>
+
+			<div class="input-group col-sm-3">
+				<div class="input-group">
+					<input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜标题，要求，反馈"/>
+					<span class="input-group-btn">
+						<button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	
+</div>	
+<div class="message-container" id="container_table">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="btn-group col-sm-3">
+				<a data-url="{:U('edit')}" class="showBox btn btn-primary">添加任务</a>
+			</div>
+			
+
+		</div>
+	</div>
+
+	<table class="table table-hover table-bordered">
+		<include file="Layout:title_v2"/>
+		
+		<tbody class="tbody">
+		<volist name="list" id="vo" key="tr_key">
+			<tr id="tr_{$vo.id}" >
+				<td>
+					<label class="inline pull-left">
+						<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+						<span class="lbl"></span>
+						{$vo.id}
+					</label>
+				</td>
+				<td style="max-width:200px;word-break:break-all;">
+					{$vo.task_title}
+				</td>
+				<td>
+					<a class="thumbnail"  href="{$vo.thumbnail}" target="_blank" style="width:60px;">
+  						<img src="{$vo.thumbnail}" width="60" />
+  					</a>
+				</td>
+				<td>
+					{$vo.task_status|L}
+				</td>
+				<td style="max-width:200px;word-break:break-all;max-height:300px;overflow:hidden">
+					{$vo.task_require|substr=###,0,400}
+				</td>
+				<td style="max-width:200px;word-break:break-all;">
+					{$vo.task_feedback|substr=###,0,400}
+				</td>
+				<td style="max-width:200px;word-break:break-all;">
+					{$vo.task_review|substr=###,0,400}
+				</td>
+				<td>
+					{$vo.priority}
+				</td>
+				<td >
+					{$vo.category|L}
+				</td>
+				<td >
+					{$vo.source|L}
+				</td>
+				<td >
+					{$vo.end_time|default=""|date="y-m-d",###}
+					<notempty name="vo.is_timeout" >
+							<br>
+							<b class="red">超时</b>
+					</notempty>
+				</td>
+				<td >
+					{$vo.add_time|default=""|date="y-m-d<bR>H:i:s",###}
+					<br>
+					<b>{$vo.designer_user_name}</b>
+				</td>
+				<td >
+					{$vo.feedback_time|default=""|date="y-m-d<bR>H:i:s",###}
+					<br>
+					<b>{$vo.runner_user_name}</b>
+				</td>
+				<td >
+					{$vo.review_time|default=""|date="y-m-d<bR>H:i:s",###}
+					<br>
+					<b>{$vo.checker_user_name}</b>
+				</td>
+
+				<td >
+					<span class="V2EditMemo" data-field="memo" data-table-name="v2_stock_instock_plan" data-field-value="{$vo.id}"><pre>{$vo.memo}</pre></span>
+				</td>
+				<td style="width:150px;">
+
+					<a data-url="{:U('detail')}?id={$vo.id}" class="showBox btn btn-primary btn-sm">查看</a>
+
+					<?php
+						if(in_array($vo['task_status'], array('New task','Failure')) && $_SESSION['authId'] == $vo['designer_uid']){
+					?>
+						<a data-url="{:U('edit')}?id={$vo.id}" class="showBox btn btn-info btn-sm">修改任务</a>
+					<?php
+						}
+					?>
+
+					<?php
+						if(in_array($vo['task_status'], array('New task','Waiting review','Failure','Abandon')) && $_SESSION['authId'] == $vo['runner_uid']){
+
+							if(in_array($vo['task_status'], array('Waiting review','Failure','Abandon'))){
+					?>
+								<a data-url="{:U('finishView')}?id={$vo.id}" class="showBox btn btn-success btn-sm">重新完成任务</a>
+					<?php
+							}else{
+					?>
+								<a data-url="{:U('finishView')}?id={$vo.id}" class="showBox btn btn-success btn-sm">完成任务</a>
+					<?php
+							}
+						}
+					?>
+
+					<?php
+						if(in_array($vo['task_status'], array('Waiting review','Failure','Finish')) && $_SESSION['authId'] == $vo['checker_uid']){
+							
+							if(in_array($vo['task_status'], array('Finish','Failure'))){
+					?>
+								<a data-url="{:U('reviewView')}?id={$vo.id}" class="showBox btn btn-inverse btn-sm">重新审核</a>
+					<?php
+							}else{
+					?>
+								<a data-url="{:U('reviewView')}?id={$vo.id}" class="showBox btn btn-inverse btn-sm">审核</a>
+					<?php
+							}
+						}
+					?>
+
+					<?php
+						if(in_array($vo['task_status'], array('New task','Waiting review','Failure')) && in_array($_SESSION['authId'], array($vo['designer_uid'],$vo['checker_uid']))){
+
+					?>
+
+						<a data-id="{$vo.id}" class="abandonTask btn btn-warning btn-sm">废弃</a>
+
+					<?php
+							
+						}
+					?>
+
+				</td>
+			</tr>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+<script type="text/javascript">
+$(function($){
+	$("#designer_uid").select2();
+	$("#runner_uid").select2();
+	$("#checker_uid").select2();
+
+
+	$(".abandonTask").click(function(){
+		if(!confirm("确认任务废弃任务？将无法撤销")){
+			return false;
+		}
+		var data = {id:$(this).data("id")};
+
+		$.post("{:U('abandonTask')}",data,function(msg){
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();	
+			}else{
+				alertWarning(msg.info);
+				
+			}
+		});
+
+	});
+	
+});
+
+</script>

@@ -1,0 +1,198 @@
+<layout name='Layout/ace_popup' />
+	{:W('PageHeader',array('name'=>"编辑记录"))}
+
+<!--  --allow-running-insecure-content --allow-running-insecure --disable-web-security --unsafely-treat-insecure-origin-as-secure="http://oa.barboola.com" --user-data-dir=/test/only/profile/dir -->
+<!-- <script src="__PUBLIC__/js/quaggaJS/quagga.js"></script> -->
+
+<script type="text/javascript">
+    // navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+    // window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+
+    // function getUserMedia(constraints, success, failure) {
+    //     navigator.getUserMedia(constraints, function(stream) {
+    //         var videoSrc = (window.URL && window.URL.createObjectURL(stream)) || stream;
+    //         success.apply(null, [videoSrc]);
+    //     }, failure);
+    // }
+
+
+    // function initCamera(constraints, video, callback) {
+    //     getUserMedia(constraints, function (src) {
+    //         video.src = src;
+    //         video.addEventListener('loadeddata', function() {
+    //             var attempts = 10;
+
+    //             function checkVideo() {
+    //                 if (attempts > 0) {
+    //                     if (video.videoWidth > 0 && video.videoHeight > 0) {
+    //                         console.log(video.videoWidth + "px x " + video.videoHeight + "px");
+    //                         video.play();
+    //                         callback();
+    //                     } else {
+    //                         window.setTimeout(checkVideo, 100);
+    //                     }
+    //                 } else {
+    //                     callback('Unable to play video stream.');
+    //                 }
+    //                 attempts--;
+    //             }
+
+    //             checkVideo();
+    //         }, false);
+    //     }, function(e) {
+    //         console.log(e);
+    //     });
+    // }
+
+    // function copyToCanvas(video, ctx) {
+    //     ( function frame() {
+    //         ctx.drawImage(video, 0, 0);
+    //         window.requestAnimationFrame(frame);
+    //     }());
+    // }
+
+    // window.addEventListener('load', function() {
+    //     var constraints = {
+    //                 video: {
+    //                     mandatory: {
+    //                         minWidth: 1280,
+    //                         minHeight: 720
+    //                     }
+    //                 }
+    //             },
+    //             video = document.createElement('video'),
+    //             canvas = document.createElement('canvas');
+
+    //     document.body.appendChild(video);
+    //     document.body.appendChild(canvas);
+
+    //     initCamera(constraints, video, function() {
+    //         canvas.setAttribute('width', video.videoWidth);
+    //         canvas.setAttribute('height', video.videoHeight);
+    //         copyToCanvas(video, canvas.getContext('2d'));
+    //     });
+    // }, false);
+
+
+</script>
+
+<form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+	<input type="hidden" id="ajax" name="ajax" value="1"/>
+
+	<if condition="$vo['id'] neq ''">
+		<input type="hidden" id="id" name="id" value="{$vo.id}">
+		<input type="hidden" id="opmode" name="opmode" value="edit">
+	<else/>
+		<input type="hidden" id="opmode" name="opmode" value="add">
+	</if>
+
+	<div class="panel panel-primary">
+		<div class="panel panel-heading">
+			<span>基本信息</span>
+		</div>
+		<div class="panel-body">
+			
+			<div class="form-group">
+				<div class="col-sm-12">
+					<label class="text-right col-sm-2">快速填写快递物流</label>
+					<div class="col-sm-4">
+						<?php
+							if($vo['tracking_company']  ){
+								$default_selected = $vo['tracking_company'];
+							}else{
+								$default_selected = $_SESSION['v2_purchase_kuaidi']['tracking_company'];
+							}
+						?>
+						<select id="tracking_company_select" name="tracking_company_select" class="form-control" check="require" msg="请选择常用快递物流" >
+							<option value="">请选择常用快递物流</option>
+							<volist name="company_list" id="company">
+								<option value="{$company.company_name}" <eq name="default_selected" value="$company.company_name">selected="selected"</eq> >{$company.company_name}</option>
+							</volist>
+						</select>
+					</div>
+					<div class="col-sm-4">
+						<a class="tracking_company_choose btn btn-danger">选择</a>
+					</div>
+
+				</div>
+			</div>
+
+			<div class="form-group">
+				<div class="col-sm-12">
+					<label class="text-right col-sm-2" for="tracking_company">快递公司*</label>
+					<div class="col-sm-6">
+						<input class="form-control" type="text" id="tracking_company" name="tracking_company" value="{$vo.tracking_company}" check="require" msg="请输入快递公司" placeholder="快递公司">
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<div class="col-sm-12">
+					<label class="text-right col-sm-2 red" for="tracking_number">快递单号*</label>
+					<div class="col-sm-6">
+						<input class="form-control" type="text" id="tracking_number" name="tracking_number" value="{$vo.tracking_number}" check="require" msg="请输入快递单号" placeholder="快递单号">
+					</div>
+				</div>
+			</div>
+
+			<div class="form-group">
+				<div class="col-sm-12">
+					<label class="text-right col-sm-2" for="warehouse_id">目的仓库*</label>
+					<div class="col-sm-4">
+						<?php
+							if($vo['warehouse_id']){
+								$warehouse_id_selected = $vo['warehouse_id'];
+							}else{
+								$warehouse_id_selected = $_SESSION['v2_purchase_kuaidi']['warehouse_id'];
+							}
+						?>
+						<select name="warehouse_id" class="form-control" check="require" msg="请选择仓库" >
+							<!-- <option value="">请选择仓库</option> -->
+							<volist name="warehouse_list" id="warehouse">
+								<option value="{$warehouse.id}" <eq name="warehouse_id_selected" value="$warehouse.id">selected="selected"</eq> >{$warehouse.warehouse_name}</option>
+							</volist>
+						</select>
+					</div>
+				</div>
+			</div>
+			
+
+			<!-- <div class="form-group">
+				<div class="col-sm-12">
+					<label class="text-right col-sm-2" for="related_imgs">相关图片</label>
+					<div class="col-sm-2">
+						开发中。。。
+						<input class="form-control related_imgs" type="file" name="related_imgs[]" value="{$vo.related_imgs}" check="require" msg="请输入相关图片" placeholder="相关图片">
+					</div>
+				</div>
+			</div> -->
+
+		</div>
+	</div>
+  
+	<div class="panel-default">
+		<div class="form-group text-center">
+			<input type="button" data-loading-text="正在保存..." data-close="1" data-reload="1" class="defaultEditFormSubmit btn btn-primary" value="保存" />
+			<a class="close_box_button btn btn-danger">取消</a>
+		</div>
+	</div>
+
+</form>
+
+
+<script type="text/javascript">
+$(function(){     
+
+	$(".tracking_company_choose").click(changeTrackingCompany);
+	$("#tracking_company_select").change(changeTrackingCompany);
+
+	<empty name="vo.tracking_company">
+		<?php echo 'changeTrackingCompany();'; ?>
+	</empty>
+});
+
+function changeTrackingCompany(){
+	$("#tracking_company").val($("#tracking_company_select").val());
+}
+
+</script>

@@ -1,0 +1,21 @@
+<layout name='Layout/ace_layout' />
+{:W('PageHeader',array('name'=>'查看帐号数据'))}
+
+<foreach name="info" item="vo" key="kk">
+	<?php
+		if(strpos($kk, "password")!==false && !isAdmin()){
+			continue;
+		}
+	?>
+	<div class="form-group col-sm-12">
+	<div class="form-group col-sm-6">
+		<label class="col-sm-4 control-label" for="order_account" >{$kk}：</label>
+		<div class="col-sm-8">
+			{$vo}
+		</div>
+	</div>	
+	</div>
+
+</foreach>
+	
+	

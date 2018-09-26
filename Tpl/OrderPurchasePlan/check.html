@@ -1,0 +1,19 @@
+<div class="panel panel-default">
+	<div class="panel-heading">参考卖出过的图片和规格</div>
+	<div class="panel-body">
+		<table class="table table-bordered table-striped">
+			<foreach name="productList" item="product">
+				<tr>
+					<td>
+						<a href="{$product.thumbnail}" target="_blank" class="thumbnail"><img src="{$product.thumbnail}" width="60" /></a>
+						<div class="col-sm-12"><a class="btn btn-info btn-xs" data-variation="{$product.variation}" onclick="$('#thumbnail').val($(this).parent().parent().find('img').attr('src'));showThumbnail();">选择图片</a></div>
+					</td>
+					<td>
+						<div>{$product.variation}</div>
+						<div><a class="btn btn-primary btn-xs" data-variation="{$product.variation}"  data-sku="{$product.sku}"  onclick="setCheckVariation(this);">选择</a></div>
+					</td>
+				</tr>
+			</foreach>
+		</table>
+	</div>
+</div>

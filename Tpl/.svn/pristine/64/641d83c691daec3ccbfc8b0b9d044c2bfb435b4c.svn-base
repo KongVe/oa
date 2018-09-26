@@ -1,0 +1,346 @@
+<script type="text/javascript">
+
+	jQuery(function($){
+		//close sidebar
+		// ace.settings.sidebar_collapsed(true);
+
+
+		$(".filter_checkbox").click(function(){
+			$("#form_search").submit();
+		})
+		$(".sort_button").click(function(){
+			$("#order").val($(this).attr("name"));
+			if($("#sort").val() == "1"){
+				$("#sort").val("0");
+			}else{
+				$("#sort").val("1");
+			}		
+			$("#form_search").submit();
+		})
+
+		$("tbody.tbody tr").click(function(){
+			$("tbody.tbody tr").removeClass("success");
+			$(this).addClass("success");
+			var order_detail_box = $("div.order-detail-box");
+			var id = $(this).find("input[name='id[]']").val();
+			if($("#order-detail-iframe").attr("src").indexOf(id) > 0 ){
+				order_detail_box.show();
+				return true;
+			}
+				
+			
+			var box_top = document.documentElement.clientHeight - order_detail_box.height();
+			var box_width = window.screen.availWidth;
+			order_detail_box.css({display:"block",top:box_top + "px",width:box_width + "px"});
+			$("#order-detail-iframe").attr("src","{:U('orderDetail/detail')}?id=" + id + "&_"+  Math.round(new Date().getTime()/1000));
+		});
+
+
+		//如果有搜索值，默认全选了搜索值
+		if($("#q").val() != ''){
+			$("#q").focus().select();
+		}
+		if($("#oaid").val() != ''){
+			$("#oaid").focus().select();
+		}
+		$("#oaid").click(function(){
+			$(this).select();
+		})
+	});
+
+
+
+	function save() {
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('save')}", "__URL__");
+		}
+	}
+
+	function showdata(result) {
+		$(".user_list li.tbody").remove();
+		for (var s in result.data) {
+			$("#sample .name").text(result.data[s].name);
+			$("#sample .position").text(result.data[s].position_name);
+			$("#sample .rank").text(result.data[s].rank_name);
+			$("#sample .email").text(result.data[s].email);
+
+			$("#sample li").attr("email", result.data[s].email);
+			$("#sample li").attr("duty", result.data[s].duty);
+			$("#sample li").attr("name", result.data[s].name);
+			$("#sample li").attr("office_tel", result.data[s].office_tel);
+			$("#sample li").attr("mobile_tel", result.data[s].mobile_tel);
+			$("#sample li").attr("pic", result.data[s].pic + '?t=' + Math.random());
+			html = $("#sample").html();
+
+			$(".user_list ul").append(html);
+
+			$("#sample li span").text("");
+		}
+		if ($(".user_list li.tbody").length > 0) {
+			$(".user_list li.tbody").get(0).click();
+		} else {
+			$(".user_info .info").text("");
+			$("#emp_pic").prop('src', "");
+		}
+	}
+
+
+	$(document).ready(function() {
+		$(".sub_left_menu .tree_menu  a").click(function() {
+			$(".sub_left_menu .tree_menu  a").each(function() {
+				$(this).attr("class", "");
+			});
+			$(this).attr("class", "active");
+			sendAjax("{:U('read')}", "id=" + $(this).attr("node"), function(data) {
+				showdata(data);
+			});
+			return false;
+		})
+		$(document).on("click", ".user_list .tbody", function() {
+			$(".user_info .name").text($(this).attr("name"));
+			$(".user_info .office_tel").text($(this).attr("office_tel"));
+			$(".user_info .mobile_tel").text($(this).attr("mobile_tel"));
+			$(".user_info .duty").text($(this).attr("duty"));
+			$("#emp_pic").prop("src", "/{:C('SAVE_PATH')}" + $(this).attr("pic"));
+		})
+	});
+
+	var data = <?php echo json_encode($chartByCount); ?>;
+	var labels = <?php echo json_encode($label_list); ?>;
+	var time_list=<?php echo json_encode($time_list); ?>;
+
+	var chartByCount  = new iChart.LineBasic2D({
+		render : 'canvasDiv',
+		data: data,
+		align:'center',
+		title : '销售量统计',
+		subtitle : '(单位：笔)',
+		footnote : '搜索结果总销量:{$Count_total}',
+		width : 1200,
+		height : 800,
+		background_color:'#FEFEFE',
+		tip:{
+			enable:true,
+			shadow:true,
+			move_duration:400,
+			border:{
+				 enable:true,
+				 radius : 5,
+				 width:2,
+				 color:'#3f8695'
+			},
+			listeners:{
+				 //tip:提示框对象、name:数据名称、value:数据值、text:当前文本、i:数据点的索引
+				parseText:function(tip,name,value,text,i){
+					return name+"销售量:"+value+"笔";
+				}
+			}
+		},
+		tipMocker:function(tips,i){
+			return "<div style='font-weight:600'>"+
+					time_list[i]+" "+//日期
+					//(((i%12)*2<10?"0":"")+(i%12)*2)+":00"+//时间
+					"</div>"+tips.join("<br/>");
+		},
+		legend : {
+			enable : true,
+			row:1,//设置在一行上显示，与column配合使用
+			column : 'max',
+			valign:'top',
+			sign:'bar',
+			background_color:null,//设置透明背景
+			offsetx:0,//设置x轴偏移，满足位置需要
+			border : true
+		},
+		crosshair:{
+			enable:true,
+			line_color:'#62bce9'//十字线的颜色
+		},
+		sub_option : {
+			label:false,
+			point_size:10
+		},
+		coordinate:{
+			width:960,
+			height:600,
+			axis:{
+				color:'#dcdcdc',
+				width:1
+			},
+			scale:[{
+				 position:'left',	
+				 start_scale:0,
+				 end_scale:100,
+				 scale_space:10,
+				 scale_size:2,
+				 scale_color:'#9f9f9f'
+			},{
+				 position:'bottom',	
+				 labels:labels
+			}]
+		}
+	});
+	///销售额统计
+	var price_data = <?php echo json_encode($chartByPrice); ?>;
+	var price_labels = <?php echo json_encode($price_label_list); ?>;
+	var price_time_list=<?php echo json_encode($price_time_list); ?>;
+
+	var chartByPrice  = new iChart.LineBasic2D({
+		render : 'chartByPrice',
+		data: price_data,
+		align:'center',
+		title : '销售额统计',
+		subtitle : '(单位：美元)',
+		footnote : '搜索结果总销售额:${$Price_total}',
+		width : 1200,
+		height : 800,
+		background_color:'#FEFEFE',
+		tip:{
+			enable:true,
+			shadow:true,
+			move_duration:400,
+			border:{
+				 enable:true,
+				 radius : 5,
+				 width:2,
+				 color:'#3f8695'
+			},
+			listeners:{
+				 //tip:提示框对象、name:数据名称、value:数据值、text:当前文本、i:数据点的索引
+				parseText:function(tip,name,value,text,i){
+					return name+"销售额:"+value+"美元";
+				}
+			}
+		},
+		tipMocker:function(tips,i){
+			return "<div style='font-weight:600'>"+
+					time_list[i]+" "+//日期
+					//(((i%12)*2<10?"0":"")+(i%12)*2)+":00"+//时间
+					"</div>"+tips.join("<br/>");
+		},
+		legend : {
+			enable : true,
+			row:1,//设置在一行上显示，与column配合使用
+			column : 'max',
+			valign:'top',
+			sign:'bar',
+			background_color:null,//设置透明背景
+			offsetx:0,//设置x轴偏移，满足位置需要
+			border : true
+		},
+		crosshair:{
+			enable:true,
+			line_color:'#62bce9'//十字线的颜色
+		},
+		sub_option : {
+			label:false,
+			point_size:10
+		},
+		coordinate:{
+			width:960,
+			height:600,
+			axis:{
+				color:'#dcdcdc',
+				width:1
+			},
+			scale:[{
+				 position:'left',	
+				 start_scale:0,
+				 end_scale:100,
+				 scale_space:500,
+				 scale_size:2,
+				 scale_color:'#9f9f9f'
+			},{
+				 position:'bottom',	
+				 labels:price_labels
+			}]
+		}
+	});
+	
+
+
+
+	///利润统计
+	var Profit_data = <?php echo json_encode($chartByProfit); ?>;
+	var profit_labels = <?php echo json_encode($profit_label_list); ?>;
+	var profit_time_list=<?php echo json_encode($profit_time_list); ?>;
+
+	var chartByProfit  = new iChart.LineBasic2D({
+		render : 'chartByProfit',
+		data: Profit_data,
+		align:'center',
+		title : '利润统计',
+		subtitle : '(单位：RMB)',
+		footnote : '搜索结果总利润:￥{$profit_total}',
+		width : 1200,
+		height : 800,
+		background_color:'#FEFEFE',
+		tip:{
+			enable:true,
+			shadow:true,
+			move_duration:400,
+			border:{
+				 enable:true,
+				 radius : 5,
+				 width:2,
+				 color:'#3f8695'
+			},
+			listeners:{
+				 //tip:提示框对象、name:数据名称、value:数据值、text:当前文本、i:数据点的索引
+				parseText:function(tip,name,value,text,i){
+					
+					return name+":"+value;
+				}
+			}
+		},
+		tipMocker:function(tips,i){
+			return "<div style='font-weight:600'>"+
+					time_list[i]+" "+//日期
+					//(((i%12)*2<10?"0":"")+(i%12)*2)+":00"+//时间
+					"</div>"+tips.join("<br/>");
+		},
+		legend : {
+			enable : true,
+			row:1,//设置在一行上显示，与column配合使用
+			column : 'max',
+			valign:'top',
+			sign:'bar',
+			background_color:null,//设置透明背景
+			offsetx:0,//设置x轴偏移，满足位置需要
+			border : true
+		},
+		crosshair:{
+			enable:true,
+			line_color:'#62bce9'//十字线的颜色
+		},
+		sub_option : {
+			label:false,
+			point_size:10
+		},
+		coordinate:{
+			width:960,
+			height:600,
+			axis:{
+				color:'#dcdcdc',
+				width:1
+			},
+			scale:[{
+				 position:'left',	
+				 start_scale:0,
+				 end_scale:100,
+				 scale_space:500,
+				 scale_size:2,
+				 scale_color:'#9f9f9f'
+			},{
+				 position:'bottom',	
+				 labels:profit_labels
+			}]
+		}
+	});
+
+	$(function(){
+		chartByCount.draw();
+		chartByPrice.draw();
+		chartByProfit.draw();
+	});
+	</script>

@@ -1,0 +1,9 @@
+var dd='<div style="top: 2px;left: 400px;width: 300px;height: 58px;background: rgb(255, 202, 158);position: fixed;z-index: 10000;"><select id="acount_id_choose"><option>请选择帐号</option><?php
+	foreach ($account_list as $key => $account) {
+		echo '<option value="'.$account['id'].'">'.$account['account_name'].'</option>';
+	}
+?></select><button class="btn" onclick="choose_account();">确定</button></div>';
+if($("#choose_account").length<=0){
+	$("body").append("<div id='choose_account'></div>");
+}
+$('#choose_account').html(dd);

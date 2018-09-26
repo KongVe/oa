@@ -1,0 +1,124 @@
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	// ace.settings.sidebar_collapsed(true);
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	});
+
+	//如果只有一条记录，默认打开详细框
+	if($("tbody.tbody tr").length == 1){
+		$("tbody.tbody tr").click();
+	}
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}
+	if($("#oaid").val() != ''){
+		$("#oaid").focus().select();
+	}
+	$("#oaid").click(function(){
+		$(this).select();
+	});
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+
+	$(".level_input").keyup(function(){    
+        $(this).val($(this).val().replace(/[^0-9.]/g,''));    
+    }).bind("paste",function(){  //CTR+V事件处理    
+        $(this).val($(this).val().replace(/[^0-9.]/g,''));     
+    }).css("ime-mode", "disabled"); //CSS设置输入法不可用
+
+    $(".level_input").change(function(){
+    	var obj = $(this);
+    	var val_bak = $(this).attr("data-bak");
+    	var val_id = $(this).attr("data-id");
+    	if(!val_id){
+    		alertWarning("数据错误");
+    		$(this).val(val_bak);
+    		return false;
+    	}
+    	if(confirm("确认修改优先级？数值小的优先级比较高")){
+    		$.post("{:U('RuleSettings/saveRuleLevel')}",{id:val_id,level:$(this).val(),rule_table:"v2_rule_express"},function(msg){
+    			if(msg.status){
+    				alertWarning(msg.info,1);
+    				window.location.reload();
+    			}else{
+    				alertWarning(msg.info);
+    				obj.val(val_bak);
+    				return false;
+    			}
+    		}).error(function(){
+    			alertWarning("网络错误，请重试");
+    			obj.val(val_bak);
+    			return false;
+    		})
+    	}else{
+    		obj.val(val_bak);
+    	}
+    });
+})
+
+
+function stateRule(id,type) {
+	if(!confirm("确认禁用？")){
+		return;
+	}
+	if(type){
+		status="Disabled";
+	}else{
+		status="Normal";
+	}
+
+	$.post("{:U('stateRule')}",{id:id,opmode:'edit',status:status,rule_table:"v2_rule_express"},function(msg){
+		if(msg.status){
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alert("网络错误,请重试");
+		window.location.reload();
+	});
+}
+
+function delRule(id) {
+	if(confirm("确认删除？将不可恢复")){
+		$.post("{:U('delRule')}",{id:id,opmode:'del',rule_table:"v2_rule_express"},function(msg){
+			if(msg.status){
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+			
+		}).error(function(){
+			alert("网络错误,请重试");
+			window.location.reload();
+		});
+	}
+}
+</script>

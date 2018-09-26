@@ -1,0 +1,47 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('v2save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" name="id" id="id" value="{$vo.id}">
+		<input type="hidden" id="opmode" name="opmode" value="{$vo.opmode}" >
+		<input type="hidden" id="ajax" name="ajax" value="1" >
+
+		<div class="form-group">
+			<label class="control-label" for="username">帐号</label>
+			<input class="form-control" type="text" id="username" name="username" value="{$vo.username}" check="require" msg="帐号必填">
+		</div>
+	
+		<div class="form-group" <?php //if($vo['canEdit'] == false){ echo "style='display:none;'"; } ?> >
+			<label class="control-label" for="password">密码</label>
+			<input class="form-control" type="text" id="password" name="password" value="{$vo.password}">	
+		</div>
+	
+		<div class="form-group">
+			<label class="control-label" for="website">网站</label>
+			<select name="website" id="website" class="form-control" check="require" msg="网站必选">
+				<option value="" website-id="">请选择网站</option>
+				<volist name="websiteList" id="website">
+					<option value="{$website.name}" website-id="{$website.id}" <?php if($vo['website'] == $website['name']){echo 'selected';} ?> >{$website.name}</option>
+				</volist>
+			</select>
+			<input type="hidden" name="website_id" id="website_id" value="{$vo.website_id}" />
+		</div>
+
+		<div class="alert alert-warning" role="alert" id="editAlert" style="display:none;" ></div>		
+	
+		<div class="form-group">
+			<label class="control-label" for="status">状态</label>
+			<select class="form-control" name="status" id="status">
+				<option value="Unregistered" <eq name="vo.status" value="Unregistered">selected</eq>>未注册</option>
+				<option value="Normal" <eq name="vo.status" value="Normal">selected</eq>>正常</option>
+				<option value="Disabled" <eq name="vo.status" value="Disabled">selected</eq>>失效</option>
+				
+			</select>
+		</div>	
+		<div class="form-group">
+			<label class="control-label" for="memo">备注</label>
+			<textarea name="memo" id="memo" class="form-control">{$vo.memo}</textarea>
+		</div>
+		<div class="form-group text-center">
+			<a class="defaultEditFormSubmit btn btn-primary">保存</a>
+			<a class="close_box_button btn btn-success">关闭</a>
+		</div>
+	</form>

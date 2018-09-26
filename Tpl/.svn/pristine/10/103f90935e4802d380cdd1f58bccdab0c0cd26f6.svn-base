@@ -1,0 +1,21 @@
+<div class="form-group">
+	<label class="control-label">下单时间</label><br/>
+	<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="param[order_time]" id="order_time" value="<?php if($_REQUEST['param']['order_time']){ echo $_REQUEST['param']['order_time'];}?>"  placeholder="下单时间">
+</div>
+<div class="form-group">
+	<label class="control-label">订单状态
+	</label>
+	<select name="param[order_state]" class="form-control">
+		<option value="" selected="selected">All</option>
+		<option value="open">open</option>
+		<option value="pending">pending</option>
+		<option value="canceled">canceled</option>
+		<option value="shipped">shipped</option>
+		<option value="on hold">on hold</option>
+		<option value="failed">failed</option>
+	</select>	
+</div>
+<div class="form-group">
+	<label class="control-label">线上最后更新时间</label><br/>
+	<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="param[last_update]" id="last_update" value="<?php if($_REQUEST['param']['last_update']){ echo $_REQUEST['param']['last_update'];}?>"   readonly="readonly" placeholder="线上最后更新时间">
+</div>	

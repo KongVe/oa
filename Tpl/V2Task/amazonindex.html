@@ -1,0 +1,184 @@
+<layout name='Layout/ace_box' />
+<div class="panel panel-default">
+	<div class="panel-body">
+		<div class="tab-content">
+				<a data-url="{:U('edit')}?sellyours_id={$sellyours_id}&parent_asin={$parent_asin}" data-use_parent="1" class="showBox btn btn-primary btn-sm">添加任务</a>
+
+				<a data-url="{:U('ownerActionView')}?sellyours_id={$sellyours_id}&parent_asin={$parent_asin}" data-use_parent="1" class="showBox btn btn-info btn-sm">添加执行记录</a>
+
+				<table class="table table-bordered">
+					<tr>
+						<th>操作</th>
+						<th>优先级</th>
+						<th>标题</th>
+						<th>动作</th>
+						<th>任务要求</th>
+						<th>状态</th>
+						<th>完成反馈</th>
+						<th>审核结果</th>
+						<th>备注</th>
+						<th>
+							截止时间
+						</th>
+						<th>
+							设计人|创建时间
+						</th>
+						<th>
+							执行人|提交时间
+						</th>
+						<th>
+							审核人|审核时间
+						</th>
+						
+					</tr>
+					<tbody class="tbody">
+						<foreach name="list" item="vo" key="pK">
+							
+							<foreach name="vo.action_list" item="v2" key="k2">
+								<tr>
+									<eq name="k2" value="0">
+										<td rowspan="{$vo.action_count}">
+											<a data-url="{:U('detail')}?id={$vo.task_data.id}" data-use_parent="1" class="showBox btn btn-primary btn-xs">查看</a>
+
+											<?php
+												if(in_array($vo['task_data']['task_status'], array('New task','Failure')) && $_SESSION['authId'] == $vo['task_data']['designer_uid']){
+											?>
+												<a data-url="{:U('edit')}?id={$vo.task_data.id}" data-use_parent="1" class="showBox btn btn-info btn-xs">修改任务</a>
+											<?php
+												}
+											?>
+
+
+
+											<?php
+												if(in_array($vo['task_data']['task_status'], array('New task','Waiting review','Failure','Abandon')) && $_SESSION['authId'] == $vo['task_data']['runner_uid']){
+
+													if(in_array($vo['task_data']['task_status'], array('Waiting review','Failure','Abandon'))){
+											?>
+														<a data-url="{:U('finishView')}?id={$vo.task_data.id}" data-use_parent="1" class="showBox btn btn-success btn-xs">重新完成任务</a>
+											<?php
+													}else{
+											?>
+														<a data-url="{:U('finishView')}?id={$vo.task_data.id}" data-use_parent="1" class="showBox btn btn-success btn-xs">完成任务</a>
+											<?php
+													}
+												}
+											?>
+
+											<?php
+												if(in_array($vo['task_data']['task_status'], array('Waiting review','Failure','Finish')) && $_SESSION['authId'] == $vo['task_data']['checker_uid']){
+													
+													if(in_array($vo['task_data']['task_status'], array('Finish','Failure'))){
+											?>
+														<a data-url="{:U('reviewView')}?id={$vo.task_data.id}" data-use_parent="1" class="showBox btn btn-inverse btn-xs">重新审核</a>
+														
+											<?php
+													}else{
+											?>
+														<a data-url="{:U('reviewView')}?id={$vo.task_data.id}" data-use_parent="1" class="showBox btn btn-inverse btn-xs">审核</a>
+											<?php
+													}
+												}
+											?>
+
+											<?php
+												if(in_array($vo['task_data']['task_status'], array('New task','Waiting review','Failure')) && in_array($_SESSION['authId'], array($vo['task_data']['designer_uid'],$vo['task_data']['checker_uid']))){
+
+											?>
+
+												<a data-id="{$vo.task_data.id}" class="abandonTask btn btn-warning btn-xs">废弃</a>
+
+											<?php
+													
+												}
+											?>
+											
+										</td>
+
+										<td rowspan="{$vo.action_count}">
+											<if condition="$vo['task_data']['priority'] GT 6">
+												<b class="red">{$vo.task_data.priority}</b>
+											<else/>
+												{$vo.task_data.priority}
+											</if>
+										</td>
+										<td rowspan="{$vo.action_count}">
+											{$vo.task_data.task_title}
+										</td>
+									</eq>
+									
+									<td>{$v2.action_data.action_name}</td>
+
+									<td>{$v2.action_require}</td>
+									<td>
+										{$v2.action_status|L}
+									</td>
+
+									<td>{$v2.action_feedback}</td>
+									<td>{$v2.action_review}</td>
+
+									<eq name="k2" value="0">
+										<td rowspan="{$vo.action_count}">
+											<span class="V2EditMemo" data-table-name="v2_task" data-field-value="{$vo.task_data.id}"><pre>{$vo.task_data.memo}</pre></span>
+										</td>
+										<td rowspan="{$vo.action_count}">
+											{$vo.task_data.end_time|default=""|date="y-m-d",###}
+										</td>
+										<td rowspan="{$vo.action_count}">
+											<b>{$vo.task_data.designer_user_name}</b>
+											<br>
+											{$vo.task_data.add_time|default=""|date="y-m-d H:i:s",###}
+										</td>
+										<td rowspan="{$vo.action_count}">
+											<b>{$vo.task_data.runner_user_name}</b>
+											<notempty name="vo.task_data.feedback_time">
+												<br>
+												{$vo.task_data.feedback_time|default=""|date="y-m-d H:i:s",###}
+											</notempty>
+										</td>
+										<td rowspan="{$vo.action_count}">
+											<b>{$vo.task_data.checker_user_name}</b>
+											<notempty name="vo.task_data.review_time">
+												<br>
+												{$vo.task_data.review_time|default=""|date="y-m-d H:i:s",###}
+											</notempty>
+											
+										</td>
+										
+
+
+									</eq>
+								</tr>
+							</foreach>
+							
+						</foreach>
+					</tbody>
+				</table>
+			
+			
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+	
+$(function(){
+	$(".abandonTask").click(function(){
+		if(!confirm("确认任务废弃任务？将无法撤销")){
+			return false;
+		}
+		var data = {id:$(this).data("id")};
+
+		$.post("{:U('abandonTask')}",data,function(msg){
+			if(msg.status){
+				alertWarning(msg.info,1);
+				parent.frames['bottomBoxIframe'].window.location.reload();	
+			}else{
+				alertWarning(msg.info);
+				
+			}
+		});
+
+	});
+
+});
+</script>

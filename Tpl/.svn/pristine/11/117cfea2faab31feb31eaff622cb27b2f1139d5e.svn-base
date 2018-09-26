@@ -1,0 +1,120 @@
+
+<script type="text/javascript">
+	$(function(){
+		maxHeight = parent.document.documentElement.clientHeight ;
+		height = document.body.clientHeight+ 50;
+		if(height > maxHeight){
+			height = maxHeight;
+		}
+		parent.$("#RightBoxIframe").css("height",height);
+	});
+	//PUBLIC
+	var label_list=<?php echo json_encode($label_list); ?>;
+
+	var chart1_legend_list=<?php echo json_encode($chart1_name_list); ?>;
+	var chart1_data= <?php echo json_encode($chart1); ?>	
+	
+	var chart1_option  = {
+		    tooltip : {
+		        trigger: 'axis'
+		    },
+		    legend: {	
+		    	selected: {	
+		    		"转换率":false,
+		    		"订单数":false,
+					//"订单数变化":false,
+					"save数":false,
+					"刷save数":false,
+					//"save数变化":false,
+					"评分":false,
+					"评分变化":false,
+					"评分单数":false,
+					"评分单数变化":false,
+					"原始价格":false,
+					"原始价格变化":false,
+					"原始运费":false,
+					"retail_price":false,
+					"price":false,
+					"price变化":false,
+					"运费":false,
+					"运费变化":false,
+					"总库存":false,
+					"总库存变化":false,
+					"value":false,
+		        },
+		        data:chart1_legend_list,
+		        orient:"vertical",
+		        x:"left",
+		    },
+		    toolbox: {
+		        show : true,
+		        feature : {
+		            mark : {show: true},
+		            dataView : {show: true, readOnly: false},
+		            magicType : {show: true, type: ['bar', 'line']},
+		            restore : {show: true},
+		            saveAsImage : {show: true}
+		        }
+		    },
+		    calculable : true,
+		    xAxis : [
+		        {
+		            type : 'category',
+		            boundaryGap : true,
+
+		            data : label_list,
+		        }
+		    ],
+		    yAxis : [
+		        {
+		            type : 'value',
+		            
+		        }
+		    ],
+
+		    series :chart1_data,
+		};           
+
+      
+
+	var chart1 =function(){
+		
+		// 路径配置
+		require.config({
+		    paths: {
+		        echarts: '__PUBLIC__/js/echarts/build/dist'
+		    }
+		});
+		// 使用
+	    require(
+	        [
+	            'echarts',
+	            'echarts/chart/bar',
+	            'echarts/chart/line',
+	        ],
+	        function (ec) {
+	            // 基于准备好的dom，初始化echarts图表
+	            var myChart = ec.init(document.getElementById('canvasDiv')); 
+	              // 为echarts对象加载数据 
+		        myChart.setOption(chart1_option); 
+		    }
+	    );
+	}
+
+	
+	//获取分类选择列表
+	chart1();
+	
+	// 关闭悬浮框
+	function closeBox(){
+		
+		if(parent.$("#RightBoxIframe").length>0){
+			parent.$("#RightBox").modal("toggle");
+		}else{
+			window.close();
+		}
+		
+	}
+
+
+</script>

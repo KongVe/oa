@@ -1,0 +1,19 @@
+<script type="text/javascript">
+	$(function(){
+		// ace.settings.sidebar_collapsed(true);
+
+		$(".filter_checkbox").click(function(){
+			$("#form_search").submit();
+		})
+		$(".sort_button").click(function(){
+			$("#order").val($(this).attr("name"));
+			if($("#sort").val() == "1"){
+				$("#sort").val("0");
+			}else{
+				$("#sort").val("1");
+			}		
+			$("#form_search").submit();
+		})
+
+	});
+</script>

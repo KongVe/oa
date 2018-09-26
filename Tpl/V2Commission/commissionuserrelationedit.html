@@ -1,0 +1,103 @@
+<layout name='Layout/ace_popup' />
+    {:W('PageHeader',array('name'=>"业绩提成用户关系编辑"))}
+
+    <form action="{:U('commissionUserRelationSave')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+        <input type="hidden" id="ajax" name="ajax" value="1"/>
+
+		<input type="hidden" id="id" name="id" value="{$vo.id}">
+
+        <div class="panel panel-primary">
+            <div class="panel panel-heading">
+                <span>修改信息</span>
+            </div>
+            <div class="panel-body">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">所属用户: </label>
+                            <div class="col-sm-9">
+                                <select name="owner_uid" id="owner_uid" style="width:350px;" check="require" msg="请选择所属用户">
+                                    <option value="">请选择所属用户</option>
+                                    <volist name="user_list" id="user">
+                                        <option value="{$user.id}" <eq name="user.id" value="$vo.owner_uid">selected="selected"</eq> >{$user.show_name}</option>
+                                    </volist>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">关联用户: </label>
+                            <div class="col-sm-9">
+                                <select name="relation_uid" id="relation_uid" style="width:350px;" check="require" msg="请选择关联用户">
+                                    <option value="">请选择关联用户</option>
+                                    <volist name="user_list" id="user">
+                                        <option value="{$user.id}" <eq name="user.id" value="$vo.relation_uid">selected="selected"</eq> >{$user.show_name}</option>
+                                    </volist>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">计算方法: </label>
+                            <div class="col-sm-9">
+                                <select name="commission_function_id" id="commission_function_id" style="width:350px;" check="require" msg="请选择计算方法">
+                                    <option value="">请选择计算方法</option>
+                                    <volist name="function_list" id="function">
+                                        <option value="{$function.id}" <eq name="function.id" value="$vo.commission_function_id">selected="selected"</eq> >{$function.title}</option>
+                                    </volist>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+					
+
+					<div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="active_time">生效时间: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="date" id="active_time" name="active_time" value="{$vo.active_time|default=""|date="Y-m-d",###}" placeholder="生效时间" check="require" msg="请输入生效时间">
+                            </div>
+                        </div>
+                    </div>
+					
+
+					<div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="deactive_time">结束时间: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="date" id="deactive_time" name="deactive_time" value="{$vo.deactive_time|default=""|date="Y-m-d",###}" placeholder="结束时间">
+
+                                <div class="help-block">
+                                	<b>结束时间不填则为 至今 </b>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-default">
+            <div class="form-group text-center">
+                <input type="button" data-loading-text="正在保存..." data-close="1" data-reload="1" class="defaultEditFormSubmit btn btn-primary" value="保存" />
+                <a class="close_box_button btn btn-danger">取消</a>
+            </div>
+        </div>
+    
+    </form>
+
+
+<script type="text/javascript">
+$(function($){
+
+    $("#owner_uid").select2();
+    $("#relation_uid").select2();
+    $("#commission_function_id").select2();
+
+});
+</script>

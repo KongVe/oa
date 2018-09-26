@@ -1,0 +1,96 @@
+<div class="form-group col-sm-12">
+
+	<label class="control-label" for="plan_id">
+		选择计划(单选)
+		<input type="text" name="wish_false_plan_search" id="wish_false_plan_search" value="{$Think.request.wish_false_plan_search}">
+		<a class="btn btn-info btn-xs" onclick="wishFalsePlanSearch(this);" >搜索</a>
+	</label>
+	
+	<table class="table">
+		<tr>
+			<th>计划ID</th>
+			<!-- <th>网站</th> -->
+			<!-- <th>动作</th> -->
+			<th>店铺</th>
+			<th>产品ID</th>
+			<th>产品名称</th>
+			<th>图片</th>
+			<th>刷单数</th>
+			<th>状态</th>
+		</tr>
+		<volist name="ext_data.plan_list" id="plan">
+			<tr>
+				<td>
+					<label>
+						<input type="radio" class="" name="ext[plan_id][]" value="{$plan.id}" check="checked" msg="请选择刷单计划"  <eq name="vo['config_data']['plan_id'][0]" value="$plan['id']" >checked="checked"</eq> >
+						<span class="help-inline">{$plan.id}</span>
+					</label>
+				</td>
+				<!-- <td>{$plan.website}</td> -->
+				<!-- <td>{$plan.type}</td> -->
+				<td style="max-width:150px;">{$plan.store}</td>
+				<td style="max-width:150px;word-break:break-all;">{$plan.product_id}</td>
+				<td style="max-width:150px;">{$plan.product_name}</td>
+				<td style="max-width:80px;width:80px;">
+					<a href="{$plan.product_thumbnail}" target="_blank" class="thumbnail" target="_blank"><img src="{$plan.product_thumbnail}" data-src="{$plan.product_thumbnail}" width="80" /></a>
+				</td>
+				<td>{$plan.finish_times} / {$plan.plan_times}</td>
+				<td>{$plan.status}</td>
+			</tr>
+		</volist>
+	</table>
+
+	<hr>
+
+	<label class="control-label" for="plan_id">选择可用哪个国家的VPN(可多选)不选则代表全选</label>
+
+	<table class="table">
+		<tr>
+			<th>ID</th>
+			<th>名称</th>
+			<th>地址</th>
+			<th>城市</th>
+			<th>状态</th>
+		</tr>
+		<volist name="ext_data.goldenfrog_vpn_list" id="goldenfrog_vpn">
+			<tr>
+				<td>
+					<label>
+						<input type="checkbox" style="width:20px;height:20px;" name="ext[goldenfrog_vpn_id][]" value="{$goldenfrog_vpn.id}" <?php if(in_array($goldenfrog_vpn['id'], $vo['config_data']['goldenfrog_vpn_id'])){echo 'checked="checked"';} ?> >
+						<span class="help-inline">{$goldenfrog_vpn.id}</span>
+					</label>
+				</td>
+				<td style="max-width:150px;">{$goldenfrog_vpn.host_name}</td>
+				<td style="max-width:150px;word-break:break-all;">{$goldenfrog_vpn.vpn_host}</td>
+				<td style="max-width:150px;">{$goldenfrog_vpn.city}</td>
+				<td>{$goldenfrog_vpn.status}</td>
+			</tr>
+		</volist>
+	</table>
+</div>
+
+<script type="text/javascript">
+	function wishFalsePlanSearch (obj) {
+		var str = $("#wish_false_plan_search").val();
+		var url = changeURLArg(window.location.href,"wish_false_plan_search",str);
+		console.log(url);
+		window.location.href=url;
+	}
+	
+	function changeURLArg(url,arg,arg_val){ 
+	    var pattern=arg+'=([^&]*)'; 
+	    var replaceText=arg+'='+arg_val; 
+	    if(url.match(pattern)){ 
+	        var tmp='/('+ arg+'=)([^&]*)/gi'; 
+	        tmp=url.replace(eval(tmp),replaceText); 
+	        return tmp; 
+	    }else{ 
+	        if(url.match('[\?]')){ 
+	            return url+'&'+replaceText; 
+	        }else{ 
+	            return url+'?'+replaceText; 
+	        } 
+	    } 
+	    return url+'\n'+arg+'\n'+arg_val; 
+	} 
+</script>

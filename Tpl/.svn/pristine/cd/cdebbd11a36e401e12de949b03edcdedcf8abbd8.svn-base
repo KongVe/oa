@@ -1,0 +1,161 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">{$title}</h1>
+
+	<div class="col-sm-10 pull-right">
+
+		<div class="col-sm-12">
+			
+
+			<div class="form-group col-sm-4">
+		        <div class="input-group">
+		            <span class="input-group-addon">
+		                订单区间
+		            </span>
+		            <input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="time_between" id="time_between" value="{$Think.request.time_between}"  placeholder="订单区间">
+		        </div>
+		    </div>
+
+			<if condition=" isAdmin('67,86') ">
+
+				<div class="form-group col-sm-3">
+					<div class="input-group">
+						<span class="input-group-addon">
+							所属用户
+						</span>
+						<select name="owner_uid" id="owner_uid" style="width:100%;" placeholder="请选择用户" size=1>
+							<option value="">请选择用户</option>
+							<volist name="user_list" id="user">
+								<option value="{$user.id}" <?php if(in_array($user['id'], array($_REQUEST['owner_uid']))){ echo 'selected="selected"';}?> >{$user.show_name}</option>
+							</volist>
+						</select>
+
+					</div>
+				</div>
+			
+			</if>
+			
+			<div class="form-group col-sm-3">
+				<div class="input-group">
+					<span class="input-group-addon">
+						发放用户
+					</span>
+					<select name="add_uid[]" id="add_uid" style="width:100%;" placeholder="请选择用户" multiple="multiple" size=1>
+						
+						<volist name="user_list" id="user">
+							<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['add_uid'])){ echo 'selected="selected"';}?> >{$user.show_name}</option>
+						</volist>
+					</select>
+
+				</div>
+			</div>
+
+			<div class="form-group col-sm-4">
+		        <div class="input-group">
+		            <span class="input-group-addon">
+		                发放时间
+		            </span>
+		            <input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}"  placeholder="发放时间">
+					<span class="input-group-btn">
+		                <button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+		            </span>
+		        </div>
+		    </div>
+
+		</div>
+	</div>
+</div>
+
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		当前页面已放款总金额: {$total_data.commission_given} 元
+	</div>
+</div>
+
+<div class="message-container">
+	<table class="table table-striped">
+			
+		<include file="Layout:title_v2"/>
+            
+        <tbody class="tbody">
+
+			<volist name="list" id="vo">
+				<tr id="tr_{$vo.id}" >
+					<td  >
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td >
+						{$vo.owner_user_name}
+					</td>
+					<td >
+						{$vo.start_time|default="无"|date="Y-m-d H:i:s",###} - {$vo.end_time|default="无"|date="Y-m-d H:i:s",###}
+					</td>
+					<td >
+						{$vo.commission_given|default="0"} 元
+					</td>
+					<td >
+						{$vo.add_user_name}
+					</td>
+					<td >
+						{$vo.add_time|default="无"|date="Y-m-d H:i:s",###}
+					</td>
+					<td >
+						<span class="V2EditMemo" data-field="memo" data-table-name="v2_commission_confirm" data-field-value="{$vo.id}"><pre>{$vo.memo}</pre></span>
+					</td>
+
+					<td >
+						<!-- <a data-id="{$vo.id}" class="downloadCommissionConfirmReport btn btn-primary" >下载报表</a> -->
+					</td>
+				</tr>
+			</volist>
+
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;top:138px;width:71%;z-index:100;height:300px;left:30%;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+
+<script type="text/javascript">
+
+var online_order_time = "{$Think.request.online_order_time}";
+$(function($){
+	$("#owner_uid").select2();
+	$("#add_uid").select2();
+
+
+	// $(".viewOwnerOrder").click(function(e){
+	// 	var url = "{:U('V2OrderDetail/index')}";
+	// 	var data = {
+
+	// 	}
+	// 	tmpSendForm(url,data);
+	// });
+
+	$(".downloadCommissionConfirmReport").click(function(e){
+		var id = $(this).data("id");
+	
+		var data = {
+			"id":id,
+		};
+		
+		tmpSendForm("{:U('downloadCommissionConfirmReport')}",data);
+		
+	});
+});
+
+</script>

@@ -1,0 +1,113 @@
+<layout name='Layout/ace_box' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo intval(!$sort); ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="sellyours_id" value="{$Think.request.sellyours_id}" />
+	<div class="panel panel-warning">
+		<div class="panel-heading">
+			<h4 class="panel-title">基本分析</h4>
+		</div>
+		<div class="panel-body">
+			<table class="table table-striped table-condensed table-bordered">
+				<tr>
+					<td>ASIN:</td>
+					<td><a href="{$sellyours.offer_link}" target="_blank">{$sellyours.asin}</a></td>
+					<td><a href="{$sellyours.thumbnail}" target="_blank"><img src="{$sellyours.thumbnail}" width=60 class="thumbnail" /></a</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td>总卖家数:</td>
+					<td>{$sellyours.offer_count_all}</td>
+					<td>特色卖家数:</td>
+					<td>{$sellyours.buy_box_eligible_offer_count_all}</td>
+				</tr>
+				<tr>
+					<td>FBA卖家数:</td>
+					<td>{$sellyours.offer_count_fulfillby_amazon}</td>
+					<td>直发卖家数</td>
+					<td>{$sellyours.offer_count_fulfillby_merchant}</td>
+				</tr>
+				<tr>
+					<td>FBA特色卖家数:</td>
+					<td>{$sellyours.buy_box_eligible_offer_count_fulfillby_amazon}</td>
+					<td>直发特色卖家数:</td>
+					<td>{$sellyours.buy_box_eligible_offer_count_fulfillby_merchant}</td>
+				</tr>
+				<tr>
+					<td>FBA最低价:</td>
+					<td>{$sellyours.lowest_price_fulfillby_amazon}</td>
+					<td>直发最低价:</td>
+					<td>{$sellyours.lowest_price_fulfillby_merchant}</td>
+				</tr>
+				<tr>
+					<td>Buy box价格:</td>
+					<td>{$sellyours.buy_box_price}</td>
+					<td>最后改价时间:</td>
+					<td><?php echo date("Y-m-d H:i",$sellyours['competition_last_update']); ?></td>
+				</tr>
+
+			</table>
+		</div>
+		<div class="panel-footer">
+			<a class="btn btn-danger" onclick="closeBox()">关闭</a>
+			<a class="btn btn-primary" href="{:U('index')}?sellyours_id={$Think.request.sellyours_id}">返回</a>
+			<a class="btn btn-success" href="{:U('logIndex')}?sellyours_id={$Think.request.sellyours_id}">记录</a>
+		</div>
+	</div>
+	<?php if(time() - $sellyours['competition_last_update'] > 3600 * 24 * 3){ ?>
+	<div class="alert alert-danger">
+		<b>注意，该分析数据已经三天前的了，请到平台上查看最新数据!</b>
+	</div>
+	<?php } ?>
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			<h4 class="panel-title">{$panel_title}</h4>
+		</div>
+		<div class="panel-body message-container">
+			<table class="table table-striped table-hover">
+			 	<include file="Layout:title"/>
+				<tbody class="tbody">
+				<volist name="list" id="vo">
+					<tr>
+						<td>
+							<label class="inline pull-left">
+								<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+								<span class="lbl"></span>
+								{$vo.id}
+								<br>
+							</label>
+						</td>
+						<td>
+							<a href="{$vo.seller_link}" target="_blank" >{$vo.seller_id}</a>
+							<br>
+							<b>{$vo.seller_name}</b>
+						</td>
+						<td>{$vo.change_time}</td>
+						<td <?php if($vo['feedback_count_changed']){ echo "class='danger'"; } ?> >{$vo.feedback_count}</td>
+						<td <?php if($vo['feedback_rating_changed']){ echo "class='danger'"; } ?> >
+							{$vo.feedback_rating}%</td>
+						<td <?php if($vo['is_buy_box_winner_changed']){ echo "class='danger'"; } ?> ><eq name="vo.is_buy_box_winner" value="True"><i class="icon-ok green icon-3x"></i></eq></td>
+						<td <?php if($vo['is_fulfilled_by_amazon_changed']){ echo "class='danger'"; } ?> ><eq name="vo.is_fulfilled_by_amazon" value="True"><i class="icon-ok green icon-3x"></i></eq></td>
+						
+						<td <?php if($vo['is_featured_merchant_changed']){ echo "class='danger'"; } ?> ><eq name="vo.is_featured_merchant" value="True"><i class="icon-ok green icon-3x"></i></eq></td>
+						<td <?php if($vo['ship_from_country_changed']){ echo "class='danger'"; } ?> >{$vo.ship_from_country}</td>
+						<td <?php if($vo['landed_price_changed']){ echo "class='danger'"; } ?> >{$vo.landed_price}</td>
+						<td <?php if($vo['condition_notes_changed']){ echo "class='danger'"; } ?> ><a data-toggle="tooltip" title="{$vo.condition_notes}"><?php echo substr($vo['condition_notes'], 0,15) . "..."; ?></a></td>	
+						<td>
+							<span class="editStatic" field="memo" onclick="editStatic(this,'{:U('AmazonSellyoursOffer/logMemoSave')}?id={$vo.id}','input')">{$vo.memo}</span>
+						</td>				
+						<td style="max-width:100px;word-break:break-all;">
+							<gt name="vo.offer_changed_count" value="1">
+								<a class="btn btn-warning btn-sm" href="{:U('logIndex')}?sellyours_id={$Think.request.sellyours_id}&seller_id={$vo.seller_id}">分析</a>
+							</gt>
+						</td>
+					</tr>
+				</volist>
+				<tbody>
+			</table>
+			<div class="pagination">
+				{$page}
+			</div>			
+		</div>
+	</div>
+</form>

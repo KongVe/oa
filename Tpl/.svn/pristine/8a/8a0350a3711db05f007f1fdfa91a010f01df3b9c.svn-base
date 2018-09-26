@@ -1,0 +1,558 @@
+<layout name='Layout/ace_popup' />
+    {:W('PageHeader',array('name'=>"添加手工订单"))}
+
+    <form action="{:U('addManualOrderSave')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+        <input type="hidden" id="ajax" name="ajax" value="1"/>
+
+        <input type="hidden" id="id" name="id" value="{$vo.id}">
+
+        <div class="panel panel-primary">
+            <div class="panel panel-heading">
+                <span>基本信息</span>
+            </div>
+            <div class="panel-body">
+                <div class="col-sm-12">
+
+                    <notempty name="vo.id">
+                        <div class="form-group">
+                            <div class="col-sm-12 text-center">
+                                <a class="changeToAdd btn btn-inverse">转换为添加插入模式</a>
+                            </div>
+                        </div>
+                    </notempty>
+                    
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">主订单号: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="online_order_id" name="online_order_id" value="{$vo.online_order_id}" placeholder="主订单号" check="require" msg="请填写主订单号">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">    
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">帐号: </label>
+                            <div class="col-sm-9">
+                                <select id="account_id" name="account_id" style="width:100%" placeholder="点击输入或选择帐号">
+                                    <option value="">请选择帐号</option>
+                                    <volist name="account_list" id="website">
+                                        <optgroup label="{$website[0]['website']}">
+                                            <volist name="website" id="account">
+                                                <option value="{$account.id}" <?php 
+                                                    if( $account['id'] == $vo["account_id"]){ 
+                                                        echo 'selected="selected"';
+                                                    }
+                                                ?> >{$account.show_name}</option>
+                                            </volist>
+                                        </optgroup>
+                                    </volist>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">下单时间: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control input-date-time" data-date-format="yyyy-mm-dd"  type="text" id="order_time" name="order_time" value="{$vo.order_time|default=""|date="Y-m-d H:i",###}" placeholder="下单时间" check="require" msg="请填写下单时间">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">最迟发货时间: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control input-date-time" date-format="yyyy-mm-dd"  type="text" id="latest_ship_time" name="latest_ship_time" value="{$vo.latest_ship_time|default=""|date="Y-m-d H:i",###}" placeholder="最迟发货时间" check="require" msg="请填写最迟发货时间">
+                            </div>
+                        </div>
+                    </div>
+                    
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">币种: </label>
+                            <div class="col-sm-9">
+                                <select name="online_currency" id="online_currency" style="width:350px;" check="require" msg="请选择币种">
+                                    <option value="USD">USD美金</option>
+                                    <option value="GBP">GBP英镑</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">买家指定物流: </label>
+                            <div class="col-sm-9">
+                                <select name="customer_online_express_type_id" id="customer_online_express_type_id" style="width:350px;" check="require" msg="请选择买家指定物流">
+                                    <option value="">请选择买家指定物流</option>
+                                    <volist name="online_express_type_list" id="online_express_type">
+                                        <option value="{$online_express_type.id}" <eq name="online_express_type.id" value="$vo.customer_online_express_type_id"> selected="selected" </eq> >{$online_express_type.website} ==> {$online_express_type.online_express_type}</option>
+                                    </volist>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">订单执行者: </label>
+                            <div class="col-sm-9">
+                                <select name="fulfill_by" id="fulfill_by" style="width:350px;" check="require" msg="请选择订单执行者">
+                                    <option value="">请选择订单执行者</option>
+                                    <volist name="fulfill_by_list" id="fulfill_by">
+                                        <option value="{$fulfill_by}" <eq name="fulfill_by" value="$vo.fulfill_by"> selected="selected" </eq> >{$fulfill_by}</option>
+                                    </volist>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    
+
+        <div class="panel panel-primary">
+            <div class="panel panel-heading">
+                <span>买家信息</span>
+            </div>
+            <div class="panel-body">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">买家姓名: </label>
+                            <div class="col-sm-4">
+                                <input class="form-control" type="text" id="online_shipping_first_name" name="online_shipping_first_name" value="{$vo.online_shipping_first_name}" placeholder="名" check="require" msg="请填写名">
+                            </div>
+                            <div class="col-sm-4">
+                                <input class="form-control" type="text" id="online_shipping_last_name" name="online_shipping_last_name" value="{$vo.online_shipping_last_name}" placeholder="姓">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">街道地址1: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="online_shipping_street_address_1" name="online_shipping_street_address_1" value="{$vo.online_shipping_street_address_1}" placeholder="街道地址1" check="require" msg="请填写街道地址1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">街道地址2: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="online_shipping_street_address_2" name="online_shipping_street_address_2" value="{$vo.online_shipping_street_address_2}" placeholder="街道地址2">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">城市: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="online_shipping_city" name="online_shipping_city" value="{$vo.online_shipping_city}" placeholder="城市">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">省份: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="online_shipping_state" name="online_shipping_state" value="{$vo.online_shipping_state}" placeholder="省份">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">邮编: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="online_shipping_zipcode" name="online_shipping_zipcode" value="{$vo.online_shipping_zipcode}" placeholder="邮编">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">国家: </label>
+                            <div class="col-sm-9">
+                                <select name="online_country_code" id="online_country_code" style="width:350px;" check="require" msg="请选择目的国">
+                                    <option value="">请选择国家</option>
+                                    <volist name="country_list" id="country">
+                                        <option value="{$country.country_code}" <eq name="country.country_code" value="$vo.online_country_code"> selected="selected" </eq> >{$country.country} {$country.name_cn} ({$country.country_code})</option>
+                                    </volist>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">电话: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="online_shipping_phone" name="online_shipping_phone" value="{$vo.online_shipping_phone}" placeholder="电话">
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">email: </label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="email" name="email" value="{$vo.email}" placeholder="email">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel panel-primary">
+            <div class="panel panel-heading">
+                <span>商品信息</span>
+            </div>
+            <div class="panel-body" id="online_product_div">
+                <div class="col-sm-12 text-right">
+                    <a class="add_online_product btn btn-inverse btn-sm">增加商品</a>    
+                </div>
+    
+
+                <foreach name="online_product_list" item="online_product" key="k1">
+                    
+
+
+                    <div class="col-sm-11 online_product_class">
+                        
+                        <input type="hidden" class="online_product_auto_id_input" name="online_product[{$k1}][online_product_auto_id]" value="{$online_product.id}">
+
+                        <if condition=" isAdmin() ">
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="text-right col-sm-2">所属者: </label>
+                                    <div class="col-sm-4">
+                                        <select name="online_product[{$k1}][owner_uid]" style="width:100%;" placeholder="请选择用户" >
+                                            <volist name="user_list" id="user">
+                                                <option value="{$user.id}" <eq name="user.id" value="$online_product.owner_uid">selected</eq>  >{$user.show_name}</option>
+                                            </volist>
+                                        </select>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </if>
+
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <label class="text-right col-sm-2">子订单ID: </label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="text" id="online_item_id" name="online_product[{$k1}][online_item_id]" value="{$online_product.online_item_id}" placeholder="子订单ID" check="require" msg="请填写子订单ID">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <label class="text-right col-sm-2">商品名称: </label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="text" id="online_product_name" name="online_product[{$k1}][online_product_name]" value="{$online_product.online_product_name}" placeholder="商品名称" check="require" msg="请填写商品名称">
+                                </div>
+                            </div>
+                        </div>
+    
+    
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <label class="text-right col-sm-2">图片地址: </label>
+                                <div class="col-sm-6">
+                                    <input class="form-control thumbnail_input" type="text" id="thumbnail" name="online_product[{$k1}][thumbnail]" value="{$online_product.thumbnail}" placeholder="图片地址" check="require" msg="请填写线上商品图片地址">
+                                </div>
+                                <div class="col-sm-3">
+                                    <a class="thumbnail" href="{$online_product.thumbnail}" target="_blank" style="width:80px;    position: absolute;">
+                                        <img src="{$online_product.thumbnail}" width="80" />
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <label class="text-right col-sm-2">线上商品ID: </label>
+                                <div class="col-sm-6">
+                                    <input class="form-control" type="text" id="online_product_id" name="online_product[{$k1}][online_product_id]" value="{$online_product.online_product_id}" placeholder="线上商品ID" check="require" msg="请填写线上商品ID">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <label class="text-right col-sm-2">商品规格ID: </label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="text" id="online_variation_id" name="online_product[{$k1}][online_variation_id]" value="{$online_product.online_variation_id}" placeholder="商品规格ID" check="require" msg="请填写商品规格ID">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <label class="text-right col-sm-2">销售链接: </label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="text" id="online_product_link" name="online_product[{$k1}][online_product_link]" value="{$online_product.online_product_link}" placeholder="销售链接" check="require" msg="请填写销售链接">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <label class="text-right col-sm-2">线上SKU: </label>
+                                <div class="col-sm-9">
+                                    <input class="form-control" type="text" id="online_sku" name="online_product[{$k1}][online_sku]" value="{$online_product.online_sku}" placeholder="线上SKU" >
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-6">
+                                <label class="text-right col-sm-4">颜色: </label>
+                                <div class="col-sm-8">
+                                    <input class="form-control" type="text" id="online_color" name="online_product[{$k1}][online_color]" value="{$online_product.online_color}" placeholder="颜色">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <label class="text-right col-sm-4">尺码: </label>
+                                <div class="col-sm-8">
+                                    <input class="form-control" type="text" id="online_size" name="online_product[{$k1}][online_size]" value="{$online_product.online_size}" placeholder="尺码" >
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-6">
+                                <label class="text-right col-sm-4">付款状态: </label>
+                                <div class="col-sm-8">
+                                    <select name="online_product[{$k1}][online_payment_status]" id="online_payment_status" check="require" msg="请选择付款状态">
+                                        <option value="">请选择付款状态</option>
+                                        <foreach name="online_payment_status_list" item="online_payment_status">
+                                            <option value="{$online_payment_status}" <eq name="online_payment_status" value="$online_product.online_payment_status"> selected="selected" </eq> >{$online_payment_status|L}</option>
+                                        </foreach>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <label class="text-right col-sm-4">线上发货状态: </label>
+                                <div class="col-sm-8">
+                                    <select name="online_product[{$k1}][online_shipping_status]" id="online_shipping_status" check="require" msg="请选择线上发货状态">
+                                        <option value="">请选择线上发货状态</option>
+                                        <foreach name="online_shipping_status_list" item="online_shipping_status">
+                                            <option value="{$online_shipping_status}" <eq name="online_shipping_status" value="$online_product.online_shipping_status"> selected="selected" </eq> >{$online_shipping_status|L}</option>
+                                        </foreach>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-6">
+                                <label class="text-right col-sm-4">价格(单价): </label>
+                                <div class="col-sm-8">
+                                    <input class="form-control" type="text" id="online_price" name="online_product[{$k1}][online_price]" value="{$online_product.online_price}" placeholder="价格">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <label class="text-right col-sm-4">运费(单价): </label>
+                                <div class="col-sm-8">
+                                    <input class="form-control" type="text" id="online_shipping_fee" name="online_product[{$k1}][online_shipping_fee]" value="{$online_product.online_shipping_fee}" placeholder="运费">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="col-sm-6">
+                                <label class="text-right col-sm-4">数量: </label>
+                                <div class="col-sm-8">
+                                    <input class="form-control" type="number" id="quantity" name="online_product[{$k1}][quantity]" value="{$online_product.quantity}" placeholder="数量">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <label class="text-right col-sm-4">预计可得率: </label>
+                                <div class="col-sm-8 input-group">
+                                    <input class="form-control estimate_rate_input" type="number" value="0.85" placeholder="预计可得率" >
+                                    <div class="input-group-btn">
+                                        <a class="estimate_rate btn btn-primary btn-sm">生成</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-sm-6">
+                                <label class="text-right col-sm-4">预计可得价格: </label>
+                                <div class="col-sm-8">
+                                    <input class="form-control estimate_input" type="text" id="estimate_price" name="online_product[{$k1}][estimate_price]" value="{$online_product.estimate_price}" placeholder="价格">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <label class="text-right col-sm-4">预计可得运费: </label>
+                                <div class="col-sm-8">
+                                    <input class="form-control estimate_input" type="text" id="estimate_shipping_fee" name="online_product[{$k1}][estimate_shipping_fee]" value="{$online_product.estimate_shipping_fee}" placeholder="运费">
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group">
+                            
+
+                            <div class="col-sm-6">
+                                <label class="text-right col-sm-4">总预计可得: </label>
+                                <div class="col-sm-8">
+                                    <input class="form-control" type="text" id="estimate_total" name="online_product[{$k1}][estimate_total]" value="{$online_product.estimate_total}" placeholder="预计价格+预计运费" readonly="readonly">
+                                </div>
+                            </div>
+                           
+                        </div>
+                            
+                       
+
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <label class="text-right col-sm-2">线上商品备注: </label>
+                                <div class="col-sm-9">
+                                    <textarea class="form-control" type="text" id="online_memo" name="online_product[{$k1}][online_memo]" placeholder="线上商品备注">{$online_product.online_memo}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <label class="text-right col-sm-2"></label>
+                                <div class="col-sm-9">
+                                    <a class="btn btn-inverse btn-sm" onclick="delProduct(this);">删除商品</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <div class="red text-center">
+                            --------------------------------------------------------------------------------------
+                        </div>
+                        <hr>
+
+                    </div>
+                </foreach>
+            </div>
+        </div>
+
+        <div class="panel-default">
+            <div class="form-group text-center">
+                <input type="button" data-loading-text="正在保存..." data-close="1" class="defaultEditFormSubmit btn btn-primary" value="保存" />
+                <a class="close_box_button btn btn-danger">取消</a>
+            </div>
+        </div>
+
+    </form>
+
+
+<script type="text/javascript">
+$(function($){
+    var account_website_list = {$account_website_list|default="[]"|json_encode};
+    var online_express_type_list = {$online_express_type_list|default="[]"|json_encode};
+
+    var customer_online_express_type_id = {$vo.customer_online_express_type_id|default="0"};
+
+    $("#account_id").select2();
+    $("#online_country_code").select2();
+
+    $(".add_online_product").click(function(){
+        var online_product_class = $(".online_product_class").eq(0).clone(true);
+        online_product_class.find("input").each(function(i){
+            $(this).val("");
+        });
+        online_product_class.find("select").each(function(i){
+            $(this).val("");
+        });
+        $("#online_product_div").append(online_product_class);
+    });
+
+    $(".thumbnail_input").change(function(){
+        var src = $(this).val();
+        var tmp = $(this).parent().parent().find(".thumbnail").eq(0);
+        console.log(tmp);
+        console.log(src);
+        tmp.attr("href",src);
+        tmp.find("img").eq(0).attr("src",src);
+    });
+
+    $(".estimate_input").change(function(){
+        var tmp_obj = $(this).parent().parent().parent();
+
+        var price = tmp_obj.find("#estimate_price").val();
+        var shipping_fee = tmp_obj.find("#estimate_shipping_fee").val();
+        price = parseFloat(price?price:0);
+        shipping_fee = parseFloat(shipping_fee?shipping_fee:0);
+        tmp_obj.parent().find("#estimate_total").val(price+shipping_fee);
+    });
+
+    $(".estimate_rate").click(function(){
+        var tmp_obj = $(this).parent().parent().parent().parent().parent();
+
+        var rate = tmp_obj.find(".estimate_rate_input").val();
+
+        var quantity = tmp_obj.find("#quantity").val();
+        if(!quantity){
+            alertWarning("请先输入数量");
+            return false;
+        }
+        var price = tmp_obj.find("#online_price").val();
+        var shipping_fee = tmp_obj.find("#online_shipping_fee").val();
+
+        price = parseFloat(price?price:0);
+        shipping_fee = parseFloat(shipping_fee?shipping_fee:0);
+
+        tmp_obj.find("#estimate_price").val(price * rate * quantity);
+        tmp_obj.find("#estimate_shipping_fee").val(shipping_fee * rate * quantity);
+        tmp_obj.find("#estimate_total").val(price * rate * quantity + shipping_fee * rate * quantity);
+    });
+    
+    $("#account_id").change(function(){
+        $("#customer_online_express_type_id").html("");
+        $("#customer_online_express_type_id").html('<option value="">请选择买家指定物流</option>');
+        for (var i = 0; i < account_website_list.length; i++) {
+            if(account_website_list[i].id == $(this).val()){
+                for (var j = 0; j < online_express_type_list.length; j++) {
+                    if(online_express_type_list[j].website_id == account_website_list[i].website_id){
+                        if(customer_online_express_type_id == online_express_type_list[j].id){
+                            $("#customer_online_express_type_id").append('<option value="'+online_express_type_list[j].id+'" selected="selected">'+online_express_type_list[j].online_express_type+'</option>');
+                        }else{
+                            $("#customer_online_express_type_id").append('<option value="'+online_express_type_list[j].id+'">'+online_express_type_list[j].online_express_type+'</option>');
+                        }
+                        
+
+                    }
+                };
+            }
+        };
+    }).change();
+
+
+    $(".changeToAdd").click(function(){
+        $("#id").val("");
+        $("#fulfill_by").val("Merchant");
+        $("#account_id").val("101").change();
+        $(".online_product_auto_id_input").val("");
+        $(this).replaceWith("<b>已转换为添加插入模式，数据将保存到一条新的订单中</b>");
+    })
+});
+
+
+function delProduct(obj){
+    $(obj).parent().parent().parent().parent().remove();
+}
+</script>

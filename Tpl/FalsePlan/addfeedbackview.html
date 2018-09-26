@@ -1,0 +1,333 @@
+<layout name='Layout/ace_popup' />
+    {:W('PageHeader',array('name'=>"增加评价内容"))}
+
+    <form action="{:U('addFeedbackSave')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+        <input type="hidden" id="ajax" name="ajax" value="1"/>
+	
+		<input type="hidden" name="add_file" id="add_file" value="" />
+
+        <input type="hidden" id="false_plan_id" name="false_plan_id" value="{$Think.request.false_plan_id}">
+        <input type="hidden" id="opmode" name="opmode" value="edit">
+
+        <div class="panel panel-primary">
+            <div class="panel panel-heading">
+                <span>增加预置的评价内容</span>
+            </div>
+            <div class="panel-body">
+                <div class="col-sm-12">
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+							<table class="table">
+								<tr>
+									<th class="text-center" colspan="6">
+										当前该刷单计划已添加的评价
+									</th>
+								</tr>
+								<tr>
+									<th>添加用户</th>
+									<th>状态</th>
+
+									<th>标题</th>
+									
+									<th style="max-width:400px;">评价内容</th>
+									<th>刷评方式</th>
+									<th style="max-width:200px;">备注</th>
+									<th>操作</th>
+								</tr>
+								<volist name="list" id="vo">
+									<tr>
+										<td>
+											{$vo.add_user_name}
+											<br>
+											{$vo.add_time|default=""|date="Y-m-d H:i:s",###}
+											<eq name="vo.status" value="Normal">
+												<if condition="isAdmin(46)">
+													<br>
+													<notempty name="vo.choose_data">
+														<a data-id="{$vo.id}"  data-type="cancel" class="chooseFeedbackToUse btn btn-danger btn-xs">取消加入</a>
+													<else/>
+														<a data-id="{$vo.id}"  data-type="use" class="chooseFeedbackToUse btn btn-inverse btn-xs">加入待刷</a>
+													</notempty>
+													
+												</if>
+											</eq>
+										</td>
+										<td>
+											<b>{$vo.status}</b>
+											<notempty name="vo.plan_review_day">
+												<br>
+												计划日期
+												<br>
+												{$vo.plan_review_day|default=""|date="Y-m-d",###}
+											</notempty>
+										</td>
+										<td style="min-width:200px;">
+											<pre>{$vo.title}</pre>
+											<eq name="vo.status" value="Used">
+												<b>使用: </b>{$vo.use_time|default=""|date="Y-m-d H:i:s",###}
+											</eq>
+										</td>
+										<td style="min-width:200px;max-width:330px;">
+											<pre>{$vo.feedback}</pre>
+
+											<notempty name="vo.imgs">
+												<div class="col-sm-12">
+													<volist name="vo.img_list" id="v2">
+														<a class="thumbnail"  href="{$v2}" target="_blank" style="width:150px;">
+									  						<img src="{$v2}" width="150" />
+									  					</a>
+													</volist>
+												</div>
+											</notempty>	
+											<notempty name="vo.store_feedback">
+												<div class="col-sm-12">
+													店铺：<pre>{$vo.store_feedback}</pre>
+												</div>
+											</notempty>
+											
+										</td>
+										<td>
+											{$vo.review_type|L}
+										</td>
+										<td>
+											<span class="editStatic" field="memo" onclick="editStatic(this,'{:U('false_plan/feedbackMemoSave')}?id={$vo.id}','input')">{$vo.memo}</span>
+										</td>
+										<td>
+
+											<eq name="vo.status" value="Normal">
+												<if condition="isAdmin(46)">
+													<select id="campany_choose_{$vo.id}">
+														<!-- <option value="">选择公司</option> -->
+														<!-- <option value="直评1">直评1</option> -->
+														<option value="跟卖1美金">跟卖1美金</option>
+													</select>
+													<a data-id="{$vo.id}"  data-type="use" class="useFeedback btn btn-inverse btn-sm">使用</a>
+													<br>
+													<br>
+												</if>
+												<a data-id="{$vo.id}" class="delFeedback btn btn-danger btn-sm">删除</a>
+											</eq>
+											<eq name="vo.status" value="Used">
+														
+												<eq name="vo.is_success" value="Yes">
+													<br>
+													<b>已完成</b> 
+													<br>
+													{$vo.success_time|default=""|date="Y-m-d H:i:s",###}
+												<else/>
+													<if condition="isAdmin('46,10026')">
+														<br>
+														{$vo.campany}
+														<if condition="isAdmin(46)">
+															<br>
+															<a data-id="{$vo.id}" data-type="cancel" class="useFeedback btn btn-default btn-sm">取消使用</a>
+														</if>
+														<br>
+														<a data-id="{$vo.id}" class="setSuccess btn btn-primary btn-sm">完成</a>
+														
+													</if>
+												</eq>
+											</eq>
+										</td>
+									</tr>
+								</volist>
+							</table>
+                        </div>
+                    </div>
+	
+					<div class="form-group col-sm-12">
+                        <label class="text-right col-sm-2" for="package_code">评价标题: </label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="title" name="title" placeholder="评价标题" check="require" msg="请输入评价标题"  value=""/>
+                        </div>
+                    </div>
+                    
+
+                    <div class="form-group col-sm-12">
+                        <label class="text-right col-sm-2" for="package_code">评价内容: </label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control" id="feedback" name="feedback" placeholder="评价内容" check="require" msg="请输入评价内容"  style="height:120px;"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-sm-12">
+                        <label class="text-right col-sm-2" for="package_code">店铺feedback: </label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control" id="store_feedback" name="store_feedback" placeholder="店铺feedback" style="height:100px;"></textarea>
+                        </div>
+                    </div>
+
+					<div class="form-group col-sm-12">
+                        <label class="text-right col-sm-2" for="package_code">计划评价日期: </label>
+                        <div class="col-sm-4">
+                            <input type="date" class="form-control" id="plan_review_day" name="plan_review_day" placeholder="计划评价日期" check="require" msg="请输入计划评价日期" value="<?php echo date("Y-m-d");?>"/>
+                        </div>
+                    </div>
+
+					<div class="form-group col-sm-12">
+                        <label class="text-right col-sm-2" for="package_code">附加图片: </label>
+                        <div class="col-sm-8">
+                            <div class="form-group">
+						        <label class="col-sm-3 control-label">选择要导入的文件</label>
+						        <include file="Widget:uploader" />
+						    </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group col-sm-12">
+                        <label class="text-right col-sm-2" for="package_code">刷评方式: </label>
+                        <div class="col-sm-8">
+                            <select name="review_type" id="review_type">
+                            	<option value="">选择刷评方式</option>
+                            	<!-- <option value="Only review">直评(无VP)</option> -->
+                            	<option value="FBM vp">FBM VP</option>
+                            	<option value="FBA vp">FBA VP</option>
+                            </select>
+
+                            <b class="Red">在这里选 刷评方式 不用备注</b>
+                        </div>
+                    </div>
+
+					<div class="form-group col-sm-12">
+                        <label class="text-right col-sm-2" for="package_code">备注: </label>
+                        <div class="col-sm-8">
+                            <textarea class="form-control" id="memo" name="memo" placeholder="" style="height:60px;"></textarea>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-default">
+            <div class="form-group text-center">
+                <input type="button" data-loading-text="正在保存..." data-reload="1" class="defaultEditFormSubmit btn btn-primary" value="增加评价" />
+                <a class="close_box_button btn btn-danger">取消</a>
+            </div>
+        </div>
+    
+    </form>
+
+
+<script type="text/javascript">
+$(function($){
+
+    // $(".editFormSubmit").click(function(){
+    //     var data = $("#editForm").serialize();
+    //     var url = $("#editForm").attr("action");
+        
+    //     var btn = $(".editFormSubmit").button('loading');
+    //     if (check_form("editForm")) {
+    //         sendForm("editForm", url,false,function(msg){
+    //             btn.button('reset');
+    //             if(msg.status){
+    //                 //下载PDF
+    //                 $.post("{:U('reDownloadPdf')}",data);
+                    
+    //                 closeBox();
+    //             }else{
+    //                 alertWarning(msg.info);
+    //             }
+    //         });
+    //     }else{
+    //         btn.button('reset');
+    //     }
+    // });
+
+	$(".useFeedback").click(function(){
+		var id = $(this).data("id");
+		var type = $(this).data("type");
+
+		if(!confirm("确认使用？")){
+			return false;
+		}
+		if(type == "use"){
+			var campany = $("#campany_choose_"+id).val();
+		}else{
+			var campany = "";
+		}
+
+		var btn = $(this);
+
+		btn.button('loading');
+		$.post("{:U('useFeedback')}",{id:id,campany:campany,type:type},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+
+	$(".delFeedback").click(function(){
+		var id = $(this).data("id");
+		if(!confirm("确认删除？")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('delFeedback')}",{id:id},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".setSuccess").click(function(){
+		var id = $(this).data("id");
+		if(!confirm("确认完成？")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('setSuccess')}",{id:id},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".chooseFeedbackToUse").click(function(){
+		var id = $(this).data("id");
+		var type = $(this).data("type");
+		
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('chooseFeedbackToUse')}",{id:id,type:type},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+	
+	
+});
+</script>

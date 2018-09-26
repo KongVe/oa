@@ -1,0 +1,47 @@
+function fillCreditCardForm(){
+	if($("_fmh.cr._0.f") != null && $("_fmh.cr._0.ca") != null){
+		$("_fmh.cr._0.f").value = '{$falseC:payM:card_firstname}';
+		$("_fmh.cr._0.la").value = '{$falseC:payM:card_lastname}';
+		$("_fmh.cr._0.ca").value = '{$falseC:payM:card_number}';
+		$("_fmh.cr._0.e").style.display="none";
+		$("_fmh.cr._0.e").value = '{$falseC:payM:card_date_month}';
+		$("_fmh.cr._0.ex").style.display="none";
+		$("_fmh.cr._0.ex").value = '{$falseC:payM:card_date_year}';
+		$("_fmh.cr._0.cv").style.display="none";
+		$("_fmh.cr._0.cv").value = '{$falseC:payM:card_cvv}';
+		$("payment-order-button").click();
+		return true;
+	}else{
+		return false;
+	}
+}
+
+
+switch ('{$falseC:payM:type}') {
+	case 'Visa Credit Card': 
+	channel_visa = document.getElementById("channel-visa");
+	if(channel_visa != null){
+		channel_visa.click();	
+		if(fillCreditCardForm() == false){
+			alert("Fill Credit Card form error.");
+		}
+	}else{
+		alert("Not found channel_visa.");
+	}
+	break;
+	case 'Master Credit Card':
+	channel_master = document.getElementById("channel-master");
+	if(channel_master != null){
+		channel_master.click();	
+		if(fillCreditCardForm() == false){
+			alert("Fill Credit Card form error.");
+		}
+	}else{
+		alert("Not found channel_master.");
+	}
+	break;
+	default:
+		alert("Not support: {$falseC:payM:type}");
+	break;
+}
+

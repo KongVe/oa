@@ -1,0 +1,133 @@
+<layout name='Layout/ace_layout' />
+{:W('PageHeader',array('name'=>'编辑SKU模板'))}
+
+<form method='post' id="form_data" name="form_data" enctype="multipart/form-data"   class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="0">
+	<input type="hidden" id="type" name="type" value="{$type}">
+	<input type="hidden" id="folder" name="folder" value="{$folder}">
+	<input type="hidden" id="fid" name="fid" value="{$folder}">
+	<if condition="$_REQUEST['id'] neq ''">
+		<input type="hidden" id="id" name="id" value="{$vo.id}">
+		<input type="hidden" id="opmode" name="opmode" value="edit">
+	<else/>
+		<input type="hidden" id="opmode" name="opmode" value="add">
+	</if>
+
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-3 control-label" for="title" >模板名称：</label>
+			<div class="col-sm-9">
+				<input class="form-control" type="text" id="title" name="name" value="{$vo.name}"  check="require" msg="请输入模板名称" placeholder="模板名称">
+			</div>
+		</div>
+	</div>
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-3 control-label" for="account_id" >适用帐号：</label>
+			<div class="col-sm-9">
+				<select name="account_id" id="account_id">
+					<option value="">请选择帐号</option>
+					
+					<volist name="account_list" id="website">
+						<optgroup label="{$website[0]['website']}">
+							<volist name="website" id="account">
+								<option value="{$account.id}" <eq name="vo.account_id" value="$account.id">selected</eq> >{$account.account_name}</option>
+							</volist>
+						</optgroup>
+					</volist>
+				</select>
+			</div>
+		</div>
+	</div>
+
+	<if condition="$_REQUEST['id'] neq ''">
+		<div class="form-group col-sm-12">
+			<div class="form-group col-sm-6">
+				<label class="col-sm-3 control-label" >创建人：</label>
+				<div class="col-sm-9">
+					<span><b>{$vo['user_name']}</b></span>
+				</div>
+			</div>
+			<div class="form-group col-sm-6">
+				<label class="col-sm-3 control-label" for="name" >更新时间：</label>
+				<div class="col-sm-9">
+					<span><b>
+						<notempty name="vo.last_update">
+							{$vo['last_update']|date="Y-m-d H:i:s",###}
+						<else/>
+							时间出错
+						</notempty>
+					</b></span>
+				</div>
+			</div>
+		</div>
+	</if>
+
+	<div class="form-group">
+		<div class="col-sm-12">
+			
+			<label class="col-sm-1 control-label" for="rule" ><b>模板规则：</b></label>
+
+			<div class="col-sm-5">
+				<label>插入产品sku_id请插入</label><b><||skuid||></b><br>
+			</div>
+
+		</div>
+
+		<br><br>
+
+		<div class="col-sm-12">
+			<div class="col-sm-1">
+			</div>
+			<div class="col-sm-11">
+				<input id="rule" name="rule" style="width:60%;" value="{$vo.rule}">
+				<br>
+				(空格字符无效，会被自动剔除,禁用字符："_"和"-" )
+			</div>
+
+		</div>
+
+	</div>
+
+	<br>
+	<br>
+
+
+	<div class="form-group">
+		<div class="col-sm-1"></div>
+		<div class="col-sm-3">
+
+			<if condition="$_REQUEST['id'] neq ''">
+				<input class="btn btn-sm btn-primary" type="button" value="保存" onclick="save();">
+			<else/>
+				<input class="btn btn-sm btn-primary" type="button" value="创建" onclick="save();">
+			</if>
+			
+			<input class="btn btn-sm btn-default" type="button" value="关闭" onclick="window.close();">
+		</div>
+	</div>
+</form>
+
+<script type="text/javascript">
+	function save() {
+		if($("#account_id").val()==""){
+			alertWarning("请选择平台");
+			return;
+		}
+		$("#ajax").val(1);
+		//editor.sync();
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('templateSave')}",'',function(msg){
+				alert(msg.info);
+				if(msg.status){
+					window.opener=null;window.open('','_self');window.close();
+				}
+			});
+		}
+	}
+
+	//更改详情输入模块 为纯文本或者富文本
+	function changeDetailType(){
+
+	}
+</script>

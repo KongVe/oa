@@ -1,0 +1,55 @@
+<div class="panel panel-default">
+	<div class="panel-heading">
+		已存在的图片映射
+	</div>
+	<div class="panel-body">
+		<?php
+			if(count($list)<=0){
+		?>
+			<table class="table">
+				<tr>
+					<th>不存在该SKU的图片映射</th>
+				</tr>
+			</table>
+		<?php
+			}else{
+		?>
+
+			<table class="table">
+				<tr>
+					<th>图片序号</th>
+					<th>库存sku</th>
+					<th>合并前的SKU</th>
+					<th>平台SKU</th>
+					<th>线上图片</th>
+					<th>映射图片</th>
+					<th>操作</th>
+				</tr>
+				<foreach name="list" item="vo">
+					<tr>
+						<td rowspan="3" style="vertical-align: middle;">{$vo.id}</td>
+						<td>{$vo.sku}</td>
+						<td>{$vo.relate_sku}</td>
+						<td>{$vo.online_sku}</td>
+						<td><img src="{$vo.image_remote}" width="100px"/></td>
+						<td><img src="{$vo.image_local}" width="100px"/></td>
+						<td rowspan="3"><a class="btn btn-danger btn-xs" onclick="delRelate('{$vo.id}')">删除</a></td>
+					</tr>
+					<tr>
+						<td colspan="5">
+							<span><b>线上图片URL：</b></span><span>{$vo.image_remote}</span>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="5">
+							<span><b>映射图片URL：</b></span><span>{$vo.image_local}</span>
+						</td>
+					</tr>
+				</foreach>
+			</table>
+
+		<?php
+			}
+		?>
+	</div>
+</div>

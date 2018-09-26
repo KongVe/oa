@@ -1,0 +1,73 @@
+<script type="text/javascript">
+$(function(){
+	//close sidebar
+	// ace.settings.sidebar_collapsed(true);
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	});
+});
+function cancelPurchase(purchase_id){
+	if(!confirm("确认取消？")){
+		return false;
+	}
+	$.post("{:U('cancel')}",{ids:purchase_id},function(msg){
+		if(msg.status){
+			alertWarning("操作成功，刷新中。",1);
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alertWarning("网络错误，请重试。");
+	});
+}
+function cancelStockIn(purchase_id){
+	if(!confirm("确认取消入库？")){
+		return false;
+	}
+	$.post("{:U('cancelStockIn')}",{ids:purchase_id},function(msg){
+		if(msg.status){
+			alertWarning("操作成功，刷新中。",1);
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alertWarning("网络错误，请重试。");
+	});
+}
+
+function del(purchase_id){
+	if(!confirm("确认删除？")){
+		return false;
+	}
+	$.post("{:U('save')}",{id:purchase_id,opmode:'del'},function(msg){
+		if(msg.status){
+			alertWarning(msg.info,1);
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alertWarning("网络错误，请重试。");
+	});
+}
+
+function outputData(){
+	if(!confirm("确认导出所选项的采购数据?")){
+		return false;
+	}
+	$("#form_search").attr("action","{:U('outputData')}");
+	$("#form_search").submit();
+}
+</script>

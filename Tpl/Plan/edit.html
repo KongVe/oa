@@ -1,0 +1,177 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" name="id" value="{$vo.id}">
+		<input type="hidden" id="opmode" name="opmode" value="{$vo.opmode}" >
+		<div class="form-group">
+			<label class="control-label" for="title">标题</label>
+			<input class="form-control" type="text" id="title" name="title" value="{$vo.title}">
+		</div>		
+		<div class="form-group">
+			<label class="control-label" for="crontab">crontab</label>
+			<input class="form-control" type="text" id="crontab" name="crontab" value="{$vo.crontab}">
+			<!-- <p class="help-block">重复执行这个任务的时间，重复次数都从零开始。与Linux系统的crontab命令一样的时间格式: 分　时　日　月　周
+				<pre>*　　*　　*　　*　　* 
+分　时　日　月　周
+第1列表示分钟1～59 每分钟用*或者 */1表示 
+第2列表示小时1～23（0表示0点） 
+第3列表示日期1～31 
+第4列表示月份1～12 
+第5列标识号星期0～6（0表示星期天） </pre>
+			</p> -->
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="url">提交网址</label>
+			<input class="form-control" type="text" id="url" name="url" value="{$vo.url}">	
+		</div>	
+		<div class="form-group">
+			<label class="control-label" for="">提交数据</label>
+			<div>
+				<div class="col-xs-5">Name: </div>
+				<div class="col-xs-5">Value: </div>
+			</div>			
+			<?php $vo['data'] = unserialize($vo['data']); ?>
+			<volist name="vo.data" id="data">
+			<div class="dataRow form-group">
+					<div class="col-xs-5">
+						<input type="text" name="data[{$key}][name]" value="{$data.name}" onChange="addDataRow()" class="form-control data-name">
+					</div>
+					<div class="col-xs-5">
+						<input type="text" name="data[{$key}][value]" value="{$data.value}" class="form-control data-value">
+					</div>
+			</div>
+			</volist>
+			<div class="dataRow form-group">
+				<div class="col-xs-5">
+					<input type="text" name="data[<?php echo $key+1;?>][name]" value=""  onChange="addDataRow()" class="form-control data-name">
+				</div>
+				<div class="col-xs-5">
+					<input type="text" name="data[<?php echo $key+1;?>][value]" value="" onChange="addDataRow()" class="form-control data-value">
+				</div>
+			</div>	
+			<script type="text/javascript">
+			var dataRowKey = <?php echo $key+1;?>;
+			</script>
+			
+			<p class="help-block col-xs-12">把name值设为空值等于删除该行。</p>		
+			
+		</div>			
+		<div class="form-group">
+			<div class="col-xs-3">
+				<label class="control-label" for="debug">测试模式</label>
+				<select name="debug" class='form-control'>
+					<option value="No" selected>No</option>
+					<option value="Yes">Yes</option>
+				</select>
+				<p class="help-block">当失败执行次数不小于该值时，该计划停止执行。为0则不限制次数一直执行。</p>
+			</div>
+			<div class="col-xs-3">
+				<label class="control-label" for="status">状态</label>
+				<select name="status" class='form-control'>
+					<option value="New" <?php if($vo['status'] == "New"){ echo "selected"; } ?>>New</option>
+					<option value="Error" <?php if($vo['status'] == 'Error'){ echo "selected"; } ?>>Error</option>
+					<option value="End" <?php if($vo['status'] == 'End'){ echo "selected"; } ?>>End</option>
+				</select>
+			</div>			
+			<div class="col-xs-3">
+				<label class="control-label" for="success_max_times">最大成功次数</label>
+				<input class="form-control" type="text" id="success_max_times" name="success_max_times" value="{$vo.success_max_times|default="0"}">
+				<p class="help-block">当成功执行次数不小于该值时，该计划停止执行。为0则不限制次数一直执行。</p>
+			</div>
+			<div class="col-xs-3">
+				<label class="control-label" for="error_max_times">最大失败次数</label>
+				<input class="form-control" type="text" id="error_max_times" name="error_max_times" value="{$vo.error_max_times|default='0'}">
+				<p class="help-block">当失败执行次数不小于该值时，该计划停止执行。为0则不限制次数一直执行。</p>
+			</div>
+
+		</div>	
+		<div class="form-group">
+			<label class="control-label" for="memo">备注</label>
+			<textarea name="memo" id="memo" class="form-control">{$vo.memo}</textarea>
+		</div>		
+		<div class="form-group text-center">
+			<input type="submit" id="editFormSubmit" data-loading-text="正在保存..."  class="btn btn-primary" value="保存" />
+			<a class="btn btn-success" id="cancel">取消</a>
+			<a class="btn btn-danger" id="delete">删除</a>
+		</div>
+	</form>
+<script type="text/javascript">
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);
+
+	$("#cancel").click(function(){
+		parent.$("#middleBox").modal("hide");
+	})
+	$("#delete").click(function(){
+		if(window.confirm("Delete? ")){
+			$("#opmode").val("del");
+			var data = $("#editForm").serialize();
+			var url = '{:U("del")}';
+			$.post(url,data,function(r){
+				if(r.status){
+
+					//parent.$("#middleBox").modal("hide");
+					parent.window.location.reload();
+
+				}else{
+					alert(r.info);
+					return false;
+				}
+			})
+		}else{
+			return false;
+		}
+
+		return false;
+	})
+
+	$("#editFormSubmit").click(function(){
+		var data = $("#editForm").serialize();
+		var url = $("#editForm").attr("action");
+		$.post(url,data,function(r){
+			if(r.status){
+
+				//parent.$("#middleBox").modal("hide");
+				parent.window.location.reload();
+
+			}else{
+				alert(r.info);
+				return false;
+			}
+		})
+		return false;
+	})
+})
+
+function addDataRow(){
+
+	if($(".data-name").length > 1){
+		for(i=0; i < $(".data-name").length; i++){
+			obj = $(".data-name")[i];
+			console.log(obj);
+			if($.trim($(obj).val()) == ''  && i < $(".data-name").length-1){
+				if(window.confirm("Delete? ")){
+					console.log($(obj).parents(".dataRow"));
+					$(obj).parents(".dataRow").remove();
+					break;
+				}
+			}				
+		}
+	}
+
+	if($.trim($(".data-value:last").val()) != '' && $.trim($(".data-name:last").val()) != ''){
+		//如果最后一个name和value的值不为空, 则要新增一行
+		var newRow = $(".dataRow:last").clone();
+		dataRowKey++;
+		$("input",newRow).val('');
+		$(".data-name",newRow).attr('name','data[' + dataRowKey + '][name]');
+		$(".data-value",newRow).attr('name','data[' + dataRowKey + '][value]');
+		$(".dataRow:last").after(newRow);
+		
+	}
+}
+</script>

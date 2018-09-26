@@ -1,0 +1,308 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" action="{:U()}" id="form_search" method="post" class="form-inline">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<div class="page-header clearfix">
+		<h1 class="col-xs-2">{$title}</h1>
+		<div class="col-xs-10">
+
+			<div class="form-group col-sm-2">
+				<div class="col-sm-12">
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="last_picking_time" id="last_picking_time" value="{$Think.request.last_picking_time}" placeholder="拣货时间">
+				</div>
+			</div>
+
+			<div class="form-group col-sm-2">
+				<div class="col-sm-12">
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="confirm_time" id="confirm_time" value="{$Think.request.confirm_time}" placeholder="确认时间">
+				</div>
+			</div>
+
+			<div class="input-group col-sm-4">
+				<div class="input-group">
+					<input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="规格SKU，SKU名称"/>
+					<span class="input-group-btn">
+						<button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<ul class="nav nav-tabs">
+	    <volist name="plan_from_type_list" id="from_type">
+	        <li <eq name="from_type" value="$_REQUEST['from_type_select']">class="active"</eq> >
+				<a data-type="{$from_type}" class="fromTypeFilter" data-toggle="tab">{$from_type|L}</a>
+	        </li>
+	    </volist>
+	    <input type="hidden" id="from_type_select" name="from_type_select" value="{$_REQUEST['from_type_select']}">
+	</ul>
+
+	<div class="message-container" id="container_table">
+		
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<div class="btn-group">
+					<a class="confirmPickedQuantityBatch btn btn-primary btn-sm">批量核对确认</a>
+				</div>
+
+				<div class="btn-group">
+					<a class="getWaitingPrintPackageIdsByPickingDetailIds btn btn-inverse btn-sm">查看待打单订单</a>
+				</div>
+
+				<div class="btn-group">
+					<a class="getPackageIdsByPickingDetailIds btn btn-inverse btn-sm">查看包裹</a>
+				</div>
+				
+				<div class="btn-group">
+					<label>
+		                <input type="checkbox" class="auto_submit ace input-lg" name="session_add" value="1" <notempty name="Think.request.session_add">checked="checked"</notempty>  />
+		                <span class="lbl">
+		                    当前用户的拣货批次
+		                </span>
+		            <label>
+				</div>
+
+			</div>
+		</div>		
+
+		<table class="table table-hover table-bordered">
+			<include file="Layout:title_v2"/>
+			
+			<tbody class="tbody">
+			<volist name="list" id="vo" key="tr_key">
+				<tr id="tr_{$vo.id}" >
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td >
+						<a href="{$vo.thumbnail}" class="thumbnail" target="_blank"><img src="{$vo.thumbnail}" data-src="{$vo.thumbnail}" width="60" /></a>
+						<a href="{:U('V2SkuProduct/index')}?id={$vo.sku_id}" target="_blank">{$vo.sku}</a>
+					</td>
+					<td >
+						{$vo.sku_name}
+					</td>
+					<td >
+						<b>{$vo.status|L}</b>
+					</td>
+					<td>
+						{$vo.plan_from_type|L}
+					</td>
+					<td >
+						{$vo.picking_type|L}
+					</td>
+					<td >
+						{$vo.place_name}
+					</td>
+					<td >
+						<b id="picking_quantity_{$vo.id}">{$vo.picking_quantity}</b>
+					</td>
+					<td >
+						<span class="red" id="picked_quantity_{$vo.id}">{$vo.picked_quantity}</span>
+						<?php 
+							if($vo['status'] != "Confirmed"){
+								// && ($_SESSION['authId'] != $vo['last_picking_uid'] && $_SESSION['authId'] != $vo['add_uid'] || isAdmin())
+						?>
+							<br>
+							<br>
+							<eq name="vo.picking_type" value="Stock picking">
+								核对数量:
+								<input type="number" name="confirm_picked_quantity[{$vo.id}]" style="width:70px;" id="confirm_picked_quantity_{$vo.id}" class="confirm_picked_quantity" value="{$vo.picking_quantity}">
+								<br>
+								<a data-id="{$vo.id}" class="confirmPickedQuantity btn btn-primary btn-sm">确认核对</a>
+							<else/>
+								撤销数量:
+								<input type="number" name="confirm_picked_quantity[{$vo.id}]" style="width:70px;" id="confirm_picked_quantity_{$vo.id}" class="confirm_picked_quantity" value="{$vo.picking_quantity}">
+								<br>
+								<a data-id="{$vo.id}" class="confirmPickedQuantity btn btn-danger btn-sm">确认撤销</a>
+								<a data-id="{$vo.id}" class="closeReturnDetail btn btn-warning btn-sm">取消撤销</a>
+							</eq>
+						<?php 
+							}
+						?>
+					</td>
+					<td >
+						<b>{$vo.last_picking_user_name}</b>
+					</td>
+					<td style="width:80px;">
+						{$vo.last_picking_time|default=""|date="y-m-d<bR>H:i:s",###}
+					</td>
+					<td >
+						<b>{$vo.confirm_user_name}</b>
+					</td>
+					<td style="width:80px;">
+						{$vo.confirm_time|default=""|date="y-m-d<bR>H:i:s",###}
+					</td>
+					<td>
+						<span class="V2EditMemo" data-field="memo" data-table-name="V2StockPickingDetail" data-field-value="{$vo.id}"><pre>{$vo.memo}</pre></span>
+					</td>
+					<td>
+						
+						<a href="{:U('V2StockPickingPlan/index')}?id={$vo.plan_id_list|implode=",",###}" target="_blank" class="btn btn-inverse btn-sm">包含的拣货单</a>
+						
+						<!-- <a data-url="{:U('V2StockPickingDetail/detail')}?id={$vo.id}" class="showBox btn btn-success btn-sm">详情</a> -->
+						 	
+						<a data-url="{:U('OperateLog/view')}?id={$vo.id}&table_name=v2_stock_picking_detail" class="showBox btn btn-info btn-sm">日志</a>
+					</td>
+				</tr>
+			</volist>
+			</tbody>
+		</table>
+		<div class="pagination">
+			{$page}
+		</div>	
+		<div style="height:300px;"></div>
+	</div>
+</form>
+
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+<script type="text/javascript">
+$(function($){
+	
+	$(".auto_submit").change(function(){
+		$("#form_search").submit();
+	});
+
+	$(".confirmPickedQuantity").click(function(){
+		var id = $(this).attr("data-id");
+		if(!id){
+			return false;
+		}
+		var confirm_picked_quantity = $("#confirm_picked_quantity_"+id).val();
+		confirm_picked_quantity = parseInt(confirm_picked_quantity);
+		if(!confirm_picked_quantity){
+			alertWarning("请输入数量");
+			return false;
+		}
+		var btn = $(this);
+		$.post("{:U('read')}",{id:id},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				
+				if(!confirm("计划数量："+msg.data.picking_quantity+" 提交的核对数量："+confirm_picked_quantity+" 确认数量正确?")){
+					return false;
+				}else{
+					$.post("{:U('confirmPickedQuantity')}",{id:id,confirm_picked_quantity:confirm_picked_quantity},function(msg){
+						if(msg.status){
+							alertWarning(msg.info,1);
+							window.location.reload();
+						}else{
+							alertWarning(msg.info);
+						}
+					}).error(function(){
+						alertWarning("网络错误,请重试");
+					});
+				}
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".closeReturnDetail").click(function(){
+		var id = $(this).data("id");
+		
+		if(!confirm("确认关闭 等待撤销 的批次？")){
+			return false;
+		}
+		var btn = $(this);
+		$.post("{:U('closeReturnDetail')}",{id:id},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);				
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".confirmPickedQuantityBatch").click(function(){
+		var ids = $('[name="id[]"]').serialize();
+		var data = $('#container_table input').serialize();
+		if(!ids){
+			alertWarning("请选择拣货批次");
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('confirmPickedQuantityBatch')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".getPackageIdsByPickingDetailIds").click(function(){
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择拣货批次");
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('getPackageIdsByPickingDetailIds')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status && msg.data){
+				data = {package_auto_id:msg.data};
+				tmpSendForm("{:U('V2OrderPackage/index')}",data,"_blank");
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".getWaitingPrintPackageIdsByPickingDetailIds").click(function(){
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择拣货批次");
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('getPackageIdsByPickingDetailIds')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status && msg.data){
+				data = {id:msg.data};
+				tmpSendForm("{:U('V2OrderPackage/waitingPrintList')}",data,"_blank");
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".fromTypeFilter").click(function(){
+		var type = $(this).data("type");
+		var data = "from_type_select="+type;
+		tmpSendForm("{:U('')}",data,"_self",false,false);
+	});
+});
+</script>

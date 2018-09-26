@@ -1,0 +1,99 @@
+<layout name='Layout/ace_popup' />
+<div class="panel panel-default">
+	<div class="panel-body">
+		<form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+			<input type="hidden" name="id" value="{$vo.id}">
+			<input type="hidden" name="opmode" value="edit">
+			<input type="hidden" name="review_uid" value="<?php echo $_SESSION['authId']; ?>">
+			<input type="hidden" name="review_time" value="<?php echo time(); ?>">
+			<input type="hidden" name="status" id="status" value="{$vo.status}">
+			<div class="form-group">
+				<label class="control-label" for="asin">ASIN</label>
+				<input class="form-control" type="text" id="asin" name="asin" value="{$vo.asin}" disabled>
+			</div>
+			<div class="form-group">
+				<label class="control-label" for="source_link">货源链接</label>
+				<input class="form-control" type="text" id="source_link" name="source_link" value="{$vo.source_link}">
+			</div>
+			<div class="form-group">
+				<label class="control-label red" for="trademark">商标</label>
+				<input class="form-control" type="text" id="trademark" name="trademark" value="{$vo.trademark}">
+			</div>
+			<div class="form-group">
+				<label class="control-label red" for="product_rank">评分</label>
+				<select name="product_rank" id="product_rank" class="form-control">
+					<option value="0">请选择评分</option>
+				<?php for($i=10; $i > 0 ; $i--){  ?>
+					<option value="{$i}" <?php if($i == $vo['product_rank']){ echo "selected"; } ?> >{$i}</option>
+				<?php } ?>
+				</select>
+			</div>			
+			<div class="form-group">
+				<label class="control-label" for="memo">备注</label>
+				<textarea name="memo" id="memo" class="form-control">{$vo.memo}</textarea>
+				<p class="help-block">这里可以填不达标的原因</p>
+			</div>		
+			<div class="form-group text-center">
+				<a class="btn btn-success" id="pass">通过</a>
+				<a class="btn btn-danger" id="fail">不达标</a>
+				<a class="btn btn-warning" id="cancel">返回</a>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script type="text/javascript">
+
+function submitData(){
+	var data = $("#editForm").serialize();
+	var url = $("#editForm").attr("action");
+	closeWindow();
+	$.post(url,data,function(r){
+		if(r.status){
+			parent.window.location.reload();
+		}else{
+			alert(r.info);
+			return false;
+		}
+	});
+}
+
+function closeWindow(){
+	if(sourceWindow){
+		sourceWindow.close();
+	}
+	if(amazonWindow){
+		amazonWindow.close();
+	}
+}
+
+
+var sourceWindow,amazonWindow;
+
+$(function(){
+	sourceWindow = window.open("{$vo.source_link}");
+	amazonWindow = window.open("http://www.amazon.com/gp/product/" + "{$vo.asin}");
+
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);	
+
+
+	$("#cancel").click(function(){
+		closeWindow();
+		parent.$("#middleBox").modal("hide");	
+
+	})
+	$("#pass").click(function(r){
+		$("#status").val("Reviewed");
+		submitData();
+	})
+	$("#fail").click(function(r){
+		$("#status").val("Unqualified");
+		submitData();
+	})
+})
+</script>

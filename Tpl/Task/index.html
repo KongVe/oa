@@ -1,0 +1,187 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="id" value="{$Think.request.id}" />
+<div class="page-header clearfix">
+	
+	<div class="col-sm-12 pull-left">
+
+		<h1 class="col-sm-4">任务列表</h1>
+		<div class="input-group pull-left col-sm-2 " >
+			<input  class="form-control" onchange="cancelSelect();" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="id" id="id" value="{$Think.request.id}" placeholder="任务序号"/>								
+		</div>
+
+		<!-- <div class="input-group pull-left col-sm-2 " >
+			<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="design_time" id="design_time" value="{$Think.request.design_time}"  placeholder="创建时间">
+		</div>
+		 -->
+		<div class="input-group col-sm-4">
+			<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索 标题"/>
+			<div class="input-group-btn">
+				<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+				<button class="btn btn-sm btn-danger" onclick="$('#id').val('');this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+			</div>
+		</div>		
+
+	</div>
+	
+		<!-- <if condition="$checkClosingTime eq 1">
+			<div class="btn-group">
+				<a onclick="closingTime();"  class="btn btn-sm btn-danger" > 下班 </a>
+			</div>
+		<else/>
+			<div class="btn-group">
+				<a class="btn btn-sm btn-info" disabled> 上班中 </a>
+			</div>
+		</if> -->
+			<!-- <div class="input-group col-sm-10">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="搜索"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="$('#oaid').val('');this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div> -->
+	
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<?php 
+				// if(in_array($_SESSION['authId'], $add_user_list)){
+				// 	echo '<a onclick="showBox(\''.U('taskAdd').'\');"  class="btn btn-sm btn-info" > 添加任务 </a>';
+				// }
+			?>
+			<a onclick="showBox('{:U('taskAdd')}');"  class="btn btn-sm btn-info" > 添加任务 </a>
+		</div>	
+	
+		<?php 
+			if(isAdmin()){
+		?>
+			<div class="btn-group">
+				<a href="{:U('taskTemplateList')}" target="_blank" class="btn btn-sm btn-success" >任务模板</a>
+			</div>	
+
+			<div class="btn-group">
+				<span>
+					<select name="user_name" onchange="$('#form_search').submit()" >
+						<option value="">请选择用户</option>
+						<volist name="user_list" id="user">
+							<option value="{$user.emp_name}" <if condition="$_REQUEST['user_name'] eq $user['emp_name']">selected</if> >{$user.emp_name}</option>
+						</volist>
+					</select>
+				</span>
+			</div>	
+		<?php 
+				echo '';
+			}
+		?>
+				
+	</div>
+</div>		
+
+<div id="package_iframe_div" class="operate panel panel-default" style="width:100%;height:100%;display:none;">
+	<iframe src=""  id="package_iframe" name="package_iframe"  style="width:100%;height:100%;" scrolling="auto" ></iframe>
+</div>
+
+<div class="message-container" style="width:95%;">
+	<table class="table table-striped table-hover" style="width:100%;">
+		
+			<include file="Layout:title"/>
+			
+			<tbody class="tbody" style="font-size:13px;">
+			<?php
+				$weekarray=array("日","一","二","三","四","五","六");
+			?>
+			<volist name="list" id="vo">
+				<tr>
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td style="min-width:130px;">{$vo.title}</td>
+					<td>
+						<if condition="$vo['designer'] eq $_SESSION['user_name']"><b style="color:red;">{$vo.designer}</b><else/>{$vo.designer}</if> 
+					</td>
+					<td>
+						<if condition="$vo['performer'] eq $_SESSION['user_name']"><b style="color:red;">{$vo.performer}</b><else/>{$vo.performer}</if>
+					</td>
+					<td>
+						<if condition="$vo['checker'] eq $_SESSION['user_name']"><b style="color:red;">{$vo.checker}</b><else/>{$vo.checker}</if>
+					</td>
+					<td>{$vo.priority}</td>
+					<!-- <td>{$vo.task_category}</td> -->
+					<td><b style="color:red;">{$vo.task_state}</b></td>
+					<td><if condition="$vo.task_type eq '必做'"><b style="color:blue;">{$vo.task_type}</b><else/>{$vo.task_type}</if>
+					</td>
+					<td style="width:77px;">{$vo.designe_time|date="y-m-d H:i",###}<br>
+						<?php
+							echo "星期".$weekarray[date("w",$vo['designe_time'])];
+						?>
+					</td>
+					<td style="width:77px;"><span style="color:red;">{$vo.end_time|date="y-m-d H:i",###}<br>
+						<?php
+							echo "星期".$weekarray[date("w",$vo['end_time'])];
+						?>
+					</span></td>
+					<td style="width:77px;"><?php
+						if($vo['start_time']){
+							echo date("y-m-d H:i",$vo['start_time']);
+						}else{
+							echo '未开始';
+						}
+					?></td>
+					<!-- <td style="width:120px;">{$vo.used_time}</td> -->
+					<td style="min-width:100px;">
+						<?php
+							echo (int)($vo['time_length']/3600)."小时".(int)(($vo['time_length']%3600)/60)." 分";
+						?>
+						
+					</td>
+					<td style="width:77px;"><if condition="$vo.finish_time neq 0 ">{$vo.finish_time|date="y-m-d H:i",###}<else/>未提交</if></td>
+					
+					
+					<td style="min-width:60px;"><if condition="$vo.score eq NULL">未评分<else/>{$vo.score}</if></td>
+					<td>{$vo.reward} 米粒</td>
+					<td><?php 
+							if($vo['final_reward']>0){
+								echo $vo['final_reward']." 米粒";
+							}else{
+								echo "未完成";
+							}
+						?></td>
+					<!-- <td>
+						<a class="btn btn-info btn-xs">查看</a>
+					</td> -->
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:350px;"></div>
+	<div class="detail-box col-lg-12" id="detail-box" style="position:fixed;z-index:100;height:350px;left:0px;display:none;">
+		<iframe src="" id="detail-iframe" frameborder="0" height="350px" name="detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+<div class="modal fade" id="editProduct" role="dialog"  tabindex="-1" aria-labelledby="editProductLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="editProductIframe" name="editProductIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog" style="width:1024px;">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:1024px;height:800px;" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox1" role="dialog"  tabindex="-1" aria-labelledby="bottomBox1Label" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBox1Iframe" name="bottomBox1Iframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+

@@ -1,0 +1,163 @@
+<layout name='Layout/ace_box' />
+
+<script type="text/javascript" src="__PUBLIC__/js/echarts/build/dist/echarts.js"></script>
+<!-- 
+<script type="text/javascript" src="__PUBLIC__/js/ichart.1.2.min.js"></script> -->
+
+<form action="__SELF__" id="detail_form" method="POST">
+	<input type="hidden" name="sku" value="{$Think.request.sku}"> 
+	<input type="hidden" name="show" value="sku"  id="show"> 
+<div class="panel panel-default">
+	<div class="panel-body">
+		<div class="col-sm-12">
+			<div class="form-group  col-sm-3">
+				<a class="btn btn-danger btn-sm"  onclick="closeBox()">关闭</a>
+				<a href="__SELF__" target="_blank" class="btn btn-info btn-sm">在新窗口中查看</a>
+			</div>
+			
+			<div class="form-group  col-sm-3">
+				<ul id="orderDetail" class="nav nav-tabs">
+					<li><a data-toggle="tab" onclick="variationChart();">规格销量</a></li>
+					<li><a data-toggle="tab" onclick="skuChart();">SKU销量</a></li>
+				</ul>
+				
+			</div>		
+
+			<div class="form-group col-sm-6">
+				<div class="col-sm-12">
+					
+						<select name="cycle" id="cycle">
+							<option value="day">请选择周期</option>
+							<option value="day" <eq name="Think.request.cycle" value="day">selected</eq>>每天</option>
+							<option value="week" <eq name="Think.request.cycle" value="week">selected</eq>>每周</option>
+							<option value="month" <eq name="Think.request.cycle" value="month">selected</eq>>每月</option>
+						</select>
+
+						<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="input-date-range" type="text" name="order_time" id="order_time" value="{$Think.request.order_time}"  placeholder="订单时间默认最近30天">
+				      	<span>
+				        	<button type="submit" class="btn btn-danger btn-sm">确定</button>
+				      	</span>
+				  
+				</div>
+			</div>	
+		</div>
+		<div class="col-sm-12 align-center">
+				<div  style="z-index:1000;">
+					<a onclick="showlegend()" class="btn btn-xs">显示图例菜单</a>
+					<!-- <a onclick="showlegend()" class="btn btn-xs">显示图例菜单</a> -->
+				</div>
+				
+				<div id="canvasDiv" style="height:520px;width:100%;">
+					<!-- <div class="col-sm-12 chart_list" id='canvasDiv'></div>		 -->
+				</div>		
+		
+		<div>
+			<div class="tab-pane fade" id="package">
+				<foreach name="packageList" item="package">
+					包裹号： {$package.package_code}<br>
+					跟踪号： {$package.online_tracking_number}<br>
+				</foreach>
+			</div>
+			
+		
+	</div>
+</div>
+<form>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<iframe src="" id="saveThunbnail" style="visibility:hidden;height:1px;width:1px;"></iframe>
+
+
+<script type="text/javascript">
+	//PUBLIC
+	var label_list=<?php echo json_encode($label_list); ?>;
+
+	var chartBySales_legend_list=<?php echo json_encode($chartBySales_name_list); ?>;
+	var chartBySales_data= <?php echo json_encode($chartBySales); ?>	
+	var chartBySales_option  = {
+		    tooltip : {
+		        trigger: 'axis'
+		    },
+		    legend: {
+		    	selected: {	
+		            'buy按钮' : false,
+		            'buy转换率' : false,
+		            '购物车曝光' : false,
+		            '订单数' : false,
+		            '订单转换率' : false,
+		            '营业额' : false,
+		        },
+		        data:chartBySales_legend_list,
+		        orient:"vertical",
+		        x:"left",
+		    },
+		    toolbox: {
+		        show : true,
+		        feature : {
+		            mark : {show: true},
+		            dataView : {show: true, readOnly: false},
+		            magicType : {show: true, type: ['bar', 'line']},
+		            restore : {show: true},
+		            saveAsImage : {show: true}
+		        }
+		    },
+		    calculable : true,
+		    xAxis : [
+		        {
+		            type : 'category',
+		            boundaryGap : true,
+
+		            data : label_list,
+		        }
+		    ],
+		    yAxis : [
+		        {
+		            type : 'value',
+		            
+		        }
+		    ],
+
+		    series :chartBySales_data,
+		};           
+
+      
+
+	var chartBySales =function(){
+		
+		// 路径配置
+		require.config({
+		    paths: {
+		        echarts: '__PUBLIC__/js/echarts/build/dist'
+		    }
+		});
+		// 使用
+	    require(
+	        [
+	            'echarts',
+	            'echarts/chart/bar',
+	            'echarts/chart/line',
+	        ],
+	        function (ec) {
+	            // 基于准备好的dom，初始化echarts图表
+	            var myChart = ec.init(document.getElementById('canvasDiv')); 
+	              // 为echarts对象加载数据 
+		        myChart.setOption(chartBySales_option); 
+		    }
+	    );
+	}
+
+	chartBySales();
+
+
+	// 关闭悬浮框
+	function closeBox(){
+		if(parent.$("#order-detail-box").length>0){
+			parent.$("#order-detail-box").css({display:"none"});
+		}else{
+			window.close();
+		}
+		
+	}
+
+</script>

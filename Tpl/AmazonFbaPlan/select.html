@@ -1,0 +1,41 @@
+<layout name='Layout/ace_layout' />
+<form method='GET' id="form_data" action="{:U('index')}"  class="well form-horizontal clearfix">
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="password">选择要发货的账号</label>
+		<select name="account_id" id="account_id">
+			<option value=''>请选择帐号</option>
+			<volist name="account_list" id="account">
+				<option value="{$account.id}">{$account.website_name} => {$account.proxy_host} => {$account.account_name}</option>
+			</volist>
+		</select>
+	</div>	
+	<div class="form-group text-center">
+		<input type="submit" class="btn btn-sm btn-primary" id="submit" value="提交">
+	</div>
+</form>
+<br>
+<div class="panel panel-default">
+	<div class="panel-header">
+		<b>最近装箱详情</b>
+	</div>
+	<div class="panel-body">
+		<table class="table table-striped table-hover table-bordered table-condensed">
+			<tr>
+				<th>账号</th>
+				<th>装箱时间</th>
+				<th>数量</th>
+				<th>SKU数量</th>
+				<th>箱子数</th>
+			</tr>
+			<volist name="box_list" id="box">
+				<tr>	
+					<td>{$box.account.website_name} => {$box.account.proxy_host} => {$box.account.account_name}</td>
+					<td>{$box.packaged_time}</td>
+					<td>{$box.quantity}</td>
+					<td>{$box.sku_count}</td>
+					<td>{$box.box_number}</td>
+				</tr>
+			</volist>
+		</table>
+	</div>	
+</div>

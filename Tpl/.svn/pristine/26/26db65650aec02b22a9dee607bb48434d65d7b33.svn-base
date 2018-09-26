@@ -1,0 +1,150 @@
+<layout name='Layout/ace_popup' />
+<div class="panel">
+	<form name="form_search" id="form_search" method="post">
+		<input   onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索 SKU , Variation"/>
+		<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+	</form>
+</div>	
+<form class="form" action="{:U('AmazonFbaStockMap/save')}" id="editForm" method='POST'>
+<input type="hidden" name="issue_id" id="issue_id" value="{$issue.id}" />
+<input type="hidden" name="product_auto_id" id="product_auto_id" value="<?php echo $_REQUEST['product_auto_id']; ?>" />
+<table class="table">
+	<tr>
+		<th>SKU</th>
+		<th>缩略图</th>
+		<th>映射SKU</th>
+		<th>映射图片</th>
+		<th><a  data-toggle="tooltip" data-placement="left" title="每单要发货的数量">映射数量</a></th>
+		<th><a  data-toggle="tooltip" data-placement="left" title="数量填0即不限数量">映射选项</a></th>
+		<th>操作</th>
+	</tr>
+	<volist name="map_stock_list" id="vo">
+		<tr>
+			<td>
+				{$issue.sku}<br>{$issue.asin}
+			</td>
+			<td><a href="{$issue.thumbnail}" target="_blank" class="thumbnail"><img src="{$issue.thumbnail}" width="60" /></a></td>
+			<td>{$vo.issue.sku}<br>{$vo.issue.asin}<br>{$vo.account.account_name}</td>
+			<td>
+				<a href="{$vo.issue.thumbnail}" target="_blank" class="thumbnail"><img src="{$vo.issue.thumbnail}" width="60" /></a>
+			</td>
+			<td>
+				<input type="text" size=4 name="map_quantity[issue_id_{$vo.issue.id}]" value="{$vo.map_quantity|default=1}" />
+			</td>
+			<td>
+				<div>
+					<input type="checkbox" id="fulfill_option[issue_id_{$vo.issue.id}][fulfillable][checked]" name="fulfill_option[issue_id_{$vo.issue.id}][fulfillable][checked]" <?php if($vo['fulfill_option']['fulfillable']){ echo "checked"; } ?>  />
+					<label for="fulfill_option[issue_id_{$vo.issue.id}][fulfillable][checked]">Fulfillable</label>
+					<input type="text" size=4 name="fulfill_option[issue_id_{$vo.issue.id}][fulfillable][quantity]" value="{$vo.fulfill_option.fulfillable.quantity|default=0}" /> / {$vo.issue.fba_fulfillable_quantity}
+				</div>
+				<br>
+				<div>
+					<input type="checkbox" id="fulfill_option[issue_id_{$vo.issue.id}][unfulfillable][checked]" name="fulfill_option[issue_id_{$vo.issue.id}][unfulfillable][checked]"  <?php if($vo['fulfill_option']['unfulfillable']){ echo "checked";} ?> />
+					<label for="fulfill_option[issue_id_{$vo.issue.id}][unfulfillable][checked]">Unfulfillable</label>
+					<input type="text" size=4 name="fulfill_option[issue_id_{$vo.issue.id}][unfulfillable][quantity]" value="{$vo.fulfill_option.unfulfillable.quantity|default=0}" /> / {$vo.issue.fba_unfulfillable_quatity}
+				</div>
+			</td>
+			<td>
+				<?php if($ship_able && isAdmin()){ ?> 
+	  				<a class="btn btn-success" id="btn_fbaFulfill_{$vo.map_issue_id}" onclick="fbaFulfill({$vo.map_issue_id})">FBA Fulfill</a>
+				<?php } ?>
+			</td>
+		</tr>
+	</volist>
+</table>
+<div class="center">
+	<?php if($ship_able && isAdmin()){ ?> 
+		<?php if(count($fba_fulfill_order_list) > 0){ ?>
+			<a class="btn btn-success" id="btn_fbaFulfill_0" onclick="if(window.confirm('Shipped, Confirm ?')){fbaFulfill(0)}">FBA Fulfill</a>
+  		<?php }else{ ?> 
+  			<a class="btn btn-success" id="btn_fbaFulfill_0" onclick="fbaFulfill(0)">FBA Fulfill</a>
+  		<?php } ?>
+	<?php } ?>
+	<a class="btn btn-primary" id="submit">保存</a>
+	<a class="btn btn-danger" id="cancel">取消</a>
+</div>
+</form>
+<?php if(count($fba_fulfill_order_list) > 0){ ?> 
+<b>已申请发货</b>
+<table class="table  table-striped table-hover">
+	<tr>
+		<th>状态</th>
+		<th>提交时间</th>
+		<th>FBA订单信息</th>
+		<th>Feed</th>
+		<th>发货SKU</th>
+		<th>发货账号</th>
+		<th>发货者</th>
+	</tr>
+	<volist name="fba_fulfill_order_list" id="vo">
+		<tr>
+			<td>{$vo.online_shipping_status}</td>
+			<td>{$vo.apply_fulfill_time}</td>
+			<td>
+				{$vo.custom_order_id}<br>
+				{$vo.online_fulfill_order_id}<br>
+				{$vo.online_tracing_number}<br>
+			</td>
+			<td>{$vo.amazon_feed_id}</td>
+			<td>{$vo.fulfill_sku}</td>
+			<td>{$vo.fulfill_account.show_name}</td>
+			<td>{$vo.local_ship_empname}</td>
+		</tr>
+	</volist>
+</table>
+<?php } ?>
+<script type="text/javascript">
+
+$(function(){
+
+	maxHeight = parent.document.documentElement.clientHeight - 100 ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);	
+
+
+	$("#cancel").click(function(){
+		parent.$("#middleBox").modal("hide");	
+	})
+
+	$("#submit").click(function(){
+		$("#submit").attr("disabled",'disabled');
+		var data = $("#editForm").serialize();
+		var url = $("#editForm").attr("action");
+		$.post(url,data,function(r){
+			$("#submit").attr("disabled",null);
+			if(r.status){
+				alert("保存成功");
+				window.location.reload();
+				//parent.$("#middleBox").modal("hide");
+				//parent.$("#form_search").submit();
+			}else{
+				alertWarning(r.info);
+			}
+			
+		});
+	})
+	$('[data-toggle="tooltip"]').tooltip();
+})
+
+function fbaFulfill(map_issue_id){
+	$("#btn_fbaFulfill_"+ map_issue_id).attr("disabled","disabled");
+	data = {
+		product_auto_id:$("#product_auto_id").val(),
+		issue_id:$("#issue_id").val(),
+		map_issue_id:map_issue_id
+	}
+	$.post("{:U('amazon_fba_fulfill_order/fbaFulfill')}",data,function(r){
+		$("#btn_fbaFulfill_"+ map_issue_id).attr("disabled",null);
+		if(r.status){
+			alert("Success");
+			window.location.reload();
+		}else{
+			alertWarning(r.info);
+		}
+	})
+}
+
+</script>

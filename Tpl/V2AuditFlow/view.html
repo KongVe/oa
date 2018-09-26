@@ -1,0 +1,123 @@
+<layout name='Layout/ace_popup' />
+	{:W('PageHeader',array('name'=>"查看审核"))}
+
+	<form action="" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" id="ajax" name="ajax" value="1"/>
+
+		<input type="hidden" id="id" name="id" value="{$vo.id}">
+
+		<div class="panel-default">
+			<div class="form-group text-center">
+				<div class="col-sm-4">
+					<a class="close_box_button btn btn-warning">关闭</a>
+				</div>
+			</div>
+		</div>
+
+		<include file="V2AuditFlow:baseinfo" />
+
+		<div class="panel panel-info">
+			<div class="panel panel-heading">
+				<span>提审原因</span>
+			</div>
+			<div class="panel-body">
+				<div class="form-group">
+					<div class="col-sm-12">
+						提审人：{$vo.add_user_name}
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-12" style="overflow-x:auto;">
+						提审原因：{$vo.submit_reason}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="panel panel-info ">
+			<div class="panel panel-heading">
+				<span>审核反馈</span>
+			</div>
+			<div class="panel-body">
+				<div class="form-group">
+					<div class="col-sm-12">
+						指定审核人：{$vo.audit_user_name}
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-12">
+						实际审核人：{$vo.do_audit_user_name}
+					</div>
+				</div>
+				<div class="col-sm-12">
+					<div class="col-sm-12">
+						<b>反馈结果：{$vo.status|L}</b>
+					</div>
+				</div>
+				<div class="col-sm-12" style="overflow-x:auto;">
+					反馈内容：{$vo.audit_content}
+				</div>
+			</div>
+		</div>
+
+		<?php 
+			if(in_array($_SESSION['authId'], array($vo['submit_review_uid'],$vo['review_uid'],$vo['do_review_uid'])) ){
+		?>
+			<div class="panel panel-info ">
+					<div class="panel panel-heading">
+						<span>复审原因</span>
+					</div>
+					<div class="panel-body">
+						<div class="form-group">
+							<div class="col-sm-12">
+								提交复审人：{$vo.submit_review_user_name}
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-sm-12">
+								指定复审人：{$vo.review_user_name}
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-sm-12">
+								实际复审人：{$vo.do_review_user_name}
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-sm-12" style="overflow-x:auto;">
+								复审原因：{$vo.review_reason}
+							</div>
+						</div>
+					</div>
+				</div>
+
+		<?php
+			}
+		?>
+	  	
+		<notempty name="vo.do_review_uid">
+			<div class="panel panel-info ">
+				<div class="panel panel-heading">
+					<span>复审反馈</span>
+				</div>
+				<div class="panel-body">
+					<div class="col-sm-12">
+						<div class="col-sm-12">
+							<b>反馈结果：{$vo.review_status|L}</b>
+						</div>
+						<div class="col-sm-12" style="overflow-x:auto;">
+							反馈内容：{$vo.review_content}
+						</div>
+					</div>
+				</div>
+			</div>
+		</notempty>
+		<div class="panel-default">
+			<div class="form-group text-center">
+				<div class="col-sm-4">
+					<a class="close_box_button btn btn-warning">关闭</a>
+				</div>
+			</div>
+		</div>
+	
+	</form>

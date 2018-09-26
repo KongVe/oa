@@ -1,0 +1,262 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">库存列表(<b>已废弃</b>)</h1>
+	
+	<div class="col-sm-1">
+		<label>
+			无成本库存
+			<input  type="checkbox" name="empty_price" id="empty_price"  value='1' <notempty name="Think.request.empty_price">checked</notempty> />
+		</label>
+	</div>
+
+	<div class="col-sm-1">
+		<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="last_update" id="last_update" value="{$Think.request.last_update}"   placeholder="最后入库时间">
+	</div>
+	
+	<div class="col-sm-4">
+		<div class="col-sm-12">
+			<div class="col-sm-3">
+				仓库<br>
+				<select class="form-control" id="warehouse_select" name="warehouse_id" onchange="ajaxGetChildrenList($(this).val(),'region','warehouse');"></select>
+			</div>
+			<div class="col-sm-3">
+				区域<br>
+				<select class="form-control" id="region_select" name="region_id" onchange="ajaxGetChildrenList($(this).val(),'shelf','region');"></select>
+			</div>
+			<div class="col-sm-3">
+				货架<br>
+				<select class="form-control" id="shelf_select" name="shelf_id" onchange="ajaxGetChildrenList($(this).val(),'place','shelf');"></select>
+			</div>
+			<div class="col-sm-3">
+				货架位置<br>
+				<select class="form-control" id="place_select" name="place_id"   msg="请选择货架位" >
+				</select>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-sm-1">
+		<input class="form-control" name="sku_id_q" id="sku_id_q" value="{$Think.post.sku_id_q}" placeholder="sku_id"/>
+	</div>
+	
+	<div class="col-sm-3 pull-right">
+		<div class="input-group">
+			<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="sku" id="sku" value="{$Think.post.sku}" placeholder="可搜索 SKU,规格,序号"/>
+			<div class="input-group-btn">
+				<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+				<button class="btn btn-sm btn-danger" onclick="this.form.sku.value='';" title="重置"><i class="icon-rotate-right" ></i></button>
+			</div>
+		</div>
+	</div>	
+</div>	
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a href="{:U('edit')}" class="btn btn-sm btn-primary ">新增</a>
+		</div>
+		<div class="btn-group">
+			<div>当前页面总数据:<b>{$page_quantity_total}</b></div>
+		</div>
+
+		<div class="btn-group">
+			<label>
+				<input type="checkbox" name="only_uncount" id="only_uncount"  value='1' <notempty name="Think.request.only_uncount">checked</notempty> />	
+				<span class="lbl">
+					未盘仓
+				</span>
+			<label>
+		</div>
+
+	</div>
+</div>
+<div class="message-container">
+	<table class="table table-hover table-bordered">
+		
+		<include file="Layout:title"/>
+
+		<tbody class="tbody">
+		<volist name="list" id="vo">
+			<tr>
+				<td style="width:120px;">
+					{$vo.id}
+					<br>
+					<br>
+					<div class="input-group">
+						<input class="form-control" type="number" id="print_sku_{$vo.id}" value="{$vo.quantity}" placeholder="打印数量"/>
+						<span class="input-group-btn">
+							<a class="printStockSKU btn btn-info btn-sm" data-id="{$vo.id}">打印</a>
+						</span>
+					</div>
+				</td>
+				<td>
+					{$vo.sku}
+					<br>
+					<br>
+
+					新系统sku序号:<span class="editStatic" style="background:#e1e1e1;" field="sku_id" onclick="editStatic(this,'{:U('addSKUId')}?id={$vo.id}')">{$vo.sku_id}</span>
+
+					<notempty>
+						<br>
+						新系统SKU:<a href="{:U('V2SkuProduct/index')}?id={$vo.sku_id}" target="_blank">{$vo.sku_product_data.sku}</a>
+					</notempty>
+					
+					
+					<!-- 新系统sku_id: 
+					<?php 
+						if(in_array($_SESSION['authId'], array(45,46)) || isAdmin()){
+					?>
+						<span class="editStatic" style="background:#e1e1e1;" field="sku_id" onclick="editStatic(this,'{:U('addSKUId')}?id={$vo.id}')">{$vo.sku_id}</span><br>
+					<?php 
+						}else{
+					?>
+						{$vo.sku_id}
+					<?php 
+						}
+					?> -->
+					
+				</td>
+				<td>
+					<a href="{$vo.thumbnail}" target="_blank" class="thumbnail"><img src="{$vo.thumbnail}" width="80" /></a>
+				</td>
+				<td>
+					{$vo.variation}
+
+					<br>
+					<br>
+					<br>
+					<eq name="vo.is_count" value="No">
+						<a data-id="{$vo.id}" data-type="Yes" class="changeIsCount btn btn-primary btn-xs" >确认盘仓完成</a>
+					<else/>
+						<a data-id="{$vo.id}" data-type="No" class="changeIsCount btn btn-danger btn-xs" >取消盘仓完成</a>
+					</eq>
+					
+
+				</td>
+				<td>
+					<eq name="vo.is_count" value="No">
+						<b>未盘仓</b>
+					<else/>
+						已盘仓
+					</eq>
+				</td>
+				<td><strong style="color:red;">{$vo.quantity}</strong></td>
+				<td style="max-width:250px">
+					<empty name="vo.place_data">
+						无
+					<else/>
+						<volist name="vo.place_data" id="p_d">
+							<div class="col-sm-12">
+								<div class="col-sm-7" title="入库时间:{$p_d.add_time|date="Y-m-d H:i:s",###}"><b>{$p_d.place_name}</b></div> 
+								<div class="col-sm-3" ><b style="color:red;">{$p_d.place_quantity}</b>件</div>
+								<div class="col-sm-2" ><a class="btn btn-xs btn-inverse" onclick="changeStockPlaceView({$vo.id},{$p_d.place_id})">移位</a></div>
+							</div>
+						</volist>
+					</empty>
+				
+				</td>	
+				<td style="max-width:250px">
+					<empty name="vo.price_data">
+						无
+					<else/>
+						<volist name="vo.price_data" id="price_d">
+							<div >
+								<div class="col-sm-7">
+									<b>
+										<?php
+											if($price_d['price']<=0){
+												$price_d['price']=0;
+											}
+										?>
+										<?php if($price_d['price'] == 0 || isAdmin()){ ?>
+											<span class="editStatic" field="price" onclick="editStatic(this,'{:U('OrderStock/saveData?model_name=OrderStockPrice&id='.$price_d['price_id'])}')">{$price_d.price}</span>
+										<?php }else{
+											echo $price_d['price'];
+										} ?>
+									</b>元
+								</div> 
+								<div class="col-sm-5" >
+									<b style="color:red;">
+										{$price_d.quantity}
+									</b>件
+								</div>
+							</div>
+						</volist>
+					</empty>
+				
+				</td>				
+				<td>{:date("Y-m-d H:i",$vo[last_update])}</td>
+				<td>
+					<span class="V2EditMemo" data-field="memo" data-table-name="order_stock" data-field-value="{$vo.id}"><pre>{$vo.memo}</pre></span>
+				</td>
+				<td>
+					<div>
+						
+							<!-- <a href="{:U('edit')}?id={$vo.id}" class="btn btn-xs btn-primary">修改</a> -->
+						
+						报损报溢暂时关闭
+						<?php
+							if(isAdmin()){
+						?>
+							<a class="btn btn-sm btn-primary" onclick="stockChangeView({$vo.id},'warehouse_out');">强制出库</a>
+
+						<a class="btn btn-sm btn-info" onclick="stockChangeView({$vo.id},'add');">报溢</a>
+						<a class="btn btn-sm btn-danger" onclick="stockChangeView({$vo.id},'reduce');">报损</a>
+
+						<?php
+							}
+						?>
+						
+						<?php 
+							if(isAdmin()){
+						?>
+							<a class="btn btn-sm btn-danger" onclick="delStock({$vo.id},1);">强制删除</a>
+						<?php
+							}
+						?>
+							<a class="btn btn-sm btn-inverse" onclick="delStock({$vo.id});">删除</a>
+						<br>
+						<br>
+						<a class="btn btn-sm btn-primary" onclick="editImg({$vo.id});">修改图片和规格</a>
+						<a onclick="showLog({$vo.id})" class="btn btn-sm btn-warning" target="_blank">查看流水</a>
+					</div>
+				</td>
+			</tr>
+				<notempty name="vo.sku_map_data">
+					
+					<volist name="vo.sku_map_data" id="sku_map_data">
+						<tr class="success">
+							<td colspan="8">
+								该SKU为实发SKU,一个 SKU: <b>{$vo.sku}</b> 规格：<b>{$vo.variation}</b> 需要 SKU:<b>{$sku_map_data.sku}</b> 规格：<b>{$sku_map_data.variation}</b> <b style="color:red;">{$sku_map_data.order_stock_quantity}</b> 个
+							</td>
+						</tr>
+						
+					</volist>
+				</notempty>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" width="200px"/></a>
+</div>
+
+<!-- 模态弹窗-->
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxIframe" aria-hidden="true">
+	<div class="modal-dialog" style="height:100%;">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:900px;height:100%;min-height:500px;" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+
+<div id="tmp" class="display-none">
+	<form name="form_tmp" id="form_tmp" method="post" class="form-inline">
+	</form>
+</div>

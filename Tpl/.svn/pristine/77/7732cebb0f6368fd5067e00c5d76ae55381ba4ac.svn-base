@@ -1,0 +1,182 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo intval(!$sort); ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">{$title}</h1>
+	<div class="col-sm-10 pull-right">				
+			<div class="form-group col-sm-2 pull-left">
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="qty_last_day_time" id="qty_last_day_time" value="{$Think.request.qty_last_day_time}"    readonly="readonly" placeholder="最近时间">
+			</div>		
+			<div class="input-group col-sm-3">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="请输入搜索内容"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div>
+	</div>
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<?php if(isAdmin()){ ?>  
+		<div class="btn-group">
+			<a class="btn btn-primary showBox" data-url="{:U('importIndex')}" >导入</a>
+		</div>
+		<?php }?>
+		<div class="btn-group">
+			当前跟踪Offer数: <br>
+			<volist name="tracking_count_list" id="vo" >
+				{$vo.emp_name} => {$vo.tracking_count}, 
+			</volist>
+		</div>	
+	</div>
+</div>
+<div class="message-container" >
+	<table class="table table-striped table-hover">
+		
+		 	<include file="Layout:title"/>
+			<tbody class="tbody">
+			<volist name="list" id="vo">
+				<tr>
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+							<br>
+							<br>
+							<?php echo date("Y-m-d<bR>H:i",$vo['add_time']); ?>
+						</label>
+					</td>
+					<td>
+						<a href="{$vo.product_link}" target="_blank">{$vo.asin}</a>
+						<br>
+						<div style="width:300px;">{$vo.variation}</div>
+						<br>
+						{$vo.parent_asin}
+					</td>	
+					<td><a href="{$vo.thumbnail}" target="_blank" class="thumbnail"><img src="{$vo.thumbnail}" width="60" /></a>
+					</td>
+					<td>{$vo.website}</td>	
+					<td>{$vo.fulfill_by_flag}</td> 
+					<td>{$vo.emp_name}</td> 
+					<td>{$vo.qty_last_day}
+						<br>
+						<?php echo date("Y-m-d",$vo['qty_last_day_time']); ?>
+					</td>
+					<td><?php echo formatPrice($vo['product_price_last_day'],$vo['currency']); ?></td>
+					<td>{$vo.qty_sold_per_day}</td> 
+					<td><?php echo formatPrice($vo['revenue_per_day'],$vo['currency']); ?></td>
+					<td><?php echo date("Y-m-d H:i",$vo['last_update']); ?></td>
+					<td>
+						
+						<span class="V2EditMemo" data-field="memo" data-table-name="amazon_sales_track" data-field-value="{$vo.id}"><pre>{$vo.memo}</pre></span>
+
+					</td>
+					<td>
+						<?php if($vo['qty_last_day'] > 0){ ?> 
+							<a class="btn btn-success showBox" data-url="{:U('trackDetail')}?id={$vo.id}">分析</a>
+						<?php } ?>
+					</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" height="300px" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	//ace.settings.sidebar_collapsed(true);
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+
+	$("tbody.tbody tr").click(function(){
+		$("tbody.tbody tr").removeClass("success");	
+		var tr = $(this);
+		tr.addClass("success");
+		var id = tr.find("input[name='id[]']").val();
+
+		var order_detail_box = $("#order-detail-box");
+
+		if($("#order-detail-iframe").attr("src").indexOf("id="+id +"&") > 0 ){
+			order_detail_box.show();
+			return true;
+		}
+		var box_top = document.documentElement.clientHeight - order_detail_box.height();
+		//var box_width = window.screen.availWidth;
+		var box_width = document.documentElement.clientWidth;
+		order_detail_box.css({display:"block",top:box_top + "px",width:box_width + "px"});
+		$("#order-detail-iframe").attr("src","{:U('AmazonSalesTrack/trackDetailV2')}?id=" + id + "&_"+  Math.round(new Date().getTime()/1000));
+	})	
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}	
+})
+
+function cancelTrack(id){
+	
+	data = {
+		id:id
+	}
+	$.post("{:U('cancelTrack')}",data,function(r){
+		if(r.status){
+			if(window.confirm(r.info)){
+				data.confirmed = true;
+				$.post("{:U('cancelTrack')}",data,function(r){
+					if(r.status){
+						$("#form_search").submit();
+					}else{
+						alertWarning(r.info);
+					}
+				})
+			}
+		}else{
+			alertWarning(r.info);
+		}
+
+		
+	})
+	
+}
+
+</script>

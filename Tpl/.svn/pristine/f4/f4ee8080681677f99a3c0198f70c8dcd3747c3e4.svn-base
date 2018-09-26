@@ -1,0 +1,30 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'增加已刷单'))}
+
+<form method='post' action="{:U('addWishFalseFinishOrderSave')}" id="editForm" name="editForm" class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	<input type="hidden" id="false_plan_id" name="false_plan_id" value="{$_REQUEST['false_plan_id']}">
+	
+	<div class="form-group">
+		<label class="col-sm-2 control-label">刷单订单号(多个换行分隔)：</label>
+		<div class="col-sm-10">
+			<textarea class="form-control" type="text" id="online_order_id" name="online_order_id" check="require" msg="请输入线上transaction_id" style="height:150px;">{$vo.online_order_id}</textarea>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for=""></label>
+		<div class="col-sm-10">
+			<div class="action">
+				<input type="hidden" name="model_name" value="place">
+				<a data-close="1" class="defaultEditFormSubmit btn btn-sm btn-primary">保存</a>
+				<input class="close_box_button btn btn-sm btn-default" type="button" value="取消" >
+			</div>
+		</div>
+	</div>
+</form>
+<script type="text/javascript">
+$(function() {
+
+	
+});
+</script>

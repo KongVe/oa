@@ -1,0 +1,657 @@
+<script type="text/javascript">
+jQuery(function($){
+
+	$(".useOverseaProductQuantity").click(function(){
+		obj = $(this);
+		obj.attr("disabled",'disabled');
+		transfer_plan_id = $(this).data("transfer-plan-id");
+		oversea_product_id = $(this).data("oversea-product-id");
+		quantity = $("#oversea_product_quantity_" + transfer_plan_id + "_" + oversea_product_id).val()
+		data = {
+			transfer_plan_id:transfer_plan_id,
+			oversea_product_id:oversea_product_id,
+			quantity:quantity,
+			inventory_type:'Sellable'
+		}
+		$.post("{:U('reservedOverseaProduct')}",data,function(r){
+			obj.attr("disabled",null);
+			if(r.status){
+				obj.removeClass("btn-primary").addClass("btn-success");
+				window.location.reload();
+			}else{
+				obj.removeClass("btn-success").addClass("btn-primary");
+				alertWarning(r.info);
+			}
+		})
+	})
+
+	$(".useOverseaProductUnselleableQuantity").click(function(){
+		obj = $(this);
+		obj.attr("disabled",'disabled');
+		transfer_plan_id = $(this).data("transfer-plan-id");
+		oversea_product_id = $(this).data("oversea-product-id");
+		quantity = $("#oversea_product_unsellable_quantity_" + transfer_plan_id + "_" + oversea_product_id).val()
+		data = {
+			transfer_plan_id:transfer_plan_id,
+			oversea_product_id:oversea_product_id,
+			quantity:quantity,
+			inventory_type:'Unsellable'
+		}
+		$.post("{:U('reservedOverseaProduct')}",data,function(r){
+			obj.attr("disabled",null);
+			if(r.status){
+				obj.removeClass("btn-primary").addClass("btn-success");
+				window.location.reload();
+			}else{
+				obj.removeClass("btn-success").addClass("btn-primary");
+				alertWarning(r.info);
+			}
+		})
+	})	
+})
+
+//生成拣货单
+function generatePickingPlan(){
+	if(window.confirm('确认所有需要拣货的产品都设置正确，要生成拣货单了么？')){
+		$("#btn_generatePickingPlan").attr("disabled","disabled");
+		data = $("input").serialize();
+		data += "&transfer_shipment_id=" + <?php echo $_REQUEST['transfer_shipment_id']; ?>;
+		$.post("{:U('generatePickingPlan')}",data,function(r){
+			$("#btn_generatePickingPlan").attr("disabled",null);
+			if(r.status){
+				alert("生成拣货单成功");
+				window.location.reload();
+			}else{
+				alertWarning(r.info);
+			}
+		})
+	}
+}
+
+function cancelPick(id){
+	if(quantity = prompt("请输入要撤销的数量")){
+		$("#btn_cancelPick_" + id).attr("disabled","disabled");
+		data = {
+			id:id,
+			quantity:quantity
+		}
+		$.post("{:U('cancelPickingPlan')}",data,function(r){
+			$("#btn_cancelPick_" + id).attr("disabled",null);
+			if(r.status){
+				alert("撤销成功");
+				window.location.reload();
+			}else{
+				alertWarning(r.info);
+			}
+		})
+	}
+}
+
+//d确认当前用户的所使用库存都发货了
+function confirmShip(){
+	if(window.confirm("确认所有库存使用数据都正确，要发货了么？")){
+		$("#btn_confirm_ship").attr("disabled","disabled");
+		var data = {
+			transfer_shipment_id:$("#transfer_shipment_id").val()
+		}
+		$.post("{:U('V2TransferPlan/confirmShip')}",data,function(r){
+			$("#btn_confirm_ship").attr("disabled",null);
+			if(r.status){
+				alert("发货成功");
+				window.location.reload();
+			}else{
+				alertWarning(r.info);
+			}
+			
+		})
+	}
+}
+
+//生成5号海外仓的转仓表格
+function generateStorage5TransferExcel(){
+	if(window.confirm("确认所有库存使用数据都正确，要生成表格么？")){
+		id = $("input[name='id[]']:checked").serialize();
+		if(id == ''){
+			//如果没有选中一个，则默认全选，省了一个点击
+			$("input[name='id[]']").click();
+			id = $("input[name='id[]']:checked").serialize();
+		}
+		data = {
+			id:id,
+			transfer_shipment_id:$("#transfer_shipment_id").val(),
+		}
+		$("#btn_generateStorage5TransferExcel").attr("disabled","disabled");
+		$.post("{:U('V2TransferPlan/generateStorage5TransferExcel')}",data,function(r){
+			$("#btn_generateStorage5TransferExcel").attr("disabled",null);
+			if(r.status){
+				$("#middleBoxIframe").attr("src",r.data.path);
+			}else{
+				alertWarning(r.info);
+			}
+			
+		})
+	}	
+}
+
+function createStroage5Stockout(){
+	if(window.confirm("确认所有库存使用数据都正确，要提交5号海外仓了么?")){
+		id = $("input[name='id[]']:checked").serialize();
+		if(id == ''){
+			//如果没有选中一个，则默认全选，省了一个点击
+			$("input[name='id[]']").click();
+			id = $("input[name='id[]']:checked").serialize();
+		}
+		data = {
+			id:id,
+			transfer_shipment_id:$("#transfer_shipment_id").val(),
+		}
+		$("#btn_createStroage5Stockout").attr("disabled","disabled");
+		$.post("{:U('V2TransferPlan/createStroage5Stockout')}",data,function(r){
+			$("#btn_createStroage5Stockout").attr("disabled",null);
+			if(r.status){
+				alert("提交出库单成功");
+			}else{
+				alertWarning(r.info);
+			}
+			
+		})
+	}		
+}
+
+
+function storage5Disposal(){
+	if(window.confirm("确认所有库存使用数据都正确，要提交Storage5么?")){
+		id = $("input[name='id[]']:checked").serialize();
+		if(id == ''){
+			//如果没有选中一个，则默认全选，省了一个点击
+			$("input[name='id[]']").click();
+			id = $("input[name='id[]']:checked").serialize();
+		}
+		data = {
+			id:id,
+			transfer_shipment_id:$("#transfer_shipment_id").val(),
+		}
+		$("#btn_storage5Disposal").attr("disabled","disabled");
+		$.post("{:U('V2TransferPlan/submitStroage5Disposal')}",data,function(r){
+			$("#btn_storage5Disposal").attr("disabled",null);
+			if(r.status){
+				alert("提交成功");
+				window.location.reload();
+			}else{
+				alertWarning(r.info);
+			}
+			
+		})
+	}		
+}
+
+function fbaRemovalConfirmShip(){
+	$("#btn_fbaRemovalConfirmShip").attr("disabled","disabled");
+	data = {
+		transfer_shipment_id:$("#transfer_shipment_id").val()
+	}
+	
+	$.post("{:U('V2TransferPlan/fbaRemovalConfirmShipPreview')}",data,function(r){
+		if(r.status){
+			confirm = prompt("确认Amazon已经发货了 " +r.data.sku_count + "个SKU ，总共" +r.data.quantity+ " 个数量，并模拟完所有流水了么? 请输入confirm, 确认需要撤销");
+			if(confirm == 'confirm'){
+				data = {
+					transfer_shipment_id:$("#transfer_shipment_id").val()
+				}
+				$.post("{:U('V2TransferPlan/fbaRemovalConfirmShip')}",data,function(r){
+					$("#btn_fbaRemovalConfirmShip").attr("disabled",null);
+					if(r.status){
+						alert("确认完成");
+						window.location.reload();
+					}else{
+						alertWarning(r.info);
+					}
+					
+				})					
+			}else{
+				$("#btn_fbaRemovalConfirmShip").attr("disabled",null);
+			}	
+		}else{
+			$("#btn_fbaRemovalConfirmShip").attr("disabled",null);
+			alertWarning(r.info);
+		}
+		
+	})
+
+
+}
+
+function fbaRemoval(){
+	if(window.confirm("确认所有库存使用数据都正确，要提交Amazon么?")){
+		id = $("input[name='id[]']:checked").serialize();
+		if(id == ''){
+			//如果没有选中一个，则默认全选，省了一个点击
+			$("input[name='id[]']").click();
+			id = $("input[name='id[]']:checked").serialize();
+		}
+		data = {
+			id:id,
+			transfer_shipment_id:$("#transfer_shipment_id").val(),
+		}
+		$("#btn_fbaRemoval").attr("disabled","disabled");
+		$.post("{:U('V2TransferPlan/submitFBARemoval')}",data,function(r){
+			$("#btn_fbaRemoval").attr("disabled",null);
+			if(r.status){
+				alert("提交Amazon完成,等30秒后确认提交是否成功");
+				window.location.reload();
+			}else{
+				alertWarning(r.info);
+			}
+			
+		})
+	}		
+}
+
+function fbaRemovalConfirm(){
+	
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		//如果没有选中一个，则默认全选，省了一个点击
+		$("input[name='id[]']").click();
+		id = $("input[name='id[]']:checked").serialize();
+	}
+	data = {
+		transfer_shipment_id:$("#transfer_shipment_id").val(),
+	}
+	$("#btn_fbaRemovalConfirm").attr("disabled","disabled");
+	$.post("{:U('V2TransferPlan/submitFBARemovalConfirm')}",data,function(r){
+		$("#btn_fbaRemovalConfirm").attr("disabled",null);
+		if(r.status){
+			alert('确认Removal提交成功');
+			window.location.reload();
+		}else{
+			alertWarning(r.info);
+		}
+		
+	})
+	
+}
+function manualFbaRemovalConfirm(){
+	online_shipment_id = prompt("请输入 Online Shipment ID");
+	data = {
+		transfer_shipment_id:$("#transfer_shipment_id").val(),
+		online_shipment_id:online_shipment_id
+	}
+	$("#btn_manualFbaRemovalConfirm").attr("disabled","disabled");
+	$.post("{:U('V2TransferPlan/manualSubmitFBARemovalConfirm')}",data,function(r){
+		$("#btn_manualFbaRemovalConfirm").attr("disabled",null);
+		if(r.status){
+			alert('确认Removal提交成功');
+			window.location.reload();
+		}else{
+			alertWarning(r.info);
+		}
+		
+	})
+}
+
+//生成FBA发货商品详细的表格
+function generateFBAExcel(){
+	$("#form_search").attr("action","{:U('V2TransferPlan/generateFBAExcel')}").submit();
+	return false;
+	ids = $("input[name='id[]']:checked").serialize();
+	if(ids == ''){
+		alert("没有选择任何计划");
+
+		return false;
+	}
+	console.log(ids);
+	$("#btn_generate_fba_excel").attr("disabled","disabled");
+	$.post("{:U('V2TransferPlan/generateFBAExcel')}",ids,function(r){
+		if(r.status){
+
+		}else{
+			alert(r.info);
+		}
+		$("#btn_generate_fba_excel").attr("disabled",null);
+	})
+}
+
+//第一次检查，预先检查当前所有产品中，在创建shipment后的调整数量中， 能够调整到与实发数量相符合的数量，不能与预期调整的则显示出FNSKU
+function firstCheckShipmentContents(){
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		alert("未选择任何ID");
+		return false;
+	}
+	data = {
+		id:id,
+		transfer_shipment_id:$("#transfer_shipment_id").val()
+	}
+	$("#btn_check_shipment_contents").attr("disabled","disabled");
+	$.post("{:U('V2TransferPlan/firstCheckShipmentContents')}",data,function(r){
+		if(r.status){
+			alert(r.info);
+		}else{
+			if(r.info.indexOf('Retry623') > 0){
+				firstCheckShipmentContents();
+				return true;
+			}
+			alertWarning(r.info);
+		}
+		$("#btn_check_shipment_contents").attr("disabled",null);
+	})
+}
+
+function secondCheckShipmentContents(){
+
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		alert("未选择任何ID");
+		return false;
+	}
+	$("#btn_second_check_shipment_contents").attr("disabled",'disabled');
+	data = {
+		id:id,
+	}
+	$.post("{:U('V2TransferPlan/secondCheckShipmentContents')}",data,function(r){
+		alertWarning(r.info);
+		$("#btn_second_check_shipment_contents").attr("disabled",null);
+	})
+}
+
+
+//最终检查shipment里面的产品数量是否一样
+function finalCheckShipmentContents(){
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		alert("未选择任何ID");
+		return false;
+	}
+	data = {
+		id:id,
+		shipment_contents:$("#final_shipment_contents").val()
+	}
+	$("#btn_final_check_shipment_contents").attr("disabled","disabled");
+	$.post("{:U('V2TransferPlan/finalCheckShipmentContents')}",data,function(r){
+		if(r.status){
+			alert("未发现错误计划，可以创建shipment了");
+		}else{
+			alertWarning(r.info);
+		}
+		$("#btn_final_check_shipment_contents").attr("disabled",null);
+	})
+}
+
+//提交FBA计划
+function sumbitFBAShipmentPlan(){
+	if(window.confirm("确认所有库存使用数据都正确，要提交FBA了么？")){
+		id = $("input[name='id[]']:checked").serialize();
+		if(id == ''){
+			//如果没有选中一个，则默认全选，省了一个点击
+			$("input[name='id[]']").click();
+			id = $("input[name='id[]']:checked").serialize();
+		}
+		data = {
+			id:id,
+			transfer_shipment_id:$("#transfer_shipment_id").val(),
+		}
+		var force_quantity = $("#force_quantity").val();
+		if(force_quantity > 0 && force_quantity !== NaN){
+			data.force_quantity = force_quantity;
+		}
+		$("#btn_submit_fba_shipment_plan").attr("disabled","disabled");
+		$.post("{:U('V2TransferPlan/sumbitFBAShipmentPlan')}",data,function(r){
+			$("#btn_submit_fba_shipment_plan").attr("disabled",null);
+			if(r.status){
+				alert("创建成功");
+				window.location.reload();
+			}else{
+				if(r.info.indexOf("Retry623") > 0){
+					sumbitFBAShipmentPlan();
+				}else{
+					alertWarning(r.info);
+				}
+			}
+			
+		})
+	}
+}
+
+//修正 FBA计划
+function updateFBAShipmentPlan(){
+	if(window.confirm("确认所有库存使用数据都正确，要提交FBA了么？")){
+		id = $("input[name='id[]']:checked").serialize();
+		if(id == ''){
+			//如果没有选中一个，则默认全选，省了一个点击
+			$("input[name='id[]']").click();
+			id = $("input[name='id[]']:checked").serialize();
+		}
+		data = {
+			id:id,
+			transfer_shipment_id:$("#transfer_shipment_id").val(),
+		}
+		$("#btn_updateFBAShipmentPlan").attr("disabled","disabled");
+		$.post("{:U('V2TransferPlan/updateFBAShipmentPlan')}",data,function(r){
+			$("#btn_updateFBAShipmentPlan").attr("disabled",null);
+			if(r.status){
+				alert(r.info);
+				window.location.reload();
+			}else{
+				alertWarning(r.info);
+			}
+			
+		})
+	}
+}
+
+
+function changeShipment(){
+	if(target_shipment_id = prompt("请输入要转移到的Shipment ID")){
+		id = $("input[name='id[]']:checked").serialize();
+		if(id == ''){
+			//如果没有选中一个，则默认全选，省了一个点击
+			alertWarning("没有选择任何计划");
+			return false;
+		}
+		data = {
+			id:id,
+			transfer_shipment_id:$("#transfer_shipment_id").val(),
+			target_transfer_shipment_id:target_shipment_id
+		}
+		$("#btn_changeShipment").attr("disabled","disabled");
+		$.post("{:U('V2TransferPlan/changeShipment')}",data,function(r){
+			$("#btn_changeShipment").attr("disabled",null);
+			if(r.status){
+				alert(r.info);
+				window.location.reload();
+			}else{
+				alertWarning(r.info);
+			}
+			
+		})
+	}
+}
+
+//显示手动提交FBA计划框
+function showFBAShipmentPlanManual(){
+	$("#manualSubmitFBAPlan").modal({backdrop:'static'}).modal("show");	
+}
+
+//提交手动提交FBA计划
+function sumbitFBAShipmentPlanManual(){
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		//如果没有选中一个，则默认全选，省了一个点击
+		$("input[name='id[]']").click();
+		id = $("input[name='id[]']:checked").serialize();
+	}
+	data = {
+		id:id,
+		account_id:$("#account_id").val(),
+		manual_data:$(".manual_input").serialize()
+	}
+	$("#btn_sumbitFBAShipmentPlanManual").attr("disabled","disabled");
+	$.post("{:U('V2TransferPlan/sumbitFBAShipmentPlanManual')}",data,function(r){
+		$("#btn_sumbitFBAShipmentPlanManual").attr("disabled",null);
+		if(r.status){
+			alert("创建成功");
+			window.location.reload();
+		}else{
+			alertWarning(r.info);
+		}
+		
+	})
+}
+
+
+//提交保存箱子里的货物详情
+function submitBox(){
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		alert("未选择任何ID");
+		return false;
+	}
+	data = {
+		id:id,
+		account_id:$("#account_id").val(),
+		add_file:$("#add_file").val()
+	}
+	$("#btn_submit_box").attr("disabled","disabled");
+	$.post("{:U('V2TransferPlan/submitBox')}",data,function(r){
+		$("#btn_submit_box").attr("disabled",null);
+		if(r.status){
+			alert("上传成功");
+			window.location.reload();
+		}else{
+			alertWarning(r.info);
+		}
+		
+	})
+}
+
+function getDeclarationDetail(){
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		alert("未选择任何ID");
+		return false;
+	}
+	var plan_list = new Array();
+	$("input[name='id[]']:checked").parents("tr").each(function(i){
+		id = $("input[name='id[]']",this).val();
+		final_ship_quantity = $.trim($("b.green",this).text());
+		plan_list[i] = {
+			id:id,
+			final_ship_quantity:final_ship_quantity
+		};
+	})
+	data = {
+		account_id:$("#account_id").val(),
+		plan_list:plan_list
+	}
+	$("#btn_get_declaration_detal").attr("disabled","disabled");
+	$.post("{:U('V2TransferPlan/getDeclarationDetail')}",data,function(r){
+		$("#btn_get_declaration_detal").attr("disabled",null);
+		if(r.status){
+			alert("成功");
+		}else{
+			alertWarning(r.info);
+		}
+		
+	})	
+}
+
+function getDeclaration(){
+	id = $("input[name='id[]']:checked").serialize();
+	if(id == ''){
+		alert("未选择任何ID");
+		return false;
+	}
+	data = {
+		id:id,
+		account_id:$("#account_id").val(),
+		box_per_declaration:$("#box_per_declaration").val()
+	}
+	$("#btn_get_declaration").attr("disabled","disabled");
+	$.post("{:U('V2TransferPlan/getDeclaration')}",data,function(r){
+		$("#btn_get_declaration").attr("disabled",null);
+		if(r.status){
+			alert("成功");
+		}else{
+			alertWarning(r.info);
+		}
+		
+	})	
+}
+
+function closeBox(){
+	parent.$("#order-detail-box").hide("fast");
+}
+
+function edit(id){
+	parent.$("#middleBoxIframe").attr("src","<?php echo U("AmazonFbaPlan/edit"); ?>?id=" + id);
+	parent.$("#middleBox").modal("show");
+}
+
+function del(id){
+	if(window.confirm("确定删除？")){
+		$("#btn_del_" + id).attr("disabled","disabled");
+		data = {
+			id:id,
+		}
+		$.post("{:U('delete')}",data,function(r){
+			if(r.status){
+				alert("删除成功");
+				window.location.reload();
+			}else{
+				alertWarning(r.info);
+			}
+			$("#btn_del_" + id).attr("disabled",null);
+		})
+	}
+}
+
+function printProductSn(id){
+	quantity = $("#label_quantity_" + id).val();
+	data = {
+		id:id,
+		quantity:quantity
+	}
+	$.post('{:U("v2_transfer_plan/addPrinted")}',data,function(r){
+		if(r.status){
+			labelWindow = window.open('{:U("v2_transfer_plan/printProductSn")}?id=' + id + "&quantity=" + quantity,'','width=600,height=400');
+			print(labelWindow,id);
+			return false;				
+		}else{
+			alertWarning(r.info);
+		}
+	})
+/*	$("#middleBoxIframe").attr("src",'{:U("v2_transfer_plan/printProductSn")}?id=' + id + "&quantity=" + quantity);
+	$("#middleBox").modal("show");
+	labelWindow = $("#middleBoxIframe")[0].contentWindow;*/
+
+}
+
+function print(labelWindow,id){
+	labelWindow.onload=function(){
+		//console.log(labelWindow.document.getElementsByTagName('embed'));
+        if(labelWindow.document.readyState=="complete"){     
+        	if(labelWindow.document.getElementsByTagName('embed').length!=0){
+				labelWindow.window.print();
+				data = {
+					id:id
+				}
+				$.post("{:U('read')}",data,function(r){
+					if(r.status){
+						if(r.data.is_printed > 0){
+							$("#btn_printProductSn_" + id).removeClass("btn-warning").addClass("btn-danger").html("已打印 <span class='badge badge-info'>" + (r.data.is_printed / 10 ) + "</span>");
+						}
+					}else{
+						alertWarning(r.info);
+					}
+				})				
+				return false;
+			}else{
+				print(labelWindow);
+			} 
+        }   
+	}
+}
+
+
+</script>

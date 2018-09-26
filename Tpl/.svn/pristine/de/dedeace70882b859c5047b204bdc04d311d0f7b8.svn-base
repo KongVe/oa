@@ -1,0 +1,35 @@
+虚拟SKU: <b>{$virtual_sku_data.sku}</b>
+<br>
+SKU名称: <b>{$virtual_sku_data.sku_name}</b>
+<br>
+SKU图片: <a class="thumbnail"  href="{$virtual_sku_data.thumbnail}" target="_blank" style="width:100px;">
+	<img src="{$virtual_sku_data.thumbnail}" width="100" />
+</a>
+<br>
+<br>
+
+<table class="table">
+	<tr>
+		<th colspan="4" class="text-center">虚拟SKU映射关系</th>
+	</tr>
+	<tr>
+		<th>SKU图片</th>
+		<th>规格SKU</th>
+		<th>SKU名称</th>
+		<th>映射数量</th>
+	</tr>
+	<volist name="map_virtual_list" id="vo">
+		<tr>
+			<td>
+				<a class="thumbnail"  href="{$vo.sku_product_data.thumbnail}" target="_blank" style="width:80px;">
+					<img src="{$vo.sku_product_data.thumbnail}" width="80" />
+				</a>
+			</td>
+			<td>{$vo.sku_product_data.sku}</td>
+			<td>{$vo.sku_product_data.sku_name}</td>
+			<td>
+				<b>{$vo.quantity}</b> 个
+			</td>
+		</tr>
+	</volist>
+</table>

@@ -1,0 +1,95 @@
+<layout name='Layout/m_ace_layout' />
+<!-- <form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo intval(!$sort); ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+<div class="page page-current">
+	<h1 class="sm">{$title}</h1>
+	<div class="col-sm-10 pull-right">
+			<div class="form-group col-sm-2 pull-left">
+				<div class="col-sm-12">
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="create_time" id="create_time" value="{$Think.request.create_time}"    readonly="readonly" placeholder="创建时间">
+				</div>
+			</div>		
+
+
+			<div class="form-group col-sm-2 pull-left">
+				<select name="iffy" id="iffy" class="form-control ">
+					<option value="">是否可疑</option>
+					<option value="true" <?php if($_REQUEST['iffy'] === 'true'){ echo "selected"; } ?> >可疑</option>
+					<option value="false" <?php if($_REQUEST['iffy'] === 'false'){ echo "selected"; } ?> >正确</option>
+				</select>
+			</div>
+
+			<div class="form-group col-sm-2 pull-left">
+	       		<div class="input-group">
+		            <span class="input-group-addon">
+		                序号
+		            </span>
+		            <input class="form-control " type="text" name="ids" id="ids" value="{$Think.request.ids}"  placeholder="序号,英文逗号分隔">
+		        </div>
+	    	</div>
+
+			<div class="input-group col-sm-4">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索 Shipment ID , Center ID"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div>
+	</div>
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a class="btn btn-sm btn-primary showBox" data-url="{:U('create')}">创建</a>
+		</div>
+		<div class="btn-group">
+			<a class="btn btn-sm btn-success showBox" data-url="{:U('verifyBoxLabelIndex')}" >校验箱子标签</a>
+		</div>
+		<div class="btn-group">
+			<a class="btn btn-sm btn-primary" onclick="setMode('warehouse')">仓库操作</a>
+			<?php /*<a class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">操作模式 <i class="icon-caret-down"></i></a>
+			<ul class="dropdown-menu">
+				<li><a href="#" onclick="setMode('warehouse')">仓库</a></li>
+				<li><a href="#" onclick="setMode('sale')">销售</a></li>
+			</ul> */ ?>
+		</div>			
+		<div class="btn-group">
+			<p class="help-block">
+				New: 建单中 => Waiting confirm: 等待确认发货 => Waiting sequence: 等待安排包裹 => Waiting declare: 等待申报 => <br>
+				Waiting verify: 等待校验箱子标签 => Waiting ship: 等待物流商发货 => Shipped: 物流商已全部发货
+				
+			</p>
+		</div>
+		<div class="btn-group">
+			<a class="btn btn-sm btn-success" href="{:U('v2_transfer_package/index')}" >包裹</a>
+		</div>
+
+		<div class="btn-group">
+			<label>
+                <input type="checkbox" class="ace input-lg" onclick="submit_search();" name="picking_shipment" value="1" <notempty name="Think.request.picking_shipment">checked="checked"</notempty> />
+                <span class="lbl">
+                    排队拣货模式
+                </span>
+            </label>
+		</div>
+
+	</div>
+</div>
+
+<div class="message-container">
+	
+
+
+
+</div>
+</form>
+
+
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div> -->
+
+<style>
+.showBottomBox{cursor: pointer;}
+</style>

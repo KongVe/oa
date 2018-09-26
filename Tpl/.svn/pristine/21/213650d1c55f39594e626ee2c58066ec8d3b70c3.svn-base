@@ -1,0 +1,27 @@
+<div class="col-sm-12">
+	<label class="control-label" for="">Wish刷Save附加参数</label>		
+</div>
+<?php 
+	// $vo['ext_options'] = json_decode($vo['ext_options'],true); 
+	// if(!is_array($vo['ext_options'])){
+	// 	$vo['ext_options'] = array(array('page'=>0));
+	// }
+?>
+<table class="table table-condensed table-striped">
+	<tr>
+		<td>参数名</td>
+		<td>参数值</td>
+	</tr>
+		<tr>
+			<td>
+				<input type="text" name="ext_options[wish][][key]" value="" class="form-control">
+			</td>
+			<td>
+				<input type="text" name="ext_options[wish][][val]" value="" class="form-control">
+			</td>
+		</tr>
+	</volist>
+</table>
+<script type="text/javascript">
+var dataRowKey = <?php echo $key+1;?>;
+</script>	

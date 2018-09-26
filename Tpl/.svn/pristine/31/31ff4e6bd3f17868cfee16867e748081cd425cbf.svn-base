@@ -1,0 +1,115 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" id="form_search" method="post">
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">SKU模板管理</h1>
+	<div class="col-sm-10 pull-right">
+
+			<div class="input-group pull-left col-sm-4">
+					
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.post.q}" placeholder="可搜索模板名称、创建用户"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+
+			</div>
+			
+	</div>
+	
+</div>	
+<div class="message-container">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="btn-group">
+				<a href="{:U('templateEdit')}" target="_blank" class="btn btn-danger" id="createTemplate">创建模板</a>
+			</div>
+		</div>
+	</div>
+	<table class="table table-hover table-bordered">
+
+		<include file="Layout:title"/>
+
+		<tbody class="tbody">
+		<volist name="list" id="vo">
+			
+				<tr id="tr_{$vo.id}">
+					<td  style="vertical-align:middle;">
+							<label class="inline pull-left">
+								<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+								<span class="lbl"></span>
+								{$vo.id}
+							</label>
+						</td>
+	
+					<td>{$vo.name}</td>
+					<td><span class="text-success">{$vo.rule}</span></td>
+					<td>{$vo.website}</td>
+					<td>{$vo.account_name}</td>
+					<td>{$vo.user_name}</td>
+					<td>{$vo.last_update|date="Y-m-d H:i",###}
+					</td>
+					<td style="vertical-align:middle;">
+
+						<a href="{:U('templateEdit?id='.$vo[id])}" class="btn btn-danger btn-xs" target="_blank" >修改</a>
+						<br>
+						<br>
+						<a class="btn btn-warning btn-xs" onclick="delTemplate({$vo.id})">删除</a>
+				
+					</td>
+				</tr>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+<!-- 警告弹窗 -->
+<div class="modal fade " id="alertBox" tabindex="-1" role="dialog" aria-labelledby="alertBoxLabel" aria-hidden="true">
+  <div class="modal-dialog">
+  	<div class="bs-example">
+      <div class="alert alert-danger fade in" id="alertStatus">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h4> </h4>
+        <p id="alerBody"></p>
+
+        <p>
+          <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal" id="alertConfirm">确认</button>
+        </p>
+      </div>
+    </div>   
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- 模态弹窗-->
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxIframe" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<script type="text/javascript">
+function delTemplate (id) {
+	if(confirm("确认删除？删除SKU模板会影响适用帐号 生成SKU 的功能")){
+		$.post("{:U('save')}",{id:id,opmode:'del'},function(msg){
+			if(msg.status){
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+			
+			
+		}).error(function(){
+			alert("网络错误,请重试");
+			window.location.reload();
+		});
+	}
+	
+}
+</script>

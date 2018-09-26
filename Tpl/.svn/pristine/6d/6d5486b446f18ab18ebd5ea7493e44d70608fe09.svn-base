@@ -1,0 +1,67 @@
+<notempty name="old_data">
+	原规格SKU: <b>{$old_data.sku_data.sku}</b>
+	<br>
+	原SKU名称: <b>{$old_data.sku_data.sku_name}</b>
+	<br>
+	原数量: <b>{$old_data.plan_quantity}</b> 个
+	<br>
+	原目的仓库: <b>{$old_data.warehouse_data.warehouse_name}</b>
+	<br>
+	<a href="{:U('V2PurchasePlan/index')}?id={$old_data.id}" target="_blank" class="btn btn-primary">查看原采购计划</a><br>
+</notempty>
+
+<br>
+新规格SKU: <b>{$new_data.sku_data.sku}</b> <eq name="new_data.sku_data.is_virtual_sku" value="Yes">( 虚拟SKU )</eq>
+<br>
+新SKU名称: <b>{$new_data.sku_data.sku_name}</b>
+<br>
+新数量: <b>{$new_data.plan_quantity}</b> 个
+<br>
+新目的仓库: <b>{$new_data.warehouse_data.warehouse_name}</b>
+<br>
+<br>
+
+<notempty name="virtual_sku_data11111">
+	<table class="table">
+		<tr>
+			<th colspan="4" class="text-center">虚拟SKU映射关系 以及 本次将添加的数量</th>
+		</tr>
+		<tr>
+			<th>规格SKU</th>
+			<th>SKU名称</th>
+			<th>映射数量</th>
+			<th>本次生成采购计划数量</th>
+		</tr>
+		<volist name="virtual_sku_data.sku_product_list" id="virtual_sku">
+			<tr>
+				<td>{$virtual_sku.sku}</td>
+				<td>{$virtual_sku.sku_name}</td>
+				<td>
+					{$virtual_sku.quantity} 个
+				</td>
+				<td>
+					<b class="red"><?php
+						echo $virtual_sku['quantity'] * $new_data['plan_quantity'];
+					?></b>
+					 个
+				</td>
+				
+			</tr>
+		</volist>
+	</table>
+
+	<br>
+	<a href="{:U('V2SkuProduct/index')}?id={$new_data.sku_data.id}" target="_blank" class="btn btn-info">查看SKU数据</a>
+	<br>
+
+<else/>
+
+	<a href="{:U('V2SkuProduct/index')}?id={$new_data.sku_data.id}" target="_blank" class="btn btn-info">查看SKU数据</a>
+
+	<br>
+	<br>
+	<a href="{:U('V2PurchasePlan/index')}?q={$new_data.sku_data.sku}" target="_blank" class="btn btn-inverse">查看该SKU所有的采购计划</a><br>
+	
+</notempty>
+
+

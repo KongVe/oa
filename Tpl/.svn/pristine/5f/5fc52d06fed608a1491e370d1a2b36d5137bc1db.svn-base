@@ -1,0 +1,25 @@
+<layout name='Layout/ace_popup' />
+
+	<h2 style="font-size:24px;">批量搜索</h2>
+	<textarea id="multiSearch"  style="width:645px;height:400px;"></textarea>
+	<span class="help-block">填入SKU，多条记录请换行</span>
+	<a class="btn btn-primary" onclick="searchSubmit()">批量搜索</a>
+
+
+<script type="text/javascript">
+
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);
+
+})
+
+function searchSubmit(){
+	parent.$('#multiSearch').val($("#multiSearch").val());
+	parent.$("#form_search").submit();
+}
+</script>

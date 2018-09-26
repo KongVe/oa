@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>layuiAdmin std - 通用后台管理模板系统（iframe标准版）</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="__PUBLIC__/LayuiAdminCloud/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="__PUBLIC__/LayuiAdminCloud/css/admin.css" media="all">
+  
+  <script>
+  ///^http(s*):\/\//.test(location.href) || alert('请先部署到 localhost 下再访问');
+</script>
+</head>
+<body class="layui-layout-body">
+
+  <div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+      <div class="layui-col-md12">
+        <div class="layui-card">
+          <div class="layui-card-header">数据表格的重载</div>
+          <div class="layui-card-body">
+
+           <table id="demo" lay-filter="test">
+
+           </table>
+
+           <blockquote class="layui-elem-quote">此处由于是静态模拟数据，所以搜索后重载的结果没变，这并非是 BUG。实际使用时改成真实接口并根据搜索的字段筛选出对应的数据即可。</blockquote>
+
+         </div>
+       </div>
+     </div>
+   </div>
+ </div>
+
+
+ <script src="__PUBLIC__/LayuiAdminCloud/layui/layui.js"></script>
+ <!-- <script type="text/javascript" src="__PUBLIC__/assets/js/jquery-1.9.1.min.js"></script> -->
+ <!-- <script type="text/javascript" src="/Tpl/LayuiAdmin/lib/index.all.common.js"></script> -->
+ <script>
+  var filter_list = {$filter_list|default=""|json_encode};
+  var config_data = {$config_data|default=""|json_encode};
+  var colsList = [];
+  layui.use()
+  layui.config({
+    base: '/Tpl/' //静态资源所在路径
+    // ,pageTabs: false //是否开启页面选项卡功能。单页版不推荐开启
+  })
+  layui.use('table', function(){
+    var table = layui.table;
+
+    table.render({
+      elem: '#demo'
+      ,height: 'full-20'
+    ,url: config_data.search_url //数据接口
+    ,page: true //开启分页
+    ,cols: [[ //表头
+    {type:'checkbox',fixed:'left'}
+    ,{field: 'id', title: 'Id', width:80, sort: true}
+    ,{field: 'standard_category_id', title: '用户名', width:80}
+    ,{field: 'title', title: '性别', width:80, sort: true}
+    ,{field: 'content', title: '城市', width:80} 
+    ,{field: 'score_type', title: '签名', width: 177}
+    ,{field: 'standard_score', title: '积分', width: 80, sort: true}
+    ,{field: 'score_json', title: '评分', width: 80, sort: true}
+    ,{field: 'add_uid', title: '职业', width: 80}
+    ,{field: 'add_time', title: '财富', width: 135, sort: true}
+    ,{field: 'is_del', title: '财富', width: 135, sort: true}
+
+    ]]
+    ,request:{
+      pageName: "p" //页码的参数名称，默认：page
+  ,limitName: "list_rows" //每页数据量的参数名，默认：limit
+}
+,response: {
+  statusName: 'status' //数据状态的字段名称，默认：code
+  ,statusCode: 1 //成功的状态码，默认：0
+  ,msgName: 'info' //状态信息的字段名称，默认：msg
+  ,countName: "list_total_count" //数据总数的字段名称，默认：count
+  ,dataName: "results" //数据列表的字段名称，默认：data
+}
+,done: function(res, curr, count){   
+  debugger
+} 
+  });
+  
+});
+</script>
+</body>
+</html>
+
+

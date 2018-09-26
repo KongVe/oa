@@ -1,0 +1,22 @@
+<script type="text/javascript">
+
+function closeBox(){
+	parent.$("#order-detail-box").hide("fast");
+}
+
+$(function(){
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);	
+})
+</script>

@@ -1,0 +1,245 @@
+<div class="form-group">
+	价格 = ( ( ( 成本 + 国内运费 + 国际运费 ) / ( 1 - 利润率) + 利润<input type="text" name="profit_plus" value="0" size=3 />RMB ) / 汇率<input type="text" name="exchange_rate" value="6" size=3 />  / ( 1 - 手续费<input type="text" name="handle_rate" value="0.045" size=3 />) - 固定运费
+</div>		
+<div class="form-group">
+	 国际运费 = ( 重量 * 每kg运费<input type="text" name="shipping_fee" value="112" size=3 /> + 挂号费<input type="text" name="barcode_fee" value="15" size=3 /> )
+</div>		
+<div class="form-group">
+	<label class="control-label">固定运费 = 
+		$<input type="text" name="shipping_fee_fixed" value=0 size=4/>
+	</label>
+	<span class="help-block">
+		固定运费是指选择了哪个 shipping group后， 这个shipping group会收取的运费.<br>
+		为0时即为选择了免运费
+	</span>
+</div>
+
+<div class="form-group">
+	<label class="control-label">分类</label>
+	<select id="categoryId" class="form-control" name="categoryId">
+		<option value="">Please choose...</option><option value="352">Art</option>
+		<option value="396">Art &gt; Designer Toys</option>
+		<option value="357">Art &gt; Illustration</option>
+		<option value="355">Art &gt; Multi-media</option>
+		<option value="406">Art &gt; Original Artwork</option>
+		<option value="353">Art &gt; Photography</option>
+		<option value="445">Art &gt; Pins</option>
+		<option value="354">Art &gt; Prints &amp; Posters</option>
+		<option value="356">Art &gt; Sculpture</option>
+		<option value="449">Art &gt; Stickers</option>
+		<option value="358">Health &amp; Beauty</option>
+		<option value="359">Health &amp; Beauty &gt; Face &amp; Body Care</option>
+		<option value="361">Health &amp; Beauty &gt; Fragrance</option>
+		<option value="452">Health &amp; Beauty &gt; Hair Extensions</option>
+		<option value="451">Health &amp; Beauty &gt; Makeup</option>
+		<option value="453">Health &amp; Beauty &gt; Nail Polish &amp; Nail Art</option>
+		<option value="360">Health &amp; Beauty &gt; Nutrition</option>
+		<option value="372">Home</option>
+		<option value="455">Home &gt; Bath</option>
+		<option value="454">Home &gt; Bedding</option>
+		<option value="378">Home &gt; Candles &amp; Scents</option>
+		<option value="373">Home &gt; Decor</option>
+		<option value="510">Home &gt; Decor &gt; Clocks</option>
+		<option value="375">Home &gt; Decor &gt; Frames</option>
+		<option value="376">Home &gt; Decor &gt; Lighting</option>
+		<option value="374">Home &gt; Decor &gt; Pillows</option>
+		<option value="469">Home &gt; Decor &gt; Wall Decals</option>
+		<option value="457">Home &gt; Furniture</option>
+		<option value="456">Home &gt; Kitchen</option>
+		<option value="377">Home &gt; Kitsch</option>
+		<option value="460">Home &gt; Office</option>
+		<option value="459">Home &gt; Outdoor</option>
+		<option value="379">Home &gt; Stationery &amp; Paper Goods</option>
+		<option value="381">Home &gt; Stationery &amp; Paper Goods &gt; Cards &amp; Invitations</option>
+		<option value="471">Home &gt; Stationery &amp; Paper Goods &gt; Gift Wrap</option>
+		<option value="382">Home &gt; Stationery &amp; Paper Goods &gt; Journals &amp; Notebooks</option>
+		<option value="470">Home &gt; Stationery &amp; Paper Goods &gt; Stationery</option>
+		<option value="472">Home &gt; Stationery &amp; Paper Goods &gt; Stickers</option>
+		<option value="458">Home &gt; Tableware &amp; Glassware</option>
+		<option value="339">Jewelry</option>
+		<option value="395">Jewelry &gt; Body Jewelry</option>
+		<option value="405">Jewelry &gt; Bracelets</option>
+		<option value="515">Jewelry &gt; Brooches</option>
+		<option value="340">Jewelry &gt; Earrings</option>
+		<option value="343">Jewelry &gt; Men's</option>
+		<option value="341">Jewelry &gt; Necklaces</option>
+		<option value="342">Jewelry &gt; Rings</option>
+		<option value="320">Kids</option>
+		<option value="464">Kids &gt; Accessories</option>
+		<option value="498">Kids &gt; Accessories &gt; Backpacks</option>
+		<option value="500">Kids &gt; Accessories &gt; Hair Accessories</option>
+		<option value="499">Kids &gt; Accessories &gt; Hats</option>
+		<option value="463">Kids &gt; Clothing</option>
+		<option value="483">Kids &gt; Clothing &gt; Bottoms</option>
+		<option value="492">Kids &gt; Clothing &gt; Bottoms &gt; Jeans</option>
+		<option value="496">Kids &gt; Clothing &gt; Bottoms &gt; Leggings</option>
+		<option value="493">Kids &gt; Clothing &gt; Bottoms &gt; Pants</option>
+		<option value="494">Kids &gt; Clothing &gt; Bottoms &gt; Shorts</option>
+		<option value="495">Kids &gt; Clothing &gt; Bottoms &gt; Skirts</option>
+		<option value="484">Kids &gt; Clothing &gt; Dresses</option>
+		<option value="323">Kids &gt; Clothing &gt; Onesies</option>
+		<option value="488">Kids &gt; Clothing &gt; Outerwear</option>
+		<option value="485">Kids &gt; Clothing &gt; Sets</option>
+		<option value="487">Kids &gt; Clothing &gt; Sleepwear</option>
+		<option value="486">Kids &gt; Clothing &gt; Swim</option>
+		<option value="482">Kids &gt; Clothing &gt; Tops</option>
+		<option value="322">Kids &gt; Clothing &gt; Tops &gt; Shirts</option>
+		<option value="490">Kids &gt; Clothing &gt; Tops &gt; Sweaters</option>
+		<option value="491">Kids &gt; Clothing &gt; Tops &gt; Sweatshirts &amp; Hoodies</option>
+		<option value="509">Kids &gt; Clothing &gt; Tops &gt; Tees</option>
+		<option value="489">Kids &gt; Clothing &gt; Underthings</option>
+		<option value="466">Kids &gt; Maternity</option>
+		<option value="465">Kids &gt; Nursery</option>
+		<option value="501">Kids &gt; Nursery &gt; Blankets</option>
+		<option value="502">Kids &gt; Nursery &gt; Crib Bedding</option>
+		<option value="504">Kids &gt; Nursery &gt; Decor</option>
+		<option value="503">Kids &gt; Nursery &gt; Furniture</option>
+		<option value="468">Kids &gt; Shoes</option>
+		<option value="391">Kids &gt; Toys &amp; Games</option>
+		<option value="508">Kids &gt; Toys &amp; Games &gt; Games</option>
+		<option value="507">Kids &gt; Toys &amp; Games &gt; Plushes</option>
+		<option value="506">Kids &gt; Toys &amp; Games &gt; Squishies</option>
+		<option value="296">Men's</option>
+		<option value="306">Men's &gt; Accessories</option>
+		<option value="326">Men's &gt; Accessories &gt; Bags &amp; Wallets</option>
+		<option value="328">Men's &gt; Accessories &gt; Belts</option>
+		<option value="519">Men's &gt; Accessories &gt; Eyewear</option>
+		<option value="520">Men's &gt; Accessories &gt; Eyewear &gt; Eyeglasses</option>
+		<option value="327">Men's &gt; Accessories &gt; Eyewear &gt; Sunglasses</option>
+		<option value="329">Men's &gt; Accessories &gt; Hats</option>
+		<option value="511">Men's &gt; Accessories &gt; Watches</option>
+		<option value="303">Men's &gt; Bottoms</option>
+		<option value="516">Men's &gt; Bottoms &gt; Shorts</option>
+		<option value="521">Men's &gt; Bottoms &gt; Shorts &gt; Casual</option>
+		<option value="305">Men's &gt; Bottoms &gt; Shorts &gt; Swim</option>
+		<option value="307">Men's &gt; Outerwear</option>
+		<option value="297">Men's &gt; Shirts</option>
+		<option value="302">Men's &gt; Shirts &gt; Collared Shirts</option>
+		<option value="298">Men's &gt; Shirts &gt; Crew Neck T-shirts</option>
+		<option value="300">Men's &gt; Shirts &gt; Long Sleeved T-shirts</option>
+		<option value="301">Men's &gt; Shirts &gt; Tank Tops</option>
+		<option value="299">Men's &gt; Shirts &gt; V-neck T-shirts</option>
+		<option value="512">Men's &gt; Shoes</option>
+		<option value="409">Men's &gt; Underthings</option>
+		<option value="410">Men's &gt; Underthings &gt; Socks</option>
+		<option value="304">Men's &gt; Underthings &gt; Underwear</option>
+		<option value="344">Music</option>
+		<option value="348">Music &gt; Band Merch</option>
+		<option value="349">Music &gt; Band Merch &gt; Buttons</option>
+		<option value="351">Music &gt; Band Merch &gt; Posters</option>
+		<option value="350">Music &gt; Band Merch &gt; Stickers</option>
+		<option value="345">Music &gt; CDs</option>
+		<option value="461">Music &gt; Cassette Tapes</option>
+		<option value="346">Music &gt; Digital Downloads</option>
+		<option value="514">Music &gt; Musical Instruments</option>
+		<option value="347">Music &gt; Vinyl</option>
+		<option value="407">Specialty</option>
+		<option value="362">Specialty &gt; Books &amp; Media</option>
+		<option value="446">Specialty &gt; Books &amp; Media &gt; Books</option>
+		<option value="364">Specialty &gt; Books &amp; Media &gt; Books &gt; Fiction</option>
+		<option value="365">Specialty &gt; Books &amp; Media &gt; Books &gt; Nonfiction</option>
+		<option value="363">Specialty &gt; Books &amp; Media &gt; Books &gt; Poetry</option>
+		<option value="393">Specialty &gt; Books &amp; Media &gt; Comics</option>
+		<option value="394">Specialty &gt; Books &amp; Media &gt; DVDs</option>
+		<option value="448">Specialty &gt; Books &amp; Media &gt; E-books</option>
+		<option value="366">Specialty &gt; Books &amp; Media &gt; Guides</option>
+		<option value="447">Specialty &gt; Books &amp; Media &gt; Zines</option>
+		<option value="522">Specialty &gt; Costumes</option>
+		<option value="467">Specialty &gt; Costumes &gt; Kid's Costumes</option>
+		<option value="523">Specialty &gt; Costumes &gt; Men's Costumes</option>
+		<option value="441">Specialty &gt; Costumes &gt; Women's Costumes</option>
+		<option value="392">Specialty &gt; Everything Else</option>
+		<option value="367">Specialty &gt; Food</option>
+		<option value="370">Specialty &gt; Food &gt; Coffee &amp; Tea</option>
+		<option value="371">Specialty &gt; Food &gt; Food Accessories</option>
+		<option value="450">Specialty &gt; Food &gt; Savories</option>
+		<option value="368">Specialty &gt; Food &gt; Specialty Foods</option>
+		<option value="369">Specialty &gt; Food &gt; Sweets</option>
+		<option value="390">Specialty &gt; Games</option>
+		<option value="384">Specialty &gt; Pets</option>
+		<option value="387">Specialty &gt; Pets &gt; Accessories</option>
+		<option value="473">Specialty &gt; Pets &gt; Beds</option>
+		<option value="386">Specialty &gt; Pets &gt; Collars &amp; Leashes</option>
+		<option value="385">Specialty &gt; Pets &gt; Toys</option>
+		<option value="383">Specialty &gt; Supplies &amp; Patterns</option>
+		<option value="399">Specialty &gt; Wedding</option>
+		<option value="402">Specialty &gt; Wedding &gt; Accessories</option>
+		<option value="404">Specialty &gt; Wedding &gt; Decor</option>
+		<option value="400">Specialty &gt; Wedding &gt; Dresses</option>
+		<option value="477">Specialty &gt; Wedding &gt; Engagement Cards</option>
+		<option value="474">Specialty &gt; Wedding &gt; Guest Books</option>
+		<option value="403">Specialty &gt; Wedding &gt; Invitations</option>
+		<option value="478">Specialty &gt; Wedding &gt; Photo Albums</option>
+		<option value="476">Specialty &gt; Wedding &gt; Save The Date</option>
+		<option value="475">Specialty &gt; Wedding &gt; Thank You Cards</option>
+		<option value="408">Tech</option>
+		<option value="481">Tech &gt; Accessories</option>
+		<option value="479">Tech &gt; Electronics &amp; Gadgets</option>
+		<option value="513">Tech &gt; Video Games</option>
+		<option value="480">Tech &gt; iPhone &amp; iPad Cases</option>
+		<option value="308">Women's</option>
+		<option value="324">Women's &gt; Accessories</option>
+		<option value="331">Women's &gt; Accessories &gt; Bags, Purses &amp; Wallets</option>
+		<option value="334">Women's &gt; Accessories &gt; Belts</option>
+		<option value="517">Women's &gt; Accessories &gt; Eyewear</option>
+		<option value="518">Women's &gt; Accessories &gt; Eyewear &gt; Eyeglasses</option>
+		<option value="333">Women's &gt; Accessories &gt; Eyewear &gt; Sunglasses</option>
+		<option value="332">Women's &gt; Accessories &gt; Hair Accessories</option>
+		<option value="335">Women's &gt; Accessories &gt; Hats</option>
+		<option value="413">Women's &gt; Accessories &gt; Scarves &amp; Gloves</option>
+		<option value="412">Women's &gt; Accessories &gt; Watches</option>
+		<option value="316">Women's &gt; Bottoms</option>
+		<option value="428">Women's &gt; Bottoms &gt; Dress Pants</option>
+		<option value="431">Women's &gt; Bottoms &gt; Fitness</option>
+		<option value="426">Women's &gt; Bottoms &gt; Jeans</option>
+		<option value="427">Women's &gt; Bottoms &gt; Leggings</option>
+		<option value="429">Women's &gt; Bottoms &gt; Shorts</option>
+		<option value="430">Women's &gt; Bottoms &gt; Skirts</option>
+		<option value="315">Women's &gt; Dresses</option>
+		<option value="319">Women's &gt; Outerwear</option>
+		<option value="439">Women's &gt; Outerwear &gt; Coats &amp; Jackets</option>
+		<option value="440">Women's &gt; Outerwear &gt; Vests</option>
+		<option value="336">Women's &gt; Shoes</option>
+		<option value="435">Women's &gt; Shoes &gt; Boots</option>
+		<option value="433">Women's &gt; Shoes &gt; Flats</option>
+		<option value="434">Women's &gt; Shoes &gt; Heels &amp; Wedges</option>
+		<option value="437">Women's &gt; Shoes &gt; Sandals</option>
+		<option value="438">Women's &gt; Shoes &gt; Slippers</option>
+		<option value="436">Women's &gt; Shoes &gt; Sneakers</option>
+		<option value="317">Women's &gt; Sleep &amp; Intimates</option>
+		<option value="424">Women's &gt; Sleep &amp; Intimates &gt; Bras &amp; Panties</option>
+		<option value="432">Women's &gt; Sleep &amp; Intimates &gt; Sleepwear</option>
+		<option value="425">Women's &gt; Sleep &amp; Intimates &gt; Socks &amp; Tights</option>
+		<option value="318">Women's &gt; Swim</option>
+		<option value="309">Women's &gt; Tops</option>
+		<option value="314">Women's &gt; Tops &gt; Blouses</option>
+		<option value="443">Women's &gt; Tops &gt; Fitness</option>
+		<option value="444">Women's &gt; Tops &gt; Fitted</option>
+		<option value="312">Women's &gt; Tops &gt; Long Sleeved T-shirts</option>
+		<option value="310">Women's &gt; Tops &gt; Standard Tees</option>
+		<option value="442">Women's &gt; Tops &gt; Sweaters</option>
+		<option value="313">Women's &gt; Tops &gt; Tank Tops</option>
+		<option value="311">Women's &gt; Tops &gt; V-neck T-shirts</option>
+	</select>	
+</div>
+<div class="form-group">
+	<label class="control-label">运费模板</label>
+	<select name="shippingGroupId" class="form-control" id="shippingGroupId">
+		<option value=''>---请选择运费模板</option>
+		<volist name="formData.shippingGroupList" id="shippingGroup">
+			<option value="{$shippingGroup.id}">{$shippingGroup.name}</option>
+		</volist>
+	</select>
+</div>
+<div class="form-group">
+	<label class="control-label">产品分组</label>
+	<select name="collectionIds[]" id="collectionIds"  class="form-control" style="width:40%;" multiple="multiple" >
+		<volist name="formData.collectionList" id="collection">
+			<option value="{$collection.id}"  >{$collection.name}</option>
+		</volist>
+	</select>
+</div>
+
+<script type="text/javascript">
+	$("#img_server").val("http://oa.barboola.com");
+</script>

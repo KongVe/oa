@@ -1,0 +1,140 @@
+<layout name='Layout/m_ace_layout' />
+<div class="list-block" id="content">
+  
+    
+
+</div>
+<div class="popup popup-services">
+	<div class="content-block">
+		<p>Services</p>
+		<p class="forwarder_close"><i class="icon icon-caret close-popup"></i></p>
+		<p>Lorem ipsum dolor ...</p>
+	</div>
+</div>
+<style type="text/css">
+	#content .card .list-block>ul{
+		padding-left: 0;
+		padding-top: 1rem;
+	}
+</style>
+<script type="text/javascript">
+	var filter_list = {$filter_list|default=""|json_encode};
+	var config_data = {$config_data|default=""|json_encode};
+	var transfer_shipment_id = GetRequest()['transfer_shipment_id'];
+	$(function(){
+		serch_list();
+		$('#content').append('<div class="card facebook-card"><div class="list-block media-list inset">'+
+	'<ul>'+
+	'<li>'+
+	'<div class="card-header no-border">'+
+	'<div class="item-inner">'+
+	'<div class="facebook-avatar"><img src="http://gqianniu.alicdn.com/bao/uploaded/i4//tfscom/i3/TB10LfcHFXXXXXKXpXXXXXXXXXX_!!0-item_pic.jpg_250x250q60.jpg" style="max-width: 2.2rem;"width="100"></div>'+
+	'<div class="facebook-name">标题</div>'+
+	'<div class="facebook-date">日期</div>'+
+	'</div>'+
+	'<div class="card-content">'+
+	'<div class="list-block media-list inset">'+
+	'<ul>'+
+	'<li>'+
+	'<a href="#" class="item-link item-content">'+
+	'<div class="item-media"><img src="http://oa.barboola.com/Public/img/thumbnail_global/03/036250389d8335bf300b6a9450ad9d8a.jpg" width="50"></div>'+
+	'<div class="item-inner">'+
+	'<div class="item-title-row">'+
+	'<div class="item-title">标题</div>'+
+	'</div>'+
+	'<div class="item-subtitle">子标题</div>'+
+	'</div>'+
+	'</a>'+
+	'</li>'+
+	'</ul>'+
+	'</div>'+
+	'</div>'+
+	'</div>'+
+	'</div>'+
+	'</div>'+
+	'</li>'+
+	'</ul>'+
+	'</div>'+
+	' <div class="card-footer no-border">'+
+      '<a href="#" class="link">赞</a>'+
+      '<a href="#" class="link">评论</a>'+
+      '<a href="#" class="link">分享</a>'+
+    '</div>'+
+	'</div>'+
+	'</div>')
+		
+	})
+	function init(){
+		$.ajax({
+			url:'',
+			data:'',
+			type:'GET',
+			dataType:'json',
+			success:function(){
+				1
+			},error:function(){
+				2
+			},beforeAfter:function(){
+				3
+			}
+		})
+	}
+	
+	function page_list(data){
+		$.each(data,function(i,v){
+			$('#content .facebook-card').push('<div class="list-block media-list inset">'+
+	'<ul>'+
+	'<li>'+
+	'<div class="card-header no-border">'+
+	'<div class="facebook-avatar"><img src="http://gqianniu.alicdn.com/bao/uploaded/i4//tfscom/i3/TB10LfcHFXXXXXKXpXXXXXXXXXX_!!0-item_pic.jpg_250x250q60.jpg" style="width: 2.2rem;"></div>'+
+	'<div class="item-inner">'+
+	'<div class="facebook-name">标题</div>'+
+	'<div class="facebook-date">日期</div>'+
+	'</div>'+
+	'<div class="card-content">'+
+	'<div class="list-block media-list inset">'+
+	'<ul>'+
+	'<li>'+
+	'<a href="#" class="item-link item-content">'+
+	'<div class="item-media"><img src="http://gqianniu.alicdn.com/bao/uploaded/i4//tfscom/i3/TB10LfcHFXXXXXKXpXXXXXXXXXX_!!0-item_pic.jpg_250x250q60.jpg" style="width: 2.2rem;"></div>'+
+	'<div class="item-inner">'+
+	'<div class="item-title-row">'+
+	'<div class="item-title">标题</div>'+
+	'</div>'+
+	'<div class="item-subtitle">子标题</div>'+
+	'</div>'+
+	'</a>'+
+	'</li>'+
+	'</ul>'+
+	'</div>'+
+	'</div>'+
+	'</div>'+
+	'</div>'+
+	'</div>'+
+	'</li>'+
+	'</ul>'+
+	'</div>'+
+	'</div>')
+		})
+	}
+	function get_list(post_list){
+		$.post(config_data.search_url,post_list,function(data,s){
+
+			if(data.status == 0){
+				$.showPreloader(data.info)
+				setTimeout(function () {
+					$.hidePreloader();
+				}, 2000);
+				return false;
+			}
+			push_all_list = data;
+			re_form()
+			$.closePanel()
+			$.showPreloader('正在加载') 
+			$('#card-list').empty();
+			list_push(data)
+			$.hidePreloader()
+			$(document).off('infinite')
+		});
+	}
+</script>

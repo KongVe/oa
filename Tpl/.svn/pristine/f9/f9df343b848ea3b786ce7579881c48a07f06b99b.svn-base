@@ -1,0 +1,139 @@
+<layout name='Layout/ace_layout' />
+    {:W('PageHeader',array('name'=>"编辑线上产品"))}
+
+    <form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+        <input type="hidden" id="ajax" name="ajax" value="1"/>
+
+        <if condition="$vo['id'] neq ''">
+            <input type="hidden" id="id" name="id" value="{$vo.id}">
+            <input type="hidden" id="opmode" name="opmode" value="edit">
+        <else/>
+            <input type="hidden" id="opmode" name="opmode" value="add">
+        </if>
+
+        
+            <div class="panel-default">
+                <div class="form-group text-center">
+                    <input type="button" data-loading-text="正在保存..."  class="editFormSubmit btn btn-primary" value="保存" />
+                    <a class="cancel_box btn btn-danger ">取消</a>
+                    <?php /* <a class="btn btn-danger" id="delete">删除</a> */ ?>
+                </div>
+            </div>
+        
+
+        <div class="panel panel-primary">
+            <div class="panel panel-heading">
+                <span>Product Info</span>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="col-sm-6">
+                        <label class="text-right col-sm-4" for="product_id">Product ID</label>
+                        <div class=" col-sm-6">
+                            {$vo.product_id}
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label class="text-right col-sm-4" for="thread_max_count">Parent SKU</label>
+                        <div class=" col-sm-6">
+                            {$vo.sku}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2" for="product_id">Product Name</label>
+                        <div class=" col-sm-9">
+                            <input class="form-control" type="text" id="product_name" name="product_name" value="{$vo.product_name}" check="require" msg="请输入产品名称" placeholder="请输入产品名称">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2" for="product_id">主图</label>
+                        <div class=" col-sm-9">
+                            <input class="form-control" type="text" id="main_image" name="main_image" value="{$vo.main_image}" check="require" msg="请输入主图链接" placeholder="请输入主图链接">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2" for="product_id">Tags：</label>
+                        <div class=" col-sm-9">
+                            <div class="tags_list_div"> 
+                                <div class="tags_list  col-sm-12" style="list-style-type:none;">
+                                    <volist name="vo.tags_list" id="tag">
+                                        <li class="li_tag" style='float:left;margin:2px 5px;list-style:none;display:block;'>{$tag}<a class="close btn-xs"  onclick="delTags(this);" data-token="{$tag}">×</a></li>
+                                    </volist>
+                                    
+                                </div> 
+                                <div class="li_input">
+                                    <input class="token-input" type="text" placeholder="按回车键自定义tags">
+                                    <div class="alert alert-danger" id="tags_alert" style="display:none;" ></div>
+                                    <input id="contest_tags" name="tags" class="" type="hidden" value="{$vo.tags}">
+                                </div>
+                                </div>
+                                <div class="dropdown" >
+                                    <ul class="dropdown-menu" id="contest_tags_menu" role="menu" aria-labelledby="dLabel">
+                                   
+                                    </ul>       
+                                </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2" for="description">描述</label>
+                        <div class=" col-sm-9">
+                            <textarea class="form-control" type="text" style="height:300px;" id="description" name="description" check="require" msg="请输入描述" placeholder="请输入描述">{$vo.description}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="panel panel-primary">
+            <div class="panel panel-heading">
+                <span>Additional Images</span>
+            </div>
+            <div class="panel-body" id="additional_images">
+                <volist name="vo.extra_images" id="extra_image">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="extra_images">Image URL</label>
+                            <div class="col-sm-9">
+                                <a href="{$extra_image}" class="thumbnail" style="width:60px;display: inline-block;" target="_blank"><img src="{$extra_image}" width="60" /></a>
+                                <div style="">
+                                    <input class="" type="text" id="product_name" name="extra_images" value="{$extra_image}" placeholder="输入图片url">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </volist>
+            </div>
+
+            <div class="display-none" id="ext_val">
+                <!-- 附加参数的已存值 -->
+            </div>
+            <div class="panel-body" id="ext_option">
+                {$ext_html}
+            </div>
+        </div>
+
+        
+    
+            <div class="panel-default">
+                <div class="form-group text-center">
+                    <input type="button" data-loading-text="正在保存..."  class="editFormSubmit btn btn-primary" value="保存" />
+                    <a class="cancel_box btn btn-danger">取消</a>
+                </div>
+            </div>
+    
+    </form>
+

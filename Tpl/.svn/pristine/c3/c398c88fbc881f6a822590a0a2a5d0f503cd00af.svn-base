@@ -1,0 +1,109 @@
+<layout name='Layout/ace_popup' />
+<div class="panel">
+	<form name="form_search" id="form_search" method="post">
+		<input   onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索"/>
+		<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+	</form>
+</div>	
+<form class="form" action="{:U('save')}" id="editForm" method='POST'>
+<input type="hidden" name="rule_id" id="rule_id" value="<?php echo $_REQUEST['rule_id']; ?>" />
+<table class="table">
+	<tr>
+		<td>账号</td>
+		<td>ASIN</td>
+		<td>产品</td>
+		<td>已映射规则</td>
+		<?php /*<td>上架价格</td> */ ?>
+		<td>映射<input  id="selectAll" type="checkbox" style="width:20px; height:20px; cursor:pointer;" /></td>
+		<td>操作者</td>
+	</tr>
+	<volist name="list" id="vo">
+		<tr>
+			<td>
+				{$vo.account_name}<br>
+				<a href="javascript:void(0)" class="btn btn-xs btn-success" onclick="tmpSendForm('{:U("AmazonRepriceQueue/index")}',{q:'<?php echo $vo['sku']; ?>'})">改价历史</a>
+			</td>
+			<td><a href="{:U('AmazonSellyours/index')}?id={$vo.sellyours_id}" target="_blank" >{$vo.asin}</a><br>{$vo.sku}<br>{$vo.price_lowest} - {$vo.price_highest}</td>
+			<td><a href="{$vo.thumbnail}" target="_blank" class="thumbnail"><img src="{$vo.thumbnail}" width="60" /></a></td>
+			<td>
+				<gt name="vo.map_rule_count" value="0">
+					<a href="javascript:void(0)" onclick="tmpSendForm('{:U("AmazonRepriceRule/index")}','q={$vo.sku}')" class="btn btn-xs btn-danger">{$vo.map_rule_count}</a>
+				<else/>
+					0
+				</gt>
+			</td>
+			<?php /* <td><input type="text" size=4 name="active_price[{$vo.issue_id}]" id="active_price_{$vo.issue_id}" value="{$vo.active_price|default='0'}" /></td> */ ?>
+			<td><input class="map_checkbox" data-issue-id="{$vo.issue_id}" type="checkbox" name="map[{$vo.issue_id}]" <?php if($vo['mapped']){ echo "checked"; } ?>  style="width:30px; height:30px; cursor:pointer;" /></td>
+			<td>{$vo.map_username}<br>{$vo.map_time}</td>
+		</tr>
+	</volist>
+</table>
+<div class="center">
+	<a class="btn btn-primary" id="submit">保存</a>
+	<a class="btn btn-danger" id="cancel">取消</a>
+</div>
+</form>
+
+<script type="text/javascript">
+
+$(function(){
+
+	maxHeight = parent.document.documentElement.clientHeight - 100 ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);	
+
+
+	$("#cancel").click(function(){
+		parent.$("#middleBox").modal("hide");	
+	})
+
+	$("#submit").click(function(){
+		$("#submit").attr("disabled",'disabled');
+		var data = $("#editForm").serialize();
+		var url = $("#editForm").attr("action");
+		$.post(url,data,function(r){
+			if(r.status){
+				parent.$("#form_search").submit();
+			}else{
+				alertWarning(r.info);
+			}
+			$("#submit").attr("disabled",null);
+		});
+	})
+
+	$("#selectAll").click(function(){
+		/*$("input.map_checkbox").attr('checked',this.checked);
+		return false;*/
+		if(this.checked){
+			$("input.map_checkbox").each(function(){
+				$(this).attr("checked",true).click()
+			})
+		}else{
+			$("input.map_checkbox").each(function(){
+				$(this).attr("checked",false);
+			})
+		}
+	})
+
+	$(".map_checkbox").click(function(){
+		if(this.checked == false){
+			//删除映射
+			data = {
+				issue_id:$(this).attr("data-issue-id"),
+				rule_id:$("#rule_id").val()
+			}
+			$.post("{:U('unmap')}",data,function(r){
+				if(r.status){
+
+				}else{
+					alertWarning(r.info);
+				}
+			})
+		}
+		console.log(data);
+	})
+})
+</script>

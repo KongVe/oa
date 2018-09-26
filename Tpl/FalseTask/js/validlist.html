@@ -1,0 +1,27 @@
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	// ace.settings.sidebar_collapsed(true);
+
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}
+
+})
+
+
+
+
+function add(){
+	$("#middleBoxIframe").attr("src","<?php echo U("edit"); ?>?_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+
+function edit(id){
+	$("#middleBoxIframe").attr("src","<?php echo U("edit"); ?>?id="+ id +"&_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+
+</script>

@@ -1,0 +1,477 @@
+	<layout name='Layout/ace_layout' />
+<form name="form_search" action="{:U("")}" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">{$title}</h1>
+	<div class="col-sm-10">
+		<div class="col-sm-12">
+
+			<div class="col-sm-3">
+				<div class="col-sm-4">
+					区域<br>
+					<select class="form-control" id="region_select" name="region_id" onchange="ajaxGetChildrenList($(this).val(),'shelf','region');"></select>
+				</div>
+				<div class="col-sm-4">
+					货架<br>
+					<select class="form-control" id="shelf_select" name="shelf_id" onchange="ajaxGetChildrenList($(this).val(),'place','shelf');"></select>
+				</div>
+				<div class="col-sm-4">
+					货架位置<br>
+					<select class="form-control" id="place_select" name="place_id"></select>
+				</div>
+			</div>
+
+			<div class="col-sm-3">
+				<div class="input-group">
+					<span class="input-group-addon">
+						最后入库
+					</span>
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="last_instock_time" id="last_instock_time" value="{$Think.request.last_instock_time}"   placeholder="最后入库时间">
+				</div>
+			</div>
+
+			<div class="col-sm-3">
+				<div class="input-group">
+					<span class="input-group-addon">
+						最后使用
+					</span>
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="last_use_time" id="last_use_time" value="{$Think.request.last_use_time}"   placeholder="最后使用时间">
+				</div>
+			</div>
+
+			<div class="col-sm-3">
+				<div class="input-group">
+					<span class="input-group-addon">
+						库存序号
+					</span>
+					<input class="form-control" type="text" id="id" name="id" value="{$Think.request.id}"  placeholder="库存序号, 英文逗号分隔" />
+				</div>
+			</div>
+		</div>
+
+		
+
+		<div class="col-xs-2">
+			<div class="input-group">
+				<span class="input-group-addon">
+					亚马逊编码
+				</span>
+				<input class="form-control" type="text" id="amz_code" name="amz_code" value="{$Think.request.amz_code}"  placeholder="FBA条码或ASIN" />
+			</div>
+		</div>
+
+		
+
+		<div class="col-sm-2">
+			<div class="input-group">
+				<span class="input-group-addon">
+					SKU序号
+				</span>
+				<input class="form-control" type="text" id="sku_id" name="sku_id" value="{$Think.request.sku_id}"  placeholder="SKU序号, 英文逗号分隔" />
+			</div>
+		</div>
+
+		<div class="col-sm-4">
+			<div class="input-group">
+				<span class="input-group-addon">
+					商品简述
+				</span>
+				<input class="form-control" type="text" id="parent_sku_q" name="parent_sku_q" value="{$Think.request.parent_sku_q}"  placeholder="商品简述" />
+			</div>
+		</div>
+
+		<div class="col-sm-3">
+			<div class="input-group">
+				<input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="搜索 规格SKU,SKU名称"/>
+				<span class="input-group-btn">
+					<button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-125 icon-search"></i> </button>
+				</span>
+			</div>
+		</div>
+
+	</div>
+</div>	
+
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			当前页面总数: 系统: {$quantity_total_list.quantity} 个 可用: {$quantity_total_list.available_quantity} 个 预留: {$quantity_total_list.reserved_quantity} 个
+		</div>
+
+		<div class="btn-group">
+			<notempty name="is_check_stock">
+				<eq name="is_check_stock" value="Yes">
+					<a class="closeCheckStock btn btn-sm btn-danger">关闭盘仓模式</a>
+				</eq>
+				<b>{$check_user_data.emp_name} 盘仓中</b>
+			<else/>
+				<a class="startCheckStock btn btn-sm btn-info">开始盘仓模式</a>
+			</notempty>
+
+		</div>
+
+		<div class="btn-group" id="showStockHistoryBtn" style="display:none;">
+			<a class="showStockHistoryList btn btn-sm btn-inverse">显示货架位历史SKU(卡顿10秒)</a>
+		</div>
+
+	
+		<!-- <div class="btn-group">
+			<label>
+                <input type="checkbox" class="ace input-lg" name="no_sale" value="1" <notempty name="Think.request.no_sale">checked="checked"</notempty> />
+                <span class="lbl">
+                    近1个月无销量
+                </span>
+            </label>
+		</div> -->
+		
+	</div>
+</div>
+
+<ul class="nav nav-tabs">
+	<?php 
+        if($_REQUEST['warehouse_id']){
+            $warehouse_id_select = $_REQUEST['warehouse_id'];
+        }else{
+            $warehouse_id_select = $warehouse_list[0]['id'];
+        }
+    ?>
+	<volist name="warehouse_list" id="warehouse">
+		
+		<li <eq name="warehouse.id" value="$_REQUEST['warehouse_id']">class="active"</eq> >
+			<a class="selectWarehouse" data-id="{$warehouse.id}" data-toggle="tab">{$warehouse.warehouse_name}<neq name="warehouse.warehouse_type" value="Local">(数据无效)</neq></a>
+		</li>
+	</volist>
+	<input type="hidden" id="warehouse_id" name="warehouse_id" value="{$_REQUEST['warehouse_id']}">
+</ul>
+<div class="message-container">
+	<table class="table table-hover table-bordered">
+		
+		<include file="Layout:title_v2"/>
+
+		<tbody class="tbody">
+		<volist name="list" id="vo">
+			<tr>
+				<td>
+					{$vo.id}
+				</td>
+				<td>
+					<a href="{$vo.thumbnail}" target="_blank" class="thumbnail"><img src="{$vo.thumbnail}" width="80"/></a>
+				</td>
+				<td>
+					<a href="{:U('V2SkuProduct/index')}?id={$vo.sku_id}" target="_blank">{$vo.sku}</a>
+				</td>
+				<td>
+					{$vo.sku_name}
+				</td>
+				<td>
+					<b>{$vo.quantity}</b> 个
+				</td>
+				<td>
+					<b style="color:red;">{$vo.available_quantity}</b> 个
+				</td>
+				<td>
+					<b>{$vo.reserved_quantity}</b> 个
+					<notempty name="vo.reserved_str">
+						<br>
+						<div style="cursor:pointer;" data-toggle="popover" class="blue"  data-content="{$vo.reserved_str}">查看预留</div> 
+						<!-- <div data-toggle="popover" class="blue"  data-content="<volist name="vo.reserved_list" id="reserved">{$reserved.from_type|L}: {$reserved.reserved_quantity} 个<br></volist>">查看预留</div> -->
+					</notempty>
+				</td>
+				<td style="max-width:450px">
+					<empty name="vo.place_data">
+						无
+					<else/>
+						<volist name="vo.place_data" id="p_d">
+							<div class="col-sm-12" style="min-height:30px;">
+								<div class="col-sm-5" title="入库时间:{$p_d.add_time|date="Y-m-d H:i:s",###}">
+									{$p_d.place_name}
+									<eq name="is_check_stock" value="Yes">
+										<eq name="p_d.is_check" value="No">
+											<a data-id="{$p_d.id}" data-type="Yes" class="changeCheckState btn btn-xs btn-defaul">&nbsp;盘&nbsp;</a>
+										<else/>
+											<a data-id="{$p_d.id}" data-type="No" class="changeCheckState btn btn-xs btn-defaul"><b>已盘</b></a>
+										</eq>
+
+										<notempty name="p_d.last_use_time">
+											<br>
+											最后使用:{$p_d.last_use_time|default=" "|date="y-m-d",###}
+										</notempty>
+									</eq>
+								</div>
+								<div class="col-sm-5" >
+									系统:<b>{$p_d.quantity}</b> | 可用:<b style="color:red;">{$p_d.available_quantity}</b> | 预留:<b>{$p_d.reserved_quantity}</b>
+								</div>
+								<div class="col-sm-2">
+									
+									<notempty name="p_d.available_quantity">
+										<a data-url="{:U('changeStockPlaceView')}?stock_id={$vo.id}&place_id={$p_d.place_id}" class="showBox btn btn-xs btn-inverse">移位</a>
+									</notempty>
+								</div>
+							</div>
+						</volist>
+					</empty>
+				</td>	
+				<if condition=" 1 OR isAdmin() ">
+					<td style="max-width:250px">
+						<empty name="vo.cost_data">
+							无
+						<else/>
+							<volist name="vo.cost_data" id="cost_d" key="cost_key">
+								<if condition="$cost_key Lt 6">
+									<div >
+										<div class="col-sm-7">
+											<b>
+												<?php
+													if($cost_d['cost']<=0){
+														echo 0;
+													}else{
+														echo round($cost_d['cost'] ,2);
+													}
+												?>
+											</b>元
+										</div> 
+										<div class="col-sm-5" >
+											<b style="color:red;">
+												{$cost_d.stock_cost_quantity}
+											</b>件
+										</div>
+									</div>
+								</if>
+							</volist>
+							<?php 
+								if(count($vo['cost_data'])-5>0){
+							?>
+								<button type="button" class="btn btn-link" data-toggle="collapse" data-target="#collaps_{$vo.id}">
+									显示剩下的<?php echo count($vo['cost_data'])-5; ?> 条
+								</button>
+								<div class="accordion" id="accordion2">
+								  	<div class="accordion-group">
+									    <div id="collaps_{$vo.id}" class="accordion-body collapse">
+									      	<div class="accordion-inner">
+									        	<volist name="vo.cost_data" id="cost_d" key="cost_key">
+													<if condition="$cost_key GT 5">
+														<div >
+															<div class="col-sm-7">
+																<b>
+																	<?php
+																		if($cost_d['cost']<=0){
+																			echo 0;
+																		}else{
+																			echo round($cost_d['cost'] ,2);
+																		}
+																	?>
+																</b>元
+															</div> 
+															<div class="col-sm-5" >
+																<b style="color:red;">
+																	{$cost_d.stock_cost_quantity}
+																</b>件
+															</div>
+														</div>
+													</if>
+												</volist>
+									      	</div>
+									    </div>
+								  	</div>
+								</div>
+							<?php
+								}
+							?>
+							
+						</empty>
+					</td>
+				</if>	
+				<td style="width:130px;">
+					<volist name="vo.owner_list" id="owner">
+						{$owner.owner_user_name|default="系统"} {$owner.stock_type|L} <b>{$owner.quantity}</b>
+						<br>
+					</volist>
+				</td>
+				<td>
+					{:date("y-m-d<bR>H:i:s",$vo[last_instock_time])}
+				</td>
+				<td>
+					<span class="V2EditMemo" data-field="memo" data-table-name="v2_stock" data-field-value="{$vo.id}"><pre>{$vo.memo}</pre></span>
+				</td>
+				<td style="width:200px;">
+					
+
+					<a data-url="{:U('stockChangeQuantityView')}?type=overflow&stock_id={$vo.id}&sku_id={$vo.sku_id}" class="showBox btn btn-sm btn-info">报溢</a>
+
+					<a data-url="{:U('stockChangeQuantityView')}?type=lose&stock_id={$vo.id}&sku_id={$vo.sku_id}" class="showBox btn btn-sm btn-danger">报损</a>
+
+					
+					<!-- <a data-url="{:U('stockChangeWarehouseView')}?stock_id={$vo.id}&sku_id={$vo.sku_id}" class="showBox btn btn-sm btn-primary">本地转仓</a> -->
+
+					<br>
+					<br>
+					
+					<a href="{:U('V2StockLog/index')}?stock_id={$vo.id}" class="btn btn-sm btn-warning" target="_blank">查看流水</a>
+
+					<if condition=" isAdmin() ">
+						<notempty name="vo.can_combine">
+							<a data-url="{:U('combineStockChooseSkuMapView')}?id={$vo.id}" class="showBox btn btn-sm btn-primary">合并</a>
+						</notempty>
+						
+						<lt name="vo.available_quantity">
+							<eq name="vo.is_virtual_sku" value="Yes">
+								<a data-url="{:U('splitStockView')}?id={$vo.id}" class="showBox btn btn-sm btn-inverse">拆分</a>
+							</eq>
+						</lt>
+						
+						<a data-url="{:U('changeStockChooseSkuView')}?id={$vo.id}" class="showBox btn btn-sm btn-info">转换</a>
+
+					</if>
+
+					<!-- <a data-url="{:U('changeStockOwnerUidView')}?id={$vo.id}" class="showBox btn btn-sm btn-info">改所属</a> -->
+
+				</td>
+
+			</tr>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div class="col-sm-12" style="height:300px;"></div>	
+</div>
+</form>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" width="200px"/></a>
+</div>
+<script type="text/javascript">
+//货架位
+<include file="V2StockPlace:getchildrenlistjs" />
+
+$(function(){
+
+	var choose_warehouse = {$_REQUEST['warehouse_id']|default="false"};
+	var choose_region = {$_REQUEST['region_id']|default="false"};
+	var choose_shelf = {$_REQUEST['shelf_id']|default="false"};
+	var choose_place = {$_REQUEST['place_id']|default="false"};
+
+	ajaxGetChildrenList(false,false,false,choose_warehouse);
+	ajaxGetChildrenList(choose_warehouse,'region','warehouse',choose_region);
+	ajaxGetChildrenList(choose_region,'shelf','region',choose_shelf);
+	ajaxGetChildrenList(choose_shelf,'place','shelf',choose_place);
+
+	setTimeout(showStockHistoryBtn,800);
+
+	$(".selectWarehouse").click(function(){
+		var id = $(this).data("id");
+		/*var id_bak = $("#warehouse_id").val();
+		if(id == id_bak){
+			return false;
+		}*/
+		if(!id){
+			alertWarning("缺少参数ID");
+			return false;
+		}
+		if($("#warehouse_id").length<=0){
+			alertWarning("缺少warehouse对象");
+			return false;
+		}
+		$("#warehouse_id").val(id);
+		$("#form_search").submit();
+	});
+
+	$(".changeCheckState").click(function(){
+		var id = $(this).data("id");
+		var type = $(this).data("type");
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('changeCheckState')}",{id:id,type:type},function(msg){
+			btn.button('reset');
+
+			if(msg.status){
+				if(type == "Yes"){
+					btn.html("<b>已盘</b>");
+					btn.data("type","No");
+				}else{
+					btn.html("&nbsp;盘&nbsp;");
+					btn.data("type","Yes");
+				}
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".startCheckStock").click(function(){
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('startCheckStock')}",{},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".closeCheckStock").click(function(){
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('closeCheckStock')}",{},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	
+	$('[data-toggle="popover"]').popover({
+	 	trigger:'click',
+	 	html:true,
+	 	placement:'bottom'
+	});
+
+	$("#shelf_select").change(showStockHistoryBtn);
+	$("#place_select").change(showStockHistoryBtn);
+
+	$(".showStockHistoryList").click(function(){
+		var shelf_select = $("#shelf_select").val();
+		var place_select = $("#place_select").val();
+		if(!shelf_select && !place_select){
+			alertWarning("请选择货架位");
+			return 1;
+		}
+		var url = "{:U('historyPlaceStockSkuIndex')}";
+		var data = {
+			shelf_select:shelf_select,
+			place_select:place_select
+		}; 
+		showBox();
+		tmpSendForm(url,data,"middleBoxIframe");
+
+	});
+});
+
+
+function showStockHistoryBtn(){
+	
+	if($("#shelf_select").val() || $("#place_select").val()){
+		$("#showStockHistoryBtn").show();
+	}else{
+		$("#showStockHistoryBtn").hide();
+	}
+}
+</script>

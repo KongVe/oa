@@ -1,0 +1,118 @@
+<layout name='Layout/ace_popup' />
+    {:W('PageHeader',array('name'=>"业绩提成用户关系编辑"))}
+
+    <form action="{:U('monthRequireSave')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+        <input type="hidden" id="ajax" name="ajax" value="1"/>
+
+		<input type="hidden" id="id" name="id" value="{$vo.id}">
+
+        <div class="panel panel-primary">
+            <div class="panel panel-heading">
+                <span>编辑信息</span>
+            </div>
+            <div class="panel-body">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">批量添加用户: </label>
+                            <div class="col-sm-9">
+                                <select name="owner_uid[]" id="owner_uid" style="width:350px;" multiple="multiple">
+                                    <option value="">请选择所属用户</option>
+                                    <volist name="user_list" id="user">
+                                        <option value="{$user.id}" <eq name="user.id" value="$vo.owner_uid">selected="selected"</eq> >{$user.show_name}</option>
+                                    </volist>
+                                </select>
+                            </div>
+                        </div>
+                    </div>  
+
+
+					<div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="month_time">月份: </label>
+                            <div class="col-sm-4">
+                                <input class="form-control" type="month" id="month_time" name="month_time" value="{$vo.month_time|default=""|date="Y-m",###}" placeholder="月份" check="require" msg="请输入月份">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="real_sale_require">业绩要求(CNY): </label>
+                            <div class="col-sm-4 input-group">
+                                <input class="form-control" type="number" id="real_sale_require" name="real_sale_require" value="{$vo.real_sale_require|default="0"}" placeholder="业绩要求(CNY)">
+                                <div class="input-group-addon">
+                                    元
+                                </div>
+                                <div class="help-block">
+                                    0 为不限
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="other_performance_finished_rate1">其它影响率1: </label>
+                            <div class="col-sm-4">
+                                <input class="form-control" type="number" id="other_performance_finished_rate1" name="other_performance_finished_rate1" value="{$vo.other_performance_finished_rate1|default="1"}" placeholder="其它影响率1" check="require" msg="请输入其它影响率1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="other_performance_finished_rate2">其它影响率2: </label>
+                            <div class="col-sm-4">
+                                <input class="form-control" type="number" id="other_performance_finished_rate2" name="other_performance_finished_rate2" value="{$vo.other_performance_finished_rate2|default="1"}" placeholder="其它影响率2" check="require" msg="请输入其它影响率2">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="other_performance_finished_rate3">其它影响率3: </label>
+                            <div class="col-sm-4">
+                                <input class="form-control" type="number" id="other_performance_finished_rate3" name="other_performance_finished_rate3" value="{$vo.other_performance_finished_rate3|default="1"}" placeholder="其它影响率3" check="require" msg="请输入其它影响率3">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="other_performance_finished_rate3">其它影响率4: </label>
+                            <div class="col-sm-4">
+                                <input class="form-control" type="number" id="other_performance_finished_rate4" name="other_performance_finished_rate4" value="{$vo.other_performance_finished_rate4|default="1"}" placeholder="其它影响率4" check="require" msg="请输入其它影响率4">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="other_performance_finished_rate5">其它影响率5: </label>
+                            <div class="col-sm-4">
+                                <input class="form-control" type="number" id="other_performance_finished_rate5" name="other_performance_finished_rate5" value="{$vo.other_performance_finished_rate5|default="1"}" placeholder="其它影响率5" check="require" msg="请输入其它影响率5">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="panel-default">
+            <div class="form-group text-center">
+                <input type="button" data-loading-text="正在保存..." data-close="1" data-reload="1" class="defaultEditFormSubmit btn btn-primary" value="保存" />
+                <a class="close_box_button btn btn-danger">取消</a>
+            </div>
+        </div>
+    
+    </form>
+
+
+<script type="text/javascript">
+$(function($){
+
+    $("#owner_uid").select2();
+});
+</script>

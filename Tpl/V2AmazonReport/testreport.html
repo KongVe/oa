@@ -1,0 +1,121 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo intval(!$sort); ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="fba_shipmetn_id" id="fba_shipmetn_id" value="{$Think.request.fba_shipment_id}" />
+
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">FBA Package</h1>
+	<div class="col-sm-10 pull-right">
+			<div class="form-group col-sm-2 pull-left">
+				<div class="col-sm-12">
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="create_time" id="create_time" value="{$Think.request.create_time}"    readonly="readonly" placeholder="创建时间">
+				</div>
+			</div>				
+			<div class="input-group col-sm-6">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索 Shipment ID , Center ID"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div>
+	</div>
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a class="btn btn-sm btn-danger" href="{:U('V2AmazonFbaShipment/index')}" >返回</a>
+		</div>
+		<div class="btn-group">
+			<a class="btn btn-sm btn-primary showBox" data-url="{:U('boxSequence')}?fba_shipment_id={$Think.request.fba_shipment_id}" >安排</a>
+		</div>
+		<div class="btn-group">
+			<a class="btn btn-sm btn-success" href="{:U('declarationDetail')}?fba_shipment_id={$Think.request.fba_shipment_id}" >申报</a>
+		</div>
+		<div class="btn-group">
+			<a class="btn btn-sm btn-danger" id="btn_submit_transport_content" onclick="submitTransportContent()" >提交Amazon</a>
+		</div>
+		
+	</div>
+</div>
+<div class="message-container">
+	<table class="table table-striped table-hover">
+			<tbody class="tbody">
+			<volist name="previous_daily_inventory_list" id="previous_daily_inventory">
+				<tr>
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td>{$previous_daily_inventory.sku}</td>
+					<td>{$previous_daily_inventory.quantity}</td>
+					<td>
+						<b>Total: </b>{$previous_daily_inventory.previous_day_event_detail_total}<br>
+						<volist name="previous_daily_inventory.previous_day_event_detail_list" id="previous_day_event_detail">
+							{$previous_day_event_detail.transaction_type} : {$previous_day_event_detail.quantity} = {$previous_day_event_detail.disposition}<br>
+						</volist>
+					</td>
+					<td>
+						<b>Total: </b>{$previous_daily_inventory.latest_day_event_detail_total}<br>
+						<volist name="previous_daily_inventory.latest_day_event_detail_list" id="latest_day_event_detail">
+							{$latest_day_event_detail.transaction_type} : {$latest_day_event_detail.quantity} = {$latest_day_event_detail.disposition}<br>
+						</volist>
+					</td>		
+					<td>{$previous_daily_inventory.latest_daily_inventory.quantity}</td>		
+					<td>
+						<b>Total: </b>{$previous_daily_inventory.latest2_day_event_detail_total}<br>
+						<volist name="previous_daily_inventory.latest2_day_event_detail_list" id="latest_day_event_detail">
+							{$latest_day_event_detail.transaction_type} : {$latest_day_event_detail.quantity} = {$latest_day_event_detail.disposition}<br>
+						</volist>
+					</td>		
+					<td>{$previous_daily_inventory.latest2_daily_inventory.quantity}</td>								
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" height="300px" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+
+<div class="modal fade" id="editProduct" role="dialog"  tabindex="-1" aria-labelledby="editProductLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="editProductIframe" name="editProductIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<div class="business-report-box col-lg-12" id="business-report-box" style="position:fixed;top:138px;width:71%;z-index:1000;height:300px;left:30%;display:none;">
+	<iframe src="" id="business-report-iframe" frameborder="0" name="business-report-iframe" srolling="auto"  width="100%"></iframe>
+</div>
+
+
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox1" role="dialog"  tabindex="-1" aria-labelledby="bottomBox1Label" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBox1Iframe" name="bottomBox1Iframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<style>
+.showBottomBox{cursor: pointer;}
+</style>

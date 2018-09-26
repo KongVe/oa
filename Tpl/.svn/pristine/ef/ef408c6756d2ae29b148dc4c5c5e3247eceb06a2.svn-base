@@ -1,0 +1,12 @@
+<div class="btn-group">
+	<!-- <a onclick="$('#form_search').attr('action','{:U('statistics/product')}').submit()" class="btn btn-xs btn-danger" >产品销量统计</a> -->
+</div>
+<div class="btn-group">
+	<a onclick="$('#form_search').attr('action','{:U('statistics/index')}').attr('target','_blank').submit()" class="btn btn-xs btn-danger" >订单销量统计</a>
+</div>
+<div class="btn-group">
+	<a onclick="$('#form_search').attr('action','{:U('statistics/chartByPrice')}').attr('target','_blank').submit()" class="btn btn-xs btn-danger" >销售额统计</a>
+</div>
+<div class="btn-group">
+	<a onclick="$('#form_search').attr('action','{:U('statistics/chartByProfit')}').attr('target','_blank').submit()" class="btn btn-xs btn-danger" >利润统计</a>
+</div>

@@ -1,0 +1,84 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo intval(!$sort); ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="id" value="{$Think.request.id}" />
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">海外仓库存</h1>
+	<div class="col-sm-10 pull-right">		
+			<div class="input-group col-sm-6">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索 ASIN SKU FNSKU"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div>
+	</div>
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a class="btn btn-sm btn-danger" id="btn_clearCache" onclick="clearCache()" >更新</a>
+		</div>
+		<div class="btn-group">
+			总成本：￥{$cost_total}
+		</div>
+	</div>
+</div>
+<div class="message-container">
+	<table class="table table-striped table-hover col-sm-6">
+		 	<tr>
+		 		<th width=200>ASIN</th>
+		 		<th width=200>产品</th>
+		 		<th width=200>数量</th>
+		 		<th width=200>所属用户</th>
+		 		<th width=200>重量</th>
+		 		<th>成本</th>
+
+		 	</tr>
+			<tbody class="tbody">
+			<volist name="list" id="vo">
+				<tr>
+					<td>
+						<a href="{:U('AmazonSellyours/index')}?id={$vo.sellyours.id}" target="_blank">{$vo.sellyours.asin}</a><br>
+						{$vo.sellyours.sku}<br>
+						{$vo.goods_sn}
+					</td>
+					<td>
+						<a href="{$vo.sellyours.thumbnail}" target="_blank" class="thumbnail"><img src="{$vo.sellyours.thumbnail}" width="60" /></a>
+						<a href="http://www.amazon.com/gp/product/{$vo.sellyours.asin}" target="_blank" title="{$vo.sellyours.product_name}"><?php echo substr($vo['sellyours']['product_name'], 0,15) . "..."; ?></a>
+					</td>
+					<td>
+						<?php if($vo['pending_goods_qty'] > 0){ ?>
+							{$vo.goods_qty} - {$vo.pending_goods_qty} = <?php echo $vo['goods_qty'] - $vo['pending_goods_qty']; ?>
+						<?php }else{ ?> 
+							{$vo.goods_qty}
+						<?php } ?>
+						
+					</td>
+					<td>{$vo.owner}</td>
+					<td>{$vo.sellyours.real_package_weight}g</td>
+					<td>￥<span class="editStatic" field="price1" onclick="editStatic(this,'{:U('modifyPrice1')}?id={$vo.id}','textarea')">{$vo.price1|default=0}</span></td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+</div>
+</form>
+<script type="text/javascript">
+jQuery(function($){
+
+
+
+});
+
+function clearCache(){
+	$.get("{:U('clearCache')}",function(r){
+		if(r.status){
+			$("#form_search").submit();
+		}else{
+			alertWarning(r.info);
+		}
+	})
+}
+</script>

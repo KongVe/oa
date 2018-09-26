@@ -1,0 +1,281 @@
+<layout name='Layout/ace_layout' />
+
+<script type="text/javascript">
+	window.jQuery || document.write("<script src='__PUBLIC__/assets/js/jquery-1.9.1.min.js'><\/script>");
+</script>
+<link rel="stylesheet" href="__PUBLIC__/assetsv2/css/select2.css"  />
+<script type="text/javascript" src="__PUBLIC__/assetsv2/js/select2/select2.js"></script>
+
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<!-- <input type="hidden" name="id" value="{$Think.request.id}" /> -->
+<div class="page-header clearfix">
+	<h1 class="col-sm-4">包裹审核<?php if($_REQUEST['choose']){ echo "(每次50单)"; } ?></h1>
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+
+		<div class="btn-group">
+			<a class="btn btn-info btn-sm reviewPackageSubmit" data-loading-text="正在提交" onclick="reviewPackageSubmit()">提交审核</a>
+		</div>
+		<div class="btn-group">
+			<a class="btn btn-info btn-sm" onclick="if($('#message-container').css('width')!='1800px')$('#message-container').css('width','1800px');else $('#message-container').css('width','100%');">切换显示宽度</a>
+		</div>
+
+		<div class="btn-group">
+			<a data-url="{:U('ProductCategory/productTypeContral')}" class="showBox btn btn-danger btn-sm">申报名称管理</a>
+		</div>
+		
+		<div class="btn-group">
+			<div id="syncCK1"></div>
+			<div id="progress"></div>
+		</div>
+		
+		<div class="btn-group">
+			<div>
+				批量改成:
+				<select id="change_express_type">
+					<volist name="expressTypeList" id="expressType">
+						<option value="{$expressType.express_type}">{$expressType.express_type} {$expressType.express_name}</option>
+					</volist>
+				</select>
+				<a onclick="changeAllExpressTypeSelect(1);" class="btn btn-danger btn-sm">本页</a>
+				<a onclick="changeAllExpressTypeSelect();" class="btn btn-primary btn-sm">所选</a>
+			</div>
+		</div>	
+		<div class="btn-group">
+			<div class="error">&nbsp;&nbsp;注意：aliexpress只支持中邮挂号和香港小包挂号。</div>
+		</div>	
+	<!-- 	<div class="btn-group">
+			<div class="text-danger">&nbsp;&nbsp;自定义申报名称请填入对应的英文和中文</div>
+		</div>	 -->
+	</div>
+</div>
+<div class="message-container" id="message-container" style="width:1800px;">
+	<table class="table table-striped table-hover table-condensed" style="font-size:13;">
+		
+			<tr>
+				<th style="">
+					<input class="ace" type="checkbox" name="id-toggle-all" id="id-toggle-all" />
+					<span class="lbl"></span>
+					<!-- 订单ID -->
+				</th>
+				<th>包裹号</th>
+				<th>订单ID</th>
+				<th>单价</th>
+				<th>图片</th>
+				<th>平台</th>
+				<th>申报名称</th>
+				<th>物流渠道|关联国家</th>
+				<th>国家</th>
+				<th>姓名</th>
+				<th>邮编</th>
+				<th>街道地址1</th>
+				<th>街道地址2</th>
+				<th>城市</th>
+				<th>州</th>
+				<th>电话</th>
+				
+			</tr>
+			<tbody class="tbody">
+			<volist  name="packageList" id="package" key='ii'>
+				<tr id="tr_{$package.id}">
+					<td>
+						<label class="inline pull-left">
+							<if condition="$package.shipping_country neq 'United States'">
+							</if>
+								
+
+							<?php 
+								//HBM香港小包平邮默认不选
+								if($package['sku_express_type']=='HBM' || $package['express_type']=='HBM'){
+							?>
+								<input class="ace" type="checkbox" name="packageId[]" value="{$package.packageId}" />
+							<?php
+								}else{
+							?>
+									<input class="ace" type="checkbox" name="packageId[]" value="{$package.packageId}" checked="checked" />
+							<?php
+								}
+							?>
+							
+							<span class="lbl"></span>
+							
+						</label>
+					</td>
+					<td style="word-break:break-all;min-width:60px;">
+						<!-- <span id="package_code_{$package.id}" class="editStatic" field="package_code" onclick="editStatic(this,'{:U('OrderPackage/save')}?id={$package.packageId}','textarea')">{$package.package_code}</span>
+						 -->
+						<span id="package_code_{$package.id}" class="editStatic" field="package_code">{$package.package_code}</span>
+						
+						<input type="hidden" name="package_code[{$package.packageId}]" value="{$package.package_code}"> 
+					</td>
+					<td>
+						{$package.order_auto_id}
+						<input type="hidden" class="order_auto_id" value="{$package.order_auto_id}" />
+						
+					</td>
+					<td>{$package.price_sum}</td>
+					<td height="60px" width="120px">
+
+						<?php
+							foreach ($package['productImg'] as $img_k => $img_v) {
+						?>
+								<a href="{$img_v['productLink']}" target="_blank" class="thumbnail" style="display: inline-block;">
+									<img src="{$img_v['img']}"  title="{$img_v['productName']}" style="height:60px;max-width:" >
+								</a>
+									<b>{$img_v['sku']} *<?php if($img_v['quantity']>1){
+										echo "<b style='color:red;'>".$img_v['quantity']."</b>";
+									}else{
+										echo $img_v['quantity'];
+									}
+										?></b>
+								
+						<?php
+							}
+						?>
+
+					</td>
+					<td class="success" style="">
+						<span>{$package.website}<br>=><br>{$package.account_name}</span>
+					</td>
+					<td  style="max-width:150px;" class="<eq name='package.product_type' value="">danger</eq> ">
+						<div class="form-group <eq name="declare_name" value="false">has-error</eq> ">
+
+							<select style="width:100%;" id="select_declare_name{$package.packageId}" data-package-id="{$package.packageId}" onchange="changeDeclareName({$package.packageId})" class="select_declare_name" data-sku="{$package.sku_list}">
+								<volist name="productTypeList" id="productType">
+									<option value="{$productType['product_type']}" <eq name="package.product_type" value="$productType['product_type']">selected</eq> >{$productType['product_type']}({$productType['product_type_name_cn']})</option>
+								</volist>
+							</select>
+
+							<input type="hidden" id="declare_name_{$package.packageId}" name="declare_name[{$package.packageId}]"  class="form-control" value="{$package.product_type|default="Apparel"}" placeholder="自定英文申报名称" >
+
+							<!-- <input type="text" name="declare_name_cn[{$package.packageId}]"  class="form-control" value="{$package.product_type_name_cn|default="服装"}" placeholder="自定中文名称" > -->
+
+							<input type="hidden" name="sku_list[{$package.packageId}]" value="{$package.sku_list}"/>
+						</div>
+					</td>
+
+					
+
+					<td style="width:160px;" class="<eq name='package.express_type' value=''>danger</eq>">
+						<div class="input-group <eq name='package.express_type' value=''>has-error</eq> ">
+							<select name="express_type[{$package.packageId}]" id="express_type_{$package.packageId}" class="express_type">
+								<option value=""  <eq name="package.express_type" value="false">selected</eq> >该国还没选</option>
+
+								<volist name="expressTypeList" id="expressType">
+									<?php
+										if($expressType['express_type'] == 'NLR' && $package['website'] == 'aliexpress'){
+											continue;
+										}
+									?>
+									<option value="{$expressType.express_type}"  
+										<?php 
+											//sku_express_type 优先级比较高 //还要根据国家来映射，暂时先不做
+											if($package['sku_express_type']==$expressType['express_type']){
+												echo " selected";
+											}elseif(!$package['sku_express_type'] and $package['express_type']==$expressType['express_type']){
+												echo " selected";
+											}
+										?>
+									>{$expressType.express_type} {$expressType.express_name}</option>
+								</volist>
+							</select>
+
+							<div class="input-group-btn btn-group-vertical">
+								<a class="btn btn-inverse btn-xs" title="该国家的所有包裹默认发此物流" data-country="{$package.shipping_country}" onclick="changeExpressType(this,'express_type_{$package.packageId}')" >国绑</a>
+
+								<a class="btn btn-primary btn-xs" title="该平台帐号的指定产品所有国家默认发此物流" data-country="{$package.shipping_country}" onclick="changeSkuExpressType(this,'{$package.website}',{$package.account_id},'{$package.account_name}','{$package.sku_list}','express_type_{$package.packageId}',{$package.packageId})" >全绑</a>
+
+								<a class="btn btn-info btn-xs" title="该平台帐号的指定国家的指定产品默认发此物流" data-country="{$package.shipping_country}" onclick="changeSkuExpressType(this,'{$package.website}',{$package.account_id},'{$package.account_name}','{$package.sku_list}','express_type_{$package.packageId}',{$package.packageId},'{$package.country_code}')" >专绑</a>
+								<notempty name="package.sku_express_type">
+									<!-- <a class="btn btn-danger btn-xs" title="该平台帐号的指定国家的指定产品默认发此物流" data-country="{$package.shipping_country}" onclick="delSkuExpressType(this,'{$package.website}',{$package.account_id},'{$package.account_name}','{$package.sku_list}','express_type_{$package.packageId}',{$package.packageId})" >删绑</a> -->
+
+									<a class="btn btn-inverse btn-xs" onclick="viewSkuExpressType(this,'{$package.website}',{$package.account_id},'{$package.account_name}','{$package.sku_list}','{$package.country_code}')" >查看</a>
+								</notempty>
+							</div>
+						</div>
+						<div class="text-info">
+							备注: {$package.memo}
+						</div>
+					</td>
+					<td class="success" style="">
+						<span class="shipping_country" field="shipping_country" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$package.order_auto_id}','textarea')">{$package.shipping_country}</span>
+					</td>
+					<td <?php if( (strlen($package['shipping_first_name'])+strlen($package['shipping_last_name']))>50 )echo 'class="danger"';else echo 'class="warning"'; ?> >
+						<span class="editStatic" field="shipping_first_name" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$package.order_auto_id}','textarea')"><empty name="package.shipping_first_name">&nbsp;<else />{$package.shipping_first_name}</empty></span>&nbsp;<span class="editStatic" field="shipping_last_name" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$package.order_auto_id}','textarea')">{$package.shipping_last_name}</span>
+					</td>
+					<td style="min-width:50px;">
+						<span class="shipping_zipcode" field="shipping_zipcode" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$package.order_auto_id}','textarea')">{$package.shipping_zipcode}</span>
+					</td>
+					<td <?php if( (strlen($package['shipping_street_address_1'])+strlen($package['shipping_street_address_2']))>80 )echo 'class="danger"';else echo 'class="warning"'; ?>  style="max-width:10%">
+						<span class="shipping_street_address_1" field="shipping_street_address_1" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$package.order_auto_id}','textarea')"><empty name="package.shipping_street_address_1">&nbsp;<else />{$package.shipping_street_address_1}</empty></span>
+					</td>
+					<td <?php if( (strlen($package['shipping_street_address_1'])+strlen($package['shipping_street_address_2']))>80 )echo 'class="danger"';else echo ''; ?> style="max-width:10%">
+						<span class="shipping_street_address_2" field="shipping_street_address_2" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$package.order_auto_id}','textarea')"><empty name="package.shipping_street_address_2">&nbsp;<else />{$package.shipping_street_address_2}</empty></span>
+					</td>
+					<td <?php if( strlen($package['shipping_city'])>50 )echo 'class="danger"'; ?> style="">
+						<span class="shipping_city" field="shipping_city" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$package.order_auto_id}','textarea')"><empty name="package.shipping_city">&nbsp;<else />{$package.shipping_city}</empty></span>
+					</td>
+					<td <?php if( strlen($package['shipping_state'])>50 )echo 'class="danger"'; ?> style="">
+						<span class="shipping_state" field="shipping_state" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$package.order_auto_id}','textarea')"><empty name="package.shipping_state">&nbsp;<else />{$package.shipping_state}</empty></span>
+					</td>
+					
+					<td style="word-break:break-all;min-width:60px;" <?php if( strlen($package['shipping_phone'])>30 )echo ' class="danger"'; ?> >
+						<span class="shipping_phone" field="shipping_phone" onclick="editStatic(this,'{:U('OrderDetail/save')}?id={$package.order_auto_id}','textarea')"><empty name="package.shipping_phone">&nbsp;<else />{$package.shipping_phone}</empty></span>
+					</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>
+
+	<div class="operate panel panel-default">
+		<div class="panel-body">
+			
+		
+
+			<div class="btn-group">
+				<a class="btn btn-info btn-sm reviewPackageSubmit" onclick="reviewPackageSubmit()">提交审核</a>
+			</div>
+			<div class="btn-group">
+				<a class="btn btn-info btn-sm" onclick="if($('#message-container').css('width')!='1800px')$('#message-container').css('width','1800px');else $('#message-container').css('width','100%');">切换显示宽度</a>
+			</div>
+			
+			
+		</div>
+	</div>
+
+
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" height="300px" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+
+</form>
+<div class="modal fade" id="editProduct" role="dialog"  tabindex="-1" aria-labelledby="editProductLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="editProductIframe" name="editProductIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox1" role="dialog"  tabindex="-1" aria-labelledby="bottomBox1Label" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBox1Iframe" name="bottomBox1Iframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+
+<script type="text/javascript">
+	$('.select_declare_name').select2();
+</script>

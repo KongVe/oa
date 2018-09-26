@@ -1,0 +1,264 @@
+<layout name='Layout/ace_popup' />
+    {:W('PageHeader',array('name'=>"编辑线上产品关联规则"))}
+
+    <form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+        <input type="hidden" id="ajax" name="ajax" value="1"/>
+
+        <if condition="$vo['id'] neq ''">
+            <input type="hidden" id="id" name="id" value="{$vo.id}">
+            <input type="hidden" id="opmode" name="opmode" value="edit">
+        <else/>
+            <input type="hidden" id="opmode" name="opmode" value="add">
+        </if>
+
+        <div class="panel panel-primary">
+            <div class="panel panel-heading">
+                <span>基本信息</span>
+            </div>
+            <div class="panel-body">
+                <notempty name="vo.thumbnail">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">图片</label>
+                            <div class=" col-sm-9">
+                                <a href="{$vo.thumbnail}" target="_blank" style="width:120px;">
+                                    <img src="{$vo.thumbnail}" />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </notempty>
+                <notempty name="vo.online_sku">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">线上SKU</label>
+                            <div class=" col-sm-9">
+                                {$vo.online_sku}
+                            </div>
+                        </div>
+                    </div>
+                </notempty>
+                <notempty name="vo.online_color">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">线上颜色</label>
+                            <div class=" col-sm-9">
+                                {$vo.online_color}
+                            </div>
+                        </div>
+                    </div>
+
+                </notempty>
+                <notempty name="vo.online_size">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2">线上尺码</label>
+                            <div class=" col-sm-9">
+                                {$vo.online_size}
+                            </div>
+                        </div>
+                    </div>
+                </notempty>
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2">平台: </label>
+                        <div class="col-sm-3">
+                            <empty name="vo.website_id">
+                                <select name="website_id" style="width:100%" class="select2_account select2" data-placeholder="选择平台" check="require" msg="请选择平台" >
+                                    <option value="">请选择平台</option>
+                                    <volist name="website_list" id="website">
+                                        <option value="{$website.id}" <?php
+                                            if( $website['id']==$vo["website_id"] ){ 
+                                                echo 'selected="selected"';
+                                            }
+                                        ?> >{$website.website}</option>
+                                    </volist>
+                                </select>
+                            <else/>
+                                {$website_data.website_name}
+                                <input name="website_id" type="hidden" value="{$vo.website_id}">
+                            </empty> 
+                        	
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2" for="online_product_id">线上Product ID: </label>
+                        <div class=" col-sm-9">
+                            <input class="form-control" type="text" id="online_product_id" name="online_product_id" value="{$vo.online_product_id}" check="require" msg="请输入线上Product ID" placeholder="线上Product ID" <notempty name="vo.online_product_id">readonly="readonly"</notempty> >
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2" for="online_variation_id">线上规格 ID: </label>
+                        <div class=" col-sm-9">
+                            <input class="form-control" type="text" id="online_variation_id" name="online_variation_id" value="{$vo.online_variation_id}" check="require" msg="请输入线上规格 ID" placeholder="线上规格 ID"   <notempty name="vo.online_variation_id">readonly="readonly"</notempty> >
+                        </div>
+                    </div>
+                </div>
+
+                
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2" for="sku_id">映射本地规格SKU: </label>
+                        <div class="col-sm-10">
+                            <input name="sku_id" id="sku_id" type="hidden" class="tag-input-style" style="width:100%;"  value="{$vo.sku_id}" check="require" msg="请输入本地规格SKU" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2" for="map_sku_memo">规则说明（选填）: </label>
+                        <div class="col-sm-10">
+                            <textarea name="map_sku_memo" id="map_sku_memo" class="form-control" placeholder="规则说明，可选填,200字符内">{$vo.map_sku_memo}</textarea>
+                            <span class="help-block red">
+                                规则说明，可选填，尽量言简意赅,200字符内<br>
+                                填写之后,根据这条规则处理的订单,将会显示该说明<br>
+                                <b>用例:</b>有个产品客户需要BS001A01 (XS码)，实际是没有XS这个码<br>
+                                需要以后的所有客户下XS这个码数时，仓库都默认修改商品实物上的码标为 BS001A02 (S码)<br>
+                                则映射本地规格填上SKU : BS001A02 (S码)<br>
+                                然后在这个规则说明里填写：<b> S码改成XS码发货</b><br>
+                                这样针对这个产品的这个XS规格，仓库默认都是配置S码的库存，然后直发发货时会将上的码标改为XS发
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2" for="map_sku_memo">说明图片（选填）: </label>
+                        <div class="col-sm-10">
+                            <input class="form-control thumbnail_clipboard" type="text" id="memo_thumbnail" name="memo_thumbnail"  value="{$vo.memo_thumbnail}" placeholder="说明图片URL（选填）" >
+                            <span class="help-block red">
+                                <b>规则说明</b>相关的图片，选填。可在QQ截图后直接在此处空白时粘贴
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2" for=""></label>
+                        <div class="col-sm-10" id="memo_thumbnail_show">
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <empty name="vo.id">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <label class="text-right col-sm-2" for="process_not_sku">处理关联订单: </label>
+                            <div class="col-sm-2">
+                                <input name="process_not_sku" class="form-control" id="process_not_sku" type="checkbox" value="1" checked="checked"/>
+                            </div>
+                            <div class="help-block red">
+                                同时处理相同线上产品规格的 无对应SKU 的订单。
+                            </div>
+                        </div>
+                    </div>
+                </empty>
+            </div>
+        </div>
+
+        <div class="panel-default">
+            <div class="form-group text-center">
+                <input type="button" data-loading-text="正在保存..."  class="editFormSubmit btn btn-primary" value="保存" />
+                <a class="close_box_button btn btn-danger">取消</a>
+            </div>
+        </div>
+    
+    </form>
+
+
+<script type="text/javascript">
+$(function($){
+    <empty name="vo.website_id">
+        $(".select2_account").select2();
+    </empty> 
+    
+
+    var init_data = {$sku_data|default=""|json_encode};
+    $('#sku_id').select2({
+        placeholder          : "请输入搜索SKU或SKU名称",
+        minimumInputLength   : 1,
+        multiple             : true,
+        // separator            : "",                          // 分隔符
+        maximumSelectionSize : 1,                               // 限制数量
+        initSelection        : function (element, callback) {   // 初始化时设置默认值
+            var data = [];
+            if(init_data.id>0){
+
+                data.push(init_data);
+                console.log(data);
+                callback(data);
+            }
+        },
+        // createSearchChoice   : function(term, data) {           // 创建搜索结果（使用户可以输入匹配值以外的其它值）
+        //     return { id: term, text: term };
+        // },
+        formatSelection : function (item) { return item.sku_text; },  // 选择结果中的显示
+        formatResult    : function (item) { return item.sku_text; },  // 搜索列表中的显示
+        ajax : {
+            url      : "{:U('V2SkuProduct/ajaxGetSkuProduct')}",              // 异步请求地址
+            dataType : "json",                  // 数据类型
+            data     : function (term, page) {  // 请求参数（GET）
+                return { q: term };
+            },
+            results      : function (data, page) {return {results:data.data}; },  // 构造返回结果
+            escapeMarkup : function (m) { return m; }               // 字符转义处理
+        }
+    });
+    
+
+    $(".editFormSubmit").click(function(){
+        if(!confirm("确认保存？")){
+            return false;
+        }
+        $("input").attr("disabled",null);
+        var data = $("#editForm").serialize();
+        var url = $("#editForm").attr("action");
+        
+        var btn = $(".editFormSubmit").button('loading');
+        var sku_bak = $("#parent_sku").attr("data-bak");
+
+        if (check_form("editForm")) {
+            sendForm("editForm", url,false,function(msg){
+                btn.button('reset');
+                if(msg.status == 2){
+                    //提交审核
+                    if(!confirm(msg.info)){
+                        return false;
+                    }else{
+                        var form_data = msg.data;
+                        tmpSendForm("{:U('V2AuditFlow/addView')}",form_data,"_self");
+                        return false;
+                    }
+                }else if(msg.status){
+                    parent.alertWarning(msg.info,1);
+                    parent.frames['bottomBoxIframe'].location.reload();
+                    closeBox();
+                }else{
+                    alertWarning(msg.info);
+                }
+            });
+        }else{
+            btn.button('reset');
+        }
+    });
+
+    $("#memo_thumbnail").change(function(){
+        var url = $(this).val();
+        $("#memo_thumbnail_show").html('<img src="'+url+'" style="width:80px;" />');
+    }).change();
+
+});
+	
+</script>

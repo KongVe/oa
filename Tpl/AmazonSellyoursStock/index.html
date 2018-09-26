@@ -1,0 +1,126 @@
+<layout name='Layout/ace_popup' />
+<div class="panel">
+	<form name="form_search" id="form_search" method="post">
+		<input   onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索 SKU , Variation"/>
+		<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+	</form>
+</div>	
+<form class="form" action="{:U('AmazonSellyoursStock/save')}" id="editForm" method='POST'>
+
+<table class="table">
+	<tr>
+		<td>ASIN</td>
+		<td>产品</td>
+		<td>库存SKU</td>
+		<td>库存图片</td>
+		<td>库存规格</td>
+		<td>库存数量</td>
+		<td>映射<input  id="selectAll" type="checkbox" style="width:20px; height:20px; cursor:pointer;" /></td>
+		<td>操作</td>
+	</tr>
+	<volist name="order_stock_list" id="vo">
+		<tr>
+			<td>{$sellyours.asin}</td>
+			<td><a href="{$sellyours.source_link}" target="_blank" class="thumbnail"><img src="{$sellyours.thumbnail}" width="60" /></a></td>
+			<td>{$vo.sku}
+				<?php /*<gt name="vo.sku_id"  value="0">
+					<br>
+					<a class="btn btn-primary" href="{:U('v2_online_product_map_sku/Edit')}?vo[website]={$sellyours.website_id}&vo[online_product_id]={$sellyours.asin}&vo[online_variation_id]={$sellyours.asin}&vo[sku_id]={$vo.sku_id}">V2添加</a>
+				</gt> */ ?>
+			</td>
+			<td><a href="{$vo.thumbnail}" target="_blank" class="thumbnail"><img src="{$vo.thumbnail}" width="60" /></a></td>
+			<td>{$vo.variation}</td>
+			<td id="stock_quantity_{$vo.id}">{$vo.quantity}</td>
+			<td><input class="map_checkbox" data-sellyours-id="{$sellyours.id}" data-order-stock-id="{$vo.id}" type="checkbox" name="map[{$sellyours.id}][{$sellyours.asin}][{$vo.id}]" <?php if($vo['mapped'] == true){ echo "checked"; } ?>  style="width:30px; height:30px; cursor:pointer;" /></td>
+			<td>
+			</td>
+		</tr>
+	</volist>
+</table>
+<div class="center">
+	<a class="btn btn-primary" id="submit">保存</a>
+	<a class="btn btn-danger" id="cancel">取消</a>
+</div>
+</form>
+
+<script type="text/javascript">
+
+$(function(){
+
+
+	$("#cancel").click(function(){
+		parent.$("#middleBox").modal("hide");	
+	})
+
+	$("#submit").click(function(){
+		$("#submit").attr("disabled",'disabled');
+		var data = $("#editForm").serialize();
+		var url = $("#editForm").attr("action");
+		$.post(url,data,function(r){
+			if(r.status){
+				parent.$("#middleBox").modal("hide");
+				parent.$("#form_search").submit();
+			}else{
+				alert(r.info);
+			}
+			$("#submit").attr("disabled",null);
+		});
+	})
+
+	$("#selectAll").click(function(){
+		/*$("input.map_checkbox").attr('checked',this.checked);
+		return false;*/
+		if(this.checked){
+			$("input.map_checkbox").each(function(){
+				$(this).attr("checked",true).click()
+			})
+		}else{
+			$("input.map_checkbox").each(function(){
+				$(this).attr("checked",false);
+			})
+		}
+	})
+
+	$(".map_checkbox").click(function(){
+		if(this.checked == false){
+			//删除映射
+			data = {
+				sellyours_id:$(this).attr("data-sellyours-id"),
+				order_stock_id:$(this).attr("data-order-stock-id")
+			}
+			$.post("{:U('unmap')}",data,function(r){
+				if(r.status){
+
+				}else{
+					alert(r.info);
+				}
+			})
+		}
+		console.log(data);
+	})
+})
+function shipStock(order_stock_id){
+	if(!window.confirm("确认要发货么？")){
+		return false;
+	}
+	var ship_quantity = parseInt($("#ship_stock_" + order_stock_id).val());
+	if(ship_quantity > 0){
+		data = {
+			ship_quantity:ship_quantity,
+			order_stock_id:order_stock_id
+		}
+		$("#use_stock_" + order_stock_id).attr("disabled","disabled");
+		$.post("{:U('OrderStock/shipStock')}",data,function(r){
+			if(r.status){
+				$("stock_quantity_" + order_stock_id).val(r.data.stock_quantity);
+			}else{
+				alert(r.info);
+			}
+			$("#use_stock_" + order_stock_id).attr("disabled",null);
+		})
+	}else{
+		alert("发货数量不能为0");
+		return false;
+	}
+}
+</script>

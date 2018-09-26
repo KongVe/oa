@@ -1,0 +1,297 @@
+<script type="text/javascript">
+var intervalName=new Array;        // 定时器句柄
+var tmpstate=1;	
+function getAccountNameList (website_name) {
+	$.post("{:U('OrderService/index')}",{website_name:website_name},function(data){
+		$("#AccountNameList").html("<option value='0'>请选择帐号名</option>");
+		for (var i = 0; i < data.length; i++) {
+			$("#AccountNameList").append("<option value='"+data[i].account_name+"'>"+data[i].account_name+"</option>");
+		}
+	});
+}
+
+function getWishIframe(account_name){
+	window.tmpstate=0;
+
+	if(window.intervalName){
+		for (var u = 0; u < window.intervalName.length; u++) {
+			clearInterval(window.intervalName[u])//取消定时器
+		}
+		window.intervalName=new Array;
+	}
+	
+	
+	//监测外网IP是否已被其它帐号使用
+	checkAccoutIp(account_name);//检查当前IP
+
+	//隐藏框架
+	$('#order-service-iframe').css("display","none");
+		
+	var website_name=document.getElementById('website_name').value;
+	$.post("{:U('OrderService/index')}",{account_name:account_name,w_Name:website_name},function(data){
+		
+		//document.getElementById('order-service-iframe').src='https://merchant.wish.com/login?next=%2Ftickets%2Faction_required';
+		//document.getElementById('order-service-iframe').height='1000px';
+
+		var diyIframe = document.getElementById("order-service-iframe"); 
+		diyIframe.src = "https://merchant.wish.com/login";
+
+
+		if (diyIframe.attachEvent){ 
+			diyIframe.attachEvent("onload", function(){ 
+				goOn(data);
+			}); 
+		}else{ 
+			diyIframe.onload = function(){ 
+				goOn(data);
+			}; 	
+		} 
+		document.getElementById('service-iframe').appendChild(diyIframe);
+		
+	});
+}
+function goOn(data){
+	var result = "";for(var i = data.pp.length; i > 0; i--){ result += data.pp.charAt(i-1);}
+	pp=result;
+	account=data.order_account;
+	var iframe = window.frames['order-service-iframe'];
+	var myForm = iframe.document.createElement("form");   
+  	myForm.method="POST"; 
+  	myForm.action = "https://merchant.wish.com/api/login" ;     
+    var myInput = document.createElement("input") ;   
+    myInput.setAttribute("name", "username") ;   
+    myInput.setAttribute("value", account); 
+    myForm.appendChild(myInput) ; 
+    var myInput2 = document.createElement("input") ;   
+    myInput2.setAttribute("name", "password") ;   
+    myInput2.setAttribute("value", pp);
+    myForm.appendChild(myInput2) ;    
+  	iframe.document.body.appendChild(myForm) ;   
+  	myForm.submit();
+
+ 	iframe.document.body.removeChild(myForm) ;
+ 	
+ 	window.accountName=account;
+ 	window.tmpstate=1;
+ 	var newIframe=document.getElementById('order-service-iframe');
+	
+	
+ 	if (newIframe.attachEvent){ 
+		newIframe.attachEvent("onload", function(){ 
+			newIframe.src="https://merchant.wish.com/tickets/action_required";
+			if (newIframe.attachEvent){ 
+				newIframe.attachEvent("onload", function(){		
+                    window.intervalName.push( setInterval(deleteInfo,280) );//循环执行
+				}); 
+			}else{ 
+				newIframe.onload = function(){ 					
+                    window.intervalName.push( setInterval(deleteInfo,280) );//循环执行
+				}; 	
+			}
+		}); 
+	}else{ 
+		newIframe.onload = function(){ 
+			newIframe.src="https://merchant.wish.com/tickets/action_required";
+			if (newIframe.attachEvent){ 
+				newIframe.attachEvent("onload", function(){			
+                    window.intervalName.push( setInterval(deleteInfo,280) );//循环执行
+				}); 
+			}else{ 
+				newIframe.onload = function(){ 
+					var intervalName;        // 定时器句柄
+                   	window.intervalName.push( setInterval(deleteInfo,280) );//循环执行
+				}; 	
+			}
+		}; 	
+	} 
+	
+}
+
+//每200毫秒执行一次
+function deleteInfo(){
+	var iframe = window.frames['order-service-iframe'];
+	if (typeof(iframe.$)  == 'undefined') {
+		console.log("no JQ");
+		return;
+	}
+	if(window.tmpstate==0){
+		return;
+	}
+	var iframe=window.frames['order-service-iframe'];
+	if(iframe.document.getElementById('header')){
+		
+		//var regx=/(Store|店)[:|：]\s*(.*)\s*<\/a/;
+		var regx=/data\-mid[\S\s]+?>\s*([\s\S]+?)\s*<\/li>/;
+		var rs=regx.exec(iframe.$('#header').html());
+		accountName =$.trim(rs[1].toLowerCase());
+		$('#accountName').html('当前操作帐号:'+accountName);
+		iframe.document.getElementById('header').parentNode.removeChild(iframe.document.getElementById('header'));
+
+	}
+	if(iframe.document.getElementById('sub-header-nav'))iframe.document.getElementById('sub-header-nav').parentNode.removeChild(iframe.document.getElementById('sub-header-nav'));
+	if(iframe.document.getElementById('footer'))iframe.document.getElementById('footer').parentNode.removeChild(iframe.document.getElementById('footer'));
+	if(iframe.document.getElementById('contact-user-voice'))iframe.document.getElementById('contact-user-voice').parentNode.removeChild(iframe.document.getElementById('contact-user-voice'));
+	
+	//禁止右键
+	iframe.$('body').attr('oncontextmenu',"window.event.returnValue=false");
+	//css
+	if(iframe.$('body').css('padding-bottom')!='0px'){
+		iframe.$('body').css('padding-bottom','0px');
+	}
+	if(iframe.$('body').css('padding-top')!='0px'){
+		iframe.$('body').css('padding-top','0px');
+	}
+	if(iframe.$('#page-content').css('margin-top')!='0px'){
+		iframe.$('#page-content').css('margin-top','0px');
+	}
+	if(iframe.$('#page-content').css('padding-bottom')!='0px'){
+		iframe.$('#page-content').css('padding-bottom','0px');
+	}
+	
+	//框架动态高度
+	$('#order-service-iframe').css('height',iframe.$('body').height()+100 );
+
+	//列表页
+ 	if(iframe.$('#tickets-page').html()!=null){
+		var viewList=iframe.$('.btn');
+		if(viewList){
+			for (var i = 0; i < viewList.length; i++) {
+				viewList[i].target='';		
+			} 
+		}
+	 	var length1=iframe.$('.ticket-id').length;
+	 	if(length1){
+		 	for (var j=0;j<length1;j++){
+		 		var p=iframe.$('.ticket-id')[0].parentNode;
+		 		var t=iframe.$('.ticket-id')[0].innerHTML;
+		 		var name_p=p.parentNode.children[3];
+		 		var name_text=p.parentNode.children[3].children[0].innerHTML;
+		 		p.innerHTML="";
+		 		p.innerHTML=t;
+		 		name_p.innerHTML="";
+		 		name_p.innerHTML=name_text;
+		 	}
+		}
+		
+	}
+
+	//view页面
+	if(iframe.$('#ticket-detail-page').html()!=null){
+		var length2=iframe.$('.contest-details-btn').length;
+		if(length2){
+			for(var h=0;h<length2;h++){
+				var product_text=iframe.$('.contest-details-btn')[0].innerHTML;
+				var product_p=iframe.$('.contest-details-btn')[0].parentNode;
+				product_p.removeChild(iframe.$('.contest-details-btn')[0]);
+				product_p.innerHTML=product_text;
+			}
+		}
+		//Merchant Name
+		if(iframe.$('.span4').eq(2).children().eq(2).attr('target')){
+			var merchant_p=iframe.$('.span4')[2].children[2].href="javascript:void(0)";
+			var merchant_p=iframe.$('.span4')[2].children[2].target="";
+		}
+
+		//Buyer User ID
+		if(iframe.$('.span4').eq(3).children().eq(2).attr('target')){
+			var merchant_p=iframe.$('.span4')[3].children[2].href="javascript:void(0)";
+			var merchant_p=iframe.$('.span4')[3].children[2].target="";
+		}
+
+		if(iframe.$('#appeal')[0]){
+			iframe.document.getElementById('appeal').parentNode.removeChild(iframe.document.getElementById('appeal'));
+		}
+
+		//Tracking Info
+		var length=iframe.$('#merchants-table a').length;
+		for (var i = 0; i < length; i++) {
+			iframe.$('#merchants-table a').eq(i).attr('href','javascript:void(0);');
+			iframe.$('#merchants-table a').eq(i).attr('target','');
+		};
+
+		if(iframe.$('.span4 order_link').html()===null){
+			var html=iframe.$('.span4').eq(1).html();
+			rs=/Txn ID:<\/strong>\s*([a-zA-Z0-9]*)\s*<br>/;
+			var txn_id=rs.exec(html);
+			if(txn_id!=null){
+				txn_id=txn_id[1];
+				var txn_id_link=iframe.$('.span4').eq(1).html().replace(txn_id, "<a class='order_link' href='{:U('OrderDetail/staffindex','',true,false,true)}?q="+txn_id+"' target='_blank' >"+txn_id+"</a>");
+				iframe.$('.span4').eq(1).html(txn_id_link);
+			}
+		}
+
+		//替换图片https头部
+		for (var i = 0; i < iframe.$('.ticket-info img').length; i++) {
+			var img_src=$.trim(iframe.$('.ticket-info img').eq(i).attr('src'));
+			if(img_src.indexOf('https')===0){
+				var new_img_src=img_src.replace('https','http');
+				iframe.$('.ticket-info img').eq(i).attr('src',new_img_src);
+			}
+
+		};
+	}
+
+
+	var htmlStr=iframe.$('.ticket-info').eq(0).html();
+	if(htmlStr!=null){
+		if(htmlStr.indexOf('wish') != "-1" && htmlStr.indexOf('Meeshine')=="-1"){
+			//console.log(222);
+			var new_html_str=htmlStr.replace(/(Wish|wish|WISH)/g,"Meeshine");
+			new_html_str=new_html_str.replace(/merchant.Meeshine.com\/ticket/g,"merchant.wish.com\/ticket");
+			iframe.$('.ticket-info').eq(0).html(new_html_str);
+			console.log('替换过'+htmlStr.indexOf('wish'));
+		}else{
+			//console.log('数量：'+htmlStr.indexOf('wish'));
+		} 
+		// var new_html_str=htmlStr.replace('https://s3-us-west-1.amazonaws.com/',"http://s3-us-west-1.amazonaws.com/");
+		// iframe.$('.ticket-info').eq(0).html(new_html_str);
+
+	}
+
+	
+
+	//判断跳转登陆页面http://local.smeoa/order_service/index
+	if($('.data-pt')){
+		iframe.src="https://merchant.wish.com/tickets/action_required";
+	}
+
+	
+	
+
+	//显示框架
+	if($('#order-service-iframe').css("display")!="block" ){
+		$('#order-service-iframe').css("display","block")
+	}
+}
+
+
+
+//监测外网IP是否已被其它帐号使用
+function checkAccoutIp(){
+	//console.log(document.cookie);
+	//console.log(getPcIp());
+}
+//
+function getPcIp(){
+	var IpIframe=window.frames['getIpIframe'];
+	var info=IpIframe.document.body.children[0].innerHTML;
+	var reg=/\d+\.\d+\.\d+\.\d+/;
+	var ip=reg.exec(info);
+	return ip;
+}
+
+// function getElementsByClassName(n,iframe) {
+
+//     var classElements = [];
+//     allElements = iframe.document.getElementsByTagName('*');
+//     for (var i=0; i< allElements.length; i++ )
+//     {
+//         if (allElements[i].className == n ) {
+//            classElements[classElements.length] = allElements[i];
+//             //allElements[i].click();
+//         }
+//     }
+// 	return classElements;
+// }
+
+</script>

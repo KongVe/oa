@@ -1,0 +1,34 @@
+<layout name='Layout/m_ace_layout' />
+<div class="content-block-title">详情</div>
+  <div class="list-block">
+    <ul>
+
+    </ul>
+</div>
+<script type="text/javascript">
+	var filter_list = {$filter_list|default=""|json_encode};
+	var config_data = {$config_data|default=""|json_encode};
+	$(function(){
+serch_list();
+	})
+	function get_list(post_list){
+		$.post(config_data.search_url,post_list,function(data,s){
+
+			if(data.status == 0){
+				$.showPreloader(data.info)
+				setTimeout(function () {
+					$.hidePreloader();
+				}, 2000);
+				return false;
+			}
+			push_all_list = data;
+			re_form()
+			$.closePanel()
+			$.showPreloader('正在加载') 
+			$('#card-list').empty();
+			list_push(data)
+			$.hidePreloader()
+			$(document).off('infinite')
+		});
+	}
+</script>

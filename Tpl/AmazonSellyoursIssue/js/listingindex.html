@@ -1,0 +1,106 @@
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	//ace.settings.sidebar_collapsed(true);
+
+	 $('[data-toggle="popover"]').popover({
+	 	trigger:'hover focus',
+	 	html:true,
+	 	placement:'left'
+	 })
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+	 $(".createTransferPlanQuantity").change(function(){
+	 	data = {
+	 		id:$(this).data("issue-id"),
+	 		transfer_quantity:$(this).val(),
+	 	}
+	 	$.post("{:U('updatePlanTransferQuantity')}",data,function(r){
+	 		if(r.status){
+	 			window.location.reload();
+	 		}else{
+	 			alertWarning(r.info);
+	 		}
+	 	})
+	 });
+
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}
+
+	//updateStock();
+})
+
+function generateShipPlanAudit(){
+	$("#btn_ship_plan").attr("disabled",'disabled');
+	var vars = $(".tbody input[type=checkbox]").serialize();
+	$.post("{:U('AmazonFbaPlan/getShipPlanAudit')}",vars,function(r){
+		$("#btn_ship_plan").attr("disabled",null);
+		if(r.status){
+			if(r.data.title){
+				showBox('middleBox');
+				tmpSendForm("{:U('V2AuditFlow/addView')}",r.data,'middleBoxIframe');
+			}else{
+				alert(r.info);
+			}
+		}else{
+			alertWarning(r.info);
+		}
+	})	
+}
+
+function generateShipPlan(){
+	
+	$("#btn_ship_plan").attr("disabled",'disabled');
+	var vars = $(".tbody input[type=checkbox]").serialize();
+	$.post("{:U('AmazonFbaPlan/generateShipPlan')}",vars,function(r){
+		if(r.status){
+			target_html = '<form action="<?php echo U("AmazonFbaPlan/index"); ?>" target="_blank" method="POST"></form>';
+			$(target_html).submit();
+		}else{
+			alertWarning(r.info);
+		}
+		$("#btn_ship_plan").attr("disabled",null);
+	})
+}
+
+
+
+function edit(id){
+	$("#middleBoxIframe").attr("src","<?php echo U("AmazonSellyoursIssue/edit"); ?>?id="+ id +"&_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+function getStockMapList(sellyours_id){
+	$("#middleBoxIframe").attr("src","<?php echo U("AmazonSellyoursStock/index"); ?>?sellyours_id=" +sellyours_id+ "&_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+
+</script>

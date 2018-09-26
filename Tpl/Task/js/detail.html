@@ -1,0 +1,35 @@
+<script type="text/javascript">
+	
+	function cancelTask() {
+		if(confirm('确认取消?')){
+			$("#ajax").val(1);
+			if (check_form("form_data")) {
+				sendForm("form_data", "{:U('cancelTask')}","{:U('detail?task_id='.$info['id'])}");
+			}
+		}
+			
+	}
+	function actionTask(task_id){
+		if(confirm('确认开始该任务？')){
+			$("#ajax").val(1);
+			if (check_form("form_data")) {
+				sendForm("form_data", "{:U('actionTask')}",'',function(msg){
+					alert(msg.info);
+					if(msg.status){
+						parent.location.reload();	
+					}
+				});
+			}
+		}
+	}
+
+	function showBox(url){
+		parent.$("#bottomBoxIframe").attr("src",url+"?_" + Math.round(new Date().getTime()/1000));
+		parent.$("#bottomBox").modal("show");
+	}
+
+	function closeBox(){
+		parent.$("#bottomBox").modal("hide");
+		location.reload();
+	}
+</script>

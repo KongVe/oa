@@ -1,0 +1,110 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('save')}" method="POST" name="sourceForm" id="sourceForm" class="well form-horizontal clearfix">
+		<input type="hidden" name="id" value="{$data.id}">	
+		<input type="hidden" name="opmode" value="{$data.opmode}" >
+		<if condition="$data.id !=''">
+			<input type="hidden" name="sku" id="sku" value="{$data.sku}" >
+		</if>
+		<div class="form-group">
+			<label class="control-label" for="name">货源简称</label>
+			<select name="name" class="form-control" check="require" msg="请选择货源">
+				<option value="" >选择货源</option>
+				<option value="17zwd" <eq name="data.name" value="17zwd">selected</eq> >17zwd</option>
+				<option value="guangzhou_shoes" <eq name="data.name" value="guangzhou_shoes">selected</eq> >guangzhou_shoes</option>
+				<option value="1688" <eq name="data.name" value="1688">selected</eq> >1688</option>
+				<option value="taobao" <eq name="data.name" value="taobao">selected</eq> >taobao</option>
+				<option value="go2" <eq name="data.name" value="go2">selected</eq> >go2</option>
+				<option value="571xz" <eq name="data.name" value="571xz">selected</eq> >571xz</option>
+			</select>
+			<span class="help-block">货源名称，比如说17zwd，1688，陈奇雄，go2</span>
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="sku">完整SKU</label>
+			<input class="form-control" type="text" id="sku" name="sku" value="{$data.sku}" check="require" msg="请输入完整SKU">
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="price">价格</label>
+			<input class="form-control" type="text" id="price" name="price" value="{$data.price}" check="require" msg="请输入价格">
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="link">网址</label>
+			<input class="form-control" type="text" id="link" name="link" value="{$data.link}" check='require' msg="请输入网址">
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="location">档口位置</label>
+			<input class="form-control" type="text" id="location" name="location" value="{$data.location}" check="require" msg="请输入档口位置">
+			<span class="help-block">可以保存1688、淘宝的卖家昵称</span>
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="item_number">货号</label>
+			<input class="form-control" type="text" id="item_number" name="item_number" value="{$data.item_number}">
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="phone_number">联系电话</label>
+			<input class="form-control" type="text" id="phone_number" name="phone_number" value="{$data.phone_number}">
+		</div>
+		<div class="form-group">
+			<label class="control-label red" for="stock">库存状态</label>
+			<select name="stock" class="form-control">
+				<option value="In stock" <eq name="data.stock" value="In stock">selected</eq> >有货</option>
+				<option value="Stockout" <eq name="data.stock" value="Stockout">selected</eq> >无货</option>
+			</select>
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="memo">备注</label>
+			<textarea class="form-control" name="memo">{$data.memo}</textarea>
+		</div>
+		<div class="form-group text-center">
+			<input type="submit" id="sourceFormSubmit" data-loading-text="正在保存..."  class="btn btn-primary" value="保存" />
+		</div>
+	</form>
+<script type="text/javascript">
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#editSourceIframe").css("height",height);
+
+
+
+	$("#sourceFormSubmit").click(function(){
+		if(check_form("sourceForm")){
+			var data = $("#sourceForm").serialize();
+			var url = $("#sourceForm").attr("action");
+			$.post(url,data,function(r){
+				if(r.status){ 
+					alert("修改成功");
+					parent.$("#bottomBox1").modal("hide");
+					parent.window.location.reload();
+				}else{
+					alertWarning(r.info);
+				}
+			})
+		}
+		return false;
+	})
+	var sku=$('#sku').val();
+	rs=/[a-zA-Z]{3}/;
+	//if()
+
+	// 在编辑页面自动采集货源信息
+	// $.ajax({
+	// 	url:"{:U('collectSourceInfo')}",
+	// 	type:'post',
+	// 	data:{sku:sku},
+	// 	dataType:'json',
+	// 	success:function(msg){
+	// 		console.log(msg);
+	// 		if(msg.status){
+	// 		}else{
+	// 			alert(msg.info);
+	// 		}
+	// 	},
+	// 	error:function(){
+	// 		alert("网络错误");
+	// 	},
+	// });
+})
+</script>

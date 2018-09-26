@@ -1,0 +1,17 @@
+var loginIframe = document.getElementById("alibaba-login-box");
+if(loginIframe == undefined){
+	alert("Not found: loginIframe, please contact tech...");
+}else{
+	inputUsername = loginIframe.contentDocument.getElementById("fm-login-id");
+	inputPassword = loginIframe.contentDocument.getElementById("fm-login-password");
+	btnSubmit = loginIframe.contentDocument.getElementById("fm-login-submit");
+	if(inputUsername == undefined || inputPassword == undefined ){
+		alert("Not found: login input, please contact tech...");
+	}else{
+		inputUsername.value = '{$falseC:accountM:username}';
+		inputPassword.value = '{$falseC:accountM:password}';
+	}	
+	if(btnSubmit != undefined){
+		btnSubmit.click();
+	}
+}

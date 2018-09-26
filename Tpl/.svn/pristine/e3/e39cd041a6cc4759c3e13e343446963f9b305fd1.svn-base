@@ -1,0 +1,61 @@
+<script type="text/javascript">
+$(function(){
+	$("tbody.tbody tr").click(function(){
+		$("tbody.tbody tr").removeClass("success");
+		$(this).addClass("success");
+		var detail_box = $("div.detail-box");
+		var id = $(this).find("input[name='id[]']").val();
+		console.log(id);
+		
+		// if($("#detail-iframe").attr("src").indexOf(id) > 0 ){
+		// 	detail_box.show();
+		// 	console.log($("#detail-iframe").attr("src").indexOf(id));
+		// 	return true;
+		// }
+		
+		var box_top = document.documentElement.clientHeight - detail_box.height();
+		var box_width = document.documentElement.clientWeight;
+		detail_box.css({display:"block",top:box_top + "px",width:box_width + "px"});
+		$("#detail-iframe").attr("src","{:U('task/detail')}?id=" + id + "&_"+  Math.round(new Date().getTime()/1000));
+	});
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	});
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	});
+
+});
+//下班
+function closingTime(){
+	if(!confirm("确认下班？")){
+		return;
+	}
+	$.post("{:U('closingTime?key=888')}",{},function(msg){
+		if(msg.status){
+			alertWarning(msg.info,1);
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alertWarning("网络错误");
+	})
+}
+
+
+function showBox(url){
+	$("#bottomBoxIframe").attr("src",url+"?_" + Math.round(new Date().getTime()/1000));
+	$("#bottomBox").modal("show");
+}
+
+function closeBox(){
+	$("#bottomBox").modal("hide");
+	location.reload();
+}
+</script>

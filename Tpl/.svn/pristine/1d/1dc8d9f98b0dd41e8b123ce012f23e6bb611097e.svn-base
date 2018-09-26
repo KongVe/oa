@@ -1,0 +1,96 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'编辑货架位'))}
+
+<form method='post' action="{:U('layoutSave')}" id="editForm" name="editForm" class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	<notempty name="vo.id">
+		<input type="hidden" id="id" name="id" value="{$vo.id}">	
+	</notempty>
+	
+	<input type="hidden" id="add_file" name="add_file" value="{$vo.add_file}">
+	<input type="hidden" id="opmode" name="opmode" value="<notempty name="_REQUEST['id']">edit<else/>add</notempty>">
+
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="place_name">货架位名称：</label>
+		<div class="col-sm-10">
+			<input class="form-control" type="text" id="place_name" name="place_name" value="{$vo.place_name}"  check="require" msg="请输入货架位名称">
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="place_name">货架位类型：</label>
+		<div class="col-sm-10">
+			<select name="place_type">
+				<option value="Good" <eq name="vo.place_type" value="Good"> selected</eq>>良品</option>
+				<option value="Defective" <eq name="vo.place_type" value="Defective"> selected</eq>>次品</option>
+			</select>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="type_quantity_limit">种类数量限制：</label>
+		<div class="col-sm-10">
+			<input class="form-control col-sm-4" type="text" id="type_quantity_limit" name="type_quantity_limit" value="<?php if($vo['type_quantity_limit']===null || $vo['type_quantity_limit']===false){ echo "15"; }else{echo $vo['type_quantity_limit']; }?>"  check="require" msg="请输入货架位产品种类数量限制" style="width:80px;"><b class="col-sm-5">0为无限制</b>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for="memo">所属货架：</label>
+		<div class="col-sm-10">
+			<div class="col-sm-3">
+				仓库<br>
+				<select id="warehouse_select" name="warehouse_id" check="require" msg="请选择仓库" onchange="ajaxGetChildrenList($(this).val(),'region','warehouse');"></select>
+			</div>
+			<div class="col-sm-3">
+				区域<br>
+				<select  id="region_select" name="region_id" check="require" msg="请选择区域" onchange="ajaxGetChildrenList($(this).val(),'shelf','region');"></select>
+			</div>
+			<div class="col-sm-3">
+				货架<br>
+				<select  id="shelf_select" name="shelf_id" check="require" msg="请选择货架位"></select>
+			</div>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-2 control-label" for=""></label>
+		<div class="col-sm-10">
+			<div class="action">
+				<input type="hidden" name="model_name" value="place">
+				<a class="editFormSubmit btn btn-sm btn-primary">保存</a>
+				<input class="close_box_button btn btn-sm btn-default" type="button" value="取消" >
+			</div>
+		</div>
+	</div>
+</form>
+<script type="text/javascript">
+	
+<include file="V2StockPlace:getchildrenlistjs" />
+
+$(function() {
+	$(".editFormSubmit").click(function(){
+        $("input").attr("disabled",null);
+        var data = $("#editForm").serialize();
+        var url = $("#editForm").attr("action");
+        
+        var btn = $(".editFormSubmit").button('loading');
+        if (check_form("editForm")) {
+            sendForm("editForm", url,false,function(msg){
+                btn.button('reset');
+                if(msg.status){
+					closeBox();
+					parent.window.location.reload();
+                }else{
+                    alertWarning(msg.info);
+                }
+            });
+        }else{
+            btn.button('reset');
+        }
+    });
+
+   	var choose_warehouse = {$vo['warehouse_id']|default=1};
+	var choose_region = {$vo['region_id']|default=2};
+	var choose_shelf = {$vo['shelf_id']|default=4};
+
+	ajaxGetChildrenList(false,false,false,choose_warehouse);
+	ajaxGetChildrenList(choose_warehouse,'region','warehouse',choose_region);
+	ajaxGetChildrenList(choose_region,'shelf','region',choose_shelf);
+});
+</script>

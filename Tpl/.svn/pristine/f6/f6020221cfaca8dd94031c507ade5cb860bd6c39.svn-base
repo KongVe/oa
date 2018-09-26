@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta charset="utf-8" />
+  <title>{$title}</title>
+
+  <meta name="description" content="overview &amp; stats" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+  <!-- bootstrap & fontawesome -->
+  <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="__PUBLIC__/assets-v3/css/bootstrap-datepicker3.min.css">
+  <link rel="stylesheet" type="text/css" href="__PUBLIC__/assets-v3/css/bootstrap-datetimepicker.min.css">
+  <link rel="stylesheet" type="text/css" href="__PUBLIC__/ueditor/theme.default/css/ueditor.min.css">
+  <!-- page specific plugin styles -->
+
+  <!-- text fonts -->
+  <!-- <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/fonts.googleapis.com.css" /> -->
+
+  <!-- ace styles -->
+  <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/ace.min.css" class="ace-main-stylesheet" id="main-ace-style" />
+  <link rel="stylesheet" href="__PUBLIC__/assets-v3/font-awesome/4.5.0/css/font-awesome.min.css" />
+    <!--[if lte IE 9]>
+      <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/ace-part2.min.css" class="ace-main-stylesheet" />
+    <![endif]-->
+    <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/ace-skins.min.css" />
+    <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/ace-rtl.min.css" />
+    <!-- <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/jquery-ui.min.css"/> -->
+    <link rel="stylesheet" type="text/css" href="__PUBLIC__/assets-v3/css/select2.min.css"/>
+    <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/jquery.gritter.min.css">
+    <!--[if lte IE 9]>
+      <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/ace-ie.min.css" />
+    <![endif]-->
+
+    <!-- inline styles related to this page -->
+
+    <!-- ace settings handler -->
+    <script src="__PUBLIC__/assets-v3/js/ace-extra.min.js"></script>
+
+    <!-- HTML5shiv and Respond.js for IE8 to support HTML5 elements and media queries -->
+
+    <!--[if lte IE 8]>
+    <script src="__PUBLIC__/assets-v3/js/html5shiv.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/respond.min.js"></script>
+  <![endif]-->
+  <!--[if !IE]> -->
+  <script src="__PUBLIC__/assets-v3/js/jquery-2.1.4.min.js"></script>
+  <script src="__PUBLIC__/assets-v3/js/jquery.gritter.min.js"></script>
+  <!-- <![endif]-->
+
+    <!--[if IE]>
+<script src="__PUBLIC__/assets-v3/js/jquery-1.11.3.min.js"></script>
+<![endif]-->
+<script type="text/javascript">
+  if('ontouchstart' in document.documentElement) document.write("<script src='__PUBLIC__/assets-v3/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+</script>
+<script src="__PUBLIC__/assets-v3/js/bootstrap.min.js"></script>
+<script src="__PUBLIC__/assets-v3/js/moment.min.js"></script>
+<script src="__PUBLIC__/assets-v3/js/bootstrap-datepicker.min.js"></script>
+        <script src="__PUBLIC__/assets-v3/js/date-locales/bootstrap-datepicker.zh-CN.js"></script>
+  <script src="__PUBLIC__/assets-v3/js/bootstrap-datetimepicker.min.js"></script>
+    <!-- <script src="__PUBLIC__/assets-v3/js/date-locales/bootstrap-datetimepicker.zh-CN.js"></script> -->
+<script src="__PUBLIC__/assets-v3/js/bootstrap-editable.min.js"></script>
+<!-- page specific plugin scripts -->
+
+    <!--[if lte IE 8]>
+      <script src="__PUBLIC__/assets-v3/js/excanvas.min.js"></script>
+    <![endif]-->
+    <script src="__PUBLIC__/assets-v3/js/jquery-ui.custom.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/jquery.ui.touch-punch.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/jquery.easypiechart.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/jquery.sparkline.index.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/jquery.flot.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/jquery.flot.pie.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/jquery.flot.resize.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/select2.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/bootbox.js"></script>
+    <!-- ace scripts -->
+    <script src="__PUBLIC__/assets-v3/js/ace-elements.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/ace.min.js"></script>
+    <script src="__PUBLIC__/ueditor/ueditor.config.js"></script>
+    <script src="__PUBLIC__/ueditor/ueditor.all.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/common.js"></script>
+    <!-- inline scripts related to this page -->
+    <style>
+    .sidebar.menu-min .nav-list>li>a>.menu-icon{
+      display: none;
+    }
+    .sidebar.menu-min .nav-list>li>a{
+      padding-left: 5px;
+      font-weight: 900;
+    }
+    .user-info{
+      padding-top: 8px
+    }
+    body{
+      overflow-x: hidden;
+    }
+    #search_table>input{
+      margin-bottom: 1rem
+    }
+    .gritter-info.gritter-center{
+      position: fixed;
+    }
+    #button_list{
+      height: 5rem;
+      padding-top: .5rem
+    }
+    #button_list>button{
+      margin-right: 5px;
+    }
+  </style>
+</head>
+
+<body class="no-skin">
+  <div class="main-container ace-save-state" id="main-container">
+    <script type="text/javascript">
+      try{ace.settings.loadState('main-container')}catch(e){}
+    </script>
+
+    <div id="sidebar" class="sidebar responsive ace-save-state  sidebar-fixed">
+      <script type="text/javascript">
+        try{ace.settings.loadState('sidebar')}catch(e){}
+      </script>
+      <div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
+        <i id="sidebar-toggle-icon" class="ace-icon fa fa-angle-double-left ace-save-state" data-icon1="ace-icon fa fa-angle-double-left" data-icon2="ace-icon fa fa-angle-double-right"></i>
+      </div>
+      <div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
+        <i id="sidebar-toggle-icon" class="ace-icon fa fa-angle-double-left ace-save-state" data-icon1="ace-icon fa fa-angle-double-left" data-icon2="ace-icon fa fa-angle-double-right"></i>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="main-content-inner">
+        <div class="breadcrumbs ace-save-state" id="breadcrumbs">
+          <ul class="breadcrumb">
+            <li>
+              <i class="ace-icon fa fa-home home-icon"></i>
+              <a href="{../home/index">首页</a>
+            </li>
+          </ul><!-- .breadcrumb -->
+
+
+        </div>
+
+        <div class="page-content">
+          <div class="row">
+            <div class="col-xs-12">
+              <!-- PAGE CONTENT BEGINS -->
+              <div class="widget-box" id="search_body">
+                <div class="widget-header">
+                  <h4 class="widget-title">搜索条件</h4>
+
+                  <div class="widget-toolbar">
+                    <a href="#" data-action="collapse">
+                      <i class="ace-icon fa fa-chevron-up"></i>
+                    </a>
+                  </div>
+                </div>
+                <div class="widget-body" style="display: block;">
+                  <div class="widget-main">
+                    <div class="page-header" id="search_table">
+
+                    </div><!-- /.page-header -->
+                  </div>
+                </div>  
+              </div>              
+              <!-- PAGE CONTENT BEGINS -->
+              {__CONTENT__}
+              <!-- PAGE CONTENT ENDS -->
+
+            </div><!-- /.page-content -->
+          </div>
+        </div><!-- /.main-content -->
+        <!-- PAGE CONTENT ENDS -->
+      </div>
+    </div>
+
+    <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+      <i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
+    </a>
+  </div><!-- /.main-container -->
+
+  <!-- basic scripts -->
+
+
+</body>
+</html>

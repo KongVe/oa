@@ -1,0 +1,112 @@
+<layout name='Layout/ace_layout' />
+{:W('PageHeader',array('name'=>$title))}
+
+<form action="{:U('importDataSave')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+    <input type="hidden" name="ajax" id="ajax" value="1" />
+    <input type="hidden" name="add_file" id="add_file" value="" />
+
+    <div class="form-group">
+        <label class="col-sm-3 control-label"></label>
+        <div id="alert-msg" class="col-sm-9"></div>
+    </div> 
+    <div class="form-group">
+        <label class="col-sm-3 control-label">选择要导入的文件</label>
+        <include file="Widget:uploader" />
+    </div>  
+    <div class="form-group">
+        <label class="col-sm-3 control-label">选择数据的帐号</label>
+        
+        <select name="format" id="format" class="form-control col-30">
+            <option value="">请选择报表类型</option>
+            <optgroup label="出口易">
+                <option value="ck1_yewuzhang">出口易 业务帐</option>
+            </optgroup>
+            <optgroup label="中国邮政">
+                <option value="chinapost_shipping_cost">中国邮政 运费报表</option>
+            </optgroup>
+            <optgroup label="Wish邮">
+                <option value="wishpost_shipping_cost">Wish邮 运费报表</option>
+            </optgroup>
+            <optgroup label="递四方">
+                <option value="post4px_shipping_cost">递四方 直发运费</option>
+            </optgroup>
+            <optgroup label="百千诚">
+                <option value="baiqiancheng_shipping_cost">百千诚 直发运费</option>
+            </optgroup>
+            <optgroup label="官方E邮宝">
+                <option value="epost_shipping_cost">E邮宝 月账单</option>
+            </optgroup>
+        </select>
+
+    </div>  
+    <!-- <div class="form-group">
+        <label class="col-sm-3 control-label" for="password">运费折扣</label>
+        
+        <input type="text"  class="form-control col-30" name="discount" id="discount" value="1">
+
+    </div>  --> 
+    <div class="form-group text-center">
+        <div class="panel-default">
+            <div class="form-group text-center">
+                <input type="button" data-loading-text="正在处理中..." data-reload="1" class="editFormSubmit btn btn-primary" value="导入" />
+            </div>
+        </div>
+    </div>
+</form>
+
+<script type="text/javascript">
+$(function($){
+
+    $("#submit").click(function(){
+        if(!$("#format").val()){
+            alertWarning("请选择报表类型");
+            return false;
+        }
+        if(!$("#add_file").val()){
+            alertWarning("请添加文件");
+            return false;
+        }
+        if(window.confirm("确认导入的数据是： " + $("#format option:selected").text())){
+            $("#form_data").submit();
+        }else{
+            return false;
+        }
+    });
+
+    $("#format").change(function(){
+        // var n = $(this).val();
+        // switch(n)
+        // {
+        // case "出口易业务帐":
+        //     $("#discount").val("0.95");
+        //     break;
+        // case "中国邮政运费报表":
+        //     $("#discount").val("1");
+        //     break;
+        // default:
+        //     $("#discount").val("1");
+        // }
+    });
+
+    $(".editFormSubmit").click(function(){
+        var data = $("#editForm").serialize();
+        var url = $("#editForm").attr("action");
+        $("#alert-msg").html("");
+        var btn = $(".editFormSubmit").button('loading');
+        if (check_form("editForm")) {
+            sendForm("editForm", url,false,function(msg){
+                btn.button('reset');
+                if(msg.status){
+                    //下载PDF
+                    $("#alert-msg").html(msg.info);
+                }else{
+                    alertWarning(msg.info);
+                }
+            });
+        }else{
+            btn.button('reset');
+        }
+    });
+
+})
+</script>

@@ -1,0 +1,156 @@
+<layout name='Layout/ace_popup'/>	
+
+	{:W('PageHeader',array('name'=>"成本调节"))}
+
+	<form action="{:U('changeCostByInstockPlanSave')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" id="ajax" name="ajax" value="1"/>
+		<input type="hidden" id="id" name="id" value="{$_REQUEST.id}">
+
+		<div class="panel panel-primary">
+			<div class="panel panel-heading">
+				<span>基本信息</span>
+			</div>
+			<div class="panel-body">
+
+				<div class="form-group">
+					<div class="col-sm-12">
+						<label class="text-right col-sm-2">规格SKU: </label>
+						<div class="col-sm-6">
+							<span>{$sku_data.sku}</span>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-12">
+						<label class="text-right col-sm-2">SKU名称: </label>
+						<div class="col-sm-6">
+							<span>{$sku_data.sku_name}</span>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-12">
+						<label class="text-right col-sm-2">SKU图片: </label>
+						<div class="col-sm-6">
+							<a href="{$sku_data.thumbnail}" target="_blank">
+	      						<img src="{$sku_data.thumbnail}" height="150" />
+	      					</a>
+						</div>
+					</div>
+				</div>
+				
+				<div class="form-group">
+					<div class="col-sm-12">
+						<label class="text-right col-sm-2">入库记录: </label>
+						<div class="col-sm-10">
+							<div class="col-sm-12">
+								<table class="table">
+									<tr>
+										<th>入库序号</th>
+										<th>时间</th>
+										<th>数量</th>
+										<th>原始成本</th>
+										<th>当前入库成本</th>
+										<th>成本调节</th>
+										<th>最后调节时间</th>
+									</tr>
+									<volist name="instock_list" id="instock_data">
+										<tr>
+											<td>{$instock_data.id}</td>
+											<td>{$instock_data.instock_time|default=" "|date="Y-m-d H:i:s",###}</td>
+											<td>{$instock_data.instock_quantity}</td>
+											<td>{$vo.cost} 元</td>
+											<td>{$instock_data.instock_cost|round=###,2} 元</td>
+											<td>
+												<input class="cost_change" type="number" data-bak="{$instock_data.instock_cost}" name="cost_change[{$instock_data.id}]" value="{$instock_data.instock_cost}" check="require" msg="不可设置0成本，如需要请联系管理员" placeholder="不可设置0成本，如需要请联系管理员"> 元
+
+												<input type="hidden" name="cost_bak[{$instock_data.id}]" value="{$instock_data.instock_cost}">
+											</td>
+											<td>
+												<notempty name="instock_data.last_change_time">
+													{$instock_data.last_change_time|default=" "|date="Y-m-d H:i:s",###}
+													<br>
+													{$instock_data.last_change_user_name}
+												<else/>
+													<b>未调节过</b>
+												</notempty>
+											</td>
+										</tr>	
+									</volist>
+								</table>
+							</div>
+							<span class="col-sm-12 help-block red"></span>
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<div class="col-sm-12">
+						<label class="text-right col-sm-2">调节原因: </label>
+						<div class="col-sm-6">
+							<textarea name="reason" class="form-control" id="reason" placeholder="必填，请输入调节的原因" check="require" msg="请输入调节的原因" ></textarea>
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	  
+		<div class="panel-default">
+			<div class="form-group text-center">
+				<input type="button" data-loading-text="正在提交..."  class="editFormSubmit btn btn-primary" value="提交" />
+				<a class="close_box_button btn btn-danger">取消</a>
+			</div>
+		</div>
+	
+	</form>
+
+
+<script type="text/javascript">
+$(function(){     
+    $(".cost_change").change(function(){
+    	var bak = $(this).data("bak");
+    	bak = parseFloat(bak);
+    	var cost = $(this).val();
+    	if(bak != cost){
+    		$(this).parent().addClass("danger");
+    	}else{
+    		$(this).parent().removeClass("danger");
+    	}
+    });
+
+	$(".editFormSubmit").click(function(r){
+		var msg = $(this).attr("data-msg");
+		var form_id = "editForm";
+		if(!msg){
+			msg = "确认提交?";
+		}
+		if(!confirm(msg)){
+			return false;
+		}
+		var data = $("#"+form_id).serialize();
+		var url = $("#"+form_id).attr("action");
+		
+		var btn = $(this);
+		btn.button('loading');
+		if (check_form(form_id)) {
+			if(typeof(editor)!="undefined"){
+				editor.sync();	
+			}
+			sendForm(form_id,url,false,function(msg){
+				btn.button('reset');
+				if(msg.status==1){
+					//直接保存成功
+					closeBox();
+                    parent.window.location.reload();
+				}else{
+					alertWarning(msg.info);
+				}
+			});
+		}else{
+			btn.button('reset');
+		}
+	});
+
+});
+</script>

@@ -1,0 +1,67 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'导入运费报表'))}
+
+<form method='POST' id="form_data" action="{:U('importShippingCost')}"  class="well form-horizontal clearfix">
+	<input type="hidden" name="add_file" id="add_file" value="" />
+
+	<div class="form-group">
+		<label class="col-sm-3 control-label" for="password">选择要导入的文件</label>
+		<include file="Widget:uploader" />
+	</div>	
+	<div class="form-group">
+		<label class="col-sm-3 control-label" for="password">选择数据的帐号</label>
+		
+		<select name="format" id="format" class="form-control col-30">
+			<optgroup label="出口易">
+				<option value="出口易业务帐">业务帐</option>
+			</optgroup>
+			<optgroup label="E邮宝">
+				<option value="中国邮政E邮宝">E邮宝</option>
+			</optgroup>
+			<optgroup label="中国邮政">
+				<option value="中国邮政运费报表">运费报表</option>
+			</optgroup>
+			<optgroup label="Wish邮">
+				<option value="wish_post_shipping_cost">运费报表</option>
+			</optgroup>
+		</select>
+
+	</div>	
+	<div class="form-group">
+		<label class="col-sm-3 control-label" for="password">运费折扣</label>
+		
+		<input type="text"  class="form-control col-30" name="discount" id="discount" value="1">
+
+	</div>	
+	<div class="form-group text-center">
+		<a class="btn btn-sm btn-primary" id="submit">导入</a>
+	</div>
+</form>
+
+<script type="text/javascript">
+$(function($){
+
+	$("#submit").click(function(){
+		if(window.confirm("确认导入的数据是： " + $("#format").val())){
+			$("#form_data").submit();
+		}else{
+			return false;
+		}
+	});
+
+	$("#format").change(function(){
+		var n = $(this).val();
+		switch(n)
+		{
+		case "出口易业务帐":
+			$("#discount").val("0.95");
+			break;
+		case "中国邮政运费报表":
+			$("#discount").val("1");
+			break;
+		default:
+			$("#discount").val("1");
+		}
+	});
+})
+</script>

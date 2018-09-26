@@ -1,0 +1,10 @@
+<script type="text/javascript">	
+	function save() {
+		sendForm("form_data", "{:U('import')}");
+	}
+
+	function switchWish(){
+		$("#switch").val("wish");
+		sendForm("form_data", "{:U('importSave')}");	
+	}
+</script>

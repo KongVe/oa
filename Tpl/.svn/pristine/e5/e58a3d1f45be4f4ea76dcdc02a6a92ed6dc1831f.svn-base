@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html>
+<title>{$title}</title>
+<head>
+<meta name="description" content="overview &amp; stats" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<link rel="stylesheet" href="__PUBLIC__/assets-v3/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="__PUBLIC__/assets-v3/font-awesome/4.5.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/jquery-ui.custom.min.css" />
+    <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/fonts.googleapis.com.css" />
+    <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/ace.min.css" class="ace-main-stylesheet" id="main-ace-style" />
+    <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/ace-skins.min.css" />
+    <link rel="stylesheet" href="__PUBLIC__/assets-v3/css/ace-rtl.min.css" />
+    <link rel="stylesheet" type="text/css" href="__PUBLIC__/assets-v3/css/select2.min.css"/>
+    <link rel="stylesheet" type="text/css" href="__PUBLIC__/assets-v3/css/bootstrap-datepicker3.min.css">
+  <link rel="stylesheet" type="text/css" href="__PUBLIC__/assets-v3/css/bootstrap-datetimepicker.min.css">
+    <script src="__PUBLIC__/assets-v3/js/ace-extra.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/jquery-2.1.4.min.js"></script>   
+    <script type="text/javascript">
+      if('ontouchstart' in document.documentElement) document.write("<script src='__PUBLIC__/assets-v3/js/jquery.mobile.custom.min.js'>"+"<"+"/script>");
+    </script>
+    <script src="__PUBLIC__/assets-v3/js/bootstrap.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/jquery-ui.custom.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/jquery.ui.touch-punch.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/markdown.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/bootstrap-markdown.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/jquery.hotkeys.index.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/bootstrap-wysiwyg.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/bootbox.js"></script>   
+    <script src="__PUBLIC__/assets-v3/js/ace-elements.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/ace.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/moment.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/bootstrap-datepicker.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/select2.min.js"></script>
+    <script src="__PUBLIC__/assets-v3/js/common.js"></script>
+</head>
+<style type="text/css">
+  .checkbox, .radio{
+      margin-bottom: 0;
+      margin-top: 0;
+          padding: 5px 4px 6px;
+              border: 1px solid #D5D5D5;
+    }
+</style>
+<body>
+<form class="modal-body form-control" id="form-edit">
+
+</form>
+</body>
+</html>
+<script>
+ var vo = {$vo|default=""|json_encode};
+ var config_data = {$config_data|default=""|json_encode};
+ $(function () {
+  debugger
+  $('#search_body').hide()
+  $('#form-edit').height($(window).height())
+  get_form_list(config_data.edit_setting,'form-edit');
+  for(var key in vo){
+    switch( $('input[name="'+key+'"],select[name="'+key+'"],textarea[name="'+key+'"],select[name="'+key+'[]"],select[name="'+key+'"]').attr('data-edit_type')){
+      case 'text':
+      case 'number':
+      case 'hidden':
+      case 'password':
+      $('input[name="'+key+'"]').val(vo[key]);
+      break;
+      case 'rich_text':
+      $('#'+key+'_rich').text(vo[key]);
+      break;
+      case 'textarea':
+      $('textarea[name="'+key+'"]').text(vo[key]);
+      break;
+      case 'date_choose':
+      $('input[name="'+key+'"]').val(formatDate(vo[key],'yyyy-MM-dd hh:mm'));
+       break;
+      case 'date_range':
+       $('input[name="'+key+'"]').datepicker('setDate',formatDate(vo[key],'yyyy-MM-dd'));
+      break;
+      case 'select_singer':
+       $('#'+key+'_select2').val([vo[key]]).trigger("change");
+      break;
+      case 'select_multiple':
+       $('#'+key+'_select2').val([vo[key]]).trigger("change");
+      break;
+      case 'radio':
+       $('input[name="'+key+'"][value="'+vo[key]+'"]').attr('checked',true);
+       break;
+      case 'checkbox':
+      if(!vo[key] instanceof Array){
+       $('input[name="'+key+'"][value="'+vo[key]+'"]').attr('checked',true);
+      }else{
+        for(var keys in vo[key]){
+          $('input[name="'+key+'"][value="'+vo[key][keys]+'"]').attr('checked',true);
+        }
+      }
+      break;
+    }
+    // $('input[type!="radio"][type!="checkbox"][name="'+key+'"],textarea[name="'+key+'"]').val(vo[key]);
+    // $('input[type="radio"][name="'+key+'"][value="'+vo[key]+'"],input[type="checkbox"][name="'+key+'"][value="'+vo[key]+'"]').attr('checked',true);
+    // $('#'+key+'_select2').val(vo[key])
+  }
+  // $(parent.document).find("#myModalLabel").text(config_data.title)
+ 
+})
+ function aciton_submit(){
+  var postData = $('#form-edit').serializeObject();
+  alert(JSON.stringify(postData));
+  $.ajax({
+    url:window.location.hostname+'/IntegralBasis/save',
+    data:postData,
+    type:'POST',
+    success:function(data){
+      if(data == 1){
+        window.location.href = window.location.hostname+'/IntegralBasis/index'
+      }
+    }
+  })
+}
+function reset_action(){
+  $('#form-edit').find('input').val('');
+}
+function newCustom(id,data){
+
+}
+</script>
+</body>
+</html>

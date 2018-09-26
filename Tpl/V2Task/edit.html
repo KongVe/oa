@@ -1,0 +1,247 @@
+<layout name='Layout/ace_box' />
+	{:W('PageHeader',array('name'=>'编辑任务'))}
+<style>
+.reason_pictures_wrap{padding:5px;}
+</style>
+
+<form method='post' id="editForm" name="editForm" action="{:U('save')}"  enctype="multipart/form-data"   class="well form-horizontal col-sm-12">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	<input type="hidden" id="add_file" name="require_file" value="{$vo.require_file}">
+
+	<input type="hidden" id="id" name="id" value="{$vo.id}">
+	<input type="hidden" id="source" name="source" value="{$vo.source}">
+	
+
+	<notempty name="sellyours_id">
+		<input type="hidden" id="sellyours_id" name="sellyours_id" value="{$sellyours_id}">
+	</notempty>
+
+	<div class="form-group col-sm-12">
+		<label class="col-sm-2 control-label" for="task_title" >标题：</label>
+		<div class="col-sm-8">
+			<input class="form-control" type="text" id="task_title" name="task_title" value="{$vo.task_title}"  check="require" msg="请输入标题" placeholder="标题">
+		</div>
+		
+	</div>
+
+	<notempty name="vo.thumbnail">
+		<div class="form-group col-sm-12">
+			<input type="hidden" name="thumbnail" value="{$vo.thumbnail}" placeholder="Ctrl+V 黏贴图片">
+
+			<label class="col-sm-2 control-label" for="task_title" >图片：</label>
+
+			<div class="col-sm-4 ">
+				<a href="{$vo.thumbnail}" target="_blank" style="width:100px;"><img src="{$vo.thumbnail}"  height="100" /></a>
+			</div>
+			
+		</div>
+	<else/>
+		<div class="form-group col-sm-12">
+			<label class="col-sm-2 control-label" for="thumbnail" >图片：</label>
+			<div class="col-sm-6">
+				<input class="form-control thumbnail_clipboard" data-nextdiv="1" type="text" name="thumbnail" placeholder="Ctrl+V 黏贴图片">
+			</div>
+
+			<div class="col-sm-4 ">
+				<a href="" class="thumbnail" target="_blank" style="width:100px;"><img src=""  height="100" /></a>
+			</div>
+			
+		</div>
+	</notempty>
+	
+
+	<div class="form-group col-sm-6">
+		<label class="col-sm-4 control-label" >设计人：</label>
+		<div class="col-sm-6">
+			<span><b>{$_SESSION['user_name']}</b></span>
+			<input type="hidden" name="designer_uid" id="designer_uid" value="{$_SESSION['authId']}">
+		</div>
+	</div>
+
+	
+
+	<div class="form-group col-sm-12">
+
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label" for="runner_uid">执行人：</label>
+			<div class="col-sm-5">
+				<eq name="vo.category" value="Common task">
+					<select name="runner_uid[]" id="runner_uid" check="require" msg="请选择执行人" style="width:100%" <empty name="vo.id">multiple="multiple"</empty> >
+						<option value="" >请选择执行人</option>
+						<volist name="user_list" id="user">
+							<option value="{$user.id}" <eq name="vo.runner_uid" value="$user.id">selected</eq> >{$user.show_name}</option>
+						</volist>
+					</select>
+				<else/>
+					<select name="runner_uid[]" id="runner_uid" check="require" msg="请选择执行人" style="width:100%" <empty name="vo.id">multiple="multiple"</empty> >
+						<option value="" >请选择执行人</option>
+						<volist name="user_list" id="user">
+							<option value="{$user.id}" <eq name="vo.runner_uid" value="$user.id">selected</eq> >{$user.show_name}</option>
+						</volist>
+					</select>
+				</eq>
+			</div>
+		</div>
+
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label" for="checker_uid">检查人：</label>
+			<div class="col-sm-5">
+				<?php
+					if($vo['checker_uid']){
+						$checker_uid_selected = $vo['checker_uid'];
+					}else{
+						$checker_uid_selected = $_SESSION['authId'];
+					}
+					 
+				?>
+				<select name="checker_uid" id="checker_uid" check="require" msg="请选择检查人" style="width:100%" >
+					<option value="">请选择检查人</option>
+					<volist name="user_list" id="user">
+						<option value="{$user.id}" <if condition="$user['id'] eq $checker_uid_selected" > selected</if>	>{$user.show_name}</option>
+					</volist>
+				</select>
+				
+			</div>
+		</div>
+
+	</div>
+
+	<!-- <div class="form-group col-sm-6">
+		<label class="col-sm-4 control-label" for="must_choose_do">必选做：</label>
+		<div class="col-sm-6">
+			<?php
+				if(!$vo['must_choose_do']){
+					$must_choose_do_selected = "Must do";
+				}else{
+					$must_choose_do_selected = $vo['must_choose_do'];
+				}
+			?>
+
+			<label class="col-sm-4 control-label">
+				<b>必做 </b><input type="radio" class="control-label" name="must_choose_do" id="must_choose_do1" value="Must do" <eq name="must_choose_do_selected" value="Must do">checked="checked"</eq> >
+			</label>
+			<label class="col-sm-4 control-label">
+				<b>选做 </b><input type="radio" class="control-label" name="must_choose_do" id="must_choose_do2" value="Choose do" <eq name="must_choose_do_selected" value="Choose do">checked="checked"</eq> >
+			</label>				
+		</div>
+	</div> -->
+
+	<div class="form-group col-sm-6">
+		<label class="col-sm-4 control-label" for="priority">优先级：</label>
+		<div class="col-sm-8">
+			<select name="priority" >
+				<?php
+					if($vo['priority']){
+						$priority_selected = $vo['priority'];
+					}else{
+						$priority_selected = 5;
+					}
+					for ($ii=10; $ii >= 1; $ii--) { 
+				?>
+					<option value="{$ii}" <eq name="priority_selected" value="$ii">selected</eq> >{$ii}</option>
+				<?php
+					}
+				?>
+			</select>
+			( 10 最优先，默认为 5 )
+		</div>
+	</div>
+	
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label">截止日期：</label>
+			<div class="col-sm-8">
+				<input data-date-format="yyyy-mm-dd" style="width:200px;" class="form-control input-date" type="text" id="end_time" name="end_time" placeholder="请输入截止日期" value="{$vo.end_time|default=" "|date="Y-m-d",###}">
+			</div>
+		</div>
+		
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label">附件：</label>
+			<div class="col-sm-8">
+				<include file="Widget:uploader" />
+			</div>
+		</div>
+
+	</div>
+
+
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label">任务分类：</label>
+			<div class="col-sm-8">
+				<notempty name="vo.category">
+					<b>{$vo.category|L}</b>
+					<input type="hidden" id="category" name="category" value="{$vo.category}">
+				<else/>
+					<select id="category" name="category">
+						<option value="">请选择分类</option>
+						<volist name="category_list" id="category_vo">
+							<option value="{$category_vo}"  <eq name="vo.category" value="$category_vo">selected</eq> >{$category_vo|L}</option>
+						</volist>
+					</select>
+				</notempty>
+				
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group col-sm-12" id="action_div">{$action_content}</div>
+	
+
+	<div class="col-sm-12 panel-default">
+		<div class="form-group text-center">
+			<input type="button" data-loading-text="正在保存..." data-close="1" data-reload="1" class="defaultEditFormSubmit btn btn-primary" data-target="bottomBoxIframe" value="保存" />
+			<a class="close_box_button btn btn-danger">取消</a>
+		</div>
+	</div>
+
+</form>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<script type="text/javascript">
+var category_bak = "{$vo.category}";
+var vo = <?php echo json_encode($vo)  ?>;
+$(function(){     
+
+	$("#runner_uid").select2();
+	$("#checker_uid").select2();
+
+
+	$("#category").change(function(){
+		getActionHtml($(this).val());
+	});
+
+	if( $("#category").find("option").length == 2 ){
+		$("#category").val($("#category").find("option").eq(1).val()).change();
+	}
+
+	if($("input.thumbnail_clipboard").length > 0){
+		downloadThumbnailClipboard();
+	}
+});
+
+
+
+function getActionHtml(category){
+	if(!category){
+		alertWarning("请选择分类");
+		return false;
+	}
+	var data = $("#editForm").serialize();
+	$.post("{:U('getActionHtml')}",data,function(msg){
+		
+		if(msg.status){
+			category_bak = category;
+
+			$("#action_div").html(msg.data.action_html);		
+		}else{
+			alertWarning(msg.info);
+			$("#category").val(category_bak);
+		}
+	}).error(function(){
+		alertWarning("网络错误,请重试");
+		$("#category").val(category_bak);
+	});
+}
+</script>

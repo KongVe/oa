@@ -1,0 +1,428 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" id="form_search" action="{:U()}" method="post" class="form-inline">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+<div class="page-header clearfix">
+	<h1 class="col-xs-2">{$title}</h1>
+	<div class="col-xs-10 pull-right">
+		<div class="form-group col-sm-3 pull-left">
+			<div class="form-group col-sm-6">
+				<div class="col-sm-12">
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="generation_time" id="generation_time" value="{$Think.request.generation_time}" placeholder="发布时间">
+				</div>
+			</div>	
+			<div class="form-group col-sm-6">
+				<div class="col-sm-12">
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="last_collect_time" id="last_collect_time" value="{$Think.request.last_collect_time}" placeholder="采集时间">
+				</div>
+			</div>
+		</div>	
+		<notempty name="_REQUEST['store_id']">
+			<div class="form-group col-xs-1">
+				<label for="store_id">店铺产品
+					<input  type="checkbox" name="store_id" id="store_id" value="{$_REQUEST['store_id']}" <notempty name="_REQUEST['store_id']"> checked </notempty>  />
+				</label>
+			</div>
+		</notempty>
+		
+		<div class="form-group col-xs-1">
+			<label for="local_product_id">未添加产品
+				<input  type="checkbox" name="local_product_id" id="local_product_id" value="1" <notempty name="_REQUEST['local_product_id']"> checked </notempty>  />
+			</label>
+		</div>
+
+		<div class="form-group col-xs-2">
+			<?php 
+				if(isAdmin()){
+			?>
+				<label for="false_task_product">
+					<input  type="checkbox" name="false_task_product" id="false_task_product" value="1" <notempty name="_REQUEST['false_task_product']"> checked </notempty>  />
+					刷单中
+				</label>
+				&nbsp;|&nbsp;	
+			<?php
+				}
+			?>
+			<label for="own_store">
+				<input type="checkbox" name="own_store" id="own_store" value="1" <notempty name="_REQUEST['own_store']"> checked </notempty>  />
+				店铺
+			</label>
+			&nbsp;|&nbsp;
+			<label for="is_del">
+				<input type="checkbox" name="is_del" id="is_del" value="1" <notempty name="_REQUEST['is_del']"> checked </notempty>  />
+				已禁用
+			</label>
+			
+		</div>
+
+		<div class="input-group col-xs-1">
+			<input class="form-control" type="text" name="tags" id="tags" value="{$Think.request.tags}" placeholder="tags"/>
+		</div>
+
+		<div class="input-group col-sm-1">	
+			<input class="form-control" type="text" name="product_name" id="product_name" value="{$Think.request.product_name}" placeholder="产品名称"/>
+		</div>
+
+		<div class="input-group col-sm-3">
+			<div class="input-group">
+				<input class="form-control" type="text" name="product_id" id="product_id" value="{$Think.request.product_id}" placeholder="Product ID"/>
+				<span class="input-group-btn">
+					<button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-125 icon-search"></i> </button>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>	
+
+<div class="panel panel-default">
+	<div class="panel-body">
+		<div class="col-sm-12">
+			<div class="btn-group col-sm-2">
+				<div class="input-group">
+					<input class="form-control" type="text" id="online_product_id" value="" placeholder="请输入线上产品ID"/>
+					<span class="input-group-btn">
+						<a class="btn btn-primary btn-sm" onclick="window.open('{:U("WishMerchantsProduct/viewOnlineProduct")}?product_id='+$('#online_product_id').val())">查看</a>
+					</span>
+				</div>
+			</div>
+			<div class="btn-group">
+				<a class="btn btn-inverse btn-sm" onclick="viewGoodProduct()">查看刚爆发的产品</a>
+			</div>
+			<div class="btn-group col-sm-2">
+				<b class="red">请手动筛选、排序</b>
+			</div>
+		</div>
+	</div>
+</div>
+
+<notempty name="store_data">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="col-sm-12">
+				店铺
+				总销量：<b>{$store_data['num_bought_total']}</b> &nbsp;
+				总流量：<b>{$store_data['num_entered_total']}</b> &nbsp;
+			</div>
+			<div class="col-sm-12">
+				近1天销量：<b>{$store_data['num_bought_1_total']}</b> &nbsp;
+				近1天流量：<b>{$store_data['num_entered_1_total']}</b> &nbsp;
+				近1天营业额：<b>${$store_data['num_bought_1_price_total']}</b> &nbsp;
+			</div>
+			<div class="col-sm-12">
+				近7天销量：<b>{$store_data['num_bought_7_total']}</b> &nbsp;
+				近7天流量：<b>{$store_data['num_entered_7_total']}</b> &nbsp;
+				近7天营业额：<b>${$store_data['num_bought_7_price_total']}</b> &nbsp;
+			</div>
+		</div>
+	</div>
+</notempty>
+
+<div class="message-container" id="container_table" style="width:100%;overflow:scroll;">
+
+
+	<table class="table table-hover table-bordered">
+		<tbody class="tbody">
+		<include file="Layout:title"/>
+		
+		
+		<volist name="list" id="vo">
+			<tr id="tr_{$vo.id}" >
+				<td  >
+					<label class="inline pull-left">
+						<input class="ace" type="checkbox" name="template_id[]" value="{$vo.id}" />
+						<span class="lbl"></span>
+						<br>
+						{$vo.id}
+						<div>
+							<a onclick="viewAnalysis({$vo.id});" class="btn btn-xs">分析</a>
+						</div>
+					</label>
+				</td>
+				<td  style="width:100px;word-break:break-all;">
+					<a href="{:U()}?store_id={$vo.store_id}" target="_blank">{$vo.store_name}</a>
+				</td>
+
+				<td style="width:100px;">
+					<notempty name="vo.thumbnail">
+						<a href="{$vo.thumbnail}" class="thumbnail" target="_blank"><img src="{$vo.thumbnail}" style="min-width:80px;width:80px;" /></a>	
+					</notempty>	
+					<span title="{$vo.product_name}" class="text-info">{:substr($vo['product_name'],0,20)}...</span>
+				</td>
+				
+				<!-- 	
+					<td style="width:100px;">
+						<a href="{$vo[extra_photo][0]}" class="thumbnail" target="_blank"><img src="{$vo[extra_photo][0]}" width="80" />
+					</td>
+				 -->
+			
+				<td  style="width:100px;word-break:break-all;">
+					{$vo.product_id}
+					<if condition="isAdmin()">
+						<br>
+						<a href="https://www.wish.com/c/{$vo.product_id}" target="_blank" class="btn btn-xs" > 查看 </a>
+					</if>
+					<br>
+					<a href="{:U("WishMerchantsProduct/viewOnlineProduct")}?product_id={$vo.product_id}" target="_blank" class="btn btn-xs btn-primary" > 查看最新 </a>
+				</td>
+			
+				<td >
+					{$vo.num_entered}
+				</td>
+				<td >
+					{$vo.num_bought}
+				</td>
+				<td >
+					<?php
+						echo ($vo['num_bought/num_entered']*100)."%";
+					?>
+				</td>
+				<td>
+					分:<?php echo (ceil($vo['rating']*100)/100);?>
+					<br>
+					量:{$vo.rating_count|default="无评价"}
+				</td>
+				<!-- <td >
+					{$vo.total_inventory}
+				</td> -->
+				<td >
+					总:<b>${$vo.price_total}</b>
+					<br>
+					价:${$vo.price}
+					<br>
+					运:${$vo.shipping}
+				</td>
+				
+				<td >
+					<if condition="$vo.num_entered_1_change GT 0">
+						<b class="text-danger">+{$vo.num_entered_1_change}</b>
+					<else/>
+						{$vo.num_entered_1_change}
+					</if>
+				</td>
+				<td >
+					<if condition="$vo.num_entered_7_change GT 0">
+						<b class="text-danger">+{$vo.num_entered_7_change}</b>
+					<else/>
+						{$vo.num_entered_7_change}
+					</if>
+				</td>
+				<td >
+					<if condition="$vo.num_bought_7_change GT 0">
+						<b class="text-danger">+{$vo.num_bought_7_change}</b>
+					<else/>
+						{$vo.num_bought_7_change}
+					</if>
+				</td>
+
+				<td >
+					<?php echo (ceil($vo['rate_1']*10000)/100);?> %
+				</td>
+				<td >
+					$<?php echo (int)$vo['day_total'];?> 
+				</td>
+				<td >
+					{$vo.num_bought_1}
+				</td>
+				<td >
+					{$vo.num_bought_7}
+				</td>
+				<td >
+					{$vo.num_bought_30}
+				</td>
+
+				<td >
+					{$vo.num_entered_1}
+				</td>
+				<td >
+					{$vo.num_entered_7}
+				</td>
+				<td >
+					{$vo.num_entered_30}
+				</td>
+
+				<!-- <td >
+					{$vo.product_name}
+				</td> -->
+
+					<!-- <td >
+						{$vo.tags}
+					</td> -->
+					<td >
+						{$vo.generation_time|date="y-m-d",###}
+						<br>
+						<b>
+						<?php
+							echo second2time(time()-$vo['generation_time'],'',array('mm','d'));
+						?>
+						</b>
+					</td>
+					<!-- <td >
+						{$vo.add_time|date="y-m-d \nH:i",###}
+					</td> -->
+					<td >
+						<notempty name="vo.last_collect_time">
+							{$vo.last_collect_time|date="y-m-d H:i",###}
+						<else/>
+							未采集
+						</notempty>
+
+						<br>
+						周期: <b>{$vo.collect_level}</b>天
+						<br>
+						间隔:
+						<br>
+						<b>
+							<?php
+								echo second2time($vo['add_time_interval'],'',array('d','h'));
+							?>
+						</b>
+					</td>
+				
+				<td >
+					<a href="{:U('view?id='.$vo[id])}" class="btn btn-danger btn-xs" target="_blank" >查看产品</a>
+					<br>
+					<br>
+					<empty name="vo.local_product_id">
+						<a onclick="addToProduct({$vo[id]});"  class="btn btn-info btn-xs">添加产品库</a>
+					<else/>
+						<span>
+							已添加进产品库
+							<br>
+							ID:{$vo['local_product_id']}
+							<a onclick="viewProduct({$vo['local_product_id']});"  class="btn btn-info btn-xs">查看</a>
+						</span>
+					</empty>
+					<if condition="isAdmin()">
+					<!-- 	<a onclick="edit({$vo[id]});"  class="btn btn-primary btn-xs" target="_blank" >修改</a>
+						<br>
+						<br>
+						<a class="btn btn-warning btn-xs" onclick="state({$vo.id},1)">删除</a> -->
+					</if>
+				</td>
+			</tr>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+
+<div id="tmp" class="display-none">
+	<form name="form_tmp" id="form_tmp" method="post" class="form-inline">
+	</form>
+</div>
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+
+<!-- 模态弹窗-->
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxIframe" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:800px;height:100%;min-height:500px;" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<div class="modal fade" id="RightBox" role="dialog"  tabindex="-1" aria-labelledby="RightBoxIframe" aria-hidden="true">
+	<div class="modal-dialog" style="width:100%;height:100%;margin-left: 20%;padding-bottom:0px;">
+		<iframe src=""  id="RightBoxIframe" name="RightBoxIframe"  style="width:80%;z-index:100;height:100%;" scrolling="auto" ></iframe>
+	</div>
+</div>
+<script type="text/javascript">
+function del(id) {
+	if(confirm("确认删除？将不可恢复")){
+		$.post("{:U('save')}",{id:id,opmode:'del'},function(msg){
+			if(msg.status){
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+			
+		}).error(function(){
+			alert("网络错误,请重试");
+			window.location.reload();
+		});
+	}
+}
+function state(id,type) {
+	if(!confirm("确认删除？")){
+		return;
+	}
+	if(type){
+		is_del=1;
+	}else{
+		is_del=0;
+	}
+
+	$.post("{:U('save')}",{id:id,opmode:'edit',is_del:is_del},function(msg){
+		if(msg.status){
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alert("网络错误,请重试");
+		window.location.reload();
+	});
+
+}
+function edit(id){
+	if(id){
+		var url="<?php echo U("edit"); ?>?id="+id+"&_" + Math.round(new Date().getTime()/1000);
+	}else{
+		var url="<?php echo U("edit"); ?>?_" + Math.round(new Date().getTime()/1000);
+	}
+	$("#middleBoxIframe").attr("src",url);
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+function viewAnalysis(id){
+	if(id){
+		var url="<?php echo U("viewAnalysis"); ?>?id="+id+"&_" + Math.round(new Date().getTime()/1000);
+	}else{
+		alertWarning("参数错误");
+	}
+	$("#RightBoxIframe").attr("src",url);
+	$("#RightBox").modal("show");	//.modal({backdrop:'static'})
+}
+function addToProduct(id){
+	if(!confirm("确认添加？")){
+		return false;
+	}
+	if(id){
+		var url="<?php echo U("viewAnalysis"); ?>?id="+id+"&_" + Math.round(new Date().getTime()/1000);
+	}else{
+		alertWarning("参数错误");
+	}
+	$.post("{:U('addToProduct')}",{id:id},function(msg){
+		if(msg.status){
+			//alert("添加成功");
+			location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alertWarning("网络错误");
+	})
+}
+function viewProduct(id){
+	$("#form_tmp").html('正在获取数据...');
+	$("#form_tmp").attr("action","{:U('Product/index')}");
+	$("#form_tmp").attr("target","_blank");
+	$("#form_tmp").append('<input type="hidden" name="advanced_q" value="'+id+'" />');
+	$("#form_tmp").append('<input type="hidden" name="show_status" value="0" />');
+	$("#form_tmp").submit();
+}
+function viewGoodProduct(){
+	var param = {
+		_order:"num_bought_1",
+		last_collect_time:decodeURI("<?php echo date("Y-m-d",time()-3600*24*7)." - ".date("Y-m-d") ?>"),
+		filter_search_method:{num_bought:"between"},
+		filter:{num_bought:{0:0,1:6000}},
+	};
+	tmpSendForm('{:U()}',$.param(param));
+}
+</script>

@@ -1,0 +1,454 @@
+<layout name='Layout/ace_layout' />
+
+<style type="text/css">
+	.choose_place{
+		font-size: 18px;
+		padding: 0px;
+	}
+</style>
+<form name="form_search" action="{:U()}" id="form_search" method="post" class="form-inline">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+
+	<input type="hidden" name="offset_top" id="offset_top" value="{$Think.request.offset_top}">
+
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">{$title}</h1>
+	<div class="col-sm-10">
+
+		<div class="form-group col-sm-3">
+			<input class="form-control" type="text" id="id" name="id" value="{$Think.request.id}"  placeholder="拣货单序号, 英文逗号分隔" />
+		</div>
+		<div class="form-group col-sm-2">
+			<select name="add_uid" id="add_uid" style="width:100%;">
+				<option value="">选择添加用户</option>
+				<volist name="user_list" id="user">
+					<option value="{$user.id}" <eq name="user.id" value="$_REQUEST['add_uid']">selected="selected"</eq> >{$user.emp_name}</option>
+				</volist>
+			</select>
+		</div>
+
+		<div class="form-group col-sm-3">
+			<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}" placeholder="创建拣货单时间">
+		</div>
+
+		<!-- <div class="form-group col-sm-2">
+			<select name="supplier_platform_id" id="supplier_platform_id" class="form-control">
+				<option value="">选择供应商平台</option>
+				<volist name="supplier_platform_list" id="supplier_platform">
+					<option value="{$supplier_platform.id}" <eq name="Think.request.supplier_platform_id" value="$supplier_platform.id">selected</eq>>{$supplier_platform.platform} ({$supplier_platform.platform_name})</option>
+				</volist>
+			</select>
+		</div> -->
+
+		<div class="input-group col-sm-4">
+			<div class="input-group">
+				<input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="规格SKU,SKU名称"/>
+				<span class="input-group-btn">
+					<button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+					<a class="roload_form_action btn btn-sm btn-danger" title="重新载入"><i class="bigger-125 icon-rotate-right"></i> </a>
+				</span>
+
+			</div>
+		</div>
+	</div>
+</div>
+<ul class="nav nav-tabs">
+    <volist name="from_type_list" id="from_type">
+        <li <eq name="from_type" value="$_REQUEST['from_type_select']">class="active"</eq> >
+			<a data-type="{$from_type}" class="fromTypeFilter" data-toggle="tab">{$from_type|L}</a>
+        </li>
+    </volist>
+    <input type="hidden" id="from_type_select" name="from_type_select" value="{$_REQUEST['from_type_select']}">
+</ul>
+
+<div class="message-container" id="container_table" style="width:100%;overflow:scroll;">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="btn-group">
+				<a href="{:U('index')}" target="_blank" class="btn btn-primary">拣货单</a>
+			</div>
+			<div class="btn-group">
+				<a href="{:U('V2StockPickingDetail/index')}" target="_blank" class="btn btn-info">拣货批次</a>
+			</div>
+
+			<div class="btn-group">
+				<div class="col-sm-4">
+					区域<br>
+					<select class="choose_place form-control" id="region_select" name="region_id" onchange="ajaxGetChildrenList($(this).val(),'shelf','region');"><option value="">无数据</option></select>
+				</div>
+				<div class="col-sm-4">
+					货架<br>
+					<select class="choose_place form-control" id="shelf_select" name="shelf_id" onchange="ajaxGetChildrenList($(this).val(),'place','shelf');"><option value="">无数据</option></select>
+				</div>
+				<div class="col-sm-4">
+					货架位<br>
+					<select class="choose_place form-control" id="place_select" name="place_id"><option value="">无数据</option></select>
+				</div>
+			</div>
+
+			<switch name="Think.request.from_type_select" >
+			<case value="Local product">
+				<div class="btn-group" style="width:180px;">
+					<div class="input-group">
+						<input name="ahead_of_time" class="auto_submit input-date-time form-control" type="text" placeholder="此时间之前的拣货单" value="{$Think.request.ahead_of_time}">
+						<span class="input-group-btn">
+							<a onclick="$('.input-date-time').val('').change();" class="btn btn-sm">
+								<i class=" icon-remove"></i>
+							</a>
+						</span>
+					</div>
+				</div>
+
+				<div class="btn-group">
+					<label>
+		                <input type="checkbox" class="auto_submit ace input-lg" name="old_order_preference" value="1" <notempty name="Think.request.old_order_preference">checked="checked"</notempty> />
+		                <span class="lbl">
+		                    急单优先模式
+		                </span>
+		            <label>
+				</div>
+				<div class="btn-group">
+					<label>
+		                <input type="checkbox" class="auto_submit ace input-lg" name="picking_part_package" value="1" <notempty name="Think.request.picking_part_package">checked="checked"</notempty> />
+		                <span class="lbl">
+		                    部分拣货包裹
+		                </span>
+		            <label>
+				</div>
+				<div class="btn-group">
+					<label>
+		                <input type="checkbox" class="auto_submit ace input-lg" name="account_id_62" value="1" <notempty name="Think.request.account_id_62">checked="checked"</notempty> />
+		                <span class="lbl">
+		                    62鞋子衣服优先模式
+		                </span>
+		            <label>
+				</div>
+				
+			</case>
+			<case value="Transfer plan">
+				<div class="btn-group">
+					<label>
+		                <input type="checkbox" class="auto_submit ace input-lg" name="session_add" value="1" <notempty name="Think.request.session_add">checked="checked"</notempty> />
+		                <span class="lbl">
+		                    当前用户创建的拣货单
+		                </span>
+		            <label>
+				</div>
+			</case>
+			<default />
+			</switch>
+
+		</div>
+	</div>
+
+	<ul class="nav nav-tabs">
+	    <?php 
+	        if($_REQUEST['warehouse_id']){
+	            $warehouse_id_select = $_REQUEST['warehouse_id'];
+	        }else{
+	            $warehouse_id_select = $local_warehouse_list[0]['id'];
+	        }
+	    ?>
+	    <volist name="local_warehouse_list" id="warehouse">
+	        <li <eq name="warehouse.id" value="$warehouse_id_select">class="active"</eq> >
+	            <a class="selectWarehouse" data-id="{$warehouse.id}" data-toggle="tab">{$warehouse.warehouse_name}</a>
+	        </li>
+	    </volist>
+	    <input type="hidden" id="warehouse_id" name="warehouse_id" value="{$warehouse_id_select}">
+	</ul>
+
+	<table class="table table-striped table-hover">
+		<include file="Layout:title_v2"/>
+		
+		<tbody class="tbody" style="font-size:15px;">
+			<volist name="list" id="vo" key="tr_key">
+				<tr id="tr_{$vo.id}" class="list_tr">
+					<td >
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td >
+						<a href="{$vo.thumbnail}" class="thumbnail" target="_blank"><img src="{$vo.thumbnail}" data-src="{$vo.thumbnail}" width="80" /></a>
+						<!-- <a href="{:U('V2SkuProduct/index')}?ids={$vo.sku_id}" target="_blank">{$vo.sku}</a> -->
+					</td>
+					<td style="width:100px;">
+						<b style="font-size:15px;">{$vo.sku}</b>
+						<br>
+						<br>
+						<br>
+						搜索商品SKU:
+						<a data-parent_sku="{$vo.parent_sku_data.parent_sku}" class="searchParentSku btn btn-primary btn-sm" style="font-size:15px;">{$vo.parent_sku_data.parent_sku}</a>
+					</td>
+					<td style="width:120px;">
+						<b style="font-size:15px;">{$vo.sku_name}</b>
+					</td>
+					<td >
+						<b style="font-size:15px;">{$vo.from_type|L}</b>
+					</td>
+					<td >
+						{$vo.place_name}
+						<br>
+						<b class="red">该货架库存</b><br>
+						系统数量: <b>{$vo.place_quantity_data.quantity}</b> 个<br>
+						可用数量: <b>{$vo.place_quantity_data.available_quantity}</b> 个<br>
+						预留数量: <b>{$vo.place_quantity_data.reserved_quantity}</b> 个<br>
+						拣出数量: <b>{$vo['picking_quantity_total']+$vo['picked_quantity']}</b> 个
+
+					</td>
+					<td <notempty name="vo.add_time_red">class="red"</notempty> >
+						{$vo.add_time|date="y-m-d<bR>H:i:s",###}
+					</td>
+
+					<notempty name="Think.request.old_order_preference">
+						<td <notempty name="vo.online_order_time_red">class="red"</notempty> >
+							{$vo.online_order_time|date="y-m-d<bR>H:i:s",###}
+						</td>
+					</notempty>
+
+					<td style="width:100px;">
+						预留数: {$vo.reserved_quantity_total}<br>
+						拣货中: {$vo.picking_quantity_total}<br>
+						待拣货: <b class="red">{$vo.waiting_picking_quantity_total}</b><br>
+						已确认: {$vo.picked_quantity_total}
+					</td>
+					
+					<td style="width:250px;font-size:15px;">
+						<volist name="vo.plan_list" id="plan_data">
+							<input type="hidden" name="plan_ids[]" value="{$plan_data.id}">
+						</volist>
+
+						当前用户拣货中：<b style="" class="red">{$vo.user_picking_quantity|default="0"}</b> 个
+						<neq name="vo.user_picking_quantity" value="$vo.picking_quantity_total">
+							<br>
+							其它用户拣货中：<b>{$vo['picking_quantity_total']-$vo['user_picking_quantity']}</b>
+						</neq>
+						
+						<br>
+						本次拣货：<input type="number" data-bak="{$vo['waiting_picking_quantity_total']|default="0"}" data-max="{$vo['waiting_picking_quantity_total']|default="0"}" data-min="{$vo['user_picking_quantity']|default="0"}" data-id="{$vo.id}" style="width:60px;font-size:18px;color:blue;" class="change_quantity" id="change_quantity_{$vo.id}" value="{$vo['waiting_picking_quantity_total']|default="0"}">(-{$vo.user_picking_quantity|default="0"} ~ {$vo.waiting_picking_quantity_total|default="0"})
+						<br>
+						<span class="red" id="change_quantity_alert_{$vo.id}"></span>
+						<br>
+						<a data-id="{$vo.id}" data-type="add" class="changePickingQuantity btn btn-inverse btn-sm">+1</a>
+						&nbsp;
+						<a data-id="{$vo.id}" data-type="reduce" class="changePickingQuantity btn btn-danger btn-sm">-1</a>
+						&nbsp;
+						<a id="confirmChangeButton_{$vo.id}" data-id="{$vo.id}" class="confirmChangePickingQuantity btn btn-primary btn-sm display-none">OK</a>
+						<br>
+						<br>
+						<a data-id="{$vo.id}" data-type="add" data-quantity="5" class="changePickingQuantity btn btn-inverse btn-sm">+5</a>
+						&nbsp;
+						<a data-id="{$vo.id}" data-type="reduce" data-quantity="5" class="changePickingQuantity btn btn-danger btn-sm">-5</a>
+						
+						<?php
+							if(isAdmin()){
+						?>
+							<!-- &nbsp;
+							<a id="confirmPickedQuantity_{$vo.id}" data-id="{$vo.id}" class="confirmPickedQuantity btn btn-primary btn-sm">核对</a> -->
+						<?php
+							}
+						?>
+						
+					</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+
+<div  style="height:400px;"></div>
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+<script type="text/javascript">
+//货架位
+<include file="V2StockPlace:getchildrenlistjs" />
+
+
+$(function($){
+
+	var choose_warehouse = {$warehouse_id_select|default="false"};
+	var choose_region = {$_REQUEST['region_id']|default="false"};
+	var choose_shelf = {$_REQUEST['shelf_id']|default="false"};
+	var choose_place = {$_REQUEST['place_id']|default="false"};
+
+	ajaxGetChildrenList(false,false,false,choose_warehouse);
+	ajaxGetChildrenList(choose_warehouse,'region','warehouse',choose_region);
+	ajaxGetChildrenList(choose_region,'shelf','region',choose_shelf);
+	ajaxGetChildrenList(choose_shelf,'place','shelf',choose_place);
+
+	$(".selectWarehouse").click(function(){
+		var id = $(this).data("id");
+		var id_bak = $("#warehouse_id").val();
+		if(id == id_bak){
+			return false;
+		}
+		if(!id){
+			alertWarning("缺少参数ID");
+			return false;
+		}
+		if($("#warehouse_id").length<=0){
+			alertWarning("缺少warehouse对象");
+			return false;
+		}
+		$("#warehouse_id").val(id);
+		$("#form_search").submit();
+	});
+
+	$("#add_uid").select2();
+	
+	$(".fromTypeFilter").click(function(){
+		var type = $(this).data("type");
+		var data = "from_type_select="+type;
+		tmpSendForm("{:U('')}",data,"_self",false,false);
+	});
+
+	$(".searchParentSku").click(function(){
+		var parent_sku = $(this).data("parent_sku");
+		$("#q").val(parent_sku);
+		$("#form_search").submit();
+	});
+
+	$(".changePickingQuantity").click(function(){
+		var id = $(this).data("id");
+		var type = $(this).data("type");
+		var quantity = $(this).data("quantity");
+		if(!quantity){
+			quantity = 1;
+		}
+		var change_quantity = parseInt($("#change_quantity_"+id).val());
+		if(type == "add"){
+			change_quantity+=quantity;
+		}else{
+			change_quantity-=quantity;
+		}
+		$("#change_quantity_"+id).val(change_quantity).change();
+
+	});
+
+	$(".change_quantity").change(function(){
+		var id = $(this).data("id");
+		var change_quantity_max = parseInt($(this).data("max"));
+		var change_quantity_min = 0-parseInt($(this).data("min"));
+		var change_quantity_bak = parseInt($(this).data("bak"));
+		var change_quantity = parseInt($(this).val());
+		if(change_quantity>change_quantity_max){
+			$(this).val(change_quantity_bak);
+			$("#change_quantity_alert_"+id).html("最大拣货数为 "+change_quantity_max);
+			return false;
+		}else if(change_quantity < change_quantity_min){
+			$(this).val(change_quantity_bak);
+			$("#change_quantity_alert_"+id).html("最大消减数为 "+change_quantity_min);
+			return false;
+		}else{
+			$(this).data("bak",change_quantity);
+			$(this).val(change_quantity);
+			$("#change_quantity_alert_"+id).html("");
+		}
+
+		if(!$(this).val()){
+			$("#confirmChangeButton_"+id).hide();
+		}else{
+			$("#confirmChangeButton_"+id).show();
+		}
+		if(change_quantity!=0){
+			$("#confirmChangeButton_"+id).show();
+		}else{
+			$("#confirmChangeButton_"+id).hide();
+		}
+	}).change();
+
+	$(".confirmChangePickingQuantity").click(function(){
+		var id = $(this).data("id");
+		var id_obj_list = $("#tr_"+id+" [name='plan_ids[]']");
+		console.log(id_obj_list);
+		var change_quantity = $("#change_quantity_"+id).val();
+		if(!id || id_obj_list.length<1){
+			alertWarning("参数错误，请呼叫技术人员或刷新后重试");
+			return false;
+		}
+		// if(!confirm("确认数量正确？")){
+		// 	return false;
+		// }
+		var data = {id:id,change_quantity:change_quantity,plan_ids:[]};
+		for (var i = 0; i < id_obj_list.length; i++) {
+			data.plan_ids.push(id_obj_list.eq(i).val());
+		};
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('changePickingQuantity')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				$("#offset_top").val($(document).scrollTop());
+				$("#form_search").submit();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	//直接核对数量
+	$(".confirmPickedQuantity").click(function(){
+		var id = $(this).data("id");
+		var id_obj_list = $("#tr_"+id+" [name='plan_ids[]']");
+		var change_quantity = $("#change_quantity_"+id).val();
+
+		if(!id || id_obj_list.length<1){
+			alertWarning("参数错误，请呼叫技术人员或刷新后重试");
+			return false;
+		}
+	
+		var data = {id:id,change_quantity:change_quantity,plan_ids:[]};
+		for (var i = 0; i < id_obj_list.length; i++) {
+			data.plan_ids.push(id_obj_list.eq(i).val());
+		};
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('confirmPickedQuantity')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".auto_submit").change(function(){
+		$("#form_search").submit();
+	});
+
+	
+
+	scrollToOffsetTop();
+
+});
+
+function scrollToOffsetTop(){
+
+	var offset_top = $("#offset_top").val();
+
+	if(offset_top > 0){
+		scrollTo(0,offset_top);
+	}
+
+}
+
+</script>

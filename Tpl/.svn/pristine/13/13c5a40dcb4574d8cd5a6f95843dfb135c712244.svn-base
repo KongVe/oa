@@ -1,0 +1,87 @@
+<layout name='Layout/ace_layout' />
+
+<script type="text/javascript" src="__PUBLIC__/js/ichart.1.2.src.js"></script>
+
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="id" value="{$Think.request.id}" />
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">{$title}</h1>
+
+	<div class="col-sm-5 pull-left">
+	
+		<include file="Statistics:nav" />
+
+		<div class="btn-group">
+			<div id="syncCK1"></div>
+		</div>
+	</div>
+
+
+	<div class="col-sm-5 pull-right">
+
+			<div class="col-sm-12">
+				<div class="form-group col-sm-4">
+					<div class="col-sm-12">
+						<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="order_time" id="order_time" value="{$Think.request.order_time}"  placeholder="订单时间">
+					</div>
+				</div>	
+
+				<div class="form-group col-sm-3">
+					<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索 SKU，产品名称"/>
+				</div>
+
+				<div class="form-group col-sm-3">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="$('#oaid').val('');this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div>
+	</div>
+</div>
+<!-- 
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a href="#" class="btn btn-sm btn-danger" >sku统计</a>
+			
+		</div>
+		<div class="btn-group">
+			<div id="syncCK1"></div>
+		</div>
+	</div>
+</div>
+ -->
+<div class="message-container"style="width:35%;">
+	<table class="table table-striped table-hover">
+		<include file="Layout:title"/>
+	</table>
+
+	<div id='canvasDiv'></div>
+	
+		
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;top:158px;width:56%;z-index:100;height:300px;left:44%;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+<div class="modal fade" id="editProduct" role="dialog"  tabindex="-1" aria-labelledby="editProductLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="editProductIframe" name="editProductIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox1" role="dialog"  tabindex="-1" aria-labelledby="bottomBox1Label" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBox1Iframe" name="bottomBox1Iframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>

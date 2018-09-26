@@ -1,0 +1,107 @@
+<layout name='Layout/ace_layout' />
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">产品分类</h1>
+	<div class="col-sm-10 pull-right">
+		<div class="btn-group pull-left">
+			<a onclick="showProductTypeContral()" class="btn btn-sm">产品类型管理</a>
+		</div>
+	</div>
+</div>	
+
+
+<?php
+	//dump($category_tree);
+	function showTree($tree,$tmp,$label){
+		$tree=multi_array_sort($tree,'order');
+		//dump($tree);
+		if($tmp==1){
+			echo "<table cellpadding='0' cellspacing='0' border='0' style='width:98%' class='table table-condensed'>";
+			$icon="icon-minus";
+		}elseif($tmp>=2 & $tmp<=3){
+			echo "<table cellpadding='0' cellspacing='0' border='0' id='cateId".$label."' style='width:100%'>";
+			if($tmp==2)$icon="icon-minus";
+			else $icon="icon-plus";
+		}else{
+			echo "<table cellpadding='0' cellspacing='0' border='0' id='cateId".$label."' style='width:100%;display:none;'>";
+			$icon="icon-plus";
+		}	 
+		foreach ($tree as $kk => $value){
+			if(isset($value['_child'])){
+				echo "<tr><td style='width:24px;'></td><td style='padding-right:0px;padding-bottom:0px;'><span class='".$icon."' onclick='ShowCate(\"cateId".$tree[$kk]['id']."\",this)'></span> <span>".$value['name']."</span>";		
+			}else{
+				echo "<tr><td style='width:24px;'></td><td style='padding-right:0px;padding-bottom:0px;'><span style='min-width:28px;'>&nbsp;&nbsp;&nbsp;</span> <span>".$value['name']."</span>";		
+			}  
+
+			if($tmp!=1)echo '<span onclick="del('.$value['id'].')" class="btn btn-danger btn-xs" style="float:right;"> <i class="icon-trash"></i>删除</span>';
+			else echo '<span onclick="del('.$value['id'].')"  style="float:right;width:51px;">&nbsp;</span>';
+
+			echo '<span onclick="editModal('.$value['id'].',\''.$value['name'].'\')" class="btn btn-primary btn-xs" style="float:right;"> <i class="icon-pencil"></i>修改</span>';
+			echo '<span onclick="addModal('.$value['id'].')" class="btn btn-primary btn-xs " style="float:right;"> <i class="icon-plus-sign "></i>增加子分类</span>';
+
+			if(isset($value['_child'])){
+				showTree($value['_child'],++$tmp,$tree[$kk]['id']);
+			}
+			echo "</td></tr>";
+		}
+		echo "</table>";
+	}
+
+	if(isset($category_tree[0])){
+		showTree($category_tree,1);
+	}
+	
+?>
+
+<!-- 增加子分类 -->
+<div class="modal fade" id="addCate" tabindex="-1" role="dialog" aria-labelledby="addCateLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="addCateLabel">增加子分类</h4>
+      </div>
+
+      <div class="modal-body">   	
+    		分类名称：<input type="text" name="name" id="add_category_name">
+      </div>
+      <div class="modal-body" >
+      		产品类型：<span id="product_type_list1"></span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary" onclick="" id="addBtn" >增加分类</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!-- 修改分类 -->
+<div class="modal fade" id="editCate" tabindex="-1" role="dialog" aria-labelledby="editCateLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="editCateLabel">修改分类</h4>
+      </div>
+
+      <div class="modal-body">   	
+    		分类名称：<input type="text" name="name" id="edit_category_name">
+      </div>
+      <div class="modal-body">
+      		分类名称：<span id="product_type_list2"></span>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-primary" onclick="" id="editBtn" >修改</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- 产品类型管理 -->
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>

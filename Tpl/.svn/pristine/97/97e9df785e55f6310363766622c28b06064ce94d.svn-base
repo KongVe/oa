@@ -1,0 +1,161 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" action="{:U()}" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">{$title}</h1>
+	<div class="col-sm-10">
+		<div class="col-xs-4">
+			<div class="col-xs-3">
+				仓库<br>
+				<select class="form-control" id="warehouse_select" name="warehouse_id" onchange="ajaxGetChildrenList($(this).val(),'region','warehouse');"></select>
+			</div>
+			<div class="col-xs-3">
+				区域<br>
+				<select class="form-control" id="region_select" name="region_id" onchange="ajaxGetChildrenList($(this).val(),'shelf','region');"></select>
+			</div>
+			<div class="col-xs-3">
+				货架<br>
+				<select class="form-control" id="shelf_select" name="shelf_id" onchange="ajaxGetChildrenList($(this).val(),'place','shelf');"></select>
+			</div>
+			<div class="col-xs-3">
+				货架位置<br>
+				<select class="form-control" id="place_select" name="place_id"></select>
+			</div>
+		</div>
+
+		<div class="col-sm-2">
+			<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}"   placeholder="记录时间">
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					库存序号
+				</span>
+				<input class="form-control" type="text" id="stock_id" name="stock_id" value="{$Think.request.stock_id}"  placeholder="库存序号, 英文逗号分隔" />
+			</div>
+		</div>
+	
+        <div class="input-group col-sm-3">
+            <input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="搜索 规格SKU,SKU名称"/>
+            <span class="input-group-btn">
+                <button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+            </span>
+        </div>
+
+	</div>	
+</div>	
+
+<div class="message-container">
+	<table class="table table-hover table-bordered">
+		
+		<include file="Layout:title_v2"/>
+
+		<tbody class="tbody">
+			<volist name="list" id="vo">
+				<tr>
+					<td>
+						{$vo.id}
+						<br>
+						<br>
+						<a href="{:U('V2Stock/index')}?id={$vo.stock_id}" class="btn btn-link" target="_blank">查看库存</a>
+					</td>
+					<td>{$vo.sku}</td>
+					<td>{$vo.sku_name}</td>
+					<td>
+						<a class="thumbnail"  href="{$vo.thumbnail}" target="_blank">
+	                        <img src="{$vo.thumbnail}" width="80" />
+	                    </a>
+					</td>
+					<td>
+						<b>{$vo.log_type|L}</b>
+					</td>
+					<td>{$vo.place_name}</td>
+					<td>
+						<?php 
+							if(in_array($vo['log_type'], array('Cancel instock','Change warehouse out','Cancel change warehouse in','Warehouse out','Use stock','Lose','Combine stock reduce','Split stock reduce','Change stock reduce'))){
+
+								echo '<b style="color:red;">-'.$vo['related_quantity'].'</b>';
+
+							}elseif(in_array($vo['log_type'], array('Other','Change warehouse','Change place'))){
+								
+								echo $vo['related_quantity'];
+
+							}else{
+
+								echo '<b style="color:blue;">+'.$vo['related_quantity'].'</b>';
+
+							}
+						?>
+					</td>
+					<td>{$vo.stock_quantity_total}</td>
+					<td>{$vo.place_quantity_total}</td>
+					<td>
+						{$vo.log_data.log_text}
+						<!-- 
+						<volist name="vo.log_data" id="v1">
+							<switch name="key">
+							    <case value="instock_plan_id" >
+						    		入库单ID:{$v1}<br>
+						    		<a href="{:U('V2StockInstockPlan/index?id='.$v1)}" class="btn btn-link" target="_blank">查看</a>
+							    </case>
+							    <default />
+							</switch>
+						</volist> -->
+					</td>
+					<td>{$vo.add_time|default=" "|date="y-m-d H:i",###}</td>
+					<td>{$vo.add_user_name}</td>
+					<td>{$vo.memo}</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" width="200px"/></a>
+</div>
+
+<script type="text/javascript">
+
+//货架位
+<include file="V2StockPlace:getchildrenlistjs" />
+
+$(function(){
+
+	var choose_warehouse = {$_REQUEST['warehouse_id']|default="false"};
+	var choose_region = {$_REQUEST['region_id']|default="false"};
+	var choose_shelf = {$_REQUEST['shelf_id']|default="false"};
+	var choose_place = {$_REQUEST['place_id']|default="false"};
+
+	ajaxGetChildrenList(false,false,false,choose_warehouse);
+	ajaxGetChildrenList(choose_warehouse,'region','warehouse',choose_region);
+	ajaxGetChildrenList(choose_region,'shelf','region',choose_shelf);
+	ajaxGetChildrenList(choose_shelf,'place','shelf',choose_place);
+
+
+	$(".selectWarehouse").click(function(){
+		var id = $(this).data("id");
+		var id_bak = $("#warehouse_id").val();
+		if(id == id_bak){
+			return false;
+		}
+		if(!id){
+			alertWarning("缺少参数ID");
+			return false;
+		}
+		if($("#warehouse_id").length<=0){
+			alertWarning("缺少warehouse对象");
+			return false;
+		}
+		$("#warehouse_id").val(id);
+		$("#form_search").submit();
+	});
+});
+
+</script>

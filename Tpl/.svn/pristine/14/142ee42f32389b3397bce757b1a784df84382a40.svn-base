@@ -1,0 +1,6 @@
+<form action="{:U('ProductCollect/add')}" id="formData" method="post">
+	<input type="hidden" name="links" value="{$links}">
+</form>
+<script type="text/javascript">
+	document.forms[0].submit();
+</script>

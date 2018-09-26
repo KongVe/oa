@@ -1,0 +1,133 @@
+<layout name='Layout/ace_layout' />
+<style type="text/css">
+	.message-container .table .tbody tr td{
+		word-break: break-word;
+	}
+</style>
+<form name="form_search" id="form_search" method="post" class="form-inline">
+	<input type="hidden" name="aliexpress_synch_processing" id="aliexpress_synch_processing" value='' />
+	<input type="hidden" name="multiSearch" id="multiSearch" value="<?php echo $_REQUEST['multiSearch']; ?>" />
+<div class="page-header clearfix">
+	<h1 class="col-xs-2">平台帐号管理</h1>
+	<div class="col-xs-10 pull-right">
+		<div class="form-group col-sm-2">
+				已禁用<input type="checkbox" name="disabled" value='1'  <eq name="Think.request.disabled" value="1">checked</eq>> 
+			</div>
+
+		<div class="form-group col-xs-3">
+			<label class="sr-only" >q</label>
+			<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.post.q}" placeholder="搜索帐号名称"/>
+		</div>
+
+		<div class="form-group">
+			<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+			<button class="btn btn-sm btn-danger" onclick="window.location.reload();" title="重置"><i class="icon-rotate-right" ></i></button>
+		</div>
+	</div>
+</div>	
+<div class="message-container" id="container_table" style="width:100%;overflow:scroll;">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="btn-group">
+				<a href="{:U('taobaoEdit')}" target="_blank" class="btn btn-danger" id="createTemplate">添加帐号</a>
+			</div>
+		</div>
+	</div>
+	<table class="table table-striped table-hover">
+		
+		<include file="Layout:title"/>
+
+		<tbody class="tbody" style="width:100%;">
+		<volist name="list" id="vo">
+			<tr id="tr_{$vo.id}" >
+				<td >
+					<label class="inline pull-left">
+						<input class="ace" type="checkbox" name="template_id[]" value="{$vo.id}" />
+						<span class="lbl"></span>
+						{$vo.id}
+					</label>
+				</td>
+				
+				<td style="min-width:80px;">{$vo.order_account}</td>
+				<td>{$vo.account_name}</td>
+				<td>{$vo.access_token}</td>
+				<!-- <td>{$vo.app_secret}</td> -->
+				<td>
+					<empty name="vo.disabled">
+						<b>有效</b>
+					<else/>
+						<b style="color:red">失效</b>
+					</empty>
+				</td>
+
+				<td>
+					<a href="{:U('taobaoAuthorize?id='.$vo[id])}" class="btn btn-info btn-xs"  target="_blank" >授权</a>
+					<a href="{:U('view?id='.$vo[id])}" class="btn btn-primary btn-xs" target="_blank" >查看</a>
+					<a href="{:U('taobaoEdit?id='.$vo[id])}" class="btn btn-primary btn-xs" target="_blank" >修改</a>
+					<empty name="vo.disabled">
+						<a class="btn btn-danger btn-xs" onclick="state({$vo.id},1)">禁用</a>
+					<else/>
+						<a class="btn btn-danger btn-xs" onclick="state({$vo.id},0)">启用</a>
+					</empty>
+				</td>
+
+			</tr>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+
+<!-- 模态弹窗-->
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxIframe" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<script type="text/javascript">
+function state(id,type) {
+	if(!confirm("确认？")){
+		return;
+	}
+	if(type){
+		disabled=1;
+	}else{
+		disabled=0;
+	}
+
+	$.post("{:U('taobaoSave')}",{id:id,opmode:'edit',disabled:disabled},function(msg){
+		if(msg.status){
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alert("网络错误,请重试");
+		window.location.reload();
+	});
+
+}
+function del(id) {
+	if(confirm("确认删除？将不可恢复")){
+		$.post("{:U('taobaoSave')}",{id:id,opmode:'del'},function(msg){
+			if(msg.status){
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+			
+		}).error(function(){
+			alert("网络错误,请重试");
+			window.location.reload();
+		});
+	}
+}
+</script>

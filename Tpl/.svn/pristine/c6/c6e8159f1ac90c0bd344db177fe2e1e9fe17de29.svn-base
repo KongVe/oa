@@ -1,0 +1,326 @@
+<layout name='Layout/ace_popup' />
+	<form action="" method="POST" name="dataForm" id="dataForm" class="well form-horizontal clearfix" role="form">
+		<volist name="Think.request.product_id" id="id">
+			<input type="hidden" class="product_id" name="product_id[]" value="{$id}">
+		</volist>
+		<div class="page-header clearfix">
+			<h1 class="col-sm-2">订单同步</h1>
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="account_id">帐号</label>
+			<select name="param[account_id]" id="account_id" class="form-control">
+				<option value="" >请选择帐号</option>
+				<volist name="accountList" id="website">
+					<optgroup label="{$website[0]['website']}">
+						<volist name="website" id="account">
+							<option value="{$account.id}" <?php if($_REQUEST['param']['account_id'] == $account['id']) echo "selected"; ?>>{$account.account_name} <if condition="$account.proxy_host neq 0">代理：{$account.proxy_host}:{$account.proxy_port}</if></option>
+						</volist>
+					</optgroup>
+				</volist>
+			</select>
+		</div>
+		
+		
+<div id="div1">
+	<div class="form-group">
+		<label class="control-label">订单创建时间</label><br/>
+		<input style="cursor:pointer;" dataid-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="param[order_time]" id="order_time" value="<?php if($_REQUEST['param']['order_time']){ echo $_REQUEST['param']['order_time'];}?>"  placeholder="订单创建时间">
+	</div>
+	<div class="form-group">
+		<label class="control-label">订单状态
+		</label>
+		<select name="param[order_state]" class="form-control">
+			<option value="" selected="selected">所有订单</option>
+			<option value="ALL_WAIT_PAY">没有付款</option>
+			<option value="TRADE_NO_CREATE_PAY">没有创建支付宝交易</option>
+			<option value="WAIT_BUYER_PAY">等待买家付款</option>
+			<option value="WAIT_SELLER_SEND_GOODS">等待卖家发货</option>
+			<option value="SELLER_CONSIGNED_PART">卖家部分发货</option>
+			<option value="WAIT_BUYER_CONFIRM_GOODS">卖家已发货</option>
+			<option value="TRADE_BUYER_SIGNED">货到付款买家已签收</option>
+			<option value="TRADE_FINISHED">交易成功</option>
+			<option value="TRADE_CLOSED">交易关闭</option>
+			<option value="TRADE_CLOSED_BY_TAOBAO">交易被淘宝关闭</option>
+			<option value="ALL_CLOSED">以上两种关闭交易</option>
+			<option value="WAIT_PRE_AUTH_CONFIRM">余额宝0元购合约中</option>
+		</select>	
+	</div>
+</div>
+<div class="form-group">
+	<label class="control-label">
+		<input class="" type="checkbox" name="param[increment]" id="increment" value="1" onchange="changeSynchType(this);" placeholder="增量同步">
+		<span>快速同步(增量同步) 根据该帐号订单最后更新时间自动同步订单</span>
+	</label>
+	
+</div>
+<script type="text/javascript">
+function changeSynchType(obj){
+	if($(obj).prop("checked")){
+		$("#div1").hide();
+	}else{
+		$("#div1").show();
+	}
+}
+</script>
+
+
+		<div class="alert"></div>
+
+		<div class="progress progress-striped active" style="display:none;">
+			<div class="progress-bar"  role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+		</div>
+
+		<div class="form-group text-center">
+			<a type="submit" id="synch" data-loading-text="正在保存..."  class="btn btn-primary" />同步</a>
+			<a type="submit" id="continue" data-loading-text="正在保存..."  class="btn btn-primary" style="display:none;" />继续</a>
+			<a type="submit" id="cancel" data-loading-text="正在保存..."  class="btn btn-danger" />取消</a>
+		</div>
+	</form>
+<script type="text/javascript">
+var alertInfoList = new Array(),orderList, ifFinished, orderListParam,orderTotal, orderSynchronizedCount;
+
+
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);
+
+
+	$("#synch").click(function(){
+		$(this).html("同步中。。。").attr("disabled","disabled");
+		alertInfo("开始同步，先获取订单列表。。。");
+		orderList = new Array();
+		ifFinished = false;
+		orderTotal = 0;
+		orderSynchronizedCount = 0;
+
+		//先获取订单列表
+		getOrderList();
+	
+	})
+
+	$("#continue").click(function(){
+		$(this).hide();
+
+		if(orderList.length > 0){
+			getOrderDetail(orderList);
+		}else{
+			msg = "没有要同步的订单，同步结束";
+			alertInfo(msg,'success',true);
+		}
+
+	})
+
+	$("#cancel").click(function(r){
+		document.location.reload();
+		parent.$("#middleBox").modal('hide');
+	})
+
+
+
+	$("#account_id").change(function(){
+
+		var account_id = $(this).val();
+
+		$("#dataForm").attr("action","{:U('TaobaoOrder/all')}").submit();
+
+	})
+})
+
+function getOrderList(param){
+	if(param != null){
+		postVars = "&" + $.param({param:param});
+	}else{
+		postVars = '';
+	}
+	$.ajax({
+		type:"POST",
+		url:"{:U('OrderSynch/getOrderList')}",
+		cache: false,
+		data: $("#dataForm").serialize() + postVars,
+		success:function(r){
+			console.log(r);
+					if(r.status){
+						if(r.data.orderList == null && r.data.finished == true){
+							msg = "没有要同步的订单，同步结束";
+							alertInfo(msg,'success',true);
+							return;
+						}
+
+						//记录起orderList
+						for(var i = 0; i < r.data.orderList.length; i++){
+							orderList.push(r.data.orderList[i]);
+							orderTotal++;
+						}
+
+						alertInfo("已获取订单数：" + orderTotal);
+						
+						if(r.data.finished == true){
+							if(r.data.antitone == true){
+								//列表反序
+								orderList = orderList.reverse();
+							}
+							
+							if(orderList.length > 0){	
+								alertInfo('开始获取订单详细。。。');
+								getOrderDetail(orderList);
+							}else{
+								msg = "没有要同步的订单，同步结束";
+								alertInfo(msg,'success',true);
+								return;
+							}
+						}else{
+							getOrderList(r.data.param);
+						}
+
+					}else{
+						if(typeof(r) != 'object' && r.indexOf("Maximum execution time of") > 0){
+							getOrderList(param);
+						}else{
+							if(typeof(r.info)=="string"){
+								if(r.info.indexOf("Retry") > 0){
+									alertInfo(r.info,'danger');
+									getOrderList(param);	
+								}else{
+									alertInfo(r.info,'danger',true);
+									$("#synch").html("同步").attr("disabled",null);	
+								}
+							}else{
+								if(r.url=="redirect"){
+									alertWarning("当前帐号需要授权，请管理员到帐号管理页面进行授权。");
+									return false;
+									// window.location.href=r.info.url;
+								}
+							}
+							
+						}	
+					}
+				},
+		error:function(r){
+			getOrderList(param);
+		}
+	})
+}
+
+function getOrderDetail(orderList){
+	if(orderList[0]['orderId']=='63639635347914' ){
+	//|| orderList[0]['orderId']=='63669585094597'){
+		orderSynchronizedCount ++ ;
+		orderList.shift();	
+		alertInfo("所有订单数：" + orderTotal + " , 63639635347914订单跳过" ,'warning');
+		
+		if(orderList.length > 0){
+			getOrderDetail(orderList);
+		}else{
+			$("#synch").html("同步").attr("disabled",null);
+			alertInfo("同步完成.",'success',true);
+		}
+	}
+	$.ajax({
+		type:"POST",
+		url:"{:U('OrderSynch/getOrderDetail')}",
+		cache:false,
+		data:$("#dataForm").serialize() + "&" + $.param(orderList[0]),
+		success:function(r){
+			console.log(r);
+			if(r.status && r.data.orderDetail != undefined){
+
+				orderSynch(r.data.orderDetail);
+
+			}else{
+
+				if(typeof(r) != 'object' && r.indexOf("Maximum execution time of") > 0){
+					getOrderDetail(orderList);
+				}else{
+					
+					if(r.info.indexOf("Retry") > 0){
+						alertInfo(r.info,"danger");
+						getOrderDetail(orderList);
+					}else{
+						alertInfo(r.info,"danger",true);
+						$("#continue").show();
+					}
+				}
+				
+			}
+
+			
+		},
+		error:function(){
+			getOrderDetail(orderList);
+		}
+
+	})
+}
+
+function orderSynch(orderDetail){
+	if(orderList.length == 1){
+		lastOrder = 1;
+	}else{
+		lastOrder = 0;
+	}
+
+
+	$.ajax({
+		type:"POST",
+		url:"{:U('OrderSynch/orderSynch')}",
+		cache:false,
+		data:$("#dataForm").serialize() + "&" + $.param(orderDetail) + "&lastOrder=" + lastOrder ,
+		success:function(r){
+			if(r.status){
+				orderSynchronizedCount ++ ;
+				orderList.shift();	
+				alertInfo("所有订单数：" + orderTotal + " , 已同步订单数：" + orderSynchronizedCount,'warning');
+				
+				if(orderList.length > 0){
+					getOrderDetail(orderList);
+				}else{
+					$("#synch").html("同步").attr("disabled",null);
+					alertInfo("同步完成.",'success',true);
+				}
+
+			}else{
+				if(typeof(r) != 'object' && r.indexOf("Maximum execution time of") > 0){
+					
+				}else{
+					
+					if(r.info.indexOf("Retry") > 0){
+						alertInfo(r.info,'danger');
+						orderSynch(orderDetail);			
+					}else{
+						alertInfo(r.info,'danger',true);
+						$("#continue").show();				
+					}
+						
+				}
+
+			}
+		},
+		error:function(){
+			orderSynch(orderDetail);
+		}
+	})
+}
+
+
+function alertInfo(msg,style,ifAlert){
+	alertInfoList.push(msg);
+	if(alertInfoList.length > 10) {
+		alertInfoList.shift();
+	}
+	html = alertInfoList.join("<br/>");
+	if(style == null){
+		style = 'warning';
+	}
+
+	$(".alert").attr("class","alert alert-" + style).html(html);
+	if(ifAlert == true){
+		alert(msg);
+	}
+}
+
+
+</script>

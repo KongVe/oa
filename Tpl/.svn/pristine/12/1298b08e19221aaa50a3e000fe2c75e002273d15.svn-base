@@ -1,0 +1,68 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" name="id" value="{$vo.id}">
+		<input type="hidden" id="opmode" name="opmode" value="{$vo.opmode}" >
+		<div class="form-group">
+			<label class="control-label" for="price_lowest">帐号</label>
+			<select class="form-control" id="account_id" name="account_id">
+				<option value="">请选择账号</option>
+				<volist name="accountList" id="website">
+					<optgroup label="{$website[0]['website']}">
+						<volist name="website" id="account">
+							<option value="{$account.id}" <?php if($_REQUEST['account_id'] == $account['id']) echo "selected"; ?>>{$account.account_name} <notempty name="account.proxy_host" > &nbsp;&nbsp;VPC：{$account.proxy_host}</notempty></option>
+						</volist>
+					</optgroup>
+				</volist>
+			</select>
+		</div>
+		<table id="skuList">
+			<tr>
+				<td width=300>模板</td>
+				<td>SKU</td>
+			</tr>
+		</table>
+		<br>
+		<br>
+		<div class="form-group text-center">
+			<a class="btn btn-success" onclick="doGenerateSku();">生成SKU</a>
+			<a class="btn btn-danger" id="cancel">取消</a>
+		</div>
+	</form>
+<script type="text/javascript">
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);
+
+	$("#cancel").click(function(){
+		parent.$("#middleBox").modal("hide");
+	})
+
+	$("#account_id").change(function(){
+		doGenerateSku();
+	})
+})
+
+function doGenerateSku(){
+	$("#account_id").attr("disabled","disabled");
+	$("#skuList tr.skuContent").remove();
+	var data = {
+		account_id:$("#account_id").val()
+	}
+	$.post("{:U('doGenerateSku')}",data,function(r){
+		if(r.status){
+			for(var i=0;i < r.data.skuList.length; i++){
+				sku = r.data.skuList[i];
+				trHtml = "<tr class='skuContent'><td>" + sku.name + " " + sku.rule + "</td><td>" + sku.sku + "</td></tr>";
+				$("#skuList").append(trHtml);
+			}
+		}else{
+			alert(r.info);
+		}
+		$("#account_id").attr("disabled",null);
+	})
+}
+</script>

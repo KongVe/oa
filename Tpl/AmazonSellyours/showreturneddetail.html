@@ -1,0 +1,141 @@
+<layout name='Layout/ace_popup' />
+
+{:W('PageHeader',array('name'=>$title))}
+
+<form method='post' action="{:U()}" id="editForm" action="" class="well form-horizontal clearfix">
+	<input type="hidden" id="ajax" value="1"/>
+	<input type="hidden" id="sellyours_id" name="sellyours_id" value="{$sellyours_id}">
+
+	<!-- <div class="form-group col-xs-12">
+		<div class="col-sm-4  text-right">
+			<label for="sku">SKU：</label>
+			<div class="col-sm-12">
+				<a href="{$sku_data.thumbnail}" id="thumbnail_show" class="thumbnail" target="_blank" style="width: 60%;position: absolute;z-index:1000;"><img src="{$sku_data.thumbnail}" /></a>
+			</div>
+		</div>
+		<div class="col-sm-4">
+			{$sku_data.sku}
+		</div>
+	</div> -->
+	
+	<div class="form-group col-xs-12">
+		<div class="col-sm-2  text-right">
+			<label for=""></label>
+		</div>
+		<div class="col-sm-5">
+			<div class="input-group">
+	            <span class="input-group-addon">
+	                订单时间
+	            </span>
+	            <input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="order_time" id="order_time" value="{$Think.request.order_time}"  placeholder="订单时间">
+	            <span class="input-group-btn">
+	                <button class="btn btn-sm btn-info" type="submit" title="确定">确定</button>
+	            </span>
+
+	        </div>
+		</div>
+		<div class="col-sm-5">
+			<span class="red">调整时间可以查看不同时间段的退货情况</span>
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12">
+		<div class="col-sm-2  text-right">
+			<label for=""></label>
+		</div>
+		<div class="col-sm-10">
+			<table class="table">
+				
+				<tr>
+					<th></th>
+					<th>
+						退货率: <?php echo round($total_count/$order_count,2); ?><br>
+						总退: {$total_count}<br>
+						总单: {$order_count}
+
+					</th>
+				</tr>
+				<tr>
+					<th>原因</th>
+					<th>数量</th>
+				</tr>
+				<foreach name="list" item="vo">
+					<tr>
+						<td>{$key}</td>
+						<td>{$vo.count}</td>
+					</tr>
+
+				</foreach>
+			</table>
+		</div>
+	</div>
+
+
+</form>
+
+<script type="text/javascript">
+	
+//货架位
+<include file="V2StockPlace:getchildrenlistjs" />
+
+$(function() {
+	$("#owner_uid").select2();
+
+	
+	var choose_warehouse = {$vo['warehouse_id']|default="false"};
+	var choose_region = {$_SESSION['stock_change_place_choose']['region_id']|default="false"};
+	var choose_shelf = {$_SESSION['stock_change_place_choose']['shelf_id']|default="false"};
+	var choose_place = {$_SESSION['stock_change_place_choose']['place_id']|default="false"};
+
+	ajaxGetChildrenList(choose_warehouse,'region','warehouse',choose_region);
+	ajaxGetChildrenList(choose_region,'shelf','region',choose_shelf);
+	ajaxGetChildrenList(choose_shelf,'place','shelf',choose_place);
+
+
+	$(".editFormSubmit").click(function(){
+		if(!confirm("确认操作？")){
+        	return false;
+        }
+        $("input").attr("disabled",null);
+        var data = $("#editForm").serialize();
+        var url = $("#editForm").attr("action");
+        
+        var btn = $(".editFormSubmit").button('loading');
+        if (check_form("editForm")) {
+            sendForm("editForm", url,false,function(msg){
+                btn.button('reset');
+                if(msg.status==2){
+                	
+                	alertWarning(msg.info,1);
+                	parent.window.location.reload();
+
+                }else if(msg.status){
+                	if($("#type").val() == "overflow"){
+                    	var audit_action_id = 15;
+                    }else{
+                    	var audit_action_id = 13;
+                    }
+                    var param_data = $("#editForm").serialize();
+                    var form_data = {
+                        title:msg.data.title,
+                        content:msg.data.content,
+                        thumbnail:msg.data.stock_data.thumbnail,
+                        audit_action_id:audit_action_id,
+                        param_json:param_data,
+                    };
+
+                    tmpSendForm("{:U('V2AuditFlow/addView')}",form_data,"_self");
+                    return false;
+                
+                }else{
+                    alertWarning(msg.info);
+                }
+            });
+        }else{
+            btn.button('reset');
+        }
+    });
+}); 
+
+
+</script>

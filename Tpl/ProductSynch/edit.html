@@ -1,0 +1,108 @@
+<layout name='Layout/ace_popup' />
+    {:W('PageHeader',array('name'=>"补录上传记录"))}
+
+    <form action="{:('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+        <input type="hidden" id="ajax" name="ajax" value="1"/>
+        
+        <input type="hidden" id="opmode" name="opmode" value="add">
+
+        <div class="panel panel-primary">
+            <div class="panel panel-heading">
+                <span>基本信息</span>
+            </div>
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2" for="account_id">帐号</label>
+                        <div class="col-sm-7">
+                            <select name="account_id" id="account_id" class="form-control">
+                                <option value="{$account.id}" >请选择帐号</option>
+                                <volist name="accountList" id="website">
+                                    <optgroup label="{$website[0]['website']}">
+                                        <volist name="website" id="account">
+                                            <option value="{$account.id}" <?php if($_REQUEST['account_id'] == $account['id']) echo "selected"; ?>>{$account.account_name} <notempty name="account.proxy_host" > &nbsp;&nbsp;VPC：{$account.proxy_host}</notempty></option>
+                                        </volist>
+                                    </optgroup>
+                                </volist>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2" for="online_product_id">线上产品ID</label>
+                        <div class=" col-sm-9">
+                            <input class="form-control" type="text" id="online_product_id" name="online_product_id" value="{$vo.online_product_id}" check="require" msg="请输入线上产品ID" placeholder="请输入线上产品ID">
+                        </div>
+                    </div>
+                </div>
+
+               <!--  <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2" for="sku_id">sku_id</label>
+                        <div class=" col-sm-9">
+                            <input class="form-control" type="text" id="sku_id" name="sku_id" value="{$vo.sku_id}" check="require" msg="请输入sku_id" placeholder="请输入sku_id">
+                        </div>
+                    </div>
+                </div> -->
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2" for="sku">sku(选填)</label>
+                        <div class=" col-sm-9">
+                            <input class="form-control" type="text" id="sku" name="sku" value="{$vo.sku}" placeholder="请输入sku">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <label class="text-right col-sm-2" for="memo">备注</label>
+                        <div class="col-sm-6">
+                            <textarea name="memo" id="memo" class="form-control" style="height:100px" placeholder="填 本地规格SKU 或者 货源链接">{$vo.memo}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="panel-default">
+            <div class="form-group text-center">
+                <input type="button" data-loading-text="正在保存..." data-close="1" data-reload="1" class="defaultEditFormSubmit btn btn-primary" data-target="bottomBoxIframe" value="保存" />
+                <a class="close_box_button btn btn-danger">取消</a>
+            </div>
+        </div>
+    
+    </form>
+
+
+<script type="text/javascript">
+    $(".editFormSubmit").click(function(){
+        $("input").attr("disabled",null);
+        var data = $("#editForm").serialize();
+        
+        var btn = $(".editFormSubmit").button('loading');
+
+        if(!confirm("确认提交？需要审核")){
+            return false;
+        }
+        if (check_form("editForm")) {
+            var title = "补录wish发布产品记录,<b>帐号: </b>"+$('#account_id option:selected').text()+" <b>sku_id: </b>"+$("#sku_id").val()+" <b>SKU: </b>"+$("#sku").val()+" <b>线上产品ID:</b>"+$("#online_product_id").val();
+            var param_data = data;
+            var form_data = {
+                title:title,
+                content: '<a href="{:U('Product/index')}?advanced_q='+$("#sku_id").val()+'" class="btn btn-primary" target="_blank">查看产品</a>',
+                thumbnail:'',
+                audit_action_id:11,
+                param_json:param_data,
+            };
+            tmpSendForm("{:U('V2AuditFlow/addView')}",form_data,"_self");
+            return false;
+        }else{
+            btn.button('reset');
+        }
+    });
+
+</script>

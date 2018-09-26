@@ -1,0 +1,117 @@
+<layout name='Layout/ace_popup' />
+<div class="panel panel-default">
+	<div class="panel-body">
+		<div>
+			线程状态:<b>{$vo.status} </b>
+			完成状态:<b>{$vo.finished_status}</b>
+		</div>
+		<span>
+			开始执行时间：<notempty name="vo.begin_time" >{:date("Y-m-d H:i",$vo["begin_time"])}<else/>无</notempty>
+		</span>
+		<span>
+			结束执行时间：<notempty name="vo.finished_time" >{:date("Y-m-d H:i",$vo["finished_time"])}<else/>无</notempty>
+		</span>
+	</div>
+</div>
+
+<div class="panel panel-primary ">
+	<div class="panel panel-heading">
+		<span>
+			控制台 
+		</span>
+		&nbsp;&nbsp;&nbsp;
+		<a class="btn btn-sm" onclick="window.location.reload()">刷新</a>
+
+	</div>
+	<div class="panel-body">
+		<eq name="vo.is_pause" value="Yes">
+			{$control_view}
+		<else/>
+			线程未暂停，无法控制
+		</eq>
+	</div>
+</div>
+
+<div class="panel panel-primary ">
+	<div class="panel panel-heading">
+		<span>执行信息 <i id="loading"></i></span>
+	</div>
+	<div class="panel-body">
+		<div class="btn-group">
+			<a class="btn btn-sm btn-primary" id="toggleRefresh">停止刷新</a>	
+		</div>
+		<pre style="font-size:14px;" id="temp_memo">{$vo.temp_memo}</pre>
+	</div>
+</div>
+
+<script type="text/javascript">
+var timout;
+var time_length = 3000;
+var exec_log_id = {$vo.id|default="0"};
+var is_pause = "{$vo.is_pause|default="0"}";
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);
+
+	$("#cancel").click(function(){
+		parent.$("#middleBox").modal("hide");
+	})
+
+	timeout = window.setInterval(refresh,time_length);
+
+	$("#toggleRefresh").click(function(){
+		if($(this).html() == '自动刷新'){
+			timeout = window.setInterval(refresh,time_length);
+			$(this).html("停止刷新");
+		}else{
+			$(this).html("自动刷新");
+			window.clearTimeout(timeout);
+		}
+	})
+
+	<?php if(in_array($vo['status'], array('Finished',"Error"))){
+		echo '$("#toggleRefresh").click();';
+	} ?>
+
+});
+
+function refresh(){
+	$("#loading").html("获取中..");
+	$.post("{:U('getExecLogData')}",{id:exec_log_id},function(msg){
+		if(msg.status==2 && is_pause=="No"){
+			confirmReload();
+			if(!confirm("后台请求刷新更新，是否立即刷新？")){
+				$("#temp_memo").html(msg.data.temp_memo);
+			}else{
+				window.location.reload();
+			}
+		}else if(msg.status == 3){
+			confirmReload();
+			if(!confirm(msg.info)){
+				$("#temp_memo").html(msg.data.temp_memo);
+			}else{
+				window.location.reload();
+			}
+		}else if(msg.status){
+			$("#temp_memo").html(msg.data.temp_memo);
+
+		}else{
+			$("#temp_memo").html("获取信息失败");
+		}
+		$("#loading").html("");
+	}).error(function(){
+		$("#loading").html();
+		$("#temp_memo").html("获取信息失败");
+	});
+}
+
+function confirmReload(){
+	$.post("{:U('confirmReload')}",{id:exec_log_id},function(msg){
+	
+	});
+}
+</script>

@@ -1,0 +1,42 @@
+
+<div id="div1">
+	<div class="form-group">
+		<label class="control-label">订单创建时间</label><br/>
+		<input style="cursor:pointer;" dataid-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="param[order_time]" id="order_time" value="<?php if($_REQUEST['param']['order_time']){ echo $_REQUEST['param']['order_time'];}?>"  placeholder="订单创建时间">
+	</div>
+	<div class="form-group">
+		<label class="control-label">订单状态
+		</label>
+		<select name="param[order_state]" class="form-control">
+			<option value="" selected="selected">所有订单</option>
+			<option value="ALL_WAIT_PAY">没有付款</option>
+			<option value="TRADE_NO_CREATE_PAY">没有创建支付宝交易</option>
+			<option value="WAIT_BUYER_PAY">等待买家付款</option>
+			<option value="WAIT_SELLER_SEND_GOODS">等待卖家发货</option>
+			<option value="SELLER_CONSIGNED_PART">卖家部分发货</option>
+			<option value="WAIT_BUYER_CONFIRM_GOODS">卖家已发货</option>
+			<option value="TRADE_BUYER_SIGNED">货到付款买家已签收</option>
+			<option value="TRADE_FINISHED">交易成功</option>
+			<option value="TRADE_CLOSED">交易关闭</option>
+			<option value="TRADE_CLOSED_BY_TAOBAO">交易被淘宝关闭</option>
+			<option value="ALL_CLOSED">以上两种关闭交易</option>
+			<option value="WAIT_PRE_AUTH_CONFIRM">余额宝0元购合约中</option>
+		</select>	
+	</div>
+</div>
+<div class="form-group">
+	<label class="control-label">
+		<input class="" type="checkbox" name="param[increment]" id="increment" value="1" onchange="changeSynchType(this);" placeholder="增量同步">
+		<span>快速同步(增量同步) 根据该帐号订单最后更新时间自动同步订单</span>
+	</label>
+	
+</div>
+<script type="text/javascript">
+function changeSynchType(obj){
+	if($(obj).prop("checked")){
+		$("#div1").hide();
+	}else{
+		$("#div1").show();
+	}
+}
+</script>

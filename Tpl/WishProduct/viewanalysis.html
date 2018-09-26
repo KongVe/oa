@@ -1,0 +1,168 @@
+<layout name='Layout/ace_box' />
+
+<script type="text/javascript" src="__PUBLIC__/js/echarts/build/dist/echarts.js"></script>
+<!-- 
+<script type="text/javascript" src="__PUBLIC__/js/ichart.1.2.min.js"></script> -->
+
+<form action="__SELF__" id="detail_form" method="POST">
+	<input type="hidden" name="sku" value="{$Think.request.sku}"> 
+	<input type="hidden" name="show" value="sku"  id="show"> 
+<div class="panel panel-default">
+	<div class="panel-body">
+		<div class="col-sm-12">
+			<div class="form-group col-sm-7">
+				<div class="col-sm-12">
+					<a class="btn btn-danger btn-sm"  onclick="closeBox()">关闭</a>	
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="input-date-range" type="text" name="analysis_time" id="analysis_time" value="{$Think.request.analysis_time}"  placeholder="时间默认最近30天">
+
+					<select name="cycle" id="cycle">
+						<option value="day">请选择周期</option>
+						<option value="day" <eq name="Think.request.cycle" value="day">selected</eq>>每天</option>
+						<option value="week" <eq name="Think.request.cycle" value="week">selected</eq>>每周</option>
+						<option value="month" <eq name="Think.request.cycle" value="month">selected</eq>>每月</option>
+					</select>
+
+			      	<span>
+			        	<button type="submit" class="btn btn-danger btn-sm">确定</button>
+			      	</span>
+				</div>
+			</div>	
+
+			<div class="form-group  col-sm-4">
+				<a class="btn btn-sm" onclick="location.reload();">刷新</a>
+				<a href="__SELF__" target="_blank" class="btn btn-info btn-sm">在新窗口中查看</a>
+			</div>
+				
+
+			
+		</div>
+		<div class="col-sm-12 align-center">
+			<div  style="z-index:1000;">
+				<!-- <a onclick="showlegend()" class="btn btn-xs">显示图例菜单</a> -->
+				<!-- <a onclick="showlegend()" class="btn btn-xs">显示图例菜单</a> -->
+			</div>
+			
+			<div id="canvasDiv" style="height:520px;width:100%;">
+				<!-- <div class="col-sm-12 chart_list" id='canvasDiv'></div>		 -->
+			</div>		
+		<div>
+	</div>
+</div>
+<form>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<iframe src="" id="saveThunbnail" style="visibility:hidden;height:1px;width:1px;"></iframe>
+
+
+
+<script type="text/javascript">
+	$(function(){
+		maxHeight = parent.document.documentElement.clientHeight ;
+		height = document.body.clientHeight+ 50;
+		if(height > maxHeight){
+			height = maxHeight;
+		}
+		parent.$("#RightBoxIframe").css("height",height);
+	});
+	//PUBLIC
+	var label_list=<?php echo json_encode($label_list); ?>;
+
+	var chart1_legend_list=<?php echo json_encode($chart1_name_list); ?>;
+	var chart1_data= <?php echo json_encode($chart1); ?>	
+	
+	var chart1_option  = {
+		    tooltip : {
+		        trigger: 'axis'
+		    },
+		    legend: {	
+		    	selected: {	
+		    		"流量收藏率":false,
+					"订单数变化":false,
+					"总曝光收藏率":false,
+					"购买点击率":false,
+					"结账率":false,
+					"流量订单转化":false,
+					// "曝光":false,
+					//"流量":false,
+					//"购买点击":false,
+					//"save数":false,
+					//"点击率":false,
+					//"订单数":false,
+		        },
+		        data:chart1_legend_list,
+		        // orient:"vertical",
+		        x:"left",
+		    },
+		    toolbox: {
+		        show : true,
+		        feature : {
+		            mark : {show: true},
+		            dataView : {show: true, readOnly: false},
+		            magicType : {show: true, type: ['bar', 'line']},
+		            restore : {show: true},
+		            saveAsImage : {show: true}
+		        }
+		    },
+		    calculable : true,
+		    xAxis : [
+		        {
+		            type : 'category',
+		            boundaryGap : true,
+
+		            data : label_list,
+		        }
+		    ],
+		    yAxis : [
+		        {
+		            type : 'value',
+		            
+		        }
+		    ],
+
+		    series :chart1_data,
+		};           
+
+      
+
+	var chart1 =function(){
+		
+		// 路径配置
+		require.config({
+		    paths: {
+		        echarts: '__PUBLIC__/js/echarts/build/dist'
+		    }
+		});
+		// 使用
+	    require(
+	        [
+	            'echarts',
+	            'echarts/chart/bar',
+	            'echarts/chart/line',
+	        ],
+	        function (ec) {
+	            // 基于准备好的dom，初始化echarts图表
+	            var myChart = ec.init(document.getElementById('canvasDiv')); 
+	              // 为echarts对象加载数据 
+		        myChart.setOption(chart1_option); 
+		    }
+	    );
+	}
+
+	
+	//获取分类选择列表
+	chart1();
+	
+	// 关闭悬浮框
+	function closeBox(){
+		
+		if(parent.$("#RightBoxIframe").length>0){
+			parent.$("#RightBox").modal("toggle");
+		}else{
+			window.close();
+		}
+		
+	}
+
+
+</script>

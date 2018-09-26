@@ -1,0 +1,19 @@
+<div class="panel panel-default">
+	<div class="panel-heading">采购详细</div>
+
+	<table class="clearfix sourceHtml table"  >	
+		<tr>
+			<td>{$product.sku}</td>
+			<td><img src="{$product.thumbnail}" height="60" /></td>
+			<td><a href="{$source.link}" target="_blank">{$source.location}</a></td>
+			<td>{$source.item_number}</td>
+			<td>{$product.variation}</td>
+			<td>{$Think.request.quantity}</td>
+
+	<?php /*		<td><?php echo 2 * $_REQUEST['quantity']; ?></td>
+			<td></td>
+			<td><?php echo ($source['price'] + 2) * $_REQUEST['quantity']; ?></td> */ ?>
+		</tr>
+	</table>
+
+</div>

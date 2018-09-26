@@ -1,0 +1,211 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="id" value="{$Think.request.id}" />
+	<input type="hidden" id="getCk1TrackingNumber" name="choose" value="" />
+<div class="page-header clearfix">
+	<h1 class="col-sm-3">包裹列表</h1>
+	<div class="col-sm-9 pull-right">
+		
+			<div class="form-group col-sm-2 pull-left">
+				<div class="col-sm-12">
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="forwarder_synch_time" id="forwarder_synch_time" value="{$Think.request.forwarder_synch_time}" placeholder="提审时间">
+				</div>
+			</div>	
+			<div class="form-group col-sm-2 pull-left">
+				<div class="col-sm-12">
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="local_send_time" id="local_send_time" value="{$Think.request.local_send_time}" placeholder="本地发货时间">
+				</div>
+			</div>	
+			<div class="form-group col-sm-2 pull-left">
+				<div class="col-sm-12">
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="local_out_storage_time" id="local_out_storage_time" value="{$Think.request.local_out_storage_time}" placeholder="出仓时间">
+				</div>
+			</div>		
+			<div class="input-group pull-left col-sm-2 " >
+				<input  class="form-control" onchange="cancelSelect();" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="ids" id="ids" value="{$Think.request.ids}" placeholder="包裹序号"/>								
+			</div>
+			<div class="input-group col-sm-4">
+
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索 包裹号,跟踪号,SKU,商品名称"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="$('#oaid').val('');this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+
+			</div>
+	</div>
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+
+		<!-- <div class="btn-group">
+			<a onclick="getTrackingInfo()" class="btn btn-sm btn-danger" > 采集跟踪信息 </a>
+		</div> -->
+
+		<div class="btn-group">
+			<a href="#" class="btn btn-sm btn-danger dropdown-toggle" data-toggle="dropdown">对当前所有结果操作<i class="icon-caret-down"></i></a>
+			<ul class="dropdown-menu">
+				<li><a href="#" onclick="outputData('all')">导出搜索结果</a></li>
+				<li><a href="#" onclick="getCk1TrackingNumber()">获取出口易跟踪号</a></li>
+				
+		</div>
+
+		<div class="btn-group">
+			<a href="#" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">操作<i class="icon-caret-down"></i></a>
+			<ul class="dropdown-menu">
+				<li><a href="#" onclick="importShippingReport()">导入运费报表</a></li>
+				<li><a href="#" onclick="downloadPDF()">下载所选包裹的标签</a></li>
+				<li><a href="#" onclick="getCk1TrackingNumber(1)">获取出口易跟踪号</a></li>
+				<!-- <li><a href="#" onclick="getPricingForPackage()">获取包裹运费</a></li> -->
+
+		</div>
+
+		<!-- <div class="btn-group">
+			<a href="#" class="btn btn-sm btn-primary dropdown-toggle" data-toggle="dropdown">特殊操作<i class="icon-caret-down"></i></a>
+			<ul class="dropdown-menu">
+				<li><a href="#" onclick="checkPackageArrival()">查看出口易未到仓包裹</a></li>
+		</div> -->
+		<div class="btn-group">
+			注意：批量发货还不能记录打印时间
+		</div>
+			
+		<div class="btn-group">
+			<div id="progress"></div>
+		</div>
+
+		<div class="btn-group">
+			<div id="syncCK1"></div>
+			<div id="syncWish"></div>
+		</div>
+	</div>
+</div>
+
+<div id="package_iframe_div" class="operate panel panel-default" style="width:100%;height:100%;display:none;">
+	<iframe src=""  id="package_iframe" name="package_iframe"  style="width:100%;height:100%;" scrolling="auto" ></iframe>
+</div>
+
+<div class="message-container" style="width:100%;">
+	<table class="table table-striped table-hover">
+		
+			<include file="Layout:title_v2"/>
+			
+			<tbody class="tbody">
+			<volist name="list" id="vo">
+				<tr>
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td>{$vo.package_code}</td>
+					<td style="max-width:240px;">
+						<volist name="vo.sku_data_list" id="sku_data">
+							<a href="{$sku_data.thumbnail}" class="thumbnail" target="_blank"><img src="{$sku_data.thumbnail}" data-src="{$sku_data.thumbnail}" width="50" /></a>
+							<p>{$sku_data.sku}</p>
+						</volist>
+					</td>
+					<td>{$vo.package_state}</td>
+					<td>
+						<?php 
+							if($vo['is_download_pdf']){
+								echo "下载成功";
+							}else{
+								echo "未下载";
+							}
+						?>
+					</td>
+					<td>
+						<?php 
+							if($vo['is_print']){
+								echo "已提交";
+							}else{
+								echo "未提交";
+							}
+						?>
+					</td>
+					<td>{$vo.express_type}</td>
+					<td>{$vo.local_tracking_number}</td>
+					<td>
+						{$vo.forwarder_tracking_number}
+						<input type="hidden" id="tracking_num_{$vo.id}" value="{$vo.forwarder_tracking_number}">
+					</td>
+					<td>{$vo.forwarder_tracking_state}</td>
+					<td>{$vo.forwarder}</td>
+
+					<td style="min-width:85px;">
+						{$vo.forwarder_synch_time|date="y-m-d H:i:s",###}
+					</td>
+
+					<td style="min-width:85px;">
+						<?php 
+							if($vo['local_print_time']>0){
+								echo date("y-m-d H:i:s",$vo['local_print_time']);
+							}else{
+								echo "未打印";
+							}
+						?>
+					</td>
+					<td>{$vo.print_user_name|default="未打印"}</td>
+
+					<td style="min-width:85px;">
+						<?php 
+							if($vo['local_send_time']>0){
+								echo date("y-m-d H:i:s",$vo['local_send_time']);
+							}else{
+								echo "未发货";
+							}
+						?>
+					</td>
+					<td>{$vo.shipped_user_name|default="未发货"}</td>
+
+					<td style="min-width:85px;">
+						<?php 
+							if($vo['local_out_storage_time']>0){
+								echo date("y-m-d H:i:s",$vo['local_out_storage_time']);
+							}else{
+								echo "未出仓";
+							}
+						?>
+					</td>
+					<td>{$vo.out_user_name|default="未出仓"}</td>
+
+					<td>{$vo.shipping_fee}</td>
+					<td>{$vo.weight}</td>
+
+		
+			
+					<!-- <td>{$vo.last_event}</td>
+					<td><if condition="$vo.last_event_time neq 0">{$vo.last_event_time|date="y-m-d H:i:s",###}</if> </td>
+					<td>{$vo.pack_state}</td> -->
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" height="300px" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+<div class="modal fade" id="editProduct" role="dialog"  tabindex="-1" aria-labelledby="editProductLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="editProductIframe" name="editProductIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox1" role="dialog"  tabindex="-1" aria-labelledby="bottomBox1Label" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBox1Iframe" name="bottomBox1Iframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>

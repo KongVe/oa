@@ -1,0 +1,109 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('supplierSave')}" method="POST" name="sourceForm" id="sourceForm" class="well form-horizontal clearfix">
+		<input type="hidden" name="id" value="{$vo.id}">	
+		<input type="hidden" name="opmode" value="{$vo.opmode}" >
+		<if condition="$vo.id !=''">
+			<input type="hidden" name="sku" id="sku" value="{$vo.sku}" >
+		</if>
+
+		<div class="form-group text-center">
+			<input type="submit" data-loading-text="正在保存..."  class="sourceFormSubmit btn btn-primary" value="保存" />
+			 <a class="cancel_box btn btn-danger ">取消</a>
+		</div>
+
+		<div class="form-group">
+			<label class="control-label red" for="platform_id">*货源平台</label>
+			<select name="platform_id" class="form-control" check="require" msg="请选择平台">
+				<option value="" >请选择平台</option>
+				<volist name="platform_list" id="platform">
+					<option value="{$platform.id}" <eq name="vo.platform_id" value="$platform.id">selected</eq> >{$platform.platform} ({$platform.platform_name})</option>
+				</volist>
+			</select>
+		</div>
+
+		<div class="form-group">
+			<label class="control-label red" for="supplier_name">*供应商名称</label>
+			<input class="form-control" type="text" id="supplier_name" name="supplier_name" value="{$vo.supplier_name}" check="require" msg="请输入供应商名称">
+		</div>
+		<div class="form-group">
+			<label class="control-label red" for="website_link">*网址(可以放产品链接)</label>
+			<input class="form-control" type="text" id="website_link" name="website_link" value="{$vo.website_link}" check="require" msg="请输入网址">
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="contacts">联系人名</label>
+			<input class="form-control" type="text" id="contacts" name="contacts" value="{$vo.contacts}">
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="payment_info">支付信息</label>
+			<input class="form-control" type="text" id="payment_info" name="payment_info" value="{$vo.payment_info}">
+			<span class="help-block">如支付宝帐号,银行卡帐号等, 可选</span>
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="phone_number">电话号码</label>
+			<input class="form-control" type="text" id="phone_number" name="phone_number" value="{$vo.phone_number}">
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="email">E-Mail</label>
+			<input class="form-control" type="text" id="email" name="email" value="{$vo.email}">
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="address">联系地址</label>
+			<input class="form-control" type="text" id="address" name="address" value="{$vo.address}">
+		</div>
+
+		<div class="form-group">
+			<label class="control-label" for="status">状态</label>
+			<select name="status" class="form-control">
+				<option value="Normal" <eq name="vo.status" value="Normal">selected</eq> >可用</option>
+				<option value="Disabled" <eq name="vo.status" value="Disabled">selected</eq> >禁用</option>
+			</select>
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="memo">备注</label>
+			<textarea class="form-control" name="memo">{$vo.memo}</textarea>
+		</div>
+		<div class="form-group text-center">
+			<input type="submit" data-loading-text="正在保存..."  class="sourceFormSubmit btn btn-primary" value="保存" />
+			 <a class="cancel_box btn btn-danger ">取消</a>
+		</div>
+	</form>
+<script type="text/javascript">
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#editSourceIframe").css("height",height);
+
+
+
+	$(".sourceFormSubmit").click(function(){
+		var btn = $(".sourceFormSubmit").button('loading');
+		if(check_form("sourceForm")){
+			var data = $("#sourceForm").serialize();
+			var url = $("#sourceForm").attr("action");
+			$.post(url,data,function(r){
+				if(r.status){ 
+					alertWarning(r.info,1);
+					parent.$("#middleBox").modal("hide");
+					parent.window.location.reload();
+				}else{
+					alertWarning(r.info);
+				}
+				btn.button('reset');
+			}).error(function(){
+				alertWarning("网络错误");
+				btn.button('reset');
+			})
+		}else{
+			btn.button('reset');
+		}
+		return false;
+	});
+
+	$(".cancel_box").click(function(){
+        parent.$("#middleBox").modal("hide");
+    });
+})
+</script>

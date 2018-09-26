@@ -1,0 +1,208 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" id="form_search" method="post" class="form-inline">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+<div class="page-header clearfix">
+	<h1 class="col-xs-3">刷单待充值列表</h1>
+	<div class="col-xs-9 pull-right">
+		<div class="form-group col-sm-2 pull-left">
+			<div class="col-sm-12">
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}"    readonly="readonly" placeholder="创建时间">
+			</div>
+		</div>	
+	<!-- 	<div class="form-group col-sm-2 pull-left">
+			<div class="col-sm-12">
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="pattern_time" id="pattern_time" value="{$Think.request.pattern_time}"    readonly="readonly" placeholder="入库时间">
+			</div>
+		</div>	 -->
+
+		<div class="form-group col-xs-3">
+			<!-- <label class="sr-only" >q</label>
+			<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.post.q}" placeholder="搜索产品简称,SKU"/> -->
+		</div>
+		<div class="form-group">
+			<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+		</div>
+	</div>
+</div>	
+<div class="message-container" id="container_table" style="width:100%;overflow:scroll;">
+	<!-- <div class="panel panel-default">
+		<div class="panel-body">
+			<div class="btn-group">
+				<a onclick="showMiddleBox('{:U('edit')}');" target="_blank" class="btn btn-danger" id="createTemplate">添加</a>
+			</div>
+		</div>
+	</div> -->
+
+	<table class="table table-hover table-bordered">
+		<include file="Layout:title"/>
+		
+		<tbody class="tbody">
+		<volist name="list" id="vo">
+			<tr id="tr_{$vo.id}" >
+				<td  >
+					<label class="inline pull-left">
+						<input class="ace" type="checkbox" name="template_id[]" value="{$vo.id}" />
+						<span class="lbl"></span>
+						{$vo.id}
+					</label>
+				</td>
+				<td >
+					{$vo.exec_log_id}
+				</td>
+				<td >
+					{$vo.card_type}
+				</td>
+				<td >
+					<span class="editStatic" field="card_number" onclick="editStatic(this,'{:U('FalseWaitingPayExec/save')}?id={$vo.id}','textarea')">{$vo.card_number}</span>
+				</td>
+				<td >
+					{$vo.card_date_month}/{$vo.card_date_year}
+				</td>
+				<td >
+					{$vo.card_cvv}
+				</td>
+				<td >
+					{$vo.currency} {$vo.amount}
+				</td>
+				<td >
+					{$vo.add_time|default="无"|date="y-m-d H:i",###}
+				</td>
+				<td >
+					<b>
+					<?php
+						echo toCnName($vo['status'],"FalseWaitingPayExec");
+					?>
+					</b>
+				</td>
+				<td style="max-width:150px;">
+					<span class="editStatic" field="memo" onclick="editStatic(this,'{:U('OrderProduct/save')}?id={$vo.id}','textarea')">{$vo.memo}</span>
+				</td>
+				<td >
+					{$vo.pay_user_name|default="未充值"}
+				</td>
+				<td >
+					{$vo.confirm_time|default="未确认"|date="y-m-d H:i",###}
+					<br>
+					<b>预约时间</b>
+					<br>
+					{$vo.plan_time|default="未确认"|date="y-m-d H:i",###}
+				</td>
+	
+				<td style="min-width:340px;">
+					<div class="col-sm-12">
+						<eq name="vo.status" value="Waiting pay">
+							<a class="btn btn-primary btn-sm" onclick="confirmPay({$vo.id},'Paid')">确认充值</a>
+							
+
+							<input id="plan_time_{$vo.id}" style="width:50px;"value="20">分钟后
+							<a class="btn btn-danger btn-sm" onclick="confirmPay({$vo.id},'Plan pay')">预先确认</a>
+
+							<br>
+
+							<a class="btn btn-danger btn-sm" onclick="confirmPay({$vo.id},'Disabled')">信用卡不可用</a>
+						</eq>
+
+						<a class="btn btn-inverse btn-sm" onclick="showBox('middle','{:U('FalseTaskExecLog/detail?id='.$vo['exec_log_id'])}');">查看执行线程</a>
+
+					</div>
+				</td>
+			</tr>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+
+<div id="tmp" class="display-none">
+	<form name="form_tmp" id="form_tmp" method="post" class="form-inline">
+	</form>
+</div>
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+
+<!-- 模态弹窗-->
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxLabel" aria-hidden="true">
+	<div class="modal-dialog" style="height:100%;width:65%;">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:100%;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<div class="modal fade" id="RightBox" role="dialog"  tabindex="-1" aria-labelledby="RightBoxIframe" aria-hidden="true">
+	<div class="modal-dialog" style="width:100%;height:100%;margin-left: 20%;padding-bottom:0px;">
+		<iframe src=""  id="RightBoxIframe" name="RightBoxIframe"  style="width:80%;z-index:100;height:100%;" scrolling="auto" ></iframe>
+	</div>
+</div>
+</script>
+
+
+<script type="text/javascript">
+function state(id,type) {
+	if(!confirm("确认禁用？")){
+		return;
+	}
+	if(type){
+		is_del=1;
+	}else{
+		is_del=0;
+	}
+
+	$.post("{:U('save')}",{id:id,opmode:'edit',is_del:is_del},function(msg){
+		if(msg.status){
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alert("网络错误,请重试");
+		window.location.reload();
+	});
+}
+
+function confirmPay(id,type){
+	if(!confirm("确认已经充值完毕？")){
+		return;
+	}
+	if(type == "Plan pay"){
+		var plan_time = $("#plan_time_"+id).val();
+		plan_time = parseInt(plan_time);
+		if(plan_time<=0){
+			alertWarning("请输入预约时间");
+			return false;
+		}
+	}
+	$.post("{:U('confirmPay')}",{id:id,opmode:'edit',type:type,plan_time:plan_time},function(msg){
+		if(msg.status){
+			alertWarning(msg.info,1);
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alert("网络错误,请重试");
+	});
+}
+
+function del(id) {
+	if(confirm("确认删除？将不可恢复")){
+		$.post("{:U('save')}",{id:id,opmode:'del'},function(msg){
+			if(msg.status){
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+			
+		}).error(function(){
+			alert("网络错误,请重试");
+			window.location.reload();
+		});
+	}
+}
+</script>

@@ -1,0 +1,131 @@
+<layout name='Layout/ace_popup' />
+
+{:W('PageHeader',array('name'=>'拆分库存 -> <b>分配成本</b>'))}
+
+<form method='post' action="{:U('V2stock/combineStockView')}" id="editForm" class="well form-horizontal clearfix">
+	<input type="hidden" id="ajax" value="1"/>
+	<input type="hidden" id="id" name="id" value="{$Think.request.id}">
+
+	<div class="panel panel-primary">
+		<div class="panel panel-heading">
+			<span>分配成本</span>
+		</div>
+		<div class="panel-body">
+
+			<div class="form-group col-xs-12">
+				<a class="thumbnail" href="{$virtual_sku_data.thumbnail}" target="_blank" style="width:80px;"><img src="{$virtual_sku_data.thumbnail}" width="80"/></a><br>
+				<b>虚拟SKU:</b> {$virtual_sku_data.sku}<br>
+				<b>SKU名称:</b> {$virtual_sku_data.sku_name}<br>
+			</div>
+			<div class="form-group col-xs-12">
+				<table class="table table-hover table-bordered">
+					<tr>
+						<th>虚拟SKU成本</th>
+						<th>待分配数量</th>
+						<th>拆分后的SKU</th>
+					</tr>
+					<foreach name="list" item="vo" key="cost">
+						<tr class="success" id="tr_{$vo.flag}">
+							<td>
+								<b>{$cost}</b> 元
+								<input type="hidden" id="cost_{$vo.flag}" value="{$cost}">
+							</td>
+							<td>
+								<b>{$vo.count}</b> 个
+							</td>
+							<td>
+								<table class="table">
+									<tr>
+										<th>规格SKU</th>
+										<th>SKU名称</th>
+										<th>图片</th>
+										<th>绑定数量</th>
+										<th>分配成本</th>
+									</tr>
+									<volist name="virtual_sku_data.sku_product_list" id="sku_data">
+										<tr>
+											<td>
+												{$sku_data.sku}
+											</td>
+											<td>
+												{$sku_data.sku_name}
+											</td>
+											<td>
+												<a class="thumbnail"  href="{$sku_data.thumbnail}" target="_blank">
+							  						<img src="{$sku_data.thumbnail}" width="60" />
+							  					</a>
+											</td>
+											<td>
+												<b>{$sku_data.quantity}</b> 个
+											</td>
+											<td style="width:150px;">
+												<div class="input-group">
+													<?php
+														if($key == 0){
+															$input_cost_split = $cost;
+														}else{
+															$input_cost_split = 0;
+														}
+													?>
+													<input type="number" data-flag="{$vo.flag}" data-bak="{$input_cost_split}" class="cost_split_input form-control" name="cost_split[{$cost}][{$sku_data.id}]" value="{$input_cost_split}">
+													<span class="input-group-addon">
+														元
+													</span>
+												</div>
+											</td>
+										</tr>
+									</volist>
+								</table>
+							</td>
+						</tr>
+					</foreach>
+				</table>
+			</div>
+
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12">
+		<label class="col-sm-4 text-right"></label>
+		<div class="col-sm-8">
+			<input class="close_box_button btn btn-sm btn-default" type="button" value="取消">
+		</div>
+	</div>
+</form>
+
+<script type="text/javascript">
+var cost_quantity_list = {$list|default=""|json_encode};
+$(function($){
+	$(".cost_split_input").on("input",function(){
+		changeCost($(this));
+	});
+});
+
+function changeCost(obj){
+	var flag = $(obj).data("flag");
+	var obj_list = $("#tr_"+flag+" .cost_split_input");
+	var virtual_sku_cost = $("#cost_"+flag).val();
+	if(!virtual_sku_cost || isNaN(virtual_sku_cost)){
+		alertWarning("数据错误，请刷新");
+		return false;
+	}
+
+	var input_cost_total = 0;
+	for (var i = 0; i < obj_list.length; i++) {
+		var tmp = parseFloat(obj_list.eq(i).val());
+		if(isNaN(tmp)){
+			tmp = 0;
+		}
+		if(tmp<0){
+			$(obj).val($(obj).data("bak"));
+			return false;
+		}
+		input_cost_total+=tmp;
+	};
+	if(input_cost_total > virtual_sku_cost){
+		$(obj).val($(obj).data("bak"));
+	}
+	$(obj).data("bak",$(obj).val());
+	return 1;
+}
+</script>

@@ -1,0 +1,149 @@
+<script type="text/javascript">
+var currentCategoryId = {$Think.request.category_id|default="0"};
+
+
+//刷新分类
+function refreshCategory(){
+	$.get("{:U('Product/refreshCategory')}",{},function(data){
+		$('#category_id').html('');
+		$('#category_id').append("<option value=''>本地分类</option>");
+		showCategory(data.data,"",1);
+		
+	});
+}
+
+//显示刷新后的分类
+function showCategory(data,level,num){
+	var data=listSortBy(data,'order');
+	
+	if(data[0]){
+		for (var i = 0; i < data.length; i++) {
+			if(currentCategoryId==data[i].id){
+				var selected=" selected";
+			}else{
+				var selected="";
+			}
+			if(typeof(data[i]._child)!="undefined"){
+				$('#category_id').append("<option value='"+data[i].id+"' " +selected+ " >"+level+num+". "+data[i].name+"</option>");
+			}else{ 
+				$('#category_id').append("<option value='"+data[i].id+"' class='text-primary' "+selected+">"+level+num+". "+data[i].name+"</option>");
+			}
+			if(typeof(data[i]._child)!="undefined"){
+				var tmp=level+">>>";
+				var tmp2=num+1;
+				showCategory(data[i]._child,tmp,tmp2);
+			}
+		}
+	}else{
+		return;
+	}
+}
+
+var data = <?php echo json_encode($chartByAccount['data']); ?>;
+var chartByAccount = new iChart.ColumnMulti3D({
+		render : 'chartByAccount',
+		data: data,
+		labels: <?php echo json_encode($chartByAccount['labels']) ?>,
+		title : {
+			text : '<?php echo $chartByAccount['title']; ?>',
+			color : '#3e576f'
+		},
+		width : 1200,
+		height : 800,
+		background_color : '#ffffff',
+		legend:{
+			enable:true,
+			background_color : null,
+			align : 'center',
+			valign : 'bottom',
+			row:1,
+			column:'max',
+			border : {
+				enable : false
+			}
+		},
+		label:{
+			color:'#4c4f48'
+		},
+		tip:{
+			enable :true
+		},
+		text_space : 16,//坐标系下方的label距离坐标系的距离。
+		coordinate:{
+			background_color : '#d7d7d5',
+			grid_color : '#a4a4a2',
+			color_factor : 0.24,
+			board_deep:10,
+			offsety:-10,
+			pedestal_height:10,
+			left_board:false,//取消左侧面板
+			scale:[{
+				 position:'left',	
+				 start_scale:0,
+				 end_scale:1000,
+				 scale_space:200,
+				 scale_enable : false,
+				 label:{
+					color:'#4c4f48'
+				 }
+			}]
+		}
+});
+
+var data = <?php echo json_encode($chartByCategory['data']); ?>;
+var chartByCategory = new iChart.BarMulti2D({
+		render : 'chartByCategory',
+		data: data,
+		labels: <?php echo json_encode($chartByCategory['labels']) ?>,
+		title : {
+			text : '<?php echo $chartByCategory['title']; ?>',
+			color : '#3e576f'
+		},
+		width : 1200,
+		height : <?php echo (count($chartByCategory['labels']) * 80 < 400) ? 400 : count($chartByCategory['labels']) * 80; ?>,
+		background_color : '#ffffff',
+		legend:{
+			enable:true,
+			background_color : null,
+			align : 'center',
+			valign : 'bottom',
+			row:1,
+			column:'max',
+			border : {
+				enable : false
+			}
+		},
+		label:{
+			color:'#4c4f48'
+		},
+		tip:{
+			enable :true
+		},
+		text_space : 16,//坐标系下方的label距离坐标系的距离。
+		coordinate:{
+			background_color : '#d7d7d5',
+			grid_color : '#a4a4a2',
+			color_factor : 0.24,
+			board_deep:10,
+			offsety:-10,
+			pedestal_height:10,
+
+			scale:[{
+				position:'top',	
+				start_scale:0,
+				end_scale:140,
+				scale_space:20
+			}]
+		}
+});
+$(function(){
+
+	refreshCategory();
+	chartByAccount.draw();
+
+	chartByCategory.draw();
+	
+});
+		
+
+</script>

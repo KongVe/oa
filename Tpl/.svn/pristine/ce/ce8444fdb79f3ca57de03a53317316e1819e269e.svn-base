@@ -1,0 +1,126 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" id="form_search" method="post" class="form-inline">
+<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+<div class="page-header clearfix">
+	<h1 class="col-xs-3">{$title}</h1>
+	<div class="col-xs-9 pull-right">
+
+		<div class="form-group col-xs-4">
+			<div class="input-group">
+				<input class="form-control" type="text" name="q" id="q" value="{$Think.post.q}" placeholder="搜索货架位名称"/>
+				<span class="input-group-btn">
+					<button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-125 icon-search"></i> </button>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>	
+<div class="message-container" id="container_table" style="width:100%;overflow:scroll;">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="btn-group">
+				<a onclick="editData();" target="_blank" class="btn btn-danger">添加货架位</a>
+			</div>
+		</div>
+	</div>
+	<table class="table table-hover table-bordered">
+		<include file="Layout:title_v2"/>
+
+		<tbody class="tbody">
+		<volist name="list" id="vo">
+			<tr id="tr_{$vo.id}" >
+				<td  >
+					<label class="inline pull-left">
+						<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+						<span class="lbl"></span>
+						{$vo.id}
+					</label>
+				</td>
+				<td >
+					{$vo.warehouse_name}
+				</td>
+				<td >
+					{$vo.region_name}
+				</td>
+				<td >
+					{$vo.shelf_name}
+				</td>
+				<td >
+					{$vo.place_name}
+				</td>
+				<td >
+					{$vo.place_type|L}
+				</td>
+				<td >
+					{$vo.type_quantity_limit|default="无限制"}
+				</td>
+				<td >
+					{$vo.status|L}
+				</td>
+				<td >
+					<a onclick="editData({$vo[id]});"  class="btn btn-primary btn-xs" target="_blank" >修改</a>
+					<br>
+					<br>
+					<eq name="vo.status" value="Normal">
+						<a class="btn btn-warning btn-xs" onclick="state({$vo.id},1)">禁用</a>
+					<else/>
+						<a class="btn btn-danger btn-xs" onclick="state({$vo.id},0)">启用</a>
+					</eq>
+				</td>
+			</tr>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+
+<!-- 模态弹窗-->
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxIframe" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:800px;height:100%;min-height:500px;" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<script type="text/javascript">
+
+function state(id,type) {
+	if(!confirm("确认禁用？")){
+		return;
+	}
+	if(type){
+		status="Disabled";
+	}else{
+		status="Normal";
+	}
+
+	$.post("{:U('layoutSave')}",{id:id,model_name:'place',opmode:'edit',status:status},function(msg){
+		if(msg.status){
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alert("网络错误,请重试");
+		window.location.reload();
+	});
+}
+
+function editData(id){
+	if(id){
+		var url="<?php echo U("layoutEdit"); ?>?model_name=place&id="+id+"&_" + Math.round(new Date().getTime()/1000);
+	}else{
+		var url="<?php echo U("layoutEdit"); ?>?model_name=place&_" + Math.round(new Date().getTime()/1000);
+	}
+	$("#middleBoxIframe").attr("src",url);
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+</script>

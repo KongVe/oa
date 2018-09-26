@@ -1,0 +1,374 @@
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	//ace.settings.sidebar_collapsed(true);
+	var showDetail_id = 0;
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+	$("#btn_generateTransferPlan").click(function(){
+		obj = $(this);
+		$(this).attr("disabled","disabled");
+		var vars = $(".tbody input[type=checkbox]").serialize();
+		$.post("{:U('V2TransferPlan/generateTransferPlanByIssue')}",vars,function(r){
+			
+			if(r.status){
+				if(r.data.shipment_need_review){
+					alert("该转仓计划需要审核，请通知管理员审核");
+				}
+				url = '{:U("V2TransferPlan/index")}?transfer_shipment_id=' + r.data.transfer_shipment_id;
+				target_html = '<form action="' +url+ '" target="_blank" method="POST"></form>';
+				$(target_html).submit();
+			}else{
+				alertWarning(r.info);
+			}
+			obj.attr("disabled",null);
+			
+		})
+	});
+
+	$(".showBottomBox").click(function(){
+		var tr = $(this).parent('tr');
+		var id = tr.find("input[name='id[]']").val();
+
+		if(!id){
+			return false;
+		}
+		if(showDetail_id != id){
+			$("tbody.tbody tr").removeClass("success");	
+			
+			tr.addClass("success");
+
+			showBottomBox("{:U('AmazonSellyoursIssue/index')}?id=" + id);
+
+			showDetail_id = id;
+		}
+
+	});
+
+	$(".foldTr").click(function(){
+		var asin = $(this).parent().find(".foldTrAsin").eq(0).val();
+		var type = $("#foldTrVal_"+asin).val();
+
+		if(type==1){
+			$(".child_tr_"+asin).hide();
+			$("#foldTrVal_"+asin).val(0);
+		}else{
+			$(".child_tr_"+asin).show();
+			$("#foldTrVal_"+asin).val(1);
+		}
+		
+	});
+
+
+	$(".downloadAccountReport").click(function(){
+		var account_ids = $("#account_id").val();
+		if(!account_ids){
+			alertWarning("请筛选帐号");
+		}
+		var account_ids_str = account_ids.join(",",account_ids);
+
+		var data = {
+			account_id:account_ids_str,
+			"ads_last_day":$("#ads_last_day").val(),
+		};
+		var url = "{:U('V2AmazonReportPromoteSearchTermReport/downLoadSTReport')}";
+
+		if($("#bad_st_report").prop("checked")){
+			data['bad_report'] = 1;
+		}
+
+		tmpSendForm(url,data);
+	});
+
+	
+
+	$(".downloadAsinReport").click(function(){
+		var asin = $(this).data("asin");
+		var sellyours_id = $(this).data("sellyours_id");
+		
+		var data = {
+			sellyours_id:sellyours_id,
+			asin:asin,
+			ads_last_day:$("#ads_last_day").val(),
+		};
+		tmpSendForm("{:U('V2AmazonReportPromoteSearchTermReport/downLoadSTReport')}",data);
+	});
+
+	$(".downloadAccountReportV2").click(function(){
+		var account_ids = $("#account_id").val();
+		if(!account_ids){
+			alertWarning("请筛选帐号");
+		}
+		var account_ids_str = account_ids.join(",",account_ids);
+
+		var data = {
+			account_id:account_ids_str,
+			"day_between":$("#day_between").val(),
+		};
+		var url = "{:U('V2AmazonReportPromoteSearchTermReport/downLoadSTReportV2')}";
+
+		if($("#bad_st_report").prop("checked")){
+			data['bad_report'] = 1;
+		}
+
+		tmpSendForm(url,data);
+	});
+
+	$(".downloadAsinStReportV2").click(function(){
+		var asin = $(this).data("asin");
+		var sellyours_id = $(this).data("sellyours_id");
+		
+		var data = {
+			sellyours_id:sellyours_id,
+			asin:asin,
+			"day_between":$("#day_between").val(),
+		};
+		tmpSendForm("{:U('V2AmazonReportPromoteSearchTermReport/downLoadSTReportV2')}",data);
+	});
+
+	$(".showTaskList").click(function(){
+		var sellyours_id = $(this).data("id");
+		var parent_asin = $(this).data("pasin");
+		var url = "{:U('V2Task/amazonIndex')}?sellyours_id="+sellyours_id;
+		if(parent_asin){
+			url += ("&parent_asin="+parent_asin);
+		}
+		showBottomBox(url);
+	});
+
+	
+	$(".setParentThumbnail").click(function(){
+   		var sellyours_id = $(this).data("id");
+
+        var btn = $(this);
+        btn.button('loading');
+        $.post("{:U('setParentThumbnail')}",{sellyours_id:sellyours_id},function(msg){
+            btn.button('reset');
+            if(msg.status){
+                alertWarning(msg.info,1);
+                window.location.reload();
+            }else{
+                alertWarning(msg.info);
+            }
+        }).error(function(){
+            btn.button('reset');
+            alertWarning("网络错误，请重试");
+            return false;
+        });
+    });
+
+
+    $(".show_by_pasin").click(function(){
+   		$(".pagination").find('[name="list_rows"]').val(10);
+   		$('#form_search').submit();
+    });
+
+	$('.popover_show').popover({
+		trigger:'focus click',
+		html:true,
+		placement:'right'
+	});
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}	
+
+	//如果只有一条记录，默认打开详细框
+	if($("tbody.tbody tr").length == 1){
+		$(".tbody.tbody tr .showBottomBox").eq(0).click();
+	}
+
+	$("#promote_ads_type").select2();
+	$("#account_id").select2();
+})
+
+	
+//v2系统的采购
+function v2Purchase(){
+	$("#btn_v2Purchase").attr("disabled",'disabled');
+	var vars = $(".tbody input[type=checkbox]").serialize();
+	$.post("{:U('v2Purchase')}",vars,function(r){
+		$("#btn_v2Purchase").attr("disabled",null);
+		if(r.status){
+			alert(r.info);
+			tmpSendForm("{:U('V2PurchasePlan/index')}",r.data,'_blank','tmp_form',false);
+		}else{
+			alertWarning(r.info);
+		}
+	})
+}
+
+function searchPurchasePlan(id){
+
+	data = 'purchase_source_id=' + id + "&filter[purchase_source][Amazon sellyours]=Amazon sellyours" + 
+		"&filter[purchase_state][Waiting purchase]=Waiting purchase" + 
+		"&filter[purchase_state][Partial purchasing]=Partial purchasing" + 
+		"&filter[purchase_state][Purchasing]=Purchasing" + 
+		"&filter[purchase_state][Stockout]=Stockout";
+	tmpSendForm("{:U('V2PurchasePlan/index')}",data);
+}
+
+function purchase_audit(){
+	var vars = $(".tbody input[type=checkbox]").serialize();
+	$.post("{:U('getPurchaseSellyours')}",vars,function(r){
+		if(r.status){
+			if(r.data.title){
+				showBox('middleBox');
+				tmpSendForm("{:U('V2AuditFlow/addView')}",r.data,'middleBoxIframe');
+			}else{
+				alert("没有采购项");
+			}
+		}else{
+			alertWarning(r.info);
+		}
+	})
+}
+
+
+function purchase(){
+	$("#btn_purchase").attr("disabled",'disabled');
+	var vars = $(".tbody input[type=checkbox]").serialize();
+	$.post("{:U('purchase')}",vars,function(r){
+		if(r.status){
+			target_html = '<form action="<?php echo U("OrderPurchasePlan/index"); ?>" target="_blank" method="POST"><input type="hidden" name="flag" value="amazon" /></form>';
+			$(target_html).submit();
+		}else{
+			alertWarning(r.info);
+		}
+		$("#btn_purchase").attr("disabled",null);
+	})
+}
+
+
+//更新库存相关的信息，如采购状态、库存状态、各种状态的数量
+function updateStock(){
+	$.get("{:U('updateStock')}",function(r){
+		if(r.status){
+			if(r.data.new_stock_list == null){
+				//如果没有新库存产品提示，则不用理。
+			}else{
+				$("#middleBoxIframe").attr("src","<?php echo U("AmazonSellyours/getStockMapList"); ?>?_" + Math.round(new Date().getTime()/1000));
+				$("#middleBox").modal({backdrop:'static'}).modal("show");	
+			}
+		}else{
+			alert(r.info);
+		}
+	})
+}
+
+
+function getStockMapList(sellyours_id){
+	$("#middleBoxIframe").attr("src","<?php echo U("AmazonSellyoursStock/index"); ?>?sellyours_id=" +sellyours_id+ "&_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+
+function generateSKU(){
+	$("#middleBoxIframe").attr("src","<?php echo U("AmazonSellyours/generateSKU"); ?>?_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal({backdrop:'static'}).modal("show");		
+}
+
+
+//打开检查发货框
+function checkShip(){
+	$("#bottomBoxIframe").attr("src","<?php echo U("OrderPackage/checkship"); ?>?_" + Math.round(new Date().getTime()/1000));
+	$("#bottomBox").modal("show");	
+}
+
+function add(){
+	$("#middleBoxIframe").attr("src","<?php echo U("AmazonSellyours/edit"); ?>?_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+
+function edit(id){
+	$("#middleBoxIframe").attr("src","<?php echo U("AmazonSellyours/edit"); ?>?id="+ id +"&_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+function review(id){
+	$("#middleBoxIframe").attr("src","<?php echo U("AmazonSellyours/review"); ?>?id="+ id +"&_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+function analyze(id){
+	$("#middleBoxIframe").attr("src","<?php echo U("AmazonBusinessReports/detail"); ?>?sellyours_id="+ id +"&_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+function issue(id){
+	$("#middleBoxIframe").attr("src","<?php echo U("AmazonSellyoursIssue/edit"); ?>?sellyours_id="+ id +"&_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal({backdrop:'static'}).modal("show");
+}
+function compete(id){
+	$("#middleBoxIframe").attr("src","<?php echo U("AmazonSellyoursOffer/index"); ?>?sellyours_id="+ id +"&_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+
+function mark(action){
+	var vars = $(".tbody input[type=checkbox]").serialize();
+
+	switch (action) {
+		case "flag":
+			if(vars == ''){
+				alert("请选择操作项!");
+				$("input[name^='binary_key']").prop('checked', false);
+				return false;
+			}
+			var binary_key = $("input[name='binary_key']:checked").val();
+			vars = vars + "&binary_key=" + binary_key;
+			sendAjax("{:U('mark?action=flag')}", vars, function(data) {
+					if (data.status) {
+						$(".tbody input[type=checkbox]:checked").click();
+						$("#form_search").submit();
+
+					}else{
+						alertWarning(data.info);
+					}
+				});
+			$("input[name^='binary_key']").prop('checked', false);
+		break;
+		case "unflag":
+			if(vars == ''){
+				alert("请选择操作项!");
+				$("input[name^='binary_key']").prop('checked', false);
+				return false;
+			}
+			var binary_key = $("input[name='binary_key']:checked").val();
+			vars = vars + "&binary_key=" + binary_key;
+			sendAjax("{:U('mark?action=unflag')}", vars, function(data) {
+					if (data.status) {
+						$(".tbody input[type=checkbox]:checked").click();
+						$("#form_search").submit();
+					}else{
+						alertWarning(data.info);
+					}
+				});
+			$("input[name^='binary_key']").prop('checked', false);
+		break;
+
+	}
+
+}
+</script>

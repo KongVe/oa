@@ -1,0 +1,316 @@
+<layout name='Layout/ace_layout' />
+{:W('PageHeader',array('name'=>'查看产品'))}
+<div class="col-sm-1"></div>
+<div class="col-sm-9">
+	<form method='post' id="form_data" action="" class="well form-horizontal">
+		<input type="hidden" id="ajax" value=""/>
+		<input type="hidden" id="add_file" name="add_file" value=""/>
+		<input type="hidden"  id="id" name="id" value="{$vo.id}">
+
+		<table class="table table-bordered">
+			<div class="operate panel panel-default">
+
+				<div class="panel-body">
+						<a class="btn btn-inverse btn-sm" href="{:U('downZip?id='.$vo['id'])}" target="_blank">打包下载</a>
+
+						<?php 
+							if(isAdmin()){
+						?>
+							<eq name="vo.status" value="Wait develop check">
+								<a class="btn btn-info btn-sm" onclick="checkProduct({$vo.id},'develop')">确认打版</a>
+							</eq>
+							<eq name="vo.status" value="Wait photo check">
+								<a class="btn btn-info btn-sm" onclick="checkProduct({$vo.id},'photo')">确认拍图</a>
+							</eq>
+						<?php 
+							}
+						?>
+						
+						<empty name="vo.is_del">
+
+							<a onclick="showMiddleBox('{:U('edit?id='.$vo['id'])}');" class="btn btn-primary btn-sm">修改产品</a>
+							
+							<?php 
+								if(in_array($vo['status'], array("Wait develop","Wait photo check","Wait photo","Finish"))){
+							?>
+								<notempty name="vo.develop_uid">
+									<a onclick="showMiddleBox('{:U('developEdit?id='.$vo['id'])}');" class="btn btn-inverse btn-sm">修改打版</a>
+								<else/>
+									<a onclick="showMiddleBox('{:U('developEdit?id='.$vo['id'])}');" class="btn btn-inverse btn-sm">打 版</a>
+								</notempty>
+							<?php 
+								}
+							?>
+							<?php 
+								if(in_array($vo['status'], array("Wait photo","Finish"))){
+							?>
+								<notempty name="vo.photo_uid">
+									<a onclick="showMiddleBox('{:U('photoEdit?id='.$vo['id'])}');" class="btn btn-primary btn-sm">修改拍图</a>
+								<else/>	
+									<a onclick="showMiddleBox('{:U('photoEdit?id='.$vo['id'])}');" class="btn btn-primary btn-sm">拍 图</a>
+								</notempty>
+							<?php 
+								}
+							?>
+						
+						</empty>
+						
+				</div>
+
+				<div class="panel-body">
+					<div class="form-group col-sm-6">
+						<label class="col-sm-4 control-label">SKU：</label>
+						<div class="col-sm-8">
+							{$vo.sku}
+						</div>
+					</div>
+
+
+					<div class="form-group col-sm-6">
+						<label class="col-sm-4 control-label">开发状态：</label>
+						<div class="col-sm-8">
+							<b>
+								<?php
+									echo toCnName($vo['status'],"ProductDevelop");
+								?>
+							</b>
+						</div>
+					</div>
+
+					<div class="form-group col-sm-6">
+						<label class="col-sm-4 control-label">产品简称：</label>
+						<div class="col-sm-8">
+							{$vo.short_name}
+						</div>
+					</div>
+
+					
+
+					<div class="form-group col-sm-12">
+						<label class="col-sm-2 control-label">产品规格：</label>
+						<div class="col-sm-10">
+							{$vo.variations|default=""}
+						</div>
+					</div>
+
+					<div class="form-group col-sm-6">
+						<label class="col-sm-4 control-label">预估成本价：</label>
+						<div class="col-sm-8">
+							￥{$vo.estimate_cost|default="0"}
+						</div>
+					</div>
+					<div class="form-group col-sm-6">
+						<label class="col-sm-4 control-label">预估重量：</label>
+						<div class="col-sm-8">
+							{$vo.estimate_weight|default="0"}克
+						</div>
+					</div>
+
+					<div class="form-group col-sm-6">
+						<label class="col-sm-4 control-label">添加用户：</label>
+						<div class="col-sm-8">
+							{$vo.add_user_name}
+						</div>
+					</div>
+					<div class="form-group col-sm-6">
+						<label class="col-sm-4 control-label">添加时间：</label>
+						<div class="col-sm-8">
+							{$vo.add_time|default="无"|date="Y-m-d H:i:s",###}
+						</div>
+					</div>
+
+					<div class="form-group col-sm-12">
+						<label class="col-sm-2 control-label">产品主图：</label>
+						<div class="col-sm-10">
+							<a href="{$vo.add_thumbnail}" class="thumbnail" style="height:210px; display:inline-block;" target="_blank" >
+								<img src="{$vo.add_thumbnail}" style="height:200px;" />
+							</a>
+						</div>
+					</div>
+					<div class="form-group col-sm-12">
+						<label class="col-sm-2 control-label">产品相册：</label>
+						<div class="col-sm-10">
+							<volist name="vo.add_gallery" id="gg">
+								<a href="{$gg}" class="thumbnail" style="height:210px; display:inline-block;" target="_blank" >
+									<img src="{$gg}" style="height:200px;" />
+								</a>
+							</volist>
+						</div>
+					</div>
+					<div class="form-group col-sm-12">
+						<label class="col-sm-2 control-label">产品附件：</label>
+						<div class="col-sm-10">
+
+							<div style="position:relative;">
+								<ul id="add_file_list">
+									<notempty name="add_file_list">
+										<volist name="add_file_list" id="file">
+											<li class="tbody">
+												<div class="loading"></div>
+												<div class="data">
+													<span class="del text-center"> <a class="link down" target="_blank" href="{:U('down?attach_id='.f_encode($file['id']))}">下载</a> </span>
+													<span class="size" >{$file.size|reunit}</span>
+													<span class="auto autocut" title="{$file.name}">{$file.name}
+														<eq name="file.extension" value="mp4">
+															(<a class="link down" target="_blank" onclick='winopen("{:U("file/player?attach_id=".f_encode($file["id"]))}",730,460)' >播放</a> )
+														</eq> 
+													</span>
+												</div>
+											</li>
+										</volist>
+									</notempty>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group col-sm-12">
+						<label class="col-sm-2 control-label">产品备注：</label>
+						<div class="col-sm-10">
+							{$vo.add_memo}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="operate panel panel-default">
+				<div class="panel-body">
+					<empty name="vo.develop_uid">
+						<b>未打版</b>
+					<else/>
+					
+						<div class="form-group col-sm-6">
+							<label class="col-sm-4 control-label">打版用户：</label>
+							<div class="col-sm-8">
+								{$vo.develop_user_name}
+							</div>
+						</div>
+						<div class="form-group col-sm-6">
+							<label class="col-sm-4 control-label">打版时间：</label>
+							<div class="col-sm-8">
+								{$vo.develop_time|default="无"|date="Y-m-d H:i:s",###}
+							</div>
+						</div>
+
+						<div class="form-group col-sm-12">
+							<label class="col-sm-2 control-label">打版图片：</label>
+							<div class="col-sm-10">
+								<volist name="vo.develop_gallery" id="gg">
+									<a href="{$gg}" class="thumbnail" style="height:210px; display:inline-block;" target="_blank" >
+										<img src="{$gg}" style="height:200px;" />
+									</a>
+								</volist>
+							</div>
+						</div>
+
+						<div class="form-group col-sm-12">
+							<label class="col-sm-2 control-label">打版附件：</label>
+							<div class="col-sm-10">
+								<div style="position:relative;">
+									<ul id="develop_file_list">
+										<notempty name="develop_file_list">
+											<volist name="develop_file_list" id="file">
+												<li class="tbody">
+													<div class="loading"></div>
+													<div class="data">
+														<span class="del text-center"> <a class="link down" target="_blank" href="{:U('down?attach_id='.f_encode($file['id']))}">下载</a> </span>
+														<span class="size" >{$file.size|reunit}</span>
+														<span class="auto autocut" title="{$file.name}">{$file.name}
+															<eq name="file.extension" value="mp4">
+																(<a class="link down" target="_blank" onclick='winopen("{:U("file/player?attach_id=".f_encode($file["id"]))}",730,460)' >播放</a> )
+															</eq> 
+														</span>
+													</div>
+												</li>
+											</volist>
+										</notempty>
+									</ul>
+								</div>
+							</div>
+						</div>
+						<div class="form-group col-sm-12">
+							<label class="col-sm-2 control-label">打版备注：</label>
+							<div class="col-sm-10">
+								{$vo.develop_memo}
+							</div>
+						</div>
+					</empty>
+				</div>
+			</div>
+
+			<div class="operate panel panel-default">
+				<div class="panel-body">
+					<empty name="vo.photo_uid">
+						<b>未拍图</b>
+					<else/>
+						<div class="form-group col-sm-6">
+							<label class="col-sm-4 control-label">拍图用户：</label>
+							<div class="col-sm-8">
+								{$vo.photo_user_name}
+							</div>
+						</div>
+						<div class="form-group col-sm-6">
+							<label class="col-sm-4 control-label">拍图时间：</label>
+							<div class="col-sm-8">
+								{$vo.photo_time|default="无"|date="Y-m-d H:i:s",###}
+							</div>
+						</div>
+
+						<div class="form-group col-sm-12">
+							<label class="col-sm-2 control-label">拍图照片：</label>
+							<div class="col-sm-10">
+								<volist name="vo.photo_gallery" id="gg">
+									<a href="{$gg}" class="thumbnail" style="height:210px; display:inline-block;" target="_blank" >
+										<img src="{$gg}" style="height:200px;" />
+									</a>
+								</volist>
+							</div>
+						</div>
+
+						<div class="form-group col-sm-12">
+							<label class="col-sm-2 control-label">拍图附件：</label>
+							<div class="col-sm-10">
+								<div style="position:relative;">
+									<ul id="photo_file_list">
+										<notempty name="photo_file_list">
+											<volist name="photo_file_list" id="file">
+												<li class="tbody">
+													<div class="loading"></div>
+													<div class="data">
+														<span class="del text-center"> <a class="link down" target="_blank" href="{:U('down?attach_id='.f_encode($file['id']))}">下载</a> </span>
+														<span class="size" >{$file.size|reunit}</span>
+														<span class="auto autocut" title="{$file.name}">{$file.name}
+															<eq name="file.extension" value="mp4">
+																(<a class="link down" target="_blank" onclick='winopen("{:U("file/player?attach_id=".f_encode($file["id"]))}",730,460)' >播放</a> )
+															</eq> 
+														</span>
+													</div>
+												</li>
+											</volist>
+										</notempty>
+									</ul>
+								</div>
+							</div>
+						</div>
+
+						<div class="form-group col-sm-12">
+							<label class="col-sm-2 control-label">拍图备注：</label>
+							<div class="col-sm-10">
+								{$vo.photo_memo}
+							</div>
+						</div>
+					</empty>
+				</div>
+			</div>			
+		</table>
+
+	</form>
+
+	
+</div>
+			<!-- <a href="{$vo.thumbnail}" id="thumbnail_show" class="thumbnail" target="_blank" style="width: 60%;position: absolute;z-index:1000;"><img src="{$vo.thumbnail}" /></a>
+			 -->
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class=""><img style="height:400px;" src="" /></a>
+</div>

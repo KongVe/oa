@@ -1,0 +1,88 @@
+<layout name='Layout/ace_popup' />
+<eq name="vo.memo_type" value="add">
+	{:W('PageHeader',array('name'=>'添加备注'))}
+<else/>
+	{:W('PageHeader',array('name'=>'修改备注'))}
+</eq>
+
+
+<form method='post' id="form_data" name="form_data" class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	
+	<input type="hidden" id="id" name="id" value="{$Think.request.id}">	
+	
+	<input type="hidden" id="memo_type" name="memo_type" value="{$Think.request.memo_type}">	
+
+	<input type="hidden" id="opmode" name="opmode" value="edit">
+
+	<div class="form-group col-sm-12">
+		<label class="col-sm-4 control-label" for="variation">备注旗帜(可选)：</label>	
+		<div class="col-sm-8">
+			<select name="flag_choose" id="flag_choose" >
+				<option value="0">交易备注旗帜(可选)</option>
+				<!-- <option value="0" <eq name="vo.seller_flag" value="0"> selected="selected" </eq> >灰色</option> -->
+				<option value="1" <eq name="vo.seller_flag" value="1"> selected="selected" </eq> >红色</option>
+				<option value="2" <eq name="vo.seller_flag" value="2"> selected="selected" </eq> >黄色</option>
+				<option value="3" <eq name="vo.seller_flag" value="3"> selected="selected" </eq> >绿色</option>
+				<option value="4" <eq name="vo.seller_flag" value="4"> selected="selected" </eq> >蓝色</option>
+				<option value="5" <eq name="vo.seller_flag" value="5"> selected="selected" </eq> >粉红色</option>
+			</select>
+		</div>
+	
+	</div>
+	<div class="form-group col-sm-12">
+		<label class="col-sm-4 control-label" >常用备注：</label>	
+		<div class="col-sm-8">
+			<select onchange="$('#memo').val($(this).val());" >
+				<option value="0">请选择</option>
+				<option value="没货了">没货了</option>
+				<option value="买家准备申请退款">买家准备申请退款</option>
+				<option value="测试订单">测试订单</option>
+				<option value="恶意买家">恶意买家</option>
+			</select>
+		</div>
+	
+	</div>
+	<div class="form-group col-xs-12">	
+		<label class="col-sm-4 control-label" for="variation">备注内容：</label>	
+		<div class="col-sm-8">
+			<textarea name="memo" id="memo" check="require" msg="请填写备注内容">{$vo.seller_memo}</textarea>
+		</div>
+	</div>
+
+	<div class="form-group col-sm-12">
+		<label class="col-sm-4 control-label" for="variation"></label>	
+		<div class="col-sm-8">
+			注：该操作会直接同步到淘宝卖家后台数据。
+		</div>
+		
+	</div>
+	
+	<div class="action">
+		<input type="hidden" name="model_name" value="place"> 
+		<input class="btn btn-sm btn-primary" type="button" value="提交" onclick="save();">
+		<input  class="btn btn-sm btn-default" type="button" value="取消" onclick="parent.$('#middleBox').modal('hide');">
+	</div>
+</form>
+
+<script type="text/javascript">
+	function save() {
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('TaobaoOrder/memoSave')}",false,function(msg){
+				if(msg.status){
+					if(parent.$("#middleBox").length>0){
+						alertWarning(msg.info,1);
+						parent.window.location.reload();
+						parent.$("#middleBox").modal('hide');
+					}else{
+						alertWarning(msg.info,1);
+					}
+				}else{
+					alertWarning(msg.info);
+				}
+			});
+		}
+	}
+
+	
+</script>

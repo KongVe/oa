@@ -1,0 +1,115 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="id" value="{$Think.request.id}" />
+<div class="page-header clearfix">
+	<h1 class="col-sm-4">分析</h1>
+	<div class="col-sm-5 pull-right">
+			<div class="form-group col-sm-3 pull-left">
+				<div class="col-sm-12">
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="report_time" id="report_time" value="{$Think.request.report_time}"    readonly="readonly" placeholder="报告时间">
+				</div>
+			</div>		
+			<div class="form-group col-xs-1">
+				<label class="sr-only" >account_id</label>
+				<select name="account_id"  class="form-control">	
+					<option value="">请选择账号</option>
+					<volist name="accountList" id="account">
+						<option value="{$account['id']}" <eq name="Think.request.account_id" value="$account['id']">selected</eq> >{$account.account_name}</option>
+					</volist>	
+				</select>
+			</div>
+			<div class="input-group col-sm-6">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索 ASIN"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div>
+	</div>
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a class="btn btn-sm btn-primary" href="{:U('importIndex')}" >导入</a>
+		</div>
+	</div>
+</div>
+<div class="message-container">
+	<table class="table table-striped table-hover">
+			<include file="Layout:title" />
+			<tbody class="tbody">
+			<volist name="list" id="vo">
+				<tr>
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td><a href="{$vo.asin_link}" target="_blank" title="{$vo.asin}">{$vo.asin}</a></td>
+					<td><a href="{$vo.source_link}" target="_blank" class="thumbnail"><img src="{$vo.thumbnail}" width="60" /></a></td>
+					<td class="showBottomBox">{$vo.add_time}</td>
+					<td class="showBottomBox">{$vo.review_time}</td>
+					<td class="showBottomBox">{$vo.status}</td>
+					<td class="showBottomBox">{$vo.add_empname}</td>
+					<td class="showBottomBox">{$vo.review_empname}</td>
+					<td>{$vo.sales_rank} in {$vo.sales_rank_category}</td>
+					<td>{$vo.product_rank}</td>
+					<td><span class="editStatic" field="trademark" onclick="editStatic(this,'{:U('AmazonSellyours/save')}?id={$vo.id}','textarea')">{$vo.trademark}</span></td>
+					<td><span class="editStatic" field="memo" onclick="editStatic(this,'{:U('AmazonSellyours/save')}?id={$vo.id}','textarea')">{$vo.memo}</span></td>
+					<td><a href="http://www.amazon.com/gp/product/{$vo.asin}" target="_blank" title="{$vo.product_name}"><?php echo substr($vo['product_name'], 0,10) . "..."; ?></a></td>
+					<td>
+						<?php if(array_search($vo['status'], array('New','Unqualified')) === false){ ?>
+							<a class="btn btn-primary btn-sm"    onclick="issue({$vo.id})">上架</a>
+							
+						<?php }else{ ?>
+							
+						<?php } ?>
+						<a class="btn btn-primary btn-sm"    onclick="review({$vo.id})">审查</a>
+						<a class="btn btn-danger btn-sm"    onclick="edit({$vo.id})">修改</a>
+
+					</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" height="300px" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+
+<div class="modal fade" id="editProduct" role="dialog"  tabindex="-1" aria-labelledby="editProductLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="editProductIframe" name="editProductIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox1" role="dialog"  tabindex="-1" aria-labelledby="bottomBox1Label" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBox1Iframe" name="bottomBox1Iframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<style>
+.showBottomBox{cursor: pointer;}
+</style>

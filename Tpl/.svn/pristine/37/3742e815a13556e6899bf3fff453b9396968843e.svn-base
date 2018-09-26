@@ -1,0 +1,197 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+		<input type="hidden" name="id" value="{$vo.id}">
+		<input type="hidden" id="opmode" name="opmode" value="{$vo.opmode}" >
+		<div class="form-group">
+			<label class="control-label" for="card_number">卡号</label>
+			<input class="form-control" type="text" id="card_number" name="card_number" value="{$vo.card_number}">
+		</div>		
+		<div class="form-group">
+			<div class="col-sm-3">
+				<label class="control-label" for="card_date_month">月份</label>
+				<input class="form-control col-xs-6" type="text" id="card_date_month" name="card_date_month" value="{$vo.card_date_month}">	
+			</div>
+			<div class="col-sm-3">
+				<label class="control-label" for="card_date_year">年份</label>
+				<input class="form-control col-xs-6" type="text" id="card_date_year" name="card_date_year" value="{$vo.card_date_year}">
+			</div>
+			
+		</div>	
+		<div class="form-group">
+			<label class="control-label" for="card_cvv">CVV</label>
+			<input class="form-control" type="text" id="card_cvv" name="card_cvv" value="{$vo.card_cvv}">
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="type_id">类型</label>
+			<select class="form-control" name="type_id" id="type_id">
+				<option value="" >请选择类型</option>
+				<volist name="payTypeList" id="payType">
+					<option value="{$payType.id}" <?php if($vo['type_id'] == $payType['id']){ echo "selected"; } ?> >{$payType.type_name}</option>
+				</volist>
+			</select>
+			<input type="hidden" name="type" id="type" value="{$vo.type}" />
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="card_issuer_id">发卡行</label>
+			<select class="form-control" name="card_issuer_id" id="card_issuer_id">
+				<option value="" >请选择发卡行</option>
+				<volist name="payIssuerList" id="payIssuer">
+					<option value="{$payIssuer.id}" <?php if($vo['card_issuer_id'] == $payIssuer['id']){ echo "selected"; } ?> >{$payIssuer.issuer_name} ({$payIssuer.issuer_name_cn})</option>
+				</volist>
+			</select>
+			<input type="hidden" name="card_issuer" id="card_issuer" value="{$vo.card_issuer|default='spdbccc.com.cn'}" />
+		</div>
+
+		<div class="form-group">
+			<label class="control-label" for="username">用户名</label>
+			<input class="form-control" type="text" id="username" name="username" value="{$vo.username}">
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="password">密码</label>
+			<input class="form-control" type="text" id="password" name="password" value="{$vo.password}">
+		</div>
+		<div class="form-group">
+			<div>
+				<label class="control-label" for="vpn_server_id">VPN ID</label>
+				<input name="vpn_server_id" id="vpn_server_id" type="text" class="form-control" value="{$vo.vpn_server_id}"> 
+			</div>
+			<div id="vpnAccountList" style="display:none;">
+				可换VPN： 
+				<volist name="vpn.vpnAccountList" id="vpnAccount">
+					<a href="{:U('FalseVpn/getSwitchBat')}?vpn_id={$vpnAccount.vpn_id}&vpn_server_id={$vpn.id}" target="middleBoxIframe" style="margin-right:10px;">{$vpnAccount.website} -> {$vpnAccount.username} </a> 
+				</volist>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="status">状态</label>
+			<select class="form-control" name="status" id="status">
+				<option value="Normal" <eq name="vo.status" value="Normal">selected</eq>>Normal</option>
+				<option value="Disabled" <eq name="vo.status" value="Disabled">selected</eq>>Disabled</option>
+			</select>
+		</div>
+		<neq name="vo.type" value="Paypal">
+			<div class="form-group">
+				<label class="control-label" for="paypal_card_bind_status">绑定paypal状态</label>
+				<select class="form-control" name="paypal_card_bind_status" id="paypal_card_bind_status">
+					<option value="Normal" <eq name="vo.paypal_card_bind_status" value="Normal">selected</eq>>Normal</option>
+					<option value="Using" <eq name="vo.paypal_card_bind_status" value="Using">selected</eq>>Using</option>
+					<option value="Disabled" <eq name="vo.paypal_card_bind_status" value="Disabled">selected</eq>>Disabled</option>
+				</select>
+			</div>
+
+			<div class="form-group">
+				<label class="control-label" for="unbind_card_paypal">绑定3次PayPal后是否仍解绑</label>
+				<select class="form-control" name="unbind_card_paypal" id="unbind_card_paypal">
+					<option value="Yes" <eq name="vo.unbind_card_paypal" value="Yes">selected</eq>>Yes</option>
+					<option value="No" <eq name="vo.unbind_card_paypal" value="No">selected</eq>>No</option>
+				</select>
+			</div>
+		</neq>
+		
+		<div class="form-group">
+			<label class="control-label" for="memo">备注</label>
+			<textarea name="memo" id="memo" class="form-control">{$vo.memo}</textarea>
+		</div>		
+		<div class="form-group text-center">
+			<input type="submit" id="editFormSubmit" data-loading-text="正在保存..."  class="btn btn-primary" value="保存" />
+			<a class="btn btn-success" id="cancel">取消</a>
+			<a class="btn btn-danger" id="delete">删除</a>
+		</div>
+	</form>
+<script type="text/javascript">
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);
+
+	$("#cancel").click(function(){
+		parent.$("#middleBox").modal("hide");
+	})
+	$("#delete").click(function(){
+		
+		if(window.confirm("Delete? ")){
+			$(this).attr("disabled","disabled");
+			$("#opmode").val("del");
+			var data = $("#editForm").serialize();
+			var url = $("#editForm").attr("action");
+			$.post(url,data,function(r){
+
+				if(r.status){
+
+					//parent.$("#middleBox").modal("hide");
+					parent.window.location.reload();
+
+				}else{
+					$(this).attr("disabled",null);
+					alert(r.info);
+					return false;
+				}
+			})
+		}else{
+			return false;
+		}
+
+		return false;
+	})
+
+	$("#editFormSubmit").click(function(){
+		var data = $("#editForm").serialize();
+		var url = $("#editForm").attr("action");
+		$(this).attr("disabled","disabled");
+		$.post(url,data,function(r){
+			if(r.status){
+
+				parent.$("#middleBox").modal("hide");
+				// parent.window.location.reload();
+
+			}else{
+				$(this).attr("disabled",null);
+				alert(r.info);
+				return false;
+			}
+		})
+		return false;
+	})
+
+	$("#type_id").change(function(){
+		var type_name = $("option[value='" + $(this).val() + "']",$(this)).html();
+		$("#type").val(type_name);
+	})
+
+	$("#card_issuer_id").change(function(){
+		var issuer_name = $("option[value='" + $(this).val() + "']",$(this)).html();
+		$("#card_issuer").val(issuer_name);
+	})
+
+	$("#vpn_server_id").change(function(){
+		if($(this).val() == '0'){
+			return false;
+		}
+		$("#vpnAccountList").html('');
+		$("#vpnAccountList").hide();
+		if($(this).val() != ''){
+			$(this).attr("disabled",'disabled');
+
+			var obj = $(this);
+			data = {vpn_server_id:$(this).val()};
+			$.post("{:U('FalseVpnServer/useServer')}",data,function(r){
+				if(r.status){
+						$("#vpnAccountList").html(r.data.vpnHtml);
+						$("#vpnAccountList").show();
+					
+				}else{
+					alert(r.info);
+				}
+
+				obj.attr("disabled",null);
+			})
+		}
+	}).change();
+
+})
+
+
+</script>

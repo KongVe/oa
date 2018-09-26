@@ -1,0 +1,206 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo intval(!$sort); ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">{$title}</h1>
+	<div class="col-sm-10 pull-right">				
+			<div class="form-group col-sm-2 pull-left">
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}"    readonly="readonly" placeholder="创建时间">
+			</div>		
+			<div class="input-group col-sm-3">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="请输入搜索内容"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div>
+	</div>
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a class="btn btn-primary showBox" data-url="{:U('editv2')}" >新建</a>
+		</div>
+
+	</div>
+</div>
+<div class="message-container">
+	<table class="table table-striped table-hover">
+		
+		 	<include file="Layout:title_v2"/>
+			<tbody class="tbody">
+			<volist name="list" id="vo">
+				<tr>
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+							<br>
+							<br>
+							<?php echo date("Y-m-d<bR>H:i",$vo['add_time']); ?>
+						</label>
+					</td>
+					<td width='300px'>
+						<pre>{$vo.reason}<br><volist name="vo.related_asin" id="k1" ><a href="http://{$vo.website}/dp/product/{$k1}" target="_blank" >{$k1} </a></volist></pre>
+						<pre>关键词: <volist name="vo.keyword" id="k1" ><a href="http://{$vo.website}/s/field-keywords={$k1}" target="_blank" >{$k1}<br></a></volist></pre>
+						<notempty name="vo.category_link">
+							<a href="{$vo.category_link}" target="_blank" class="btn btn-success btn-xs">分类</a>
+						</notempty>						
+					</td>	
+					<td>
+						<?php foreach($vo['reason_pictures'] as  $reason_picture_key=>$reason_picture){ 
+								//if($reason_picture_key >=3 || !$reason_picture){ echo "<br>..."; break;}
+						?>
+						<a href="{$reason_picture}" target="_blank" class="thumbnail"><img src="{$reason_picture}" width="60" /></a>
+						<?php } ?>
+					</td>
+					<td>{$vo.status}</td>	
+					<td>{$vo.emp_name}</td> 
+					<td width='200px'>
+						<notempty name="vo.source_link">
+						<volist name="vo.source_link" id="link">
+							<a href="{$link}" target="_blank" class="btn btn-success btn-xs">货源</a>
+							<br>
+						</volist>
+						</notempty>
+						{$vo.source_content}
+					</td> 
+					<td width="300px"><pre>{$vo.reject_reason}</pre>
+						<br>
+						<?php if(in_array($vo['status'],array('New','Appeal')) && isAdmin("61,10015")){ ?> 
+							<a class="btn btn-danger btn-sm showBox" data-url="{:U('reject')}?id={$vo.id}">拒绝</a>
+						<?php } ?>
+					</td> 		
+					<td>
+						<?php foreach($vo['reject_related_pictures'] as  $reject_related_picture_key=>$reject_related_picture){ 
+								//if($reject_related_picture_key >=3 || !$reject_related_picture){ echo "<br>..."; break;}
+						?>
+						<a href="{$reject_related_picture}" target="_blank" class="thumbnail"><img src="{$reject_related_picture}" width="60" /></a>
+						<?php } ?>
+					</td>
+					<td>
+						<?php foreach($vo['related_sales_track_list'] as  $sales_track_key=>$sales_track){ 
+								//if($sales_track_key >=3 || !$sales_track){ echo "..."; }
+						?>
+						<a href="{:U('AmazonSalesTrack/index')}?q={$sales_track.asin}" target="_blank" class="thumbnail"><img src="{$sales_track.thumbnail}" width="60" /></a>{$sales_track.asin}<br>
+						<?php } ?>
+					</td>
+					<td>
+						<?php foreach($vo['related_sku_list'] as  $sku_key=>$sku){ 
+								//if($sku_key >=3 || !$sku){ echo "...";break; }
+						?>
+						<a href="javascript:void(0)" onclick="tmpSendForm('{:U('AmazonSellyours/index')}','stock_q_v2={$sku.sku}&_order=month_order_units&_sort=0')"  class="thumbnail"><img src="{$sku.thumbnail}" width="60" /></a>{$sku.sku}<br>{$sku.sku_name}<br>
+						<?php } ?>
+					</td>
+
+					<td>
+						<?php foreach($vo['related_sellyours_list'] as  $sellyours_key=>$sellyours){ 
+								//if($sellyours_key >=3 || !$sellyours){ echo "...";break; }
+						?>
+						<a href="{:U('AmazonSellyours/index')}?q={$sellyours.asin}" target="_blank" class="thumbnail"><img src="{$sellyours.thumbnail}" width="60" /></a>{$sellyours.asin}<br>
+						<?php } ?>
+					</td>
+					
+					<td style="min-width:150px;"><span class="V2EditMemo" data-table-name="amazon_sellyours_add_review" data-field-value="{$vo.id}"><pre>{$vo.memo}</pre></span></td>
+					<td>
+						<?php if(in_array($vo['status'],array('New','Appeal')) && isAdmin("61,10015")){ ?> 
+							<a class="btn btn-success btn-sm" id="btn_approve_{$vo.id}" onclick="approve({$vo.id})">通过</a>
+						<?php } ?>
+						<?php if(in_array($vo['status'],array('New','Appeal'))){ ?> 
+							<a class="btn btn-danger btn-sm showBox" data-url="{:U('editv2')}?id={$vo.id}" >修改</a>
+						<?php } ?>
+						<eq name='vo.status' value="Rejected">
+							<a class="btn btn-danger btn-sm showBox" data-url="{:U('editv2')}?id={$vo.id}&status=Appeal" >申诉</a>
+						</eq>
+						<?php if($vo['status'] == 'Approved' && $vo['sellyours_id'] == 0){ ?> 
+							<a class="btn btn-primary btn-sm showBox" data-url="{:U('AmazonSellyours/editv2')}?add_review_id={$vo.id}">创建</a>
+						<?php } ?> 
+						<?php if(in_array($vo['status'],array('New','Approved'))){ ?> 
+							<a class="btn btn-sm" id="btn_cloneAddReview_{$vo.id}" onclick="cloneAddReview({$vo.id})" >复制</a>
+						<?php } ?>
+						<?php if(in_array($vo['status'],array('New'))){ ?> 
+							<a class="btn btn-sm btn-danger" id="btn_del_{$vo.id}" onclick="del({$vo.id})" >删除</a>
+						<?php } ?>
+					</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" height="300px" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<script type="text/javascript">
+jQuery(function($){
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}
+	$('table').css({'overflow':'auto'});	
+})
+
+function approve(id){
+	$("#btn_approve_" + id).attr("disabled","disabled");
+	data = {
+		id:id
+	}
+	$.post("{:U('approve')}",data,function(r){
+		$("#btn_approve_" + id).attr("disabled",null);
+		if(r.status){
+			window.location.reload();
+		}else{
+			alertWarning(r.info);
+		}
+	})
+}
+
+function cloneAddReview(id){
+	
+	if(window.confirm('Confirm?')){
+		$("#btn_cloneAddReview_" + id).attr("disabled","disabled");
+		data = {
+			id:id
+		}
+		$.post("{:U('cloneAddReview')}",data,function(r){
+			$("#btn_cloneAddReview_" + id).attr("disabled",null);
+			if(r.status){
+				window.location.reload();
+			}else{
+				alertWarning(r.info);
+			}
+		})		
+	}
+
+}
+function del(id){
+	
+	if(window.confirm('Confirm?')){
+		$("#btn_del_" + id).attr("disabled","disabled");
+		data = {
+			id:id
+		}
+		$.post("{:U('del')}",data,function(r){
+			$("#btn_del_" + id).attr("disabled",null);
+			if(r.status){
+				window.location.reload();
+			}else{
+				alertWarning(r.info);
+			}
+		})		
+	}
+
+}
+
+
+</script>

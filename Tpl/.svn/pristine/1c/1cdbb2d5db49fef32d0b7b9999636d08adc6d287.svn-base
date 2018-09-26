@@ -1,0 +1,79 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('saveInvoice')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix"> 
+		<input type="hidden" name="transfer_package_id" id="transfer_package_id" value="<?php echo $_REQUEST['transfer_package_id']; ?>" />
+		<input type="hidden" id="ajax" value="1">
+		<div class="col-sm-12">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<b>包裹详情</b>
+				</div>
+				<div class="panel-body">
+					<table class="table table-bordered">
+						<tr>
+							<td>跟踪号:</td>
+							<td>{$vo.forwarder_tracking_number}</td>
+							<td>物流商:</td>
+							<td>{$vo.forwarder}</td>
+						</tr>
+						<tr>
+							<td>箱子数:</td>
+							<td>{$vo.box_count}</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-12">
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<b>已增加账单</b>
+				</div>
+				<div class="panel-body">
+					<table class="table table-bordered table-hover">
+						<tr>
+							<th>时间</th>
+							<th>操作者</th>
+							<th>金额</th>
+						</tr>
+						<volist name="invoice_list" id="invoice">
+							<tr>
+								<td><?php echo date("Y-m-d H:i",$invoice['add_time']); ?></td>
+								<td>{$invoice.add_username}</td>
+								<td>{$invoice.total_charge|formatPrice=###,'CNY'}</td>
+							</tr>
+						</volist>
+					</table>
+				</div>
+			</div>
+		</div>		
+		<div class="col-sm-12">
+			<div class="panel panel-success">
+				<div class="panel-heading">
+					<b>成本调节</b>
+				</div>
+				<div class="panel-body">
+					<div class="form-group">
+						<label class="control-label">费用原因</label>
+						<SELECT name="add_reason" class="form-control">
+							<option value="转仓运费">转仓运费</option>
+							<option value="关税">关税</option>
+							<option value="DTP手续费">DTP手续费</option>
+						</SELECT>
+					</div>						
+					<div class="form-group">
+						<label class="control-label">增加金额</label>
+						<input type="text" name="add_charge" id="add_charge" class="form-control" value="{$Think.post.add_charge}" />
+					</div>	
+					<div class="form-group text-center">
+						<a id="editFormSubmit" data-close="true" data-reload="true" data-loading-text="正在保存..."  class="btn btn-primary defaultEditFormSubmit"  />保存</a>
+						<a class="btn btn-danger close_box_button">取消</a>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</form>
+<script type="text/javascript">
+
+
+</script>

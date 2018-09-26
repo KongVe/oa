@@ -1,0 +1,257 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'入库'))}
+
+<form method='post' id="editForm" action="{:U('instock')}" class="well form-horizontal clearfix">
+	<input type="hidden" id="ajax" value="1"/>
+	<input type="hidden"  id="id" name="id" value="{$_REQUEST['id']}">
+	<input type="hidden"  id="sku_id" name="sku_id" value="{$sku_id}">
+	
+	<input type="hidden"  id="instock_by_purchase_list" name="instock_by_purchase_list" value="{$_REQUEST['instock_by_purchase_list']}">
+	<input type="hidden"  id="purchase_list_id_bak" name="purchase_list_id_bak" value="{$_REQUEST['purchase_list_id_bak']}">
+
+	<div class="form-group col-xs-12">
+		<div class="col-sm-4">
+		</div>
+		<div class="col-sm-6">
+			<table class="table table-bordered">
+				<tr>
+					<th colspan="4" class="text-center">当前已存在的库存</th>
+				</tr>
+				<tr>
+					<th>货架位</th>
+					<th>系统数量</th>
+					<th>可用数量</th>
+					<th>预留数量</th>
+				</tr>
+				<volist name="map_place_list" id="map_place">
+					<tr>
+						<td>
+							{$map_place.place_show_name}
+						</td>
+						<td>
+							<b>{$map_place.quantity}</b> 个
+						</td>
+						<td>
+							<b>{$map_place.available_quantity}</b> 个
+						</td>
+						<td>
+							<b>{$map_place.reserved_quantity}</b> 个
+						</td>
+					</tr>
+				</volist>
+			</table>
+		</div>
+	</div>
+	<div class="form-group col-xs-12">
+		<div class="col-sm-4 text-right">
+			<div for="sku">SKU: </div>
+			<div class="col-sm-12">
+				<a href="{$sku_data.thumbnail}" id="thumbnail_show" class="thumbnail" target="_blank" style="width: 60%;position: absolute;z-index:1000;"><img src="{$sku_data.thumbnail}" /></a>
+			</div>
+		</div>
+		<div class="col-sm-4">
+			{$sku_data.sku}
+		</div>
+	</div>
+	<div class="form-group col-xs-12">
+		<div class="col-sm-4 text-right" for="sku_name">SKU名称: </div>
+		<div class="col-sm-8">
+			{$sku_data.sku_name}
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12">
+		<div class="col-sm-4 text-right" for="quantity"><b>入库数量</b>: </div>
+		<div class="col-sm-2">
+			<input class="form-control" type="number" id="quantity" name="quantity" check="require" msg="请输入数量" placeholder="请输入数量" data-need_instock="{$vo['plan_instock_quantity']-$vo['instock_quantity']}" value="{$vo['plan_instock_quantity']-$vo['instock_quantity']}">
+		</div>
+		<div class="help-block">
+			计划:<b>{$vo['plan_instock_quantity']}</b> - 已入库:<b>{$vo['instock_quantity']}</b> = 需要入库:<b>{$vo['plan_instock_quantity']-$vo['instock_quantity']}</b>
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12">
+		<div class="col-sm-4 text-right" for="weight"><b>SKU实重</b>: </div>
+		<div class="col-sm-4">
+			<div class="input-group">
+				<input class="form-control" type="number" id="weight" name="weight"  placeholder="请称重，输入SKU实际重量" value="{$sku_data.weight}">
+				<div class="input-group-addon">
+					克
+				</div>
+				
+			</div>
+			<empty name="sku_data.weight">
+				
+			<else/>
+				<!-- {$sku_data.weight} 克 -->
+			</empty>
+			
+		</div>
+		<div class="help-block">
+			
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12">
+		<div class="col-sm-4 text-right" for="memo">货架位: </div>
+		<div class="col-sm-8">
+			<div class="col-sm-6">
+				仓库<br>
+				<select id="warehouse_select" check="require" msg="请选择仓库" name="warehouse_id">
+					<option value="{$warehouse_data.id}">{$warehouse_data.warehouse_name}</option>
+				</select>
+			</div>
+			<div class="col-sm-6">
+				区域<br>
+				<select  id="region_select" check="require" msg="请选择区域" name="region_id" onchange="ajaxGetChildrenList($(this).val(),'shelf','region');"></select>
+			</div>
+			<div class="col-sm-6">
+				货架<br>
+				<select  id="shelf_select" check="require" msg="请选择货架" name="shelf_id" onchange="ajaxGetChildrenList($(this).val(),'place','shelf');"></select>
+			</div>
+			<div class="col-sm-6">
+				货架位置<br>
+				<select  id="place_select" name="place_id" check="require" msg="请选择货架位" >
+					<option value="">请选择货架位</option>
+				</select>
+			</div>
+			<div class="help-block red">
+				注: 如果货架位不存在，请添加该货架位，不同货架位请分开入库
+			</div>
+		</div>
+	</div>
+	<div class="form-group col-xs-12">
+		<div class="col-sm-4 text-right"></div>
+		<div class="col-sm-8">
+			<div class="action">
+				<input class="editFormSubmit btn btn-primary" type="button" value="入库">
+				<a class="close_box_button btn btn-warning" >关闭</a>
+			</div>
+		</div>
+	</div>
+
+	<notempty name="other_map_place_list">
+		<div class="form-group col-xs-12">
+			<div class="col-sm-4"></div>
+			<div class="col-sm-8 help-block red" style="font-size:19px;">
+				注意，相似产品，外观比较难区分不同规格的产品，不能放在同个货架位！
+			</div>
+		</div>
+		<div class="form-group col-xs-12">
+			<div class="col-sm-4">
+			</div>
+			<div class="col-sm-8">
+				<table class="table table-bordered">
+					<tr>
+						<th colspan="5" class="text-center">商品其它规格SKU已存在的库存</th>
+					</tr>
+					
+					<volist name="other_map_place_list" id="other_map_place">
+						<tr>
+							<td>图片</td>
+							<td>SKU</td>
+							<td colspan="3">规格名称</td>
+						</tr>
+						<tr>
+							<td>
+								<a href="{$other_map_place.sku_data.thumbnail}" target="_blank" style="width:80px;"><img src="{$other_map_place.sku_data.thumbnail}" width="80px" /></a>
+							</td>
+							<td>
+								<b>{$other_map_place.sku_data.sku}</b>
+							</td>
+							<td colspan="3">
+								<b>{$other_map_place.sku_data.sku_name}</b>
+							</td>
+						</tr>
+						<tr>
+							<td></td>
+							<td>货架位</td>
+							<td>系统数量</td>
+							<td>可用数量</td>
+							<td>预留数量</td>
+						</tr>
+						<volist name="other_map_place.map_place_list" id="map_place">
+							<tr>
+								<td>
+								</td>
+								<td>
+									<b>{$map_place.place_show_name}</b>
+								</td>
+								<td>
+									<b>{$map_place.quantity}</b> 个
+								</td>
+								<td>
+									<b>{$map_place.available_quantity}</b> 个
+								</td>
+								<td>
+									<b>{$map_place.reserved_quantity}</b> 个
+								</td>
+							</tr>
+						</volist>
+					</volist>
+				</table>
+			</div>
+		</div>
+	</notempty>
+</form>
+<script type="text/javascript">
+	
+	//货架位
+	<include file="V2StockPlace:getchildrenlistjs" />
+
+
+	$(function() {
+		$(".editFormSubmit").click(function(){
+			var need_instock_quantity = $("#quantity").data("need_instock");
+			var quantity = $("#quantity").val();
+			if(quantity > need_instock_quantity){
+				alertWarning("当前入库数量超过计划数量");
+				return false;
+			}
+			if(!confirm("确认入库？")){
+				return false;
+			}
+	        $("input").attr("disabled",null);
+	        var data = $("#editForm").serialize();
+	        var url = $("#editForm").attr("action");
+	        
+	        var btn = $(".editFormSubmit").button('loading');
+	        if (check_form("editForm")) {
+	            sendForm("editForm", url,false,function(msg){
+	                btn.button('reset');
+	                if(msg.status){
+						closeBox();
+						parent.window.location.reload();
+	                }else{
+	                    alertWarning(msg.info);
+	                }
+	            });
+	        }else{
+	            btn.button('reset');
+	        }
+	    });
+
+		<?php
+			if(!$init_place){
+				$init_place['region_id'] = $_SESSION['instock_place_choose']['region_id'];
+				$init_place['shelf_id'] = $_SESSION['instock_place_choose']['shelf_id'];
+				$init_place['place_id'] = $_SESSION['instock_place_choose']['place_id'];
+			}
+		?>
+		var choose_warehouse = {$warehouse_data.id|default=0};
+		var choose_region = {$init_place.region_id|default=0};
+		var choose_shelf = {$init_place.shelf_id|default=0};
+		var choose_place = {$init_place.place_id|default=0};
+
+		ajaxGetChildrenList(choose_warehouse,'region','warehouse',choose_region);
+		ajaxGetChildrenList(choose_region,'shelf','region',choose_shelf);
+		ajaxGetChildrenList(choose_shelf,'place','shelf',choose_place);
+
+
+	}); 
+	
+	
+	
+	
+
+</script>

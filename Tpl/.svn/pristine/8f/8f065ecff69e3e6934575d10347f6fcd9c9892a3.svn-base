@@ -1,0 +1,194 @@
+<tr id="tr_title" >
+	<th style="width:100px;">			
+		<label class="inline pull-left">
+			<input class="ace" type="checkbox" name="id-toggle-all" id="id-toggle-all" />
+			<span class="lbl"></span>
+		</label>
+		<div class="btn-group" id="button_id">
+			<eq name="order" value="id">
+				<a type="botton" class="btn btn-xs sort_button btn-primary" name="id">
+				<eq name="sortImg"	value="asc">
+					<i class="icon-sort-up"></i>
+				</eq>
+				<eq name="sortImg"	value="desc">
+					<i class="icon-sort-down"></i>
+				</eq>								
+			<else />
+				<a type="botton" class="btn btn-xs sort_button " name="id">
+			</eq>
+			序号
+			</a>
+		</div>
+	</th>
+	<foreach name="titleArr" item="voTitle" key="titleKey">
+		<?php
+			// 去除字段的特殊字符
+			$titleKey2 = str_replace(".", "", $titleKey);
+			$titleKey2 = str_replace(",", "", $titleKey2);
+			$titleKey2 = str_replace("(", "", $titleKey2);
+			$titleKey2 = str_replace(")", "", $titleKey2);
+		?>
+		
+		<th>
+			<div class="btn-group" id="button_{$titleKey2}" <?php  if($voTitle['dropdown']){echo 'style="width:' . (strlen($voTitle['title']) * 6 + 20) . 'px;"';} ?> >
+				<eq name="voTitle.order" value="no">
+					<a  class="btn btn-xs">
+				<else/>
+					<eq name="titleKey" value="$order">
+						<a type="botton" class="btn btn-xs sort_button btn-primary" name="{$titleKey}">
+						<eq name="sortImg"	value="asc">
+							<i class="icon-sort-up"></i>
+						</eq>
+						<eq name="sortImg"	value="desc">
+							<i class="icon-sort-down"></i>
+						</eq>
+					<else/>
+						<a type="botton" class="btn btn-xs sort_button " name="{$titleKey}">
+					</eq>
+				</eq>
+				 {$voTitle.title}
+				</a>
+
+				<notempty name="voTitle.dropdown">
+					<a class="btn btn-xs dropdown-toggle <?php 
+					if(is_array($_REQUEST['filter'][$titleKey]) ){
+						foreach ($_REQUEST['filter'][$titleKey] as $k5 => $v5) {
+							if(!empty($v5)){
+								echo "btn-danger";
+								break;
+							}
+						}
+					}elseif($_REQUEST['filter'][$titleKey]){
+						echo "btn-danger";
+					}
+					?>  " data-toggle="dropdown" style="position:absolute;"><i class="icon-caret-down"></i></a>
+					
+					<ul class="dropdown-menu" role="menu">
+						<div class="menu_scroll">
+							<notempty name="voTitle.bitwise">
+								<input type="hidden" name="filter_search_method[{$titleKey}]" value="bitwise"  id="search_method_dropdown_{$titleKey2}" />
+							<else/>
+								<input type="hidden" name="filter_search_method[{$titleKey}]" value="in"  id="search_method_dropdown_{$titleKey2}" />
+							</notempty>
+
+							<foreach name="voTitle.dropdown" item="voDrop" key="dropKey" >
+
+								<li >
+									<input style="cursor:pointer;" type="checkbox" name="filter[{$titleKey}][{$dropKey}]" value="{$dropKey}" 
+									<notempty name="voTitle['click_submit']">
+										class="filter_checkbox"
+									<else/>
+										onclick="setTimeout('$(&quot;#button_{$titleKey2}&quot;).addClass(&quot;open&quot;)',80);"
+									</notempty> id="dropdown_{$titleKey2}_{$dropKey}"
+										<?php if(isset($_REQUEST['filter'][$titleKey][$dropKey])){ echo 'checked="checked"';
+											unset($_REQUEST['filter'][$titleKey][$dropKey]);
+										} ?>
+									/>
+									<label style="cursor:pointer;min-width:80%;height:100%;" for="dropdown_{$titleKey2}_{$dropKey}">{$voDrop}</label>
+								</li>
+							</foreach>
+
+							<foreach name="_REQUEST['filter'][$titleKey]" item="voDrop" key="dropKey" >
+								<li >
+									<input style="cursor:pointer;" type="checkbox" name="filter[{$titleKey}][{$dropKey}]" value="{$dropKey}" 
+									<notempty name="voTitle['click_submit']">
+										class="filter_checkbox"
+									<else/>
+										onclick="setTimeout('$(&quot;#button_{$titleKey2}&quot;).addClass(&quot;open&quot;)',80);"
+									</notempty> id="dropdown_{$titleKey2}_{$dropKey}"
+										<?php if(isset($_REQUEST['filter'][$titleKey][$dropKey])){ echo 'checked="checked"';
+											unset($_REQUEST['filter'][$titleKey][$dropKey]);
+										} ?>
+									/>
+									<label style="cursor:pointer;min-width:80%;height:100%;" for="dropdown_{$titleKey2}_{$dropKey}">{$voDrop}</label>
+								</li>
+							</foreach>
+							<?php 
+								// foreach($_REQUEST['filter'][$titleKey] as $ttk=>$ttv){
+								// echo '<input type="hidden" name="filter[' .$titleKey. ']['.$ttk.']" value="' .$ttv. '" />';
+								// } 
+							?>	
+						</div>
+						<empty name="voTitle['click_submit']">
+							<li >
+								<a class="btn btn-primary btn-xs" onclick="$('#form_search').submit();">确定</a>
+							</li>
+						</empty>
+	          		</ul>	
+				</notempty>
+
+				<notempty name="voTitle.like">
+
+					<a class="btn btn-xs dropdown-toggle <notempty name="_REQUEST['filter'][$titleKey]">btn-danger</notempty>  " data-toggle="dropdown" onclick="setTimeout(&quot;$('#like_{$titleKey2}').focus().select()&quot;,100);"><i class="icon-caret-down"></i></a>
+					<ul class="dropdown-menu" role="menu">
+
+						<input  type="hidden" name="filter_search_method[{$titleKey}]" value="like"  id="search_method_like_{$titleKey}" />
+
+						<li >
+							<div>模糊搜索</div>
+							<input style="cursor:pointer;" type="text" name="filter[{$titleKey}]" value="{$_REQUEST['filter'][$titleKey]}" id="like_{$titleKey2}" />
+						</li>
+						<li >
+							<a class="btn btn-primary btn-xs" onclick="$('#form_search').submit();">确定</a>
+						</li>
+					
+	          		</ul>	
+				</notempty>
+				
+				<notempty name="voTitle.eq">
+
+					<a class="btn btn-xs dropdown-toggle <notempty name="_REQUEST['filter'][$titleKey]">btn-danger</notempty>  " data-toggle="dropdown" onclick="setTimeout(&quot;$('#eq_{$titleKey2}').focus().select()&quot;,100);"><i class="icon-caret-down"></i></a>
+					<ul class="dropdown-menu" role="menu">
+
+						<input  type="hidden" name="filter_search_method[{$titleKey}]" value="eq"  id="search_method_eq_{$titleKey}" />
+
+						<li >
+							<div>精确搜索</div>
+							<input style="cursor:pointer;" type="text" name="filter[{$titleKey}]" value="{$_REQUEST['filter'][$titleKey]}" id="eq_{$titleKey2}" />
+						</li>
+						<li >
+							<a class="btn btn-primary btn-xs" onclick="$('#form_search').submit();">确定</a>
+						</li>
+					
+	          		</ul>	
+				</notempty>
+
+				<notempty name="voTitle.between">
+
+					<a class="btn btn-xs dropdown-toggle <?php 
+					if(is_array($_REQUEST['filter'][$titleKey]) ){
+						foreach ($_REQUEST['filter'][$titleKey] as $k5 => $v5) {
+							if(!empty($v5)){
+								echo "btn-danger";
+								break;
+							}
+						}
+					}elseif($_REQUEST['filter'][$titleKey]){
+						echo "btn-danger";
+					}
+					?>   " data-toggle="dropdown" onclick="setTimeout(&quot;$('#like_{$titleKey2}').focus().select()&quot;,100);"><i class="icon-caret-down"></i></a>
+					<ul class="dropdown-menu" role="menu">
+
+						<input  type="hidden" name="filter_search_method[{$titleKey}]" value="between"  id="search_method_like_{$titleKey}" />
+						<li>
+							<div>区间筛选</div>
+						</li>
+						<li>
+							<input class="col-sm-5" type="text" name="filter[{$titleKey}][0]" value="{$_REQUEST['filter'][$titleKey][0]}" id="like_{$titleKey2}_0" onMouseOver="$(this).focus().select();" placeholder="最小"/>
+							<span class="col-sm-2">-</span>
+							
+							<input class="col-sm-5"  type="text" name="filter[{$titleKey}][1]" value="{$_REQUEST['filter'][$titleKey][1]}" id="like_{$titleKey2}_1" onMouseOver="$(this).focus().select();" placeholder="最大"/>
+						</li>
+						<li>
+							<a class="btn btn-primary btn-xs" onclick="$('#form_search').submit();">确定</a>
+						</li>
+					
+	          		</ul>	
+				</notempty>
+
+
+			</div>
+		</th>
+	</foreach>
+</tr>
+

@@ -1,0 +1,168 @@
+<script type="text/javascript">
+var currentCategoryId = {$Think.request.category_id|default="0"};
+
+$(function(){
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top+50,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+
+	$("#toggleImage").click(function(){
+		if($(".thumbnail img").attr("src") == ''){
+			$(this).html("隐藏");
+			$(".thumbnail img").each(function(k,v){
+				$(v).attr("src",$(v).data("src"));
+			})
+		}else{
+			$(this).html("显示");
+			$(".thumbnail img").attr("src",'');
+		}
+	})
+	
+	refreshCategory();
+
+})
+
+
+function aliexpress_synch_processing(){
+	if($("#account_id").val() == ''){
+		alert("请先选择已发布帐号。");
+	}else{
+		$("#aliexpress_synch_processing").val("1");
+		$("#form_search").submit();
+	}
+
+	return false;
+}
+
+
+function showData (status) {
+	if(status==1){
+		$('#show_status').val(1);
+		$('#show_status_btn').html('显示全部用户数据<i class="icon-caret-down"></i>');
+	}else{
+		$('#show_status').val(0);
+		$('#show_status_btn').html('显示当前用户数据<i class="icon-caret-down"></i>');
+		
+	}
+	
+}
+
+//刷新分类
+function refreshCategory(){
+	$.get("{:U('Product/refreshCategory')}",{},function(data){
+		$('#category_id').html('');
+		$('#category_id').append("<option value=''>请选择分类</option>");
+		showCategory(data.data,"",1);
+		
+	});
+}
+
+//显示刷新后的分类
+function showCategory(data,level,num){
+	var data=listSortBy(data,'order');
+	
+	if(data[0]){
+
+		for (var i = 0; i < data.length; i++) {
+			if(currentCategoryId==data[i].id){
+				var selected=" selected";
+			}else{
+				var selected="";
+			}
+			if(typeof(data[i]._child)!="undefined"){
+				$('#category_id').append("<option value='"+data[i].id+"' " +selected+ " >"+level+num+". "+data[i].name+"</option>");
+			}else{ 
+				$('#category_id').append("<option value='"+data[i].id+"' class='text-primary' "+selected+">"+level+num+". "+data[i].name+"</option>");
+			}
+			if(typeof(data[i]._child)!="undefined"){
+				var tmp=level+">>>";
+				var tmp2=num+1;
+				showCategory(data[i]._child,tmp,tmp2);
+			}
+		}
+	}else{
+		return;
+	}
+}
+//删除单个产品
+function delProduct (id) {
+	if(confirm('确认删除?')){
+		$.post("{:U('Product/del')}",{id:id},function(msg){
+			console.log(msg);
+			console.log(msg.status);
+			if(msg.status==1){
+				$('#tr_'+id).hide(1000);
+				$('#tr_'+id).remove();
+			}else{
+				alertWarning(msg.info);
+			}
+		});
+	}	
+}
+
+//删除已选产品
+function delChoose(){
+	if(confirm('确认删除?')){
+		var id_list=$('.tbody .ace').serializeArray();
+		$.post("{:U('Product/delMulti')}",id_list,function(msg){
+			if(msg.status==1){
+				alertWarning(msg.info,1);
+				for (var i = 0; i < id_list.length; i++) {
+					$('#tr_'+id_list[i]['value']).remove();
+				};
+			}else{
+				for (var i = 0; i < msg.data.length; i++) {
+					$('#tr_'+msg.data[i]).remove();
+				};
+				alertWarning(msg.info);
+			}
+		});
+	}	
+}
+
+function release(auto_select){
+	var obj_list = $("input[name='product_id[]']");
+	
+	var product_ids = obj_list.serialize();
+	if(!product_ids){
+		alertWarning("请选择产品");
+		return false;
+	}
+	if(auto_select){
+		var url='<?php echo U("ProductSynch/prepare"); ?>'+"?auto_select="+auto_select+"&"+product_ids;
+	}else{
+		var url='<?php echo U("ProductSynch/prepare"); ?>'+"?"+product_ids;
+	}
+	showBox("middleBox",url);
+}
+
+
+function multiSearch(){
+	
+	$("#middleBox").modal("show");	
+	$("#middleBoxIframe").attr("src",'{:U("multiSearch")}')
+	
+}
+
+function autoSelectByAccount(){
+	var account_id=$('#select_account').val();
+	$("#form_search").html('正在获取数据...');
+	$("#form_search").attr('action',"{:U()}")
+	$("#form_search").append('<input type="hidden" name="select_account" value="'+account_id+'" />');
+	$("#form_search").append('<input type="hidden" name="auto_select" value="1" />');
+	$("input[name='list_rows']").val("50");
+	$("#form_search").submit();
+}
+
+
+</script>

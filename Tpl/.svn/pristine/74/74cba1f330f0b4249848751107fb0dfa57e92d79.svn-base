@@ -1,0 +1,207 @@
+<layout name='Layout/ace_layout' />
+{:W('PageHeader',array('name'=>'用户管理','search'=>'S'))}
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="pull-left">
+			<a href="{:U('user')}" class="btn btn-sm btn-primary">菜单权限分配</a>
+		</div>
+		<div class="pull-right">
+			<a onclick="save()" class="btn btn-sm btn-primary">保存</a>
+		</div>
+	</div>
+</div>
+<!-- 列表显示区域  -->
+<div class="row">
+	<form id="form_data" name="form_data" method="post" >
+		<div class="col-sm-4 sub_left_menu">
+			<table class="table table-bordered table-hover">
+				<thead>
+					<tr>
+						<th class="text-center"><label class="inline pull-left col-3">
+							<input class="ace" type="checkbox" name="id-toggle-all" id="id-toggle-all" />
+							<span class="lbl"></span></label></th>
+						<th>
+						<nobr>
+							员工编号
+						</nobr></th>
+						<th>
+						<nobr>
+							姓名
+						</nobr></th>
+						<th>
+						<nobr>
+							部门
+						</nobr></th>
+						<th>
+						<nobr>
+							状态
+						</nobr></th>
+					</tr>
+				</thead>
+				<tbody>
+					<volist name="user_list" id="data">
+						<tr id="{$data.id}">
+							<td class="text-center"><label class="inline pull-left">
+								<input class="ace" type="radio" name="emp_id[]" value="{$data.id}" onchange="getPowerList({$data.id},this)"/>
+								<span class="lbl"></span>{$data.id}</label></td>
+							<td>
+							<nobr>
+								{$data.emp_no}
+							</nobr></td>
+							<td>
+							<nobr>
+								{$data.emp_name}
+							</nobr></td>
+							<td>
+							<nobr>
+								{$data.dept_name}
+							</nobr></td>
+							<td>
+							<nobr>
+								{$data.is_del|status}
+							</nobr></td>
+						</tr>
+					</volist>
+				</tbody>
+			</table>
+		</div>
+		<div class="col-sm-8 sub_content">
+			<input type="hidden" name="id" id="id">
+			<input type="hidden" name="pid" id="pid" value="">
+			<input type="hidden" name="ajax" id="ajax" value="0">
+			<input type="hidden" name="opmode" id="opmode" value="">
+			<table class="table table-bordered table-hover">
+				<thead>
+					<tr>
+						<th>平台帐号</th>
+						<th>
+							订单
+							<label class="inline pull-left col-3">
+							<input class="ace" type="checkbox" id="order_all" onchange="choose_all('order',this);"/>
+							<span class="lbl"></span></label>
+						</th>
+						<th>
+							业绩统计
+							<label class="inline pull-left col-3">
+							<input class="ace" type="checkbox" id="count_all"  onchange="choose_all('count',this);"/>
+							<span class="lbl"></span></label>
+						</th>
+						<th>
+							产品同步
+							<label class="inline pull-left col-3">
+							<input class="ace" type="checkbox" id="product_all"  onchange="choose_all('product',this);"/>
+							<span class="lbl"></span></label>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<volist name="role_list" id="data">
+						<tr id="{$data.id}">
+							
+							<td>{$data.website}_{$data.account_name} => {$data.proxy_host}</td>
+							<td>
+								<label class="inline pull-left col-3">
+								<input class="order_ace power_list ace" type="checkbox" id="order_{$data.id}" name="role_list[order][]" value="{$data.id}"/>
+								<span class="lbl"></span></label>
+							</td>
+							<td>
+								<label class="inline pull-left col-3">
+								<input class="count_ace power_list ace" type="checkbox" id="count_{$data.id}" name="role_list[count][]" value="{$data.id}"/>
+								<span class="lbl"></span></label>
+							</td>
+							<td>
+								<label class="inline pull-left col-3">
+								<input class="product_ace power_list ace" type="checkbox" id="product_{$data.id}" name="role_list[product][]" value="{$data.id}"/>
+								<span class="lbl"></span></label>
+						</td>
+						</tr>
+					</volist>
+				</tbody>
+			</table>
+	</form>
+</div>
+<script type="text/javascript">
+	function btn_search() {
+		sendForm("form_search", "__SELF__");
+		$("#form_search").submit();
+	}
+
+	function key_search() {
+		if (event.keyCode == 13) {
+			sendForm("form_search", "__SELF__");
+			return false;
+		}
+	}
+	function choose_all(pr,obj){
+		console.log(pr);
+		if(!pr){
+			return;
+		}
+		var status=document.getElementById(pr+'_all').checked;
+		if(status!==null){
+			$('.'+pr+'_ace').prop('checked',status);
+		}
+	}
+
+	function save() {
+		if ($("input:checked[name='emp_id[]']").length < 1) {
+			alert("请选择用户");
+			return false;
+		};
+		if ($("input:checked[name =\"role_list[order][]\"]").length < 1 && $("input:checked[name =\"role_list[count][]\"]").length < 1) {
+			alert("请选择权限");
+			return false;
+		};
+		
+		$("#ajax").val(1);
+		sendForm("form_data", "{:U('set_user_power')}");
+	}
+
+	function getPowerList(user_id,obj){
+		if($(obj).prop('checked')==true){
+			$.post("{:U('Role/getPowerList')}",{user_id:user_id},function(msg){
+				$('.power_list').prop('checked',false);
+				if(msg.status){
+					for(var key in msg.data){
+						var pr=key;
+					    $('.'+pr+'_ace').prop('checked',false);
+						for (var j = 0; j < $('.'+pr+'_ace').length; j++) {
+							for (var ii = 0; ii < msg.data[pr].length; ii++) {
+								if(msg.data[pr][ii] === $('.'+pr+'_ace').eq(j).val()){
+									$('.'+pr+'_ace').eq(j).prop('checked',true);
+								}
+							};
+						};
+					}
+				}else{
+					alertWarning(msg.info);
+				}
+			});
+		}else{
+			$('.power_list').prop('checked',false);
+		}
+	}
+
+	function showdata(result) {
+		$("input[name='role_list[]']").each(function() {
+			$(this).prop('checked', false);
+		});
+		for (var s in result.data) {
+			$("#role_" + result.data[s].role_id).prop('checked', true);
+		}
+	}
+
+
+	$(document).ready(function() {
+		set_return_url();
+		$(".sub_left_menu tbody tr").click(function() {
+			$(".sub_left_menu  tr").attr("class", "");
+			$(this).attr("class", "active");
+			sendAjax("{:U('get_role_list')}", "id=" + $(this).attr("id"), function(data) {
+				showdata(data);
+			});
+		})
+	}); 
+</script>
+
+

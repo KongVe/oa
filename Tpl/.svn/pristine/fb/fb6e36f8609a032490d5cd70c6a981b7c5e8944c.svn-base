@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ch">
+	<head>
+		<meta charset="UTF-8">
+		<title>{$title}</title>
+		<meta name="description" content="" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<!-- 框架引用 -->
+		<link rel="stylesheet" href="../../Public/light7/css/light7.min.css" />
+		<link rel="stylesheet" href="../../Public/light7/css/light7-swiper.min.css" />
+		<link rel="stylesheet" href="../../Public/assets/css/font-awesome.min.css" />
+		<!--<link rel="stylesheet" href="../../Public/assetsv2/css/select2.css" />-->
+		<style type="text/css">
+			img.icon.icon-ChatHead{width:1.45rem;height:1.45rem;}
+			.item-content .success .badge{
+				background: red
+				color: #FFFFFF;
+			}
+		</style>
+		<!-- 先导入JQ -dylan -->
+		<script type="text/javascript" src="../../Public/assetsv2/js/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript">
+      $.config = {
+        router: false,
+        autoInit: true,
+        swipePanel:'right',
+        swipePanelOnlyClose:false
+      }
+      
+      
+    </script>
+		<!--<script type="text/javascript" src="../../Public/assetsv2/js/select2.min.js" ></script>-->
+		<script type="text/javascript" src="../../Public/light7/js/light7.min.js" ></script>
+		
+		<script type="text/javascript" src="../../Public/light7/js/light7-city-picker.min.js" ></script>
+		<script type="text/javascript" src="../../Public/light7/js/light7-swiper.min.js" ></script>
+	</head>
+	<body>
+		<div class="page">
+  <header class="bar bar-nav">
+    <a class="button button-link button-nav pull-left open-panel"href="#" data-panel="#left" data-transition='slide-out'>
+      操作<span class="icon icon-right"></span>
+      
+    </a>
+    <a class="button button-link button-nav pull-right open-panel" href="#" data-panel="#panel-right" data-rransition='slide-out'>
+    	<span class="icon icon-left"></span>个人
+    </a>
+    <h1 class="title">{$title}<span class="icon icon-app" id="serch-all"></span></h1>
+  </header>
+  <nav class="bar bar-tab">
+    <a class="tab-item active" href="#">
+      <span class="icon icon-home"></span>
+      <span class="tab-label">首页</span>
+    </a>
+    <a class="tab-item" href="#">
+      <span class="icon icon-me"></span>
+      <span class="tab-label">我</span>
+    </a>
+    <a class="tab-item" href="#">
+      <span class="icon icon-star"></span>
+      <span class="tab-label">收藏</span>
+    </a>
+    <a class="tab-item" href="#">
+      <span class="icon icon-settings"></span>
+      <span class="tab-label">设置</span>
+    </a>
+  </nav>
+  <div class="content">
+    <!-- 这里是页面内容区 -->
+    <!-- {__CONTENT__} -->
+  </div>
+</div>
+<div class="panel-overlay"></div>
+<!-- Left Panel with Reveal effect -->
+<div class="panel panel-right panel-reveal theme-dark" id='panel-right'>
+  <div class="content-block">
+<div class="content-block-title">个人资料</div>
+  <div class="card">
+    <div class="card-content">
+      <div class="list-block">
+        <ul>
+          <li>
+            <a href="#" class="item-link item-content create-actions">
+              <div class="item-media"><img class="icon icon-ChatHead"src=""/></div>
+              <div class="item-inner">
+                <div class="item-title"></div>
+              </div>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  </div>
+    <!-- 其他操作 -->
+<div class="list-block media-list inset" style="background-color: #FFFFFF;">
+    <ul>
+      <li>
+        <a href="{:U('V2Task/index')}" class="item-link item-content">
+          <div class="item-media"><i class="icon-tasks"></i></div>
+          <div class="item-inner">
+            <div class="item-title-row">
+              <div class="item-title success"><span class="badge danger"></span></div>
+            </div>
+          </div>
+        </a>
+      </li>
+      <li>
+        <a href="{:U('v2_audit_flow/index')}" class="item-link item-content">
+          <div class="item-media"><i class="icon-bell-alt icon-animated-bell"></i></div>
+          <div class="item-inner">
+            <div class="item-title-row">
+              <div class="item-title success"><span class="badge danger"></span></div>
+            </div>
+          </div>
+        </a>
+      </li>
+      <li>
+        <a href="{:U('mail/index')}" class="item-link item-content">
+          <div class="item-media"><i class="icon-envelope icon-animated-vertical"></i></div>
+          <div class="item-inner">
+            <div class="item-title-row">
+              <div class="item-title success"><span class="badge danger"></span></div>
+            </div>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+</div>
+<script type="text/javascript">
+	$(document).on('click','.create-actions',function(){
+		 var buttons1 = [
+        {
+          text: '请选择',
+          label: true
+        },
+        {
+          text: '用户资料',
+          
+          onClick: function() {
+            window.location.href = '{:U('Profile/index')}'
+          }
+        },
+        {
+          text: '修改密码',
+          onClick: function() {
+            window.location.href = '{:U('Profile/password')}'
+          }
+        },
+        {
+          text: '用户设置',
+          onClick: function() {
+            window.location.href = '{:U('UserConfig/index')}'
+          }
+        },
+        {
+          text: '退出',
+          bold: true,
+          color: 'danger',
+          onClick: function() {
+            window.location.href = '{:U('login/logout')}'
+          }
+        },
+      ];
+      var buttons2 = [
+        {
+          text: '取消',
+          bg: 'warning'
+        }
+      ];
+      var groups = [buttons1, buttons2];
+      $.actions(groups);
+	})
+</script>
+</html>

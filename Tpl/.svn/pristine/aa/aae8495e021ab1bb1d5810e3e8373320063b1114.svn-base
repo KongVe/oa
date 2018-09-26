@@ -1,0 +1,15 @@
+<layout name='Layout/ace_layout_v3' />
+  <div>
+    
+  </div>
+  
+
+  <script>
+  var filter_list = {$filter_list|default=""|json_encode};
+    var config_data = {$config_data|default=""|json_encode};
+    
+  </script>
+</body>
+</html>
+ 
+

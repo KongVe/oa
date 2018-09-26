@@ -1,0 +1,47 @@
+<layout name='Layout/ace_popup' />
+<form action="{:U('repeatRate')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+	<div class="panel panel-primary">
+		<div class="panel-body">
+			<div class="form-group">
+				<label class="control-label" for="account_id">帐号</label>
+				<select class="form-control" id="account_id" name="account_id">
+					<option value="">请选择账号</option>
+					<volist name="account_list" id="account">
+						<option value="{$account.id}" <?php if($account['id'] == $_REQUEST['account_id']){ echo "selected"; } ?>>{$account.proxy_host}=>{$account.account_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+	</div>
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			<h4 class="panel-title">重复详细</h4>
+		</div>
+		<div class="panel-body message-container">
+			<table class="table table-striped table-hover">
+				<tr>
+					<td>账号</td>
+					<td>ASIN数量</td>
+					<td>重复率</td>
+				</tr>
+				<volist name="list" id="vo">
+					<tr>
+						<td>{$vo.account.show_name}</td>
+						<td>{$vo.count}</td>
+						<td>{$vo.repeat_rate}%</td>
+					</tr>
+				</volist>
+			</table>
+		</div>
+	</div>
+</form>
+
+<script type="text/javascript">
+
+$(function(){
+	
+	$("#account_id").change(function(){
+		$("#editForm").submit();
+	})
+})
+</script>

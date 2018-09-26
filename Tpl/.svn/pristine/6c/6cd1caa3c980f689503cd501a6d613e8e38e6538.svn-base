@@ -1,0 +1,216 @@
+<script type="text/javascript">
+	function del_product(id){
+		if(confirm("确定删除？")){
+			var data = {id:id}
+			$.post("{:U('OrderProduct/del')}",data,function(r){
+				if(r.status){
+					window.location.reload(true);
+				}
+			})
+		}
+	}
+
+
+	function addProduct(order_auto_id){
+		parent.$("#editProductIframe").attr("src","<?php echo U("OrderProduct/edit"); ?>?order_auto_id=" + order_auto_id);
+		parent.$("#editProduct").modal("show");
+	}
+	function editProduct(id){
+		parent.$("#editProductIframe").attr("src","<?php echo U("OrderProduct/edit"); ?>?id=" + id);
+		parent.$("#editProduct").modal("show");
+	}
+
+	function printDetail(order_auto_id) {
+		parent.window.frames["bottomBoxIframe"].document.write("");
+		parent.window.frames["bottomBoxIframe"].document.close();
+
+		parent.$("#bottomBoxIframe").attr("src","<?php echo U("OrderPackage/printDetail"); ?>?order_auto_id=" + order_auto_id + "&_" + Math.round(new Date().getTime()/1000));
+		parent.$("#bottomBox").modal({backdrop:'static'}).modal("show");
+	}
+
+	
+
+	function closeBox(){
+		parent.$("#order-detail-box").hide("fast");
+	}
+
+	//退货登记
+	function returnedProduct(id){
+		parent.$("#editProductIframe").attr("src","<?php echo U("OrderProduct/returnedProduct"); ?>?id=" + id);
+		parent.$("#editProduct").modal("show");
+	}
+	//查看已登记的退货信息
+	function returnedView(id){
+		parent.$("#editProductIframe").attr("src","<?php echo U("OrderProduct/returnedView"); ?>?id=" + id);
+		parent.$("#editProduct").modal("show");
+	}
+	//取消退货
+	function cancelReturned(id){
+		if(!confirm("确认取消？")){
+			return;
+		}
+		$.post("{:U('order_product/cancelReturned')}",{product_id:id},function(msg){
+			if(msg.status){
+				alert("取消成功");
+				location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误，请重试");
+		});
+	}
+
+	//批量发货
+	function bulkShip(product_id,variation){
+		$.post("{:U('getBulkShipOrders')}",{product_id:product_id,variation:variation},function(msg){
+			if(msg.status){
+				var form=$("#submit_form");
+				<?php 
+					if(ACTION_NAME=="detail"){
+						$url_name = "index";
+					}else{
+						$url_name = "staffindex";
+					}
+				?>
+				form.attr('action',"{:U($url_name)}");
+				form.html('正在获取数据...');
+
+				form.append('<input type="hidden" name="ids" value="'+msg.data+'" />');
+				form.append('<input type="hidden" name="canBulkShip" value="1" />');
+				form.append('<input type="hidden" name="list_rows" value="100" />');
+
+				form.submit();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("错误，请重试");
+		})
+	}
+
+
+	//合并SKU 映射SKU 
+	function combineSku(product_auto_id,account_id,online_product_id,relate_sku){
+		if(!account_id){
+			alertWarning("参数错误,无帐号ID");
+			return;
+		}
+		if(!online_product_id){
+			alertWarning("参数错误,无平台线上product_id");
+			return;
+		}
+		parent.$("#middleBoxIframe").attr("src","<?php echo U("OrderProduct/combineSku"); ?>?account_id="+account_id+"&online_product_id="+online_product_id+"&relate_sku="+relate_sku+"&_" + Math.round(new Date().getTime()/1000));
+		parent.$("#middleBox").modal("show");	
+	}
+
+	//查看备货详情
+	function purchasedView(product_auto_id){
+		parent.$("#middleBoxIframe").attr("src","<?php echo U("OrderProduct/purchasedView"); ?>?product_auto_id="+product_auto_id+"&_" + Math.round(new Date().getTime()/1000));
+		parent.$("#middleBox").modal("show");	
+	}
+
+	//绑定库存SKU
+	function bingstocksku(product_auto_id){
+		var param = {product_auto_id:product_auto_id};
+
+		parent.bingstockskuview(param);
+	}
+
+	function cancelUse(use_stock_id){
+		if(!confirm("确认撤销？撤销后所使用的库存会累加回 库存记录 里。")){
+			return false;
+		}
+		$.post("{:U('OrderStock/cancelUse')}",{use_stock_id:use_stock_id},function(msg){
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误，请重试");
+		})
+	}
+
+	//回传
+	function changeState(order_auto_id){
+		if(!confirm("确认回传处理？请在商品备注中写明回传原因")){
+			return false;
+		}
+		$.post("{:U('TaobaoOrder/review')}",{id:order_auto_id},function(msg){
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误，请重试");
+		})
+	}
+
+	function shipPrintView(order_auto_id){
+		parent.window.frames["middleBoxIframe"].document.write("");
+		parent.window.frames["middleBoxIframe"].document.close();
+	
+		parent.$("#middleBoxIframe").attr("src","<?php echo U("TaobaoOrder/shipPrintView"); ?>?id=" + order_auto_id + "&_" + Math.round(new Date().getTime()/1000));
+		parent.$("#middleBox").modal({backdrop:'static'}).modal("show");
+	}
+
+
+	function localShip(order_auto_id){
+		if(!confirm("确认发货？")){
+			return false;
+		}
+		$.post("{:U('TaobaoOrder/localShip')}",{id:order_auto_id},function(msg){
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误，请重试");
+		})
+	}
+
+	function ship(order_auto_id){
+		if(!confirm("确认发货？")){
+			return false;
+		}
+		$.post("{:U('TaobaoOrder/ship')}",{id:order_auto_id},function(msg){
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误，请重试");
+		})
+	}
+	$(function(){
+		$(".tbody .thumbnail").hover(
+			function(){
+				$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+				var position = $(this).position(),
+				outerWidth = $(this).outerWidth(true),
+				box_top = position.top,
+				box_left = position.left + outerWidth + 10;
+				$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+			},
+			function(){
+				$(".thumbnailBox").hide();
+			}
+		);	
+	})
+
+	$(function(){
+		//保存远程图片
+		var ids = $(".tbody input[name='id[]']").serialize();
+		$("#saveThunbnail").attr("src","{:U('OrderImage/download')}?" + ids);
+		
+	})
+
+</script>

@@ -1,0 +1,91 @@
+<div class="form-group">
+	<label class="control-label">下单时间</label><br/>
+	<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="param[order_time]" id="order_time" value="<?php if($_REQUEST['param']['order_time']){ echo $_REQUEST['param']['order_time'];}?>"  placeholder="下单时间">
+</div>		
+
+<div class="form-group">
+	价格 = ( ( ( 成本 + 国内运费 ) / ( 1 - 利润率) + 利润<input type="text" name="profit_plus" value="0" size=3 />RMB ) / 汇率<input type="text" name="exchange_rate" value="10" size=3 /> + 运费 / (1 - 利润率 ) - 运费 ) / ( 1- 手续费<input type="text" name="handle_rate" value="0.26" size=3 />)
+</div>		
+<div class="form-group">
+	运费 = ( 重量 * 每kg运费<input type="text" name="shipping_fee" value="112" size=3 /> + 挂号费<input type="text" name="barcode_fee" value="15" size=3 /> ) / 汇率
+</div>
+<div class="form-group">
+	<label class="control-label">运费调节 = 
+		<input type="text" name="shipping_adjust" value=0 size=4/>
+	</label>
+	<span class="help-block">
+		该值大于0时把运费转移到价格上，小于0时把价格转移到运费上
+	</span>
+</div>
+<div class="form-group">
+	<label class="control-label">分类</label>
+   <select id="category" name="category"   required='required'>
+      <option value=''>请选择分类...</option>
+      
+      <optgroup label="Homeware"><option value="282">Bath &amp; Beauty</option>
+		<option value="61">Bedroom &amp; Bathroom</option>
+		<option value="77">Christmas</option>
+		<option value="73">Craft room &amp; Workshop</option>
+		<option value="165">Home Decorations</option>
+		<option value="89">Dolls &amp; Collectables</option>
+		<option value="174">Furniture</option>
+		<option value="169">Games &amp; Activities</option>
+		<option value="81">Garden &amp; Pets</option>
+		<option value="286">Homemade Food</option>
+		<option value="53">Kitchen &amp; Dining</option>
+		<option value="57">Laundry &amp; Storage</option>
+		<option value="33">Nursery &amp; Playroom</option>
+		<option value="69">Office</option></optgroup><optgroup label="Weddings"><option value="125">Clothing</option>
+		<option value="129">Hats &amp; Hair accessories</option>
+		<option value="133">Jewellery</option>
+		<option value="121">Stationery &amp; Accessories</option></optgroup><optgroup label="Supplies"><option value="141">Commercial</option>
+		<option value="145">Design Services</option>
+		<option value="137">Handmade</option></optgroup><optgroup label="Jewellery"><option value="186">Bracelets &amp; Bangles</option>
+		<option value="182">Brooches</option>
+		<option value="190">Cuffs</option>
+		<option value="194">Earrings</option>
+		<option value="178">Necklaces &amp; Pendants</option>
+		<option value="198">Rings</option></optgroup><optgroup label="Clothing &amp; Accessories"><option value="202">Sleeves &amp; Bags</option>
+		<option value="206">Clothing &amp; Shoes</option>
+		<option value="210">Accessories</option>
+		<option value="214">Lingerie</option>
+		<option value="218">Hair Accessories</option>
+		<option value="226">Babies &amp; Children</option></optgroup><optgroup label="Art"><option value="254">ACEOs</option>
+		<option value="234">Drawing &amp; Illustration</option>
+		<option value="230">Mixed Media</option>
+		<option value="246">Paintings</option>
+		<option value="258">Photography</option>
+		<option value="278">Printmaking</option>
+		<option value="250">Prints &amp; Digital Art</option>
+		<option value="238">Sculpture &amp; Ceramics</option>
+		<option value="242">Textile Art</option></optgroup><optgroup label="Cards &amp; Stationery"><option value="274">Cards</option>
+		<option value="266">Gift Wrap, Tags &amp; Bags</option>
+		<option value="262">Notebooks &amp; Scrapbooks</option>
+		<option value="270">Stationery &amp; Bookmarks</option></optgroup>
+    </select>
+   <select id="subCategory" name="subCategory" style="display:none;">
+
+   </select>
+</div>
+
+
+<script type="text/javascript">
+var subcategories = {"258":[[2782,"Abstract"],[2818,"All"],[2774,"Animals"],[2794,"Buildings"],[2790,"Flowers"],[2810,"Lomo"],[2814,"Other"],[2778,"People"],[2802,"Sport"],[2798,"Still Life"],[2806,"Surreal"],[2786,"Views"]],"214":[[2110,"Bras"],[2118,"Corsets"],[2126,"Everything Else"],[2122,"Knickers"],[2114,"Petticoats"]],"137":[[1037,"Beads"],[1641,"Buckles & Fastenings"],[1033,"Buttons"],[1041,"Charms"],[1357,"Everything else"],[1049,"Fabric"],[1053,"Felt"],[1353,"Fibres"],[1345,"Jewellery findings"],[1045,"Kits"],[1349,"Knitting supplies"],[1633,"Paper"],[1061,"Patterns"],[1645,"Pendants"],[1637,"Tutorials"],[1057,"Wool & Yarn"]],"242":[[2530,"Abstract"],[2574,"All"],[2522,"Animals"],[2542,"Buildings"],[2558,"Cotton"],[2538,"Flowers"],[2570,"Other"],[2526,"People"],[2562,"Silk"],[2550,"Sport"],[2546,"Still Life"],[2554,"Surreal"],[2534,"Views"],[2566,"Wool"]],"198":[[2086,"Acrylic"],[2042,"Adjustable"],[2046,"Band"],[2054,"Chainmaille"],[2062,"Charm"],[2842,"Charms"],[2850,"Everything Else"],[2070,"Felt"],[2078,"Glass"],[2074,"Gold"],[2082,"Metal"],[2050,"Platinum"],[2090,"Resin"],[145,"All"],[2066,"Silver"],[2846,"Silver Plate"],[2958,"Sterling Silver"],[2106,"Stone"],[2058,"Textile"],[2094,"Toe"],[2102,"Wood"],[2098,"Wrapped"]],"121":[[977,"Bouquets"],[981,"Cake toppers"],[985,"Everything else"],[1341,"Favours"],[1613,"Guest books"],[969,"Invitations"],[1605,"Menus & Orders of service"],[1337,"Photo albums"],[973,"Place cards"],[1609,"Save the date cards"],[1601,"Table numbers"]],"33":[[1469,"Blankets"],[393,"Bookshelves"],[1473,"Cushions"],[1125,"Door plaques"],[417,"Everything else"],[389,"Lampshades"],[401,"Mobiles"],[413,"Play mats"],[405,"Quilts & Bedding"],[409,"Storage"],[377,"Tables & Chairs"],[2954,"Toys & Activities"],[1129,"Wall Art"]],"286":[[3066,"Biscuits, Breads & Cakes"],[3050,"Chocolate & Sweets"],[3062,"Tea, Coffee & Drinks"],[3046,"Jams, Preserves & Honey"],[3054,"Recipes"],[3058,"Sauces & Spices"]],"165":[[609,"Blankets"],[629,"Bookends"],[785,"Bunting"],[497,"Candles"],[525,"Candle holders"],[1237,"Clocks"],[605,"Cushions"],[1682,"Decorative dishes"],[1686,"Doilies"],[537,"Doorstops"],[1249,"Everything else"],[1674,"Hanging decorations"],[825,"Lamps"],[829,"Lampshades"],[1233,"Mirrors"],[3018,"Mosaics"],[1493,"Oil Burners"],[1678,"Ornaments"],[1241,"Photo frames"],[613,"Rugs"],[801,"Signs"],[1289,"Stained glass"],[621,"Vases"],[1245,"Wall decorations"]],"77":[[733,"Decorations"],[1229,"Everything else"],[1225,"Gift wrap & Tags"],[741,"Stockings"],[737,"Wreaths"]],"270":[[645,"Bookmarks"],[649,"Calendars"],[1465,"Christenings"],[2950,"Comics & Zines"],[653,"Diaries"],[657,"Envelopes"],[669,"Invitations"],[673,"Journals"],[1702,"Memo & Notice Boards"],[1221,"Photo Albums"],[689,"Stamps"],[693,"Stickers"],[697,"Writing Paper"]],"226":[[2298,"Babygrows"],[2346,"Bags"],[2330,"Bibs & Cloths"],[2306,"Booties"],[2362,"Cardigans"],[2334,"Cases"],[2358,"Coats"],[2366,"Costumes"],[2314,"Dresses"],[2354,"Everything Else"],[2318,"Gloves & Scarves"],[2342,"Hair Accessories"],[2310,"Hats"],[2350,"Jewellery"],[2370,"Jumpers"],[2338,"Mats"],[2302,"Shoes"],[2374,"Skirts"],[2294,"Socks"],[2322,"T-Shirts"],[2326,"Trousers"]],"182":[[1846,"Acrylic"],[161,"All"],[2990,"Porcelain and Ceramic"],[2874,"Charms"],[1822,"Copper"],[2910,"Enamel"],[2906,"Everything Else"],[1830,"Felt"],[2890,"Gemstone"],[1838,"Glass"],[1834,"Gold"],[1842,"Metal"],[3014,"Pewter"],[2886,"Resin"],[2894,"Semi-Precious Stone"],[2878,"Silver Plate"],[2882,"Sterling Silver"],[1814,"Textile"],[2898,"Wood"]],"61":[[585,"Bedding"],[601,"Everything else"],[593,"Hot water bottle covers"],[1481,"Jewellery boxes"],[1213,"Patchwork Quilts"],[1209,"Quilts"],[589,"Scented bags"],[1477,"Soap dishes"],[581,"Throws"],[597,"Towels"]],"254":[[2714,"Abstract"],[2746,"Acrylic"],[2770,"All"],[2706,"Animals"],[2726,"Buildings"],[2758,"Drawing"],[2722,"Flowers"],[2762,"Illustration"],[2754,"Mixed Media"],[2742,"Oil"],[2766,"Other"],[2710,"People"],[2734,"Sport"],[2730,"Still Life"],[2738,"Surreal"],[2718,"Views"],[2750,"Watercolour"]],"210":[[2246,"Badges"],[3010,"Bag Charms"],[2254,"Belts"],[2242,"Corsages"],[2286,"Cufflinks"],[2290,"Everything Else"],[2262,"Gloves"],[2270,"Handkerchiefs"],[2394,"Hats"],[2282,"Keyrings"],[2278,"Pocket Mirrors"],[2274,"Purses & Wallets"],[2266,"Scarves"],[2258,"Ties"],[2250,"Watches"]],"133":[[1029,"Bracelets"],[1021,"Earrings"],[1593,"Everything else"],[1025,"Necklaces"],[3071,"Rings"]],"89":[[845,"Animals"],[837,"Dolls"],[849,"Doll accessories"],[1485,"Everything else"],[841,"Puppets"],[1253,"Sock animals"],[853,"Teddy bears"]],"238":[[2506,"Abstract"],[2510,"Animal"],[2502,"Ceramics & Pottery"],[2514,"Other Sculpture"],[2518,"People"]],"194":[[2010,"Acrylic"],[1962,"Beaded"],[1966,"Beadwork"],[1970,"Chainmaille"],[1946,"Chandelier"],[2858,"Charms"],[1982,"Choker"],[1958,"Copper"],[1950,"Dangle"],[149,"All"],[2870,"Everything Else"],[1990,"Felt"],[1998,"Glass"],[1994,"Gold"],[1954,"Hoop"],[2002,"Locket"],[2006,"Metal"],[2982,"Pearl"],[2014,"Platinum"],[2018,"Polymer Clay"],[2022,"Rosary"],[2026,"Shell"],[1986,"Silver"],[2862,"Silver Plate"],[2866,"Sterling Silver"],[2030,"Stone"],[1974,"Textile"],[2034,"Wire-wrapped"],[2038,"Wood"],[2854,"WoodBeaded"]],"73":[[725,"Craft storage"],[729,"Everything else"],[713,"Knitting bags"],[717,"Knitting needle rolls"],[709,"Pin cushions"],[721,"Sewing needle cases"],[1706,"Sketchbooks"]],"282":[[3038,"Bath"],[3034,"Fragrance"],[3030,"Haircare"],[3022,"Make up"],[3026,"Skincare"],[3042,"Soap & Scrubs"]],"266":[[665,"Gift Tags"],[661,"Gift Wrap"],[2946,"Party Bags"]],"178":[[1766,"Acrylic"],[1710,"Beaded"],[1722,"Beadwork"],[1810,"Ceramic"],[1726,"Chainmaille"],[2822,"Charms"],[1738,"Choker"],[1786,"Copper"],[1714,"Enamel"],[2838,"Everything Else"],[1746,"Felt"],[1790,"Gemstone"],[1754,"Glass"],[1750,"Gold"],[1794,"Jewellery Set"],[1758,"Locket"],[1762,"Metal"],[137,"All"],[2834,"Painted"],[2978,"Pearl"],[1718,"Platinum"],[1770,"Polymer Clay"],[2962,"Resin"],[1774,"Rosary"],[1798,"Semi-Precious Stone"],[1778,"Shell"],[2826,"Silver Plate"],[2830,"Sterling Silver"],[1782,"Stone"],[1730,"Textile"],[1802,"Wire Wrapped"],[1806,"Wood"]],"145":[[1101,"Banners"],[1105,"Logos & avatars"],[1097,"Printed material"]],"57":[[573,"Everything else"],[569,"Ironing board cover"],[561,"Laundry bag"],[565,"Peg bag"]],"250":[[2642,"Abstract"],[2678,"Acrylic"],[2702,"All"],[2634,"Animals"],[2658,"Buildings"],[2690,"Drawing"],[2654,"Flowers"],[2646,"Giclee"],[2694,"Illustration"],[2686,"Mixed Media"],[2674,"Oil"],[2698,"Other"],[2638,"People"],[3006,"Personalised"],[2666,"Sport"],[2662,"Still Life"],[2670,"Surreal"],[3002,"Typography"],[2650,"Views"],[2682,"Watercolour"]],"206":[[2154,"Blouses"],[2162,"Cardigans"],[2190,"Costumes"],[2138,"Dresses"],[2194,"Everything Else"],[2178,"Jackets"],[2182,"Jumpers"],[2174,"Ponchos"],[2150,"Pyjamas"],[2170,"Shawls & Wraps"],[2158,"Shirts"],[2130,"Shoes"],[2186,"Skirts"],[2146,"Slippers"],[2142,"Socks"],[2134,"T-Shirts"],[2166,"Trousers"]],"129":[[2994,"Bobby Pins"],[1017,"Everything else"],[1009,"Fascinators"],[2998,"Hair Combs"],[1005,"Hats"],[1589,"Head pieces"],[1013,"Tiaras"],[1585,"Veils"]],"278":[[1649,"Etchings"],[917,"Gocco Prints"],[913,"Letterpress Prints"],[905,"Lino Prints"],[1269,"Other Prints"],[909,"Screen Prints"],[921,"Woodcuts & Engravings"]],"234":[[2454,"Abstract"],[2498,"All"],[2446,"Animals"],[2466,"Buildings"],[2486,"Charcoal"],[2462,"Flowers"],[2494,"Other"],[2482,"Pen"],[2490,"Pencil"],[2450,"People"],[2474,"Sport"],[2470,"Still Life"],[2478,"Surreal"],[2458,"Views"]],"190":[[1938,"Acrylic"],[153,"All"],[1926,"Leather"],[1930,"Metalwork"],[1942,"Resin"],[1934,"Textile"]],"69":[[705,"Everything else"],[701,"Paperweights"],[1217,"Pencil Cases"],[637,"USB sticks"]],"262":[[2934,"Notebooks & Notepads"],[2930,"Scrapbook Albums"]],"218":[[2986,"Bobby Pins"],[2390,"Ear Muffs"],[2402,"Everything Else"],[2398,"Fascinators"],[2378,"Hair Bands"],[2382,"Hair Clips"],[2386,"Hair Combs"]],"141":[[1069,"Beads"],[1625,"Buckles & Fastenings"],[1065,"Buttons"],[1073,"Charms"],[1385,"Everything else"],[1081,"Fabric"],[1085,"Felt"],[1361,"Fibres"],[1666,"Gemstones"],[1365,"Haberdashery"],[1369,"Jewellery findings"],[1077,"Kits"],[1381,"Knitting supplies"],[1621,"Paper & Card"],[1093,"Patterns"],[1629,"Pendants"],[1373,"Ribbons"],[1377,"Trims"],[1089,"Wool & Yarn"]],"53":[[533,"Aprons"],[517,"Bowls"],[1197,"Cake stands"],[521,"Coasters"],[1501,"Cookware"],[513,"Cups & mugs"],[545,"Dishcloths"],[557,"Everything else"],[553,"Glasses"],[1497,"Jugs"],[1205,"Kitchenware"],[541,"Magnets"],[505,"Napkins"],[509,"Place mats & Table runners"],[1201,"Plates"],[1658,"Teapots"],[529,"Cosies"],[501,"Tea towels"],[549,"Trivets"],[1505,"Utensils"]],"174":[[809,"Bookcases & Cabinets"],[817,"Chairs"],[1690,"Drawers"],[2974,"Everything Else"],[1698,"Rails & Hooks"],[821,"Shelves"],[1694,"Stools"],[797,"Storage"],[805,"Tables"]],"246":[[2586,"Abstract"],[2618,"Acrylic"],[2630,"All"],[2578,"Animals"],[2598,"Buildings"],[2594,"Flowers"],[2614,"Oil"],[2626,"Other"],[2582,"People"],[2606,"Sport"],[2602,"Still Life"],[2610,"Surreal"],[2590,"Views"],[2622,"Watercolour"]],"202":[[2238,"Everything Else"],[2230,"Glasses Cases"],[2222,"Handbags"],[2198,"iPad & Tablet Sleeves"],[2202,"iPhone & Mobile Sleeves"],[2214,"Kindle Cases"],[2206,"Laptop Sleeves"],[2218,"Make Up Bags"],[2234,"Satchels"],[2210,"Toiletries Bags"],[2226,"Tote Bags"]],"125":[[993,"Dresses"],[1001,"Everything else"],[997,"Garters"]],"81":[[765,"Cat collars"],[781,"Dog coats"],[769,"Dog collars"],[793,"Everything else"],[745,"Garden furniture"],[777,"Leads"],[749,"Ornaments"],[773,"Pet blankets & beds"],[789,"Pet toys"],[757,"Planters & pots"],[761,"Tools & equipment"],[753,"Wildlife feeders"],[1489,"Wildlife houses"]],"169":[[1529,"Everything else"],[1513,"Games"],[1521,"Musical items"],[1525,"Sports accessories"]],"274":[[857,"Anniversary"],[861,"Birthday"],[877,"Blank"],[1577,"Bon Voyage"],[1565,"Christening"],[1297,"Christmas"],[881,"Congratulations"],[1301,"Easter"],[1305,"Engagement"],[1333,"Everything Else"],[1309,"Father's Day"],[1313,"Get Well"],[1569,"Leaving"],[1317,"Mother's Day"],[1321,"New Baby"],[865,"New Home"],[869,"New Job"],[685,"Postcards"],[1573,"Retirement"],[873,"Sympathy"],[1325,"Thank You"],[1329,"Valentine's Day"],[885,"Weddings"]],"230":[[2414,"Abstract"],[2442,"All"],[2406,"Animals"],[2426,"Buildings"],[2422,"Flowers"],[2410,"People"],[2434,"Sport"],[2430,"Still Life"],[2438,"Surreal Other"],[2418,"Views"]],"186":[[1898,"Acrylic"],[1850,"Beaded"],[1858,"Beadwork"],[141,"All"],[1862,"Chainmaille"],[2914,"Charms"],[1854,"Copper"],[2926,"Everything Else"],[1878,"Felt"],[1886,"Glass"],[1882,"Gold"],[1890,"Locket"],[1894,"Metal"],[1902,"Polymer Clay"],[2966,"Resin"],[1906,"Rosary"],[1910,"Shell"],[1874,"Silver"],[2918,"Silver Plate"],[2922,"Sterling Silver"],[1914,"Stone"],[1866,"Textile"],[1918,"Wire Wrapped"],[1922,"Wood"]]};
+
+$(function(){
+	$("#category").change(function(){
+		$("#subCategory").hide();
+		if(subcategories[this.value]){
+			html = '<option value="">请选择子分类</option>';	
+			for(i=0; i< subcategories[this.value].length; i++){
+				html += '<option value="' + subcategories[this.value][i][0] + '">' + subcategories[this.value][i][1] + '</option>';
+			}
+			$("#subCategory").html(html).show();
+		}
+	})
+
+	$("#img_server").val("http://oa.barboola.com");
+})
+
+
+</script>

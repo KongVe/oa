@@ -1,0 +1,16 @@
+<script type="text/javascript">
+jQuery(function($){
+
+	$("#submit").click(function(){
+		if(window.confirm("确认导入的是数据是账号：" + $("#account_id option:selected").html())){
+			$("#form_data").submit();
+		}else{
+			return false;
+		}
+	})
+
+	$("input[type='file']").attr("accept",'csv');
+
+	$("#account_id").select2();
+})
+</script>

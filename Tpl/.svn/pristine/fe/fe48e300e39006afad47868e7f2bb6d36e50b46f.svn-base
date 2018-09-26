@@ -1,0 +1,105 @@
+
+<script type="text/javascript">
+	$(function(){
+		maxHeight = parent.document.documentElement.clientHeight ;
+		height = document.body.clientHeight+ 50;
+		if(height > maxHeight){
+			height = maxHeight;
+		}
+		parent.$("#middleBoxIframe").css("height",height);
+	});
+	//PUBLIC
+	var label_list=<?php echo json_encode($label_list); ?>;
+
+	var chartByAmazonSell_legend_list=<?php echo json_encode($chartByAmazonSell_name_list); ?>;
+	var chartByAmazonSell_data= <?php echo json_encode($chartByAmazonSell); ?>	
+	var chartByAmazonSell_option  = {
+		    tooltip : {
+		        trigger: 'axis'
+		    },
+		    legend: {	
+		    	selected: {	
+		            'session_percentage' : false,
+		            'page_views' : false,
+		            'page_views_percentage' : false,
+		            //'buy_box_percentage' : false,
+		            'unit_session_percentage' : false,
+		            'ordered_product_sales' : false,
+		            'total_order_items' : false,
+		        },
+		        data:chartByAmazonSell_legend_list,
+		        orient:"vertical",
+		        x:"left",
+		    },
+		    toolbox: {
+		        show : true,
+		        feature : {
+		            mark : {show: true},
+		            dataView : {show: true, readOnly: false},
+		            magicType : {show: true, type: ['bar', 'line']},
+		            restore : {show: true},
+		            saveAsImage : {show: true}
+		        }
+		    },
+		    calculable : true,
+		    xAxis : [
+		        {
+		            type : 'category',
+		            boundaryGap : true,
+
+		            data : label_list,
+		        }
+		    ],
+		    yAxis : [
+		        {
+		            type : 'value',
+		            
+		        }
+		    ],
+
+		    series :chartByAmazonSell_data,
+		};           
+
+      
+
+	var chartByAmazonSell =function(){
+		
+		// 路径配置
+		require.config({
+		    paths: {
+		        echarts: '__PUBLIC__/js/echarts/build/dist'
+		    }
+		});
+		// 使用
+	    require(
+	        [
+	            'echarts',
+	            'echarts/chart/bar',
+	            'echarts/chart/line',
+	        ],
+	        function (ec) {
+	            // 基于准备好的dom，初始化echarts图表
+	            var myChart = ec.init(document.getElementById('canvasDiv')); 
+	              // 为echarts对象加载数据 
+		        myChart.setOption(chartByAmazonSell_option); 
+		    }
+	    );
+	}
+
+	
+	//获取分类选择列表
+	chartByAmazonSell();
+	
+	// 关闭悬浮框
+	function closeBox(){
+		
+		if(parent.$("#middleBoxIframe").length>0){
+			parent.$("#middleBox").modal("toggle");
+		}else{
+			window.close();
+		}
+		
+	}
+
+
+</script>

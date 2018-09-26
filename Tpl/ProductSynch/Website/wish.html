@@ -1,0 +1,70 @@
+<!-- <div class="form-group">
+	价格 = ( ( 成本 + 国内运费 ) / ( 1 - 利润率) + 利润<input type="text" name="profit_plus" value="0" size=3 />RMB ) / 汇率<input type="text" name="exchange_rate" value="6" size=3 /> / ( 1- 手续费<input type="text" name="handle_rate" value="0.15" size=3 />) + 运费 / (1 - 利润率 ) - 运费
+</div>		
+<div class="form-group">
+	运费 = ( 重量 * 每kg运费<input type="text" name="shipping_fee" value="100" size=3 /> + 挂号费<input type="text" name="barcode_fee" value="8" size=3 /> ) / 汇率<input type="text" name="exchange_rate" value="6" size=3 /> 
+</div>
+<div class="form-group">
+	<label class="control-label">运费调节 = 
+		<input type="text" name="shipping_adjust" value=0 size=4/>
+	</label>
+	<span class="help-block">
+		该值大于0时把运费转移到价格上，小于0时把价格转移到运费上
+	</span>
+</div>
+ -->
+<div class="form-group">
+	<label class="control-label">描述模板</label>
+
+	<notempty name="is_admin"><span><a href="{:U('ProductDetailTemplate/templateList')}" target="_blank">管理模板</a></span></notempty>
+	
+	<select name="template_id" class="form-control" id="descriptionTemp">
+		
+		<?php
+			if(count($template_list) && is_array($template_list)){
+		?>
+			<option value=''>---请选择描述模板</option>
+			<volist name="template_list" id="template">
+				<option value="{$template['id']}">{$template['name']}</option>
+			</volist>
+		<?php
+			}else{
+				echo "<option value=''>---请呼叫管理员创建该帐号的模板---</option>";
+			}
+		?>
+	</select>
+</div>
+
+<div class="form-group">
+	<label class="control-label">定时执行</label>
+	<div class="col-xs-12">
+		<input style="width:150px;cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date" type="text" name="timing_synch" id="timing_synch" value="{$Think.request.timing_synch}" placeholder="日期">
+		<input type="time" name="timing_synch_time" value="{$Think.request.timing_synch_time}">
+		<br>
+		即在定时的时间过了之后再排队发布
+	</div>
+	
+</div>
+
+
+<!-- <div class="form-group">
+	<label class="control-label">可接受最低折扣
+	</label>
+	<input name="param[price_off_min]" class="form-control" />
+	<span class="help-block">有些产品在上架时是调高利润的，用于日后降价。如30，则表示最低降价30%</span>
+</div> -->
+<!-- <div class="form-group">
+	<label class="control-label">未卖出的打折
+	</label>
+	<select name="param[salesoff]" class="form-control">
+		<option value="" selected=">selected">不打折</option>
+		<option value="5">5% Off</option>
+		<option value="10">10% Off</option>
+	</select>
+</div> -->
+<!-- <div class="form-group">
+	<label class="control-label">对应product id
+	</label>
+	<input name="param[online_product_id]" class="form-control" />
+	<span class="help-block">如果只选中一个产品时有效，会把wish上对应product id的产品内容更换为选中产品</span>
+</div> -->

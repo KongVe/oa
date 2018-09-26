@@ -1,0 +1,27 @@
+<div class="panel panel-default">
+	<div class="panel-heading">
+		已存在的库存
+	</div>
+	<div class="panel-body">
+		<ul class="list-group">
+		<empty name="stockList">
+			<li>无</li>
+		</empty>
+		<foreach name="stockList" item="stock">
+			<li class="list-group-item">
+				<a href="{$stock.click_url}" style="display: inline-block;width: 100%;">
+				    <span style="display:block;font-size: 16px;">{$stock.sku}: <b>{$stock.variation}</b> </span>
+				    <b class="pull-right">{$stock.quantity} 件</b>
+				    <div>
+				    	<volist name="stock.place_data" id="pp">
+				    		<div class="col-sm-12">
+				    			货架位:{$pp.place_name|default="未放置"}  -> 件数:<b>{$pp.place_quantity|default="0"}</b>件
+				    		</div>
+				    	</volist>
+				    </div>
+				</a>
+			</li>
+		</foreach>
+		</ul>
+	</div>
+</div>

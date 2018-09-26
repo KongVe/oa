@@ -1,0 +1,101 @@
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	// ace.settings.sidebar_collapsed(true);
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+	$("tbody.tbody tr .skuTd").click(function(){
+		$("tbody.tbody tr").removeClass("success");
+		trDom = $(this).parent('tr');
+		trDom.addClass("success");
+		var order_detail_box = $("div.order-detail-box");
+		var id = trDom.find("input[name='id[]']").val();
+		if($("#order-detail-iframe").attr("src").indexOf(id) > 0 ){
+			order_detail_box.show();
+			return true;
+		}
+			
+		
+		var box_top = document.documentElement.clientHeight - order_detail_box.height();
+		var box_width = window.screen.availWidth;
+		//order_detail_box.css({display:"block",top:box_top + "px",width:box_width + "px"});
+		
+		$("#order-detail-iframe").css({height:window.innerHeight-200});
+		$("#order-detail-iframe").attr("src","{:U('goodDetail')}?id=" + id + "&_"+  Math.round(new Date().getTime()/1000));
+	});
+
+
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}
+})
+
+
+function updated(product_id){
+	$("#updatedBtn_" + product_id).attr("disabled",'disabled');
+
+	$.ajax({
+		url:'{:U("productUpdated")}',
+		data:{product_id:product_id},
+		cache:false,
+		type:'POST',
+		success:function(r){
+			if(r.status){
+				$("#updatedBtn_" + product_id).toggle();
+				$("#recallBtn_" + product_id).attr("disabled",null);
+				$("#recallBtn_" + product_id).toggle();
+			}else{
+				alert(r.info);
+			}
+		},
+		error:function(r){
+			alert("Network error,  contact Tech...");
+		}
+	})
+
+	return false;
+}
+
+function recall(product_id){
+	$("#recallBtn_" + product_id).attr("disabled",'disabled');
+
+	$.ajax({
+		url:'{:U("productRecall")}',
+		data:{product_id:product_id},
+		cache:false,
+		type:'POST',
+		success:function(r){
+			if(r.status){
+				$("#recallBtn_" + product_id).toggle();
+				$("#updatedBtn_" + product_id).attr("disabled",null);
+				$("#updatedBtn_" + product_id).toggle();
+			}else{
+				alert(r.info);
+			}
+		},
+		error:function(r){
+			alert("Network error,  contact Tech...");
+		}
+	})
+
+	return false;
+}
+
+
+
+</script>

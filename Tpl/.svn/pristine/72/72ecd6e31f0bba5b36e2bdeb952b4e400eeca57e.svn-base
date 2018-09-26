@@ -1,0 +1,801 @@
+<span class="documentation-content span10">
+<h1>List of Accepted Sizes</h1>
+<br>
+<br>
+<h4>Numerical</h4>
+<hr>
+<ul>
+<li>1, 2, 3, 4,... etc</li>
+<li>10.5, 11.0, 11.5, 12.0,... etc</li>
+<li>0.1, 0.2, 0.3, 0.4,... etc</li>
+<li>1.3431, 2.54672, 3.4233, 4.412,... etc</li>
+<li><strong>Any valid number</strong></li>
+</ul>
+<br>
+<h4>Area Size </h4>
+<hr>
+<ul>
+<li> 1.1" * 1.2" </li>
+<li> 0.1234 cm x 123 cm x 10 cm</li>
+<li> 8m by 1.0m </li>
+<li> <strong> Any valid area in cm, mm, m, inches, feet (2D or 3D)</strong></li>
+</ul>
+<br>
+<h4>Volume Size </h4>
+<hr>
+<ul>
+<li> 1.3ml </li>
+<li> 5L </li>
+<li> 1.213 pt </li>
+<li> <strong> Any valid area in mL, L, ounces, gallons, quarts, cups, pints </strong></li>
+</ul>
+<br>
+<h4>Length Size </h4>
+<hr>
+<ul>
+<li> 1.3m </li>
+<li> 5L </li>
+<li> 6' 7" </li>
+<li> <strong> Any valid length in m, cm, mm, feet, inches
+</strong></li>
+</ul>
+<br>
+<h4>Weight </h4>
+<hr>
+<ul>
+<li> 1.3oz </li>
+<li> 5lb </li>
+<li> 1.5 kg </li>
+<li> <strong> Any valid weight in g, kg, lb, pounds, ounces
+</strong></li>
+</ul>
+<br>
+<h4>Voltage </h4>
+<hr>
+<ul>
+<li> 2.5V </li>
+<li> 200 V </li>
+<li> 5v </li>
+<li> <strong> Any valid valid voltage in V
+</strong></li>
+</ul>
+<br>
+
+
+<h4>Numbers</h4>
+<hr>
+<ul>
+
+<li>0</li>
+
+<li>0.5</li>
+
+<li>1</li>
+
+<li>1.5</li>
+
+<li>2</li>
+
+<li>2.5</li>
+
+<li>3</li>
+
+<li>3.5</li>
+
+<li>4</li>
+
+<li>4.5</li>
+
+<li>5</li>
+
+<li>5.5</li>
+
+<li>6</li>
+
+<li>6.5</li>
+
+<li>7</li>
+
+<li>7.5</li>
+
+<li>8</li>
+
+<li>8.5</li>
+
+<li>9</li>
+
+<li>9.5</li>
+
+<li>10</li>
+
+<li>10.5</li>
+
+<li>11</li>
+
+<li>11.5</li>
+
+<li>12</li>
+
+<li>12.5</li>
+
+<li>13</li>
+
+<li>13.5</li>
+
+<li>14</li>
+
+<li>14.5</li>
+
+<li>15</li>
+
+<li>15.5</li>
+
+<li>16</li>
+
+<li>16.5</li>
+
+<li>17</li>
+
+<li>17.5</li>
+
+<li>17</li>
+
+<li>18.5</li>
+
+<li>19</li>
+
+<li>19.5</li>
+
+<li>20</li>
+
+<li>20.5</li>
+
+</ul>
+<br>
+
+
+
+<h4>Clothing</h4>
+<hr>
+<ul>
+
+<li>One Size</li>
+
+<li>XXXS</li>
+
+<li>XXS</li>
+
+<li>XS</li>
+
+<li>S</li>
+
+<li>M</li>
+
+<li>L</li>
+
+<li>XL</li>
+
+<li>XXL</li>
+
+<li>XXXL</li>
+
+<li>XXXXL</li>
+
+<li>4XL</li>
+
+<li>5XL</li>
+
+<li>6XL</li>
+
+<li>7XL</li>
+
+<li>8XL</li>
+
+<li>1X</li>
+
+<li>2X</li>
+
+<li>3X</li>
+
+<li>Youth XL(16-18)</li>
+
+<li>Youth L(14-16)</li>
+
+<li>Youth M(10-12)</li>
+
+<li>Youth S(6-8)</li>
+
+</ul>
+<br>
+
+
+
+<h4>Bedding</h4>
+<hr>
+<ul>
+
+<li>Single</li>
+
+<li>Twin</li>
+
+<li>Double</li>
+
+<li>Full</li>
+
+<li>Queen</li>
+
+<li>King</li>
+
+<li>Super King</li>
+
+<li>California King</li>
+
+</ul>
+<br>
+
+
+
+<h4>Bras</h4>
+<hr>
+<ul>
+
+<li>30B</li>
+
+<li>30C</li>
+
+<li>30D</li>
+
+<li>32A</li>
+
+<li>32AA</li>
+
+<li>32B</li>
+
+<li>32C</li>
+
+<li>32D</li>
+
+<li>32DD</li>
+
+<li>32DDD</li>
+
+<li>34A</li>
+
+<li>34AA</li>
+
+<li>34B</li>
+
+<li>34C</li>
+
+<li>34D</li>
+
+<li>34DD</li>
+
+<li>34DDD</li>
+
+<li>36A</li>
+
+<li>36AA</li>
+
+<li>36B</li>
+
+<li>36C</li>
+
+<li>36D</li>
+
+<li>36DD</li>
+
+<li>36DDD</li>
+
+<li>38A</li>
+
+<li>38B</li>
+
+<li>38C</li>
+
+<li>38D</li>
+
+<li>38DD</li>
+
+<li>38DDD</li>
+
+<li>40B</li>
+
+<li>40C</li>
+
+<li>40D</li>
+
+<li>40DD</li>
+
+<li>40DDD</li>
+
+<li>42D</li>
+
+<li>42DD</li>
+
+<li>42DDD</li>
+
+<li>44DD</li>
+
+<li>44DDD</li>
+
+</ul>
+<br>
+
+
+
+<h4>Infant/Child</h4>
+<hr>
+<ul>
+
+<li>Newborn</li>
+
+<li>2t</li>
+
+<li>3t</li>
+
+<li>4t</li>
+
+<li>5t</li>
+
+<li>6t</li>
+
+<li>7t</li>
+
+<li>8t</li>
+
+<li>6 Months</li>
+
+<li>12 Months</li>
+
+<li>18 Months</li>
+
+<li>0-3m</li>
+
+<li>0-6m</li>
+
+<li>3-6m</li>
+
+<li>6-12m</li>
+
+<li>6-9m</li>
+
+<li>9-12m</li>
+
+<li>12-18m</li>
+
+<li>18-24m</li>
+
+<li>1-2 Years</li>
+
+<li>2-3 Years</li>
+
+<li>3-4 Years</li>
+
+<li>4-5 Years</li>
+
+<li>5-6 Years</li>
+
+<li>7-8 Years</li>
+
+<li>9-10 Years</li>
+
+<li>12-13 Years</li>
+
+<li>14-15 Years</li>
+
+</ul>
+<br>
+
+
+
+<h4>MacBooks</h4>
+<hr>
+<ul>
+
+<li>11" Macbook</li>
+
+<li>13" Macbook Pro</li>
+
+<li>13" White Macbook</li>
+
+<li>13" Macbook Air</li>
+
+<li>15" Macbook Air</li>
+
+<li>15" Macbook Pro</li>
+
+<li>17" Macbook Pro</li>
+
+</ul>
+<br>
+
+
+
+<h4>Smartphones/Tablets</h4>
+<hr>
+<ul>
+
+<li>iPod Touch 4</li>
+
+<li>iPod Touch 5</li>
+
+<li>iPad Mini</li>
+
+<li>iPad Air</li>
+
+<li>iPad 1</li>
+
+<li>iPad 2</li>
+
+<li>iPad 3</li>
+
+<li>iPad 4</li>
+
+<li>iPhone 4</li>
+
+<li>iPhone 4s</li>
+
+<li>iPhone 5</li>
+
+<li>iPhone 5c</li>
+
+<li>iPhone 5s</li>
+
+<li>iPhone 6</li>
+
+<li>iPhone 6 Plus</li>
+
+<li>Samsung Galaxy S4 Mini</li>
+
+<li>Samsung Galaxy S5 Mini</li>
+
+<li>Samsung Galaxy S2</li>
+
+<li>Samsung Galaxy S3</li>
+
+<li>Samsung Galaxy S3 Mini</li>
+
+<li>Samsung Galaxy S4</li>
+
+<li>Samsung Galaxy S5</li>
+
+<li>Samsung Galaxy Mega 6.3</li>
+
+<li>Samsung Galaxy Note 1</li>
+
+<li>Samsung Galaxy Note 2</li>
+
+<li>Samsung Galaxy Note 3</li>
+
+<li>Samsung Galaxy Note 4</li>
+
+<li>Samsung Galaxy Note 8.0</li>
+
+<li>Samsung Galaxy Note 10</li>
+
+<li>Samsung Galaxy Tab 4.7in</li>
+
+<li>Samsung Galaxy Tab 4.8in</li>
+
+<li>Samsung Google Nexus 10</li>
+
+<li>Amazon Kindle</li>
+
+<li>Amazon Kindle 2</li>
+
+<li>Amazon Kindle DX</li>
+
+<li>Amazon Kindle Keyboard</li>
+
+<li>Amazon Kindle 4</li>
+
+<li>Amazon Kindle Fire</li>
+
+<li>Amazon Kindle Fire PaperWhite</li>
+
+<li>Amazon Kindle Touch</li>
+
+<li>Amazon Kindle Fire HD 7in</li>
+
+<li>Amazon Kindle Fire HD 8.9in</li>
+
+<li>HTC M7</li>
+
+<li>HTC M8</li>
+
+<li>HTC One Max</li>
+
+<li>HTC One Mini 2</li>
+
+<li>SONY 339H</li>
+
+<li>SONY L36H</li>
+
+<li>SONY L39H</li>
+
+<li>SONY L39U</li>
+
+<li>SONY Xperia Z2</li>
+
+<li>SONY Xperia Z2 tablet</li>
+
+<li>LG NEXUS 5</li>
+
+<li>LG G3</li>
+
+<li>Nokia Lumia 930</li>
+
+<li>Motorola Moto X</li>
+
+<li>Microsoft Surface RT Pro</li>
+
+</ul>
+<br>
+
+
+
+<h4>Gaming</h4>
+<hr>
+<ul>
+
+<li>Playstation 3 Slim</li>
+
+<li>Playstation 3 Original</li>
+
+<li>Playstation 3 Slim 1</li>
+
+<li>Playstation 3 Slim 2</li>
+
+<li>Playstation 3 Original 1</li>
+
+<li>Playstation 3 Original 2</li>
+
+</ul>
+<br>
+
+
+
+<h4>Headphones</h4>
+<hr>
+<ul>
+
+<li>Beats Pro</li>
+
+<li>Beats Solo</li>
+
+<li>Beats Studio</li>
+
+<li>Beats Studio 2013+ Models</li>
+
+<li>Beats MIXR</li>
+
+<li>Beats Wireless</li>
+
+</ul>
+<br>
+
+
+
+<h4>Others</h4>
+<hr>
+<ul>
+
+<li>MousePad Foam Backed</li>
+
+<li>MousePad Stick it</li>
+
+<li>Pack of 4</li>
+
+<li>Pack of 6</li>
+
+</ul>
+<br>
+
+
+
+
+
+<h4>Memory</h4>
+<hr>
+<ul>
+
+<li>1GB</li>
+
+<li>2GB</li>
+
+<li>4GB</li>
+
+<li>8GB</li>
+
+<li>16GB</li>
+
+<li>32GB</li>
+
+<li>64GB</li>
+
+<li>128GB</li>
+
+<li>256GB</li>
+
+<li>512GB</li>
+
+<li>1TB</li>
+
+</ul>
+<br>
+
+
+
+
+
+
+
+
+
+
+
+<h4>Shoes</h4>
+<hr>
+<ul>
+
+<li>0</li>
+
+<li>0.5</li>
+
+<li>1</li>
+
+<li>1.5</li>
+
+<li>2</li>
+
+<li>2.5</li>
+
+<li>3</li>
+
+<li>3.5</li>
+
+<li>4</li>
+
+<li>4.5</li>
+
+<li>5</li>
+
+<li>5.5</li>
+
+<li>6</li>
+
+<li>6.5</li>
+
+<li>7</li>
+
+<li>7.5</li>
+
+<li>8</li>
+
+<li>8.5</li>
+
+<li>9</li>
+
+<li>9.5</li>
+
+<li>10</li>
+
+<li>10.5</li>
+
+<li>11</li>
+
+<li>11.5</li>
+
+<li>12</li>
+
+<li>12.5</li>
+
+<li>13</li>
+
+<li>13.5</li>
+
+<li>14</li>
+
+<li>14.5</li>
+
+<li>15</li>
+
+<li>15.5</li>
+
+<li>16</li>
+
+<li>16.5</li>
+
+<li>17</li>
+
+<li>17.5</li>
+
+<li>17</li>
+
+<li>18.5</li>
+
+<li>19</li>
+
+<li>19.5</li>
+
+<li>20</li>
+
+<li>20.5</li>
+
+</ul>
+<br>
+
+
+
+<h4>Men's Apparel</h4>
+<hr>
+<ul>
+
+<li>XS</li>
+
+<li>S</li>
+
+<li>M</li>
+
+<li>L</li>
+
+<li>XL</li>
+
+<li>XXL</li>
+
+<li>XXXL</li>
+
+<li>XXXXL</li>
+
+<li>XXXXXL</li>
+
+</ul>
+<br>
+
+
+
+<h4>Women's Apparel</h4>
+<hr>
+<ul>
+
+<li>XXS</li>
+
+<li>XS</li>
+
+<li>S</li>
+
+<li>M</li>
+
+<li>L</li>
+
+<li>XL</li>
+
+<li>XXL</li>
+
+</ul>
+<br>
+
+
+
+<h4>Shapes</h4>
+<hr>
+<ul>
+
+<li>Pearl</li>
+
+<li>Cubic</li>
+
+<li>Heart</li>
+
+<li>Rose</li>
+
+<li>Basic</li>
+
+<li>Twist</li>
+
+</ul>
+<br>
+
+
+</span>

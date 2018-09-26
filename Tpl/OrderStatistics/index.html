@@ -1,0 +1,213 @@
+<layout name='Layout/ace_layout' />
+
+<script type="text/javascript" src="__PUBLIC__/js/ichart.1.2.src.js"></script>
+
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="id" value="{$Think.request.id}" />
+<div class="page-header clearfix">
+	<h1 class="col-sm-1">数据统计</h1>
+
+	<div class="col-sm-1 pull-left">
+	
+		<include file="OrderStatistics:nav" />
+		
+		<div class="btn-group">
+			<div id="syncCK1"></div>
+		</div>
+	</div>
+
+
+	<div class="col-sm-10 pull-right">
+
+			<div class="col-sm-12">
+				<div class="form-group col-sm-3">
+					<div class="col-sm-12">
+						<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="order_time" id="order_time" value="{$Think.request.order_time}"  placeholder=" 默认最近60天" title="默认最近60天">
+					</div>
+				</div>	
+
+				<div class="form-group col-sm-2">
+					<select name="user_id" class="form-control">
+						<option value="" <eq name="Think.request.user_id" value="">selected</eq> > 显示全部用户数据</option>
+						<option value="{$_SESSION['authId']}" <eq name="Think.request.user_id" value="0">selected</eq> > 显示当前用户数据</option>
+						<volist name="user_list" id="user">
+							<option value="{$user['id']}" <eq name="Think.request.user_id" value="$user['id']">selected</eq> >{$user['emp_name']}</option>
+						</volist>	
+					</select>
+				</div>
+
+				<div class="form-group col-sm-2">
+					<select name="website" class="form-control">
+						<option value="" <eq name="Think.request.website" value="">selected</eq> >平台</option>
+						<foreach name="account_list" key="website" item="vo">
+							<option value="{$website}" <eq name="Think.request.website" value="$website">selected</eq> >{$website}</option>
+						</foreach>	
+					</select>
+				</div>
+
+				<div class="form-group col-sm-2">
+					<select name="account_id" class="form-control">
+
+						<option value="" <eq name="Think.request.account_id" value="">selected</eq> >帐号</option>
+						
+							<foreach name="account_list" key="website" item="accounts">
+								<optgroup label="{$website}">
+									<foreach name="accounts" key="vv" item="account">
+										<option value="{$account.id}" <eq name="Think.request.account_id" value="$account.id">selected</eq> >{$account.account_name}</option>
+									</foreach>	
+								</foreach>
+						</optgroup>
+					</select>
+				</div>
+
+				<div class="form-group col-sm-3">
+					<input onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索 SKU，产品名称"/>
+				
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="$('#oaid').val('');this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div>
+	</div>
+</div>
+<!-- 
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a href="#" class="btn btn-sm btn-danger" >sku统计</a>
+			
+		</div>
+		<div class="btn-group">
+			<div id="syncCK1"></div>
+		</div>
+	</div>
+</div>
+ -->
+ <div class="operate panel panel-default">
+	<div class="panel-body">
+
+		<div class="btn-group pull-left">
+			<span>当前结果总销量：<b>{$total_count}</b></span>
+		</div>
+
+		<div class="btn-group pull-right">
+			<span><b>注：</b>只统计本地已发货的订单</span>
+		</div>
+		
+		
+	</div>
+</div>
+
+<div class="message-container"style="width:25%;">
+	<table class="table table-striped table-hover">
+		
+			<tr>
+				<!-- <th style="width:80px;">			
+					<label class="inline pull-left">
+						<input class="ace" type="checkbox" name="id-toggle-all" id="id-toggle-all" />
+						<span class="lbl"></span>
+						序号
+					</label>
+				</th> -->
+				<foreach name="titleArr" item="voTitle" key="titleKey">
+					<th>
+						<div class="btn-group" <?php  if($voTitle['dropdown']){echo 'style="width:' . (strlen($voTitle['title']) * 6 + 20) . 'px;"';} ?> >
+							<a type="botton" class="btn btn-xs sort_button" name="{$titleKey}">
+								<eq name="titleKey" value="$order">
+									<eq name="sortImg"	value="asc">
+										<i class="icon-sort-up"></i>
+									</eq>
+									<eq name="sortImg"	value="desc">
+										<i class="icon-sort-down"></i>
+									</eq>
+								</eq>
+							 {$voTitle.title}
+							</a>
+							<notempty name="voTitle.dropdown">
+								<a class="btn btn-xs dropdown-toggle" data-toggle="dropdown"><i class="icon-caret-down"></i></a>
+								<ul class="dropdown-menu" role="menu">
+									<foreach name="voTitle.dropdown" item="voDrop" key="dropKey" >
+										<li >
+											<input style="cursor:pointer;" type="checkbox" name="filter[{$titleKey}][{$dropKey}]" value="{$dropKey}" class="filter_checkbox" id="dropdown_{$titleKey}_{$dropKey}"
+												<?php if(isset($_POST['filter'][$titleKey][$dropKey])){ echo 'checked="checked"';
+												unset($_POST['filter'][$titleKey][$dropKey]);
+											} ?>
+											/>
+											<label style="cursor:pointer;" for="dropdown_{$titleKey}_{$dropKey}">{$voDrop}</label>
+										</li>
+										
+
+									</foreach>
+									<?php foreach($_POST['filter'][$titleKey] as $ttk=>$ttv){
+										echo '<input type="hidden" name="filter[' .$titleKey. ']['.$ttk.']" value="' .$ttv. '" />';
+									} ?>			
+			              		</ul>	
+							</notempty>
+						</div>
+					</th>
+				</foreach>
+			</tr>
+			<tbody class="tbody">
+			<volist name="list" id="vo">
+				<tr>
+					<td width="80px" class="sku_name">{$vo.sku}<input type="hidden" class="sku_value" value="{$vo.sku}"></td>
+					<td ><a href="{$vo.thumbnail}" class="thumbnail" style="width:80px"><img src="{$vo.thumbnail}" style="width:80px"/></a></td>
+					<td width="50px">{$vo.sku_quantity_counts}</td>
+					<!-- <td >{$vo.user_name}</td> -->
+				</tr>
+				{/*
+				<if condition="$vo.variation_list neq ''">
+					<tr>
+						<td colspan="4">
+							<table class="table-condensed" style="width:100%;">
+								<tr>
+									<td width="80px"></td>
+									<th>变体</th>
+									<th>销量</th>
+									<!-- <th>用户</th> -->
+								</tr>
+								<volist name="vo.variation_list" id="variation">
+									<tr>
+										<td width="80px" class="sku_name"><input type="hidden" class="sku_value" value="{$variation.sku}"></td>
+										<td >{$variation.variation}</td>
+										<td width="50px">{$variation.variation_quantity_counts}</td>
+										<!-- <td >{$variation.uid}</td> -->
+									</tr>
+								</volist>
+							</table>
+						</td>
+					</tr>
+				</if>
+				*/}
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;top:138px;width:71%;z-index:100;height:300px;left:30%;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+<div class="modal fade" id="editProduct" role="dialog"  tabindex="-1" aria-labelledby="editProductLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="editProductIframe" name="editProductIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox1" role="dialog"  tabindex="-1" aria-labelledby="bottomBox1Label" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBox1Iframe" name="bottomBox1Iframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>

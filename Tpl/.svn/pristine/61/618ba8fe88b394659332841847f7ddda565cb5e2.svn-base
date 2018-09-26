@@ -1,0 +1,97 @@
+<layout name='Layout/ace_box' />
+{:W('PageHeader',array('name'=>'同步产品'))}
+<form method='post' id="form_data" name="form_data" class="well form-horizontal col-sm-12">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	
+	<input type="hidden" id="type" name="type" value="all">
+	
+	<notempty name="synching_list">
+		<div class="col-xs-12">
+			<label class="col-sm-4 text-right" for="variation">同步中的帐号</label>	
+			<div class="col-sm-8">
+				<table>
+					<tr>
+						<th>帐号</th>
+						<th>进度</th>
+					</tr>
+					<volist name="synching_list" id="synching">
+						<tr>
+							<td>{$synching.account_data.account_name}</td>
+							<td>进度</td>
+						</tr>
+					</volist>
+				</table>
+			</div>
+		</div>
+	</notempty>
+
+	<div class="col-xs-12">
+		<label class="col-sm-4 text-right" for="variation">请选择帐号:</label>	
+		<div class="col-sm-8">
+			<div>按住 shift 或者 ctrl 多选, 按 ctrl+A 全选</div>
+			<select name="account_id[]" id="account_id" class="form-control " multiple="multiple">
+				<volist name="account_list" id="account">
+					<option value="{$account.id}" >{$account.account_name}</option>
+				</volist>
+			</select>
+		</div>
+	</div>
+	<div class="col-xs-12">
+		<label class="col-sm-4 text-right" >查看状态:</label>	
+		<div class="col-sm-8">
+			<label class="col-sm-3">
+				<b>待审核</b>
+				<input type="checkbox" name="show_under_review" value="1">
+			</label>
+			<label class="col-sm-3">
+				<b>已批准</b>
+				<input type="checkbox" name="show_accepted" value="1">
+			</label>
+			<label class="col-sm-3">
+				<b>被拒绝</b>
+				<input type="checkbox" name="show_rejected" value="1">
+			</label>
+		</div>
+	</div>
+	<div class="col-xs-12">
+		<label class="col-sm-4 text-right" >状态:</label>	
+		<div class="col-sm-8">
+			<label class="col-xs-3">
+				<b>已启用</b>
+				<input type="checkbox" name="show_enabled" value="1">
+			</label>
+			<label class="col-xs-3">
+				<b>已禁用</b>
+				<input type="checkbox" name="show_disabled" value="1">
+			</label>
+		</div>
+	</div>
+	
+	<div class="action">
+		<label class="col-sm-4 text-right" for="variation"></label>	
+		<div class="col-sm-8">
+			<input type="hidden" name="model_name" value="place"> 
+			<input class="btn btn-sm btn-primary" type="button" value="提交" onclick="save();">
+			<input  class="btn btn-sm btn-default" type="button" value="取消" onclick="parent.$('#bottomBox').modal('hide');">
+		</div>
+	</div>
+</form>
+
+<script type="text/javascript">
+	function save() {
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('WishOnlineProduct/synchProduct')}",false,function(msg){
+				if(msg.status){
+					if(parent.$("#bottomBox").length>0){
+						alertWarning(msg.info,1);
+						window.location.reload();
+					}else{
+						alertWarning(msg.info,1);
+					}
+				}else{
+					alertWarning(msg.info);
+				}
+			});
+		}
+	}
+</script>

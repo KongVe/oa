@@ -1,0 +1,255 @@
+<layout name='Layout/ace_box' />
+<div class="panel panel-default">
+	<div class="panel-body">
+		<form class="display-none" id="form_data">
+			<input type="hidden" id="ajax" name="ajax" value="0">
+			<input type="hidden" id="task_id" name="task_id" value="{$vo['id']}">
+		</form>
+		<div class="btn-group-vertical pull-right" style="position: absolute;right: 12px;top: 15px;index-z:100;">
+			<a class="btn btn-danger"  onclick="parent.$('#detail-box').hide('fast');">关闭</a>
+			<br>
+			<if condition="$vo.designer eq $_SESSION['user_name']">
+				<if condition="$vo[task_state] neq '取消'">
+					<a class="btn btn-error" onclick="cancelTask();">取消</a>
+				</if>
+				
+				<switch name="vo.task_state" >
+				<case value="新任务" break="0"></case>
+				<case value="取消" break="0"></case>
+				<case value="执行中" break="1">
+					<a class="btn btn-info" onclick="showBox('{:U('taskEdit?task_id='.$vo['id'])}')">编辑</a>
+				</case>
+				</switch>
+			</if>
+
+			<if condition="$vo.performer eq $_SESSION['user_name']">
+				<switch name="vo.task_state" >
+				<case value="新任务" break="1">
+					<a class="btn btn-info" onclick="actionTask({$vo['id']})">开始</a>
+				</case>
+				<case value="执行中" break="1">
+					<a class="btn btn-info" target="_blank" onclick="showBox('{:U('submitTaskView?task_id='.$vo['id'])}')" >提交</a>
+				</case>
+				<case value="检查" break="1">
+					<a class="btn btn-info" target="_blank" onclick="showBox('{:U('submitTaskView?task_id='.$vo['id'])}')" >重新提交</a>
+				</case>
+				</switch>
+			</if>
+
+			<if condition="$vo.checker eq $_SESSION['user_name']">
+				<switch name="vo.task_state" >
+				<case value="检查" break="1">
+					<a class="btn btn-info" onclick="showBox('{:U('checkTaskView?task_id='.$vo['id'])}')" >检查</a>
+				</case>
+				
+				</switch>
+			</if>
+		</div>
+		
+		<div class="col-sm-11">
+			<div class="panel panel-default col-sm-12">
+				<div class="panel panel-header">
+					<span>任务详情</span>
+				</div>
+				<div class="panel panel-body ">
+					<div class="col-sm-12">
+						<div class="col-sm-6">
+							<label class="col-sm-4 control-label" for="title" >标题：</label>
+							<div class="col-sm-8">
+								{$vo.title}	
+							</div>
+						</div>
+						<div class="col-sm-6">
+							<label class="col-sm-4 control-label" for="title" >设计人：</label>
+							<div class="col-sm-8">
+								{$vo.designer}	
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-12">
+						<div class="col-sm-6">
+							<label class="col-sm-4 control-label" for="title" >执行人：</label>
+							<div class="col-sm-8">
+								{$vo.performer}	
+							</div>
+						</div>
+						<div class="col-sm-6">
+							<label class="col-sm-4 control-label" for="title" >检查员：</label>
+							<div class="col-sm-8">
+								{$vo.checker}	
+							</div>
+						</div>
+					</div>
+					
+					<div class="col-sm-12">
+						<!-- <div class="col-sm-6">
+							<label class="col-sm-4 control-label" for="title" >任务分类：</label>
+							<div class="col-sm-8">
+								{$vo.task_category}	
+							</div>
+						</div> -->
+						<div class="col-sm-6">
+							<label class="col-sm-4 control-label" for="title" >状态：</label>
+							<div class="col-sm-8">
+								<b>{$vo.task_state}</b>
+							</div>
+						</div>
+						<div class="col-sm-6">
+							<label class="col-sm-4 control-label" for="title" >必选做：</label>
+							<div class="col-sm-8">
+								<b>{$vo.task_type}</b>
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-12">
+						<div class="col-sm-6">
+							<label class="col-sm-4 control-label" for="title" >优先级：</label>
+							<div class="col-sm-8">
+								<b>{$vo.priority}</b>
+							</div>
+						</div>
+						<!-- <div class="col-sm-6">
+							<label class="col-sm-4 control-label" for="remaining_time" >剩余时间：</label>
+							<div class="col-sm-8"><?php
+								if($vo['remaining_time']<0){
+									echo "超时";
+								}else{
+									echo $vo['remaining_time']; 
+								}
+							?>
+							</div>
+						</div> -->
+					</div>
+					<div class="col-sm-12">
+						<div class="col-sm-6">
+							<label class="col-sm-4 control-label" for="title" >设计时间：</label>
+							<div class="col-sm-8">
+								{$vo.designe_time|date="y-m-d h:i",###}
+							</div>
+						</div>
+						<div class="col-sm-6">
+							<label class="col-sm-4 control-label" for="end_time" >截止时间：</label>
+							<div class="col-sm-8">
+								{$vo.end_time|date="y-m-d h:i",###}
+							</div>
+						</div>
+					</div>
+
+					
+
+					<div class="col-sm-12">
+						<div class="col-sm-6">
+							<label class="col-sm-4 control-label" for="title" >开始时间：</label>
+							<div class="col-sm-8">
+								<?php 
+									if($vo['start_time']>0){
+										echo date("y-m-d H:i",$vo['start_time']);
+									}else{
+										echo "未开始";
+									}
+								?>
+							</div>
+						</div>
+						<div class="col-sm-6">
+							<label class="col-sm-4 control-label" for="title" >最后提交时间：</label>
+							<div class="col-sm-8">
+								<?php 
+									if($vo['finish_time']>0){
+										echo date("y-m-d H:i",$vo['finish_time']);
+									}else{
+										echo "未完成";
+									}
+								?>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col-sm-12">
+						<!-- <div class="col-sm-6">
+							<label class="col-sm-4 control-label" for="title" >已用时长：</label>
+							<div class="col-sm-8">
+								<?php 
+									// if($vo['used_time']>0){
+									// 	echo $vo['used_time_clock'];
+									// }else{
+									// 	echo "未开始";
+									// }
+								?>
+							</div>
+						</div> -->
+						<div class="col-sm-6">
+							<label class="col-sm-4 control-label" for="title" >任务时长：</label>
+							<div class="col-sm-8">
+								<?php
+									echo (int)($vo['time_length']/3600)."小时".(int)(($vo['time_length']%3600)/60)." 分";
+								?>
+							</div>
+						</div>
+					</div>
+					
+					<div class="col-sm-12">
+						<div class="col-sm-6">
+							<label class="col-sm-4 control-label" for="title" >评分：</label>
+							<div class="col-sm-8">
+								<?php 
+									if($vo['score']){
+										echo $vo['score'];
+									}else{
+										echo "未评分";
+									}
+								?>
+							</div>
+						</div>
+						<div class="col-sm-6">
+							<label class="col-sm-4 control-label" for="title" >设定米粒：</label>
+							<div class="col-sm-8">
+								{$vo.reward}
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-12">
+						<div class="col-sm-6">
+
+							<label class="col-sm-4 control-label" for="title" >获得米粒：</label>
+							<div class="col-sm-8">
+								<?php 
+									if($vo['final_reward']){
+										echo $vo['final_reward'];
+									}else{
+										echo "未结束";
+									}
+								?>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="panel">
+					<include file="Task:role_task_file" />
+				</div>
+			
+			</div>
+			<div class="panel panel-default col-sm-12">
+				<div class="panel panel-header">
+					<span>动态</span>
+				</div>
+				<div >
+					<if condition="$task_log_html neq ''" >
+						<iframe frameborder="0" height="270px" name="order-detail-iframe" srolling="auto"  width="100%" src="{:U('getTaskLog?task_id='.$vo['id'])}"></iframe>
+							
+					</if>
+				</div>
+			</div>
+		<div>
+	</div>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<iframe src="" id="saveThunbnail" style="visibility:hidden;height:1px;width:1px;"></iframe>
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog" style="width:1024px;">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:1024px;height:800px;" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+		

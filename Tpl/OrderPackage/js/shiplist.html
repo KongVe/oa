@@ -1,0 +1,114 @@
+<script type="text/javascript">
+$(function(){
+	//close sidebar
+	// ace.settings.sidebar_collapsed(true);
+
+	$("#q").focus(function(){
+		$(document).bind('keydown',function(event){
+
+            if(event.keyCode == "32"){
+            	if($("#click_ship").length>0){
+            		$("#click_ship").click();
+            	}
+            };
+          
+        });
+	}).blur(function(){
+		$(document).unbind('keydown');
+
+	}),
+
+	
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+
+	//如果有搜索值，默认全选了搜索值
+
+	
+	$("#q").focus().select();
+	
+	$("#package_weigth_1").click(function(){
+		$(this).select();
+	});
+
+	$("input").click(function(){
+		$(this).select();
+	});
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+	
+});
+
+function submit_weight(package_id,key){
+	// if(!confirm("确认发货？ 确认货物规格数量 和 重量准确？")){
+	// 	return false;
+	// }
+	if(!package_id){
+		alertWarning("页面参数错误");
+		return 1;
+	}
+	var weight = $("#package_weigth_"+key).val();
+	weight = parseInt(weight);
+	
+	// if(!weight || weight<=0 || isNaN(weight)){
+	// 	alertWarning("请输入正确的重量，单位：克");
+	// 	return 1;
+	// }
+	
+	$("#package_weigth_alert_"+key).html("提交中...");
+	$.post("{:U('OrderPackage/packageShip')}",{package_id:package_id,local_weight:weight},function(msg){
+		if(msg.status){
+			$("#package_weigth_alert_"+key).html("发货成功");
+			alertWarning(msg.info);
+			window.location.reload();
+		}else{
+			$("#package_weigth_alert_"+key).html(msg.info);
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		$("#package_weigth_alert_"+key).html("网络错误，请重试");
+		alertWarning("网络错误，请重试");
+	})
+}
+
+function cancelShip(id){
+	if(!confirm("确认取消？")){
+		return false;
+	}
+	$.post("{:U('OrderPackage/cancalShip')}",{ids:[id]},function(msg){
+		if(msg.status){
+			alertWarning(msg.info,1);
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alertWarning("网络错误，请重试");
+	})
+	
+}
+</script>

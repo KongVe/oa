@@ -1,0 +1,13 @@
+<layout name="Layout/ace_layout_v3"/>
+<div id="form-edit">
+</div>
+<script>
+ var category_list = {$category_list|default=""|json_encode};
+  var vo = {$vo|default=""|json_encode};
+  $(function () {
+    debugger
+  })
+
+</script>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<layout name='Layout/ace_box' />
+	{:W('PageHeader',array('name'=>'审核任务'))}
+<style>
+.reason_pictures_wrap{padding:5px;}
+</style>
+
+<form method='post' id="editForm" name="editForm" action="{:U('reviewSave')}"  enctype="multipart/form-data"   class="well form-horizontal col-sm-12">
+	<input type="hidden" id="ajax" name="ajax" value="1">
+	<input type="hidden" id="id" name="id" value="{$vo.id}">
+	<input type="hidden" id="add_file" name="review_file" value="{$vo.review_file}">
+
+	<div class="form-group col-sm-12">
+		<label class="col-sm-2 control-label" for="task_title" >标题：</label>
+		<div class="col-sm-6">
+			{$vo.task_title}
+		</div>
+
+		<div class="col-sm-4 ">
+			<a href="{$vo.thumbnail}" class="thumbnail" target="_blank" style="width:100px;"><img src="{$vo.thumbnail}"  height="100" /></a>
+		</div>
+		
+	</div>
+
+	<div class="form-group col-sm-6">
+		<label class="col-sm-4 control-label" >设计人：</label>
+		<div class="col-sm-6">
+			<span><b>{$_SESSION['user_name']}</b></span>
+		</div>
+	</div>
+
+	
+
+	<div class="form-group col-sm-12">
+
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label" for="runner_uid">执行人：</label>
+			<div class="col-sm-5">
+				{$vo.runner_user_name}
+			</div>
+		</div>
+
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label" for="checker_uid">检查人：</label>
+			<div class="col-sm-5">
+				{$vo.checker_user_name}
+			</div>
+		</div>
+
+	</div>
+
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label" for="priority">优先级：</label>
+			<div class="col-sm-8">
+				<b>{$vo.priority}</b> ( 10 最优先，默认为 5 )
+			</div>
+		</div>
+
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label">截止日期：</label>
+			<div class="col-sm-8">
+				{$vo.end_time|default=" "|date="Y-m-d",###}
+			</div>
+		</div>
+
+	</div>
+	
+	<div class="form-group col-sm-12">
+		
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label">要求附件：</label>
+			<div class="col-sm-8">
+				<volist name="require_file_list" id="file">
+					<li class="tbody">
+						<a target="_blank" href="{:U('down?attach_id='.f_encode($file['id']))}">{$file.name}</a>
+					</li>
+				</volist>
+			</div>
+		</div>
+
+
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label">反馈附件：</label>
+			<div class="col-sm-8">
+				<volist name="feedback_file_list" id="file">
+					<li class="tbody">
+						<a target="_blank" href="{:U('down?attach_id='.f_encode($file['id']))}">{$file.name}</a>
+					</li>
+				</volist>
+			</div>
+		</div>
+
+	</div>
+
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label">任务分类：</label>
+			<div class="col-sm-8">
+				<b>{$vo.category|L}</b>
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group col-sm-12" id="action_div">{$action_content}</div>
+	
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-4 control-label">添加审核附件：</label>
+			<div class="col-sm-8">
+				<include file="Widget:uploader" />
+			</div>
+		</div>
+	</div>
+
+	<div class="col-sm-12 panel-default">
+		<div class="form-group col-sm-4">
+		</div>
+
+		<div class="form-group col-sm-4">
+			<input type="button" data-loading-text="正在保存..." data-close="1" data-reload="1" class="defaultEditFormSubmit btn btn-primary" data-target="bottomBoxIframe" value="审核通过" />
+			<a class="close_box_button btn btn-danger">取消</a>
+		</div>
+
+		<div class="form-group col-sm-4">
+			<a class="failureTask btn btn-warning">不合格</a>
+		</div>
+
+	</div>
+
+</form>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<script type="text/javascript">
+
+$(function(){     
+
+	$(".failureTask").click(function(){
+		if(!confirm("确认审核结果为 任务不合格？")){
+			return false;
+		}
+		var form_id = "editForm";
+		var data = $("#"+form_id).serialize();
+			data += "&failure_task=1";
+
+		var url = $("#"+form_id).attr("action");
+		
+		var btn = $(this);
+		btn.button('loading');
+		if (check_form(form_id)) {
+			if(typeof(editor)!="undefined"){
+				editor.sync();	
+			}
+			$.post("{:U('reviewSave')}",data,function(msg){
+				if(msg.status){
+					alertWarning(msg.info,1);
+					parent.window.location.reload();
+					closeBox();
+				}else{
+					alertWarning(msg.info);
+					btn.button('reset');
+				}
+			});
+		}else{
+			btn.button('reset');
+		}
+
+	});
+});
+</script>

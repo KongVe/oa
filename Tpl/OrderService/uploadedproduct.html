@@ -1,0 +1,52 @@
+<layout name='Layout/ace_layout' />
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="id" value="{$Think.request.id}" />
+<div class="page-header clearfix">
+	<h1 class="col-sm-1">产品更新</h1>
+	<div class="col-sm-11">
+		<div class="col-sm-12">
+			<span class="col-sm-4">
+				<select name='website_name' id='website_name' onchange="getAccountNameList(this.value)">
+					<option value='0'>请选择公司</option>
+					<option value="meeshine">meeshine</option>
+					<!-- <foreach name="websiteNameList" item="w">
+						<option value='{$w.website_name}'>{$w.website_name}</option>
+					</foreach> -->
+				</select>
+			
+				<select name='AccountNameList' id="AccountNameList">
+					<option value='0'>请选择帐号名</option>
+				</select>	
+				<a onclick="getWishIframe($('#AccountNameList').val())" class="btn btn-primary btn-xs">确定</a>			
+			</span>
+			<!--当前操作的帐号-->
+			<span class="col-sm-2">&nbsp;<b id="accountName"></b> </span>
+			<span class="col-sm-2"><button class="btn btn-info btn-sm" onclick="window.frames['order-service-iframe'].window.location.reload();">刷新页面</button></span>
+		</div>
+	</div>
+</div>
+<div id="getIp">
+	<iframe src = "http://iframe.ip138.com/ic.asp" id="getIpIframe" name="getIpIframe" width="100%"   style= "min-height:600px;display:none"></iframe>
+</div>
+<div class="message-container"style="width:100%;">
+	<div id='service-iframe'>
+		<iframe src="" id="order-service-iframe" name="order-service-iframe" width="100%" frameborder="no" scrolling="no" marginheight="-50px" style="display:none;"></iframe>
+	</div>
+</div>
+
+<div class="modal fade" id="editProduct" role="dialog"  tabindex="-1" aria-labelledby="editProductLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="editProductIframe" name="editProductIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox1" role="dialog"  tabindex="-1" aria-labelledby="bottomBox1Label" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBox1Iframe" name="bottomBox1Iframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>

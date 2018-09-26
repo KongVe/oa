@@ -1,0 +1,94 @@
+<script type="text/javascript">
+console.log(window.clientInformation.plugins);
+
+
+
+jQuery(function($){
+	//close sidebar
+	//ace.settings.sidebar_collapsed(true);
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+
+
+	$(".showBottomBox").click(function(){
+		$("tbody.tbody tr").removeClass("success");	
+		var tr = $(this).parent('tr');
+		tr.addClass("success");
+		var id = tr.find("input[name='id[]']").val();
+
+		var order_detail_box = $("#order-detail-box");
+
+		if($("#order-detail-iframe").attr("src").indexOf(id) > 0 ){
+			order_detail_box.show();
+			return true;
+		}
+		var box_top = document.documentElement.clientHeight - order_detail_box.height();
+		var box_width = window.screen.availWidth;
+		order_detail_box.css({display:"block",top:box_top + "px",width:box_width + "px"});
+		$("#order-detail-iframe").attr("src","{:U('AmazonSellyoursIssue/index')}?id=" + id + "&_"+  Math.round(new Date().getTime()/1000));
+	})
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}	
+
+})
+
+
+
+
+function add(){
+	$("#middleBoxIframe").attr("src","<?php echo U("edit"); ?>?_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+
+function edit(id){
+	$("#middleBoxIframe").attr("src","<?php echo U("edit"); ?>?id="+ id +"&_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal({backdrop:'static'}).modal("show");	
+}
+
+function setFalseJs(id){
+	var data = {
+		id:id,
+	};
+	$("#setFalseJs_" + id).attr("disabled",'disabled');
+	$.post("{:U('setFalseJs')}",data,function(r){
+		$("#setFalseJs_" + id).attr("disabled",null);
+		if(r.status){
+			alert("设置成功，可以使用该帐号。");
+			window.location.reload();
+		}else{
+			alert(r.info);
+		}
+	})
+}
+
+
+</script>

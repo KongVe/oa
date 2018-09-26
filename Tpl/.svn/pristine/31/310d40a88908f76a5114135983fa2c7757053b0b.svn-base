@@ -1,0 +1,413 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>"调整订单包裹分配"))}
+
+<form action="{:U('orderPackageSave')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+    <input type="hidden" id="ajax" name="ajax" value="1"/>
+    <volist name="order_list" id="order">
+        <input type="hidden" name="order_auto_id[]" value="{$order.id}"/>
+    </volist>
+    <div class="panel panel-primary">
+        <div class="panel panel-heading">
+            <span>本地产品详情</span>
+        </div>
+        <div class="panel-body">
+            <div class="form-group" style="min-height:250px;">
+                <div class="col-sm-12" id="show_unpack_list">
+                    <table class="table table-hover table-bordered" id="show_unpack_table"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-info">
+        <div class="panel panel-heading">
+            <span>包裹分配产品情况</span>
+        </div>
+        <div class="panel-body">
+			<div class="form-group">
+                <volist name="warehouse_package_list" id="warehouse_package">
+                    
+                    <div class="col-xs-12" id="warehouse_div_{$warehouse_package.id}">
+                        <table class="table table-hover table-bordered" id="package_table">
+                            <tbody>
+                                <tr>
+                                    <th colspan="2">
+                                        <div class="col-xs-3">
+                                            <span style="font-size:20px;">仓库: {$warehouse_package.warehouse_name}</span>
+
+                                            <input type="hidden" class="warehouse_id_val" value="{$warehouse_package.id}">
+
+                                        </div>
+                                        <div class="col-xs-4">
+                                            <a data-warehouse_id="{$warehouse_package.id}" class="addPackage btn btn-primary btn-sm">增加包裹</a>
+                                            <label>
+                                                每次使用新包裹:
+                                                <input style="cursor:pointer;width:20px;" class="input-date-range" type="checkbox" id="add_new_package_{$warehouse_package.id}" value="1">
+                                            </label>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </tbody>
+                            <tbody>
+                                <tr>
+                                    <th style="width:200px;">包裹信息</th>
+                                    <th>产品信息</th>
+                                </tr>
+                            </tbody>
+                            <tbody class="package_tbody">
+                                <volist name="warehouse_package.package_list" id="package">
+                                    <tr id="tr_{$package.id}">
+                                        <td>
+                                            <b>包裹序号:</b> {$package.id}
+                                            <br>
+                                            <b>状态:</b> {$package.package_state|L}
+                                            <br>
+                                            <b>包裹号:</b> {$package.package_code}
+                                            <br>
+                                            <b>跟踪号:</b> {$package.forwarder_tracking_number}
+                                            <br>
+                                            <b>物流:</b> {$package.express_type_data.express_name}
+                                        </td>
+                                        <td>
+                                            <table class="table">
+                                                <tr>
+                                                    <th>产品序号</th>
+                                                    <th>规格SKU</th>
+                                                    <th>SKU名称</th>
+                                                    <th>SKU图片</th>
+                                                    <th style="width:200px;">本包裹包含数量</th>
+                                                </tr>
+                                                <volist name="package.map_package_list" id="map_package">
+                                                    <tr id="tr_{$package.id}_{$map_package.local_product_data.id}" class="local_product_tr">
+                                                        <td>{$map_package.local_product_data.id}</td>
+                                                        <td>{$map_package.local_product_data.sku}</td>
+                                                        <td>{$map_package.local_product_data.sku_name}</td>
+                                                        <td>
+                                                            <a href="{$map_package.local_product_data.thumbnail}" class="thumbnail" target="_blank"><img src="{$map_package.local_product_data.thumbnail}" width="60" /></a>
+                                                        </td>
+                                                        <td>
+                                                            <empty name="package.can_not_change">
+                                                                <div class="input-group">
+                                                                    总数: <input type="number" style="width:80px;" class="change_quantity_input product_quantity" name="package_data[{$package.id}][{$map_package.local_product_data.id}][product_quantity]" data-quantity_type="product_quantity" data-local_product_id="{$map_package.local_product_data.id}" data-warehouse_id="{$warehouse_package.id}" data-package_id="{$package.id}" data-bak="{$map_package.product_quantity}" value="{$map_package.product_quantity}">
+                                                                        个<br>
+                                                                    配货: <input type="number" style="width:80px;" class="change_quantity_input reserved_quantity" name="package_data[{$package.id}][{$map_package.local_product_data.id}][reserved_quantity]" data-quantity_type="reserved_quantity" data-local_product_id="{$map_package.local_product_data.id}" data-warehouse_id="{$warehouse_package.id}" data-package_id="{$package.id}" data-bak="{$map_package.reserved_quantity}" value="{$map_package.reserved_quantity}">
+                                                                        个<br>
+                                                                    已拣: <input type="number" style="width:80px;" class="change_quantity_input waiting_ship_quantity" name="package_data[{$package.id}][{$map_package.local_product_data.id}][waiting_ship_quantity]" data-quantity_type="waiting_ship_quantity" data-local_product_id="{$map_package.local_product_data.id}" data-warehouse_id="{$warehouse_package.id}" data-package_id="{$package.id}" data-bak="{$map_package.waiting_ship_quantity}" value="{$map_package.waiting_ship_quantity}">
+                                                                        个
+                                                                </div>
+                                                            <else/>
+                                                                <div class="input-group">
+                                                                    总数: {$map_package.product_quantity} 个
+                                                                    <br>
+                                                                    配货: {$map_package.reserved_quantity} 个
+                                                                    <br>
+                                                                    已拣: {$map_package.waiting_ship_quantity} 个
+                                                                    
+                                                                    <input type="hidden" name="package_data[{$package.id}][{$map_package.local_product_data.id}][product_quantity]" value="{$map_package.product_quantity}">
+
+                                                                    <input type="hidden" name="package_data[{$package.id}][{$map_package.local_product_data.id}][reserved_quantity]" value="{$map_package.reserved_quantity}">
+
+                                                                    <input type="hidden" name="package_data[{$package.id}][{$map_package.local_product_data.id}][waiting_ship_quantity]" value="{$map_package.waiting_ship_quantity}">
+                                                                </div>
+                                                            </empty>
+                                                        </td>
+                                                    </tr>
+                                                </volist>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </volist>  
+                            </tbody>
+                        </table>
+                    </div>
+                </volist>
+			</div>
+		</div>
+	</div>
+
+    <div class="panel-default">
+        <div class="form-group text-center">
+            <a data-loading-text="正在保存..." data-close="1" <empty name="Think.request.online_product_auto_id"> data-reload="1"</empty> class="editFormSubmit btn btn-primary">保存</a>
+            <a class="close_box_button btn btn-danger">取消</a>
+        </div>
+    </div>
+
+</form>
+
+
+<script type="text/javascript">
+var local_product_list = {$local_product_list|default=""|json_encode};
+var package_id_list_tmp = [];
+var package_auto_id_list_tmp = {$package_auto_id_list_tmp|default="[]"|json_encode};
+var package_td_bak_list = {};
+
+$(function($){
+    $(".addPackage").click(function(){
+        addPackage($(this));
+    });
+    
+    $(".change_quantity_input").change(function(){
+        changeProductQuantity($(this));
+    });
+
+    //通用编辑页面表单ajax提交 按钮
+    $(".editFormSubmit").click(function(r){
+        var form_id = "editForm";
+        if(!confirm("确认保存?")){
+            return false;
+        }
+        for (var i = 0; i < local_product_list.length; i++) {
+            if(local_product_list[i].unpack_quantity>0){
+                alertWarning("请分配完所有 待分配总数量 再进行保存");
+                return false;
+            }
+            for (var kk in local_product_list[i].warehouse_product) {
+                if(local_product_list[i].warehouse_product[kk].unpack_reserved_quantity > 0){
+                    alertWarning("请分配完所有 配货未分数量 再进行保存");
+                    return false;
+                }
+                if(local_product_list[i].warehouse_product[kk].unpack_picked_quantity > 0){
+                    alertWarning("请分配完所有 已拣未分数量 再进行保存");
+                    return false;
+                }
+            };
+        };
+        var data = $("#"+form_id).serialize();
+        var url = $("#"+form_id).attr("action");
+        
+        var btn = $(this);
+        btn.button('loading');
+        if (check_form(form_id)) {
+            if(typeof(editor)!="undefined"){
+                editor.sync();  
+            }
+            sendForm(form_id,url,false,function(msg){
+                btn.button('reset');
+                if(msg.status){
+                    alertWarning(msg.info,1);
+                    parent.frames['bottomBoxIframe'].location.reload();
+                    closeBox();
+                }else{
+                    alertWarning(msg.info);
+                }
+            });
+        }else{
+            btn.button('reset');
+        }
+    });
+
+    $(".warehouse_id_choose").change(function(){
+        setWarehouseExpressType($(this));
+    });
+    showUnpackList();
+
+});
+
+function addPackage(obj){
+
+    var warehouse_id = obj.data("warehouse_id");
+
+    if($("#add_new_package_"+warehouse_id).prop("checked")){
+        //每次使用新包裹
+        var package_key = "new" + new Date().getTime() +""+ parseInt(Math.random()*1000);
+        var add_new_package = 1;
+    }else{
+        if(!package_id_list_tmp[warehouse_id]){
+            package_id_list_tmp[warehouse_id] = [];
+        }
+        if(package_id_list_tmp[warehouse_id].length > 0){
+            var package_key = package_id_list_tmp[warehouse_id].pop();
+            var add_new_package = false;
+        }else{
+            var package_key = "new" + new Date().getTime() +""+ parseInt(Math.random()*1000);
+            var add_new_package = 1;
+        }
+    }
+
+    var warehouse_id = obj.data("warehouse_id");
+
+    if(add_new_package){
+        var package_id_show = '<b>新包裹</b><br><div><input type="hidden" name="new_package['+package_key+'][warehouse_id]" value="'+warehouse_id+'"/>选择物流: <select check="require" msg="请选择物流方式" id="express_type_id_choose_'+package_key+'" name="new_package['+package_key+'][express_type_id]"></select></div>';
+    }else{
+        var package_id_show = package_td_bak_list[package_key];
+    }
+    var package_tbody_html = '<tr id="tr_'+package_key+'"><td>'+package_id_show+'</td><td><table class="table"><tr><th>产品序号</th><th>规格SKU</th><th>SKU名称</th><th>SKU图片</th><th style="width:200px;">本包裹包含数量</th></tr>';
+    
+    var tmp = false;
+    
+    for (var i = 0; i < local_product_list.length; i++) {
+        //只有unpack_quantity存在时才能添加包裹
+        if(local_product_list[i].warehouse_id != warehouse_id){
+            continue;
+        }
+        if(local_product_list[i].unpack_quantity>0){
+            tmp = true;
+            tmp_data = local_product_list[i];
+
+            var product_quantity = tmp_data.unpack_quantity;
+            var reserved_quantity = 0;
+            var picked_quantity = 0;
+
+            for (var k2 in local_product_list[i].warehouse_product) {
+                console.log(k2);
+                console.log(warehouse_id);
+                if(warehouse_id == k2){
+                    reserved_quantity = local_product_list[i].warehouse_product[k2].unpack_reserved_quantity;
+                    picked_quantity = local_product_list[i].warehouse_product[k2].unpack_picked_quantity;
+
+                    local_product_list[i].warehouse_product[k2].unpack_reserved_quantity = 0;
+                    local_product_list[i].warehouse_product[k2].unpack_picked_quantity = 0;
+                }
+                
+            };
+
+            local_product_list[i].unpack_quantity = 0;
+
+            var tmp_tr = '<tr id="tr_'+package_key+'_'+tmp_data.id+'" class="local_product_tr"><td>'+tmp_data.id+'</td><td>'+tmp_data.sku+'</td><td>'+tmp_data.sku_name+'</td><td><a href="'+tmp_data.thumbnail+'" class="thumbnail" target="_blank"><img src="'+tmp_data.thumbnail+'" width="60" /></a></td><td></td></tr>';
+            var tmp_tr = '<tr id="tr_'+package_key+'_'+tmp_data.id+'" class="local_product_tr"><td>'+tmp_data.id+'</td><td>'+tmp_data.sku+'</td><td>'+tmp_data.sku_name+'</td><td><a href="'+tmp_data.thumbnail+'" class="thumbnail" target="_blank"><img src="'+tmp_data.thumbnail+'" width="60" /></a></td><td><div class="input-group">总数: <input type="number" style="width:80px;" class="change_quantity_input product_quantity" name="package_data['+package_key+']['+tmp_data.id+'][product_quantity]" data-quantity_type="product_quantity" data-local_product_id="'+tmp_data.id+'" data-warehouse_id="'+warehouse_id+'" data-package_id="'+package_key+'" data-bak="'+product_quantity+'" value="'+product_quantity+'"> 个<br>配货: <input type="number" style="width:80px;" class="change_quantity_input reserved_quantity" name="package_data['+package_key+']['+tmp_data.id+'][reserved_quantity]" data-quantity_type="reserved_quantity" data-local_product_id="'+tmp_data.id+'" data-warehouse_id="'+warehouse_id+'" data-package_id="'+package_key+'" data-bak="'+reserved_quantity+'" value="'+reserved_quantity+'"> 个<br>已拣: <input type="number" style="width:80px;" class="change_quantity_input waiting_ship_quantity" name="package_data['+package_key+']['+tmp_data.id+'][waiting_ship_quantity]" data-quantity_type="waiting_ship_quantity" data-local_product_id="'+tmp_data.id+'" data-warehouse_id="'+warehouse_id+'" data-package_id="'+package_key+'" data-bak="'+picked_quantity+'" value="'+picked_quantity+'"> 个</div></td></tr>'
+            package_tbody_html += tmp_tr;
+        }
+    }
+
+    if(tmp){
+        package_tbody_html += '</table></td></tr>';
+        $("#warehouse_div_"+warehouse_id+" .package_tbody").append(package_tbody_html);
+
+        $(".change_quantity_input").change(function(){
+            changeProductQuantity($(this));
+        });
+
+        setWarehouseExpressType(warehouse_id,package_key);
+            
+        showUnpackList();
+    }else{
+        alertWarning("当前无未分配的产品数量，无需增加包裹");
+        return false;
+    }
+}
+
+function setWarehouseExpressType(warehouse_id,package_id){
+    $.post("{:U('V2ExpressType/ajaxGetWarehouseExpressType')}",{warehouse_id:warehouse_id},function(msg){
+        if(msg.status && msg.data){
+            $("#express_type_id_choose_"+package_id).html("<option value=''>选择物流</option>");
+            for (var i = 0; i < msg.data.length; i++) {
+                var tmp = msg.data[i];
+                $("#express_type_id_choose_"+package_id).append('<option value="'+tmp.id+'">'+tmp.forwarder_name+' '+tmp.express_name+'</option>');
+            };
+        }else{
+            $("#express_type_id_choose_"+package_id).html("<option value=''>该仓库未有绑定的物流方式</option>");
+        }
+    }).error(function(){
+        $("#express_type_id_choose_"+package_id).html("<option value=''>该仓库未有绑定的物流方式</option>");
+    });
+}
+
+function changeProductQuantity(obj){
+    var quantity_bak = obj.data("bak");
+    var quantity_type = obj.data("quantity_type");
+    var local_product_id = obj.data("local_product_id");
+    var warehouse_id = obj.data("warehouse_id");
+    var package_id = obj.data("package_id");
+    var quantity = parseInt(obj.val());
+
+    if(!local_product_id || !package_id || !warehouse_id){
+        alertWarning("参数错误,请联系技术人员");
+        return false;
+    }
+    if(quantity<0){
+        obj.val(quantity_bak);
+        return false;
+    }
+    
+    var check_product_quantity = $("#tr_"+package_id+"_"+local_product_id+" .product_quantity").eq(0).val();
+    var check_reserved_quantity = $("#tr_"+package_id+"_"+local_product_id+" .reserved_quantity").eq(0).val();
+    var check_waiting_ship_quantity = $("#tr_"+package_id+"_"+local_product_id+" .waiting_ship_quantity").eq(0).val();
+
+    if(check_product_quantity < check_reserved_quantity || check_reserved_quantity < check_waiting_ship_quantity){
+        obj.val(quantity_bak);
+        return false;
+    }
+
+    change_quantity = quantity - quantity_bak;//正数增加，负数减少
+    for (var i = 0; i < local_product_list.length; i++) {
+        if(local_product_list[i].id == local_product_id){
+            if(quantity_type == "product_quantity"){
+                var tmp_quantity = local_product_list[i].unpack_quantity - change_quantity;
+            }else if(quantity_type == "reserved_quantity"){
+                var tmp_quantity = local_product_list[i].warehouse_product[warehouse_id].unpack_reserved_quantity - change_quantity;
+            }else if(quantity_type == "waiting_ship_quantity"){
+                var tmp_quantity = local_product_list[i].warehouse_product[warehouse_id].unpack_picked_quantity - change_quantity;
+            }else{
+                alertWarning("页面错误，请刷新重试或联系技术人员");
+                return false;
+            }
+           
+            if(tmp_quantity<0){
+                obj.val(quantity_bak);
+                return false;
+            }
+            if(quantity_type == "product_quantity"){
+                local_product_list[i].unpack_quantity = tmp_quantity;
+            }else if(quantity_type == "reserved_quantity"){
+                local_product_list[i].warehouse_product[warehouse_id].unpack_reserved_quantity = tmp_quantity;
+            }else if(quantity_type == "waiting_ship_quantity"){
+                local_product_list[i].warehouse_product[warehouse_id].unpack_picked_quantity = tmp_quantity;
+            }else{
+                alertWarning("页面错误，请刷新重试或联系技术人员");
+                return false;
+            }
+        }
+    };
+
+    if(quantity == 0 && quantity_type == "product_quantity"){
+        
+        var package_data_bak = $("#tr_"+package_id).children().eq(0).html();
+
+        $("#tr_"+package_id+"_"+local_product_id).remove();
+
+        if($("#tr_"+package_id+" .local_product_tr").length<=0){
+            $("#tr_"+package_id).remove();
+        }
+        if($.inArray(package_id, package_auto_id_list_tmp[warehouse_id]) > 0 && $.inArray(package_id, package_id_list_tmp) < 0 ){
+
+            package_td_bak_list[package_id] = package_data_bak;
+
+            if(package_id_list_tmp[warehouse_id]){
+                package_id_list_tmp[warehouse_id].push(package_id);
+            }else{
+                package_id_list_tmp[warehouse_id] = [];
+                package_id_list_tmp[warehouse_id].push(package_id);
+            }
+        }
+    }
+
+    obj.data("bak",quantity);
+
+    showUnpackList();
+}
+
+function showUnpackList(){
+    $("#show_unpack_table").html('<tr><th colspan="8" class="text-center">本地产品分配情况</th></tr><tr><th>产品序号</th><th>规格SKU</th><th>SKU名称</th><th>SKU图片</th><th>状态</th><th>产品数量</th><th>分配仓库</th><th>待分配</th></tr>');
+    for (var i = 0; i < local_product_list.length; i++) {
+        var tmp = local_product_list[i];
+        var warehouse_tmp = "";
+
+        if(tmp.warehouse_product){
+            for(var kk in tmp.warehouse_product){
+                var tmp2 = tmp.warehouse_product[kk];
+                if(tmp2.reserved_quantity){
+                    warehouse_tmp += ('<b>仓库: ' + tmp2.warehouse_data.warehouse_name + '</b><br>配货: <b>'+tmp2.reserved_quantity+'</b> 个&nbsp;&nbsp;已拣: <b>'+tmp2.picked_quantity+'</b> 个<br>配货未分: <b class="red">'+tmp2.unpack_reserved_quantity+'</b> 个<br>已拣未分: <b class="red">'+tmp2.unpack_picked_quantity+'</b> 个<br><br>');
+                }
+               
+            };
+        }else{
+            warehouse_tmp = "未生成拣货单";
+        }
+
+        var tr = '<tr><td>'+tmp.id+'</td><td>'+tmp.sku+'</td><td>'+tmp.sku_name+'</td><td><a href="'+tmp.thumbnail+'" class="thumbnail" target="_blank" style="width:80px;"><img src="'+tmp.thumbnail+'" width="80" /></a></td><td>'+tmp.local_state_name_cn+'<br>'+tmp.stockout_state_name+'<br><br>仓库: '+tmp.warehouse_data.warehouse_name+'</td><td>总数量: '+tmp.quantity+' 个<br>配货数: '+tmp.reserved_quantity+' 个<br>待发数: '+tmp.waiting_ship_quantity+' 个<br>已发数: '+tmp.shipped_quantity+' 个</td><td>'+warehouse_tmp+'</td><td>总数量: <b class="red">'+tmp.unpack_quantity+'</b> 个</td></tr>';
+
+        $("#show_unpack_table").append(tr);
+    };
+}
+
+</script>

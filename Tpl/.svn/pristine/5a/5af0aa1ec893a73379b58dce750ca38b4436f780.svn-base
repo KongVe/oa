@@ -1,0 +1,20 @@
+<div class="panel panel-default">
+	<div class="panel-heading">
+		SKU:已存在的库存
+	</div>
+	<div class="panel-body">
+		<ul class="list-group">
+		<empty name="stockList">
+			<li>无</li>
+		</empty>
+		<foreach name="stockList" item="stock">
+			<li class="list-group-item">
+				<a href="{:U('edit')}?stock_id={$stock.id}" style="display: inline-block;width: 100%;">
+				    <span style="display:block;font-size: 16px;">{$stock.sku}: <b>{$stock.variation}</b> </span>
+				    <b class="pull-right">{$stock.quantity} 件</b>
+				</a>
+			</li>
+		</foreach>
+		</ul>
+	</div>
+</div>

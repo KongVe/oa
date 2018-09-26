@@ -1,0 +1,123 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>'拣货详情'))}
+
+<form method='post' id="editForm" action="{:U('')}" class="well form-horizontal clearfix">
+	<input type="hidden" id="ajax" value="1"/>
+	<input type="hidden"  id="id" name="id" value="{$_REQUEST['id']}">
+	<div class="form-group col-xs-12">
+		<div class="form-group col-xs-6">
+			<label class="col-xs-6 text-right">图片：</label>
+			<div class="col-xs-6">
+				<a href="{$vo.thumbnail}" id="thumbnail_show" class="thumbnail" target="_blank" style="width:60px;">	<img src="{$vo.thumbnail}" />
+				</a>
+			</div>
+		</div>
+
+	
+	</div>
+	<div class="form-group col-xs-12">
+		<div class="form-group col-xs-6">
+			<label class="col-xs-6 text-right">SKU：</label>
+			<div class="col-xs-6">
+				{$vo.sku}
+			</div>
+		</div>
+
+		<div class="form-group col-xs-6">
+			<label class="col-xs-6 text-right">SKU名称：</label>
+			<div class="col-xs-6">
+				{$vo.sku_name}
+			</div>
+		</div>
+	</div>
+	<div class="form-group col-xs-12">
+		<div class="form-group col-xs-6">
+			<label class="col-xs-6 text-right">拣货单状态：</label>
+			<div class="col-xs-6">
+				{$vo.status|L}
+			</div>
+		</div>
+
+		<div class="form-group col-xs-6">
+			<label class="col-xs-6 text-right">计划拣货数量：</label>
+			<div class="col-xs-6">
+				<b>{$vo.plan_quantity}</b>
+			</div>
+		</div>
+
+		
+	</div>
+	<div class="form-group col-xs-12">
+		<div class="form-group col-xs-6">
+			<label class="col-xs-6 text-right">拣货中总数：</label>
+			<div class="col-xs-6">
+				<b>{$vo.picking_quantity}</b>
+			</div>
+		</div>
+
+		<div class="form-group col-xs-6">
+			<label class="col-xs-6 text-right">已确认总数：</label>
+			<div class="col-xs-6">
+				<b>{$vo.picked_quantity}</b>
+			</div>
+		</div>	
+	</div>
+	<div class="form-group col-xs-12">
+		<div class="form-group col-xs-6">
+			<label class="col-xs-6 text-right">创建时间：</label>
+			<div class="col-xs-6">
+				{$vo.add_time|date="Y-m-d H:i:s",###}
+			</div>
+		</div>
+	</div>
+	<div class="form-group col-xs-12">
+		<table class="table">
+			<tr>
+				<th colspan="6" class="text-center">拣货详情</th>
+			</tr>
+			<tr>
+				<th>拣货时间</th>
+				<th>拣货数量</th>
+				<th>拣货人</th>
+				<th>确认数量</th>
+				<th>确认人</th>
+			</tr>
+			<volist name="picking_list" id="picking">
+				<tr>
+					<td>
+						{$picking.add_time|date="Y-m-d H:i:s",###}
+					</td>
+					<td>
+						<b>{$picking.picking_quantity}</b> 个
+					</td>
+					<td>
+						{$picking.add_user_name}
+					</td>
+					<td>
+						<notempty name="picking.picked_quantity">
+							{$picking.picked_quantity} 个
+						<else/>
+							<b>未确认</b>
+						</notempty>
+					</td>
+					<td>
+						{$picking.confirm_user_name|default="<b>未确认</b>"}
+					</td>
+				</tr>
+			</volist>
+		</table>
+	</div>	
+
+	<div class="form-group col-xs-12">
+		<label class="col-xs-4 text-right"></label>
+		<div class="col-xs-8">
+			<div class="action">
+				<!-- <input class="editFormSubmit btn btn-primary" type="button" value="入库"> -->
+				<a class="close_box_button btn btn-warning" >关闭</a>
+			</div>
+		</div>
+	</div>
+</form>
+<script type="text/javascript">
+
+</script>

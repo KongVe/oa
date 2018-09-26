@@ -1,0 +1,97 @@
+<layout name='Layout/ace_popup' />
+<form class="form" action="{:U('AmazonSellyoursStock/save')}" id="editForm" method='POST'>
+<table class="table">
+	<tr>
+		<td>ASIN</td>
+		<td>产品</td>
+		<td>库存SKU</td>
+		<td>库存图片</td>
+		<td>库存规格</td>
+		<td>库存数量</td>
+		<td>全选<input  id="selectAll" type="checkbox" style="width:20px; height:20px; cursor:pointer;" /></td>
+		<td></td>
+	</tr>
+	<volist name="stock_list" id="vo">
+		<tr id="tr_{$vo.sellyours_id}_{$vo.order_stock_id}">
+			<td>{$vo.asin}</td>
+			<td><a href="{$vo.source_link}" target="_blank" class="thumbnail"><img src="{$vo.sellyours_thumbnail}" width="60" /></a>
+			<td>{$vo.stock_sku}</td>
+			<td><a href="{$vo.stock_thumbnail}" target="_blank" class="thumbnail"><img src="{$vo.stock_thumbnail}" width="60" /></a>
+			<td>{$vo.stock_variation}</td>
+			<td>{$vo.stock_quantity}</td>
+			<td><input class="map_checkbox"  type="checkbox" name="map[{$vo.sellyours_id}][{$vo.asin}][{$vo.order_stock_id}]" <?php if(!empty($vo['mapped'])){ echo "checked"; } ?>  style="width:30px; height:30px; cursor:pointer;" /></td>
+
+			<td><a onclick="ignoreStock({$vo.sellyours_id},{$vo.order_stock_id})" class="btn btn-danger btn-sm">忽略</a></td>
+		</tr>
+	</volist>
+</table>
+<div class="center">
+	<a class="btn btn-primary" id="submit">保存</a>
+	<a class="btn btn-danger" id="cancel">取消</a>
+</div>
+</form>
+
+<script type="text/javascript">
+
+$(function(){
+
+	maxHeight = parent.document.documentElement.clientHeight -100 ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);	
+
+
+	$("#cancel").click(function(){
+		parent.$("#middleBox").modal("hide");	
+	})
+
+	$("#submit").click(function(){
+		$("#submit").attr("disabled",'disabled');
+		var data = $("#editForm").serialize();
+		var url = $("#editForm").attr("action");
+		$.post(url,data,function(r){
+			if(r.status){
+				parent.$("#middleBox").modal("hide");
+			}else{
+				alert(r.info);
+			}
+			$("#submit").attr("disabled",null);
+		});
+	})
+
+	$("#selectAll").click(function(){
+		/*$("input.map_checkbox").attr('checked',this.checked);
+		return false;*/
+		if(this.checked){
+	
+			$("input.map_checkbox").each(function(){
+				$(this).attr("checked",true).click()
+			})
+		}else{
+			$("input.map_checkbox").each(function(){
+				$(this).attr("checked",false);
+			})
+		}
+	})
+})
+
+function ignoreStock(sellyours_id, order_stock_id){
+	if(!window.confirm('忽略后，将不再自弹出提示，只能自己搜索绑定，确定么？')){
+		return false;
+	}
+	data = {
+		sellyours_id:sellyours_id,
+		order_stock_id:order_stock_id
+	}
+	$.post("{:U('AmazonSellyoursStockIgnore/save')}",data,function(r){
+		if(r.status){
+			$("#tr_" + sellyours_id + "_" + order_stock_id).hide();
+		}else{
+			alert(r.info);
+		}
+	})
+
+}
+</script>

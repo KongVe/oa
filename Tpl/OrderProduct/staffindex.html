@@ -1,0 +1,129 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="purchase" value="selected" />
+	<foreach name="Think.post.order_auto_id" item="id">
+		<input name="order_auto_id[]" type="hidden" value="{$id}" />
+	</foreach>
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">订单采购</h1>
+	<div class="col-sm-4 pull-right">
+			<div class="input-group">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="purchase_q" id="purchase_q" value="{$Think.post.purchase_q}" placeholder="可搜索 SKU ,产品名称，货源简称，档口位置，货号"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="this.form.purchase_q.value='';this.form.stock.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div>
+	</div>
+	<div class="col-sm-2 pull-right">
+		<select class="form-control" name="stock">
+			<option value="">选择货源状态</option>
+			<option value="In stock" <eq name="Think.post.stock" value="In stock">selected</eq> >有货</option>
+			<option value="Stockout" <eq name="Think.post.stock" value="Stockout">selected</eq> >断货</option>
+			<option value="Null" <eq name="Think.post.stock" value="Null">selected</eq> >无货源</option>
+		</select>
+	</div>	
+	<div class="col-sm-4 pull-right">
+		<span><b id="purchaseCartWarning"></b></span>
+		<span>采购车商品数:<b id="purchaseCartCounts"></b></span>
+		<a id="delCartAll" class="btn btn-danger btn-xs">清空采购车</a>
+		<a href="{:U('OrderProduct/purchaseCartIndex')}" target="_blank" class="btn btn-primary btn-xs">查看采购车</a>
+		<a id="purchaseMulti" class="btn btn-primary btn-xs">批量采购</a>
+		<!-- <a href="{:U('OrderProduct/purchaseCartIndex?choose=1')}" target="_blank" class="btn btn-primary btn-xs">1688</a> -->
+	</div>	
+</div>	
+<div class="message-container">
+	<table class="table table-hover table-bordered">
+			<tr>
+				<th>图片</th>
+				<th>SKU</th>
+				<th>规格</th>
+				<th>数量</th>
+				<th class="col-sm-2">备注</th>
+				<th>预计可得</th>
+				<th>名称</th>
+				<th>网站帐号</th>
+				<th>
+					<table>
+						<tr>
+							<td style="width:50px; border:0;">数量</td>
+							<td style="width:100px; border:0;">下单时间</td>
+							<td style="width:220px; border:0;">订单号</td>
+						</tr>
+					</table>
+				</th>
+			</tr>
+			<tbody class="tbody">
+			<volist name="productList" id="product">
+				<tr id="tr_{$key}">
+					<td>
+						<input type="hidden" name="tr_key" value="{$key}" />
+						<foreach name="product.product_auto_id" item="pai" >
+							<input type="hidden" name="id[]" value="{$pai}"  />
+						</foreach>
+						<a href="{$product.thumbnail}" target="_blank" class="thumbnail"><img src="{$product.thumbnail}" width="60" /></a>
+					</td>
+					<td>{$product.sku}</td>
+					<td>{$product.variation}</td>
+					<td><strong style="color:red;">{$product.quantity}</strong></td>
+					<td>{$product.memo}</td>
+					<td>{$product.estimate_total}</td>
+					<td class="col-lg-2">
+						{$product.product_name}
+					</td>
+					<td>{$product.website_account}</td>					
+					<td>
+						<foreach name="product.order" item="o">
+							<table>
+								<tr>
+									<td style="width:40px; border:0;">{$o.quantity}</td>
+									<td  style="width:100px; border:0;">{$o.order_time}</td>
+									<td style="width:220px; border:0;"><a href="{:U('OrderDetail/staffindex')}?oaid={$o.id}" target="_blanK" style="display:block;">{$o.order_id}</a></td>
+								</tr>
+							</table>
+
+						</foreach>
+					</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+</div>
+</form>
+<div  style="height:300px;"></div>
+<div class="purchase-detail-box col-lg-12" id="purchase-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none">
+	<iframe src="" id="purchase-detail-iframe" frameborder="0" height="300px" name="purchase-detail-iframe" srolling="auto"  width="100%"></iframe>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<div class="modal fade" id="editSource" role="dialog"  tabindex="-1" aria-labelledby="editSourceLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="editSourceIframe" name="editSourceIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<!-- 警告弹窗 -->
+<div class="modal fade " id="alertBox" tabindex="-1" role="dialog" aria-labelledby="alertBoxLabel" aria-hidden="true">
+  <div class="modal-dialog">
+  	<div class="bs-example">
+      <div class="alert alert-danger fade in" id="alertStatus">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h4> </h4>
+        <p id="alerBody"></p>
+
+        <p>
+          <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal" id="alertConfirm">确认</button>
+        </p>
+      </div>
+    </div>   
+  </div><!-- /.modal-dialog -->
+</div>
+
+
+
+<iframe src="" id="saveThumbnail" style="visibility:hidden;height:1px;width:1px;"></iframe>

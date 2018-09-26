@@ -1,0 +1,121 @@
+<layout name='Layout/ace_popup' />
+    {:W('PageHeader',array('name'=>"采购清单详情"))}
+
+<form action="{:U()}" method="POST" name="form_search" id="form_search" class="well form-horizontal clearfix">
+   	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+
+	<input type="hidden" name="id" id="id" value="{$Think.request.id}">
+	<div class="page-header clearfix">
+		<div class="col-xs-9">
+
+			<div class="input-group col-sm-6">
+				<div class="input-group">
+					<span class="input-group-addon">
+						添加时间
+					</span>
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}" placeholder="添加时间">
+				</div>
+			</div>
+
+			<div class="input-group col-xs-6">
+				<div class="input-group">
+					<input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="规格SKU，SKU名称"/>
+					<span class="input-group-btn">
+						<button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+					</span>
+				</div>
+			</div>
+			
+		</div>
+	</div>	
+
+	<div class="message-container" id="container_table">
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<div class="btn-group">
+					<b>清单状态:</b> {$purchase_list_data.status|L}<br>
+					<b>货源平台:</b> {$purchase_list_data.platform_data.platform} ( {$purchase_list_data.platform_data.platform_name} )<br>
+				</div>
+
+				<div class="btn-group">
+					<b>当前搜索结果总数:</b> <b>清单采购数:</b> {$count_data.quantity_total} 个 <b>已入库数量:</b> {$count_data.instock_quantity_total} 个
+				</div>
+			</div>
+		</div>
+
+		<table class="table table-hover table-bordered">
+			<include file="Layout:title_v2"/>
+			
+			<tbody class="tbody">
+			<volist name="list" id="vo" key="tr_key">
+				<tr id="tr_{$vo.id}" >
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td>
+						{$vo.sku}
+					</td>
+					<td>
+						{$vo.sku_name}
+					</td>
+					<td>
+						<a href="{$vo.thumbnail}" class="thumbnail" target="_blank" style="width:80px;"><img src="{$vo.thumbnail}" data-src="{$vo.thumbnail}" width="80" /></a>
+					</td>
+					<td>
+						<b>{$vo.quantity}</b> 个
+					</td>
+					<td>
+						<b>{$vo.instock_quantity}</b> 个
+					</td>
+					<td>
+						<b>{$vo.reference_cost}</b> 元
+					</td>
+					<td>
+						{$vo.add_time|default=""|date="Y-m-d H:i:s",###}
+					</td>
+					<td>
+						<a href="{:U('V2PurchaseDetail/index')}?id={$vo.purchase_detail_id}" target="_blank" class="btn btn-primary btn-sm">查看对应的采购批次</a>
+
+						<a data-id="{$vo.id}" class="delDetailMapList btn btn-danger btn-sm" data-id="{$vo.id}">删除</a>
+					</td>
+				</tr>
+			</volist>
+			</tbody>
+		</table>
+		<div class="pagination">
+			{$page}
+		</div>	
+		<div style="height:300px;"></div>
+	</div>
+</form>
+
+
+<script type="text/javascript">
+$(function($){
+	$(".delDetailMapList").click(function(){
+		if(!confirm("确认删除？")){
+			return false;
+		}
+		var id = $(this).data("id");
+		var btn = $(this).button('loading');
+		$.post("{:U('delDetailMapList')}",{id:id},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			btn.button('reset');
+			alertWarning("网络错误，请重试");
+		});
+	})
+
+});
+</script>

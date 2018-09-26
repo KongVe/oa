@@ -1,0 +1,21 @@
+<layout name='Layout/ace_popup' />
+{:W('PageHeader',array('name'=>"查看相关日志"))}
+
+<form action="" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix">
+	<input type="hidden" id="ajax" name="ajax" value="1"/>
+
+	<input type="hidden" id="id" name="id" value="{$vo.id}">
+
+	<div class="panel-default">
+		<div class="form-group text-center">
+			<div class="col-sm-4">
+				<a class="close_box_button btn btn-warning">关闭</a>
+			</div>
+		</div>
+	</div>
+
+
+	<include file="OperateLog:logdata"/>
+
+
+</form>

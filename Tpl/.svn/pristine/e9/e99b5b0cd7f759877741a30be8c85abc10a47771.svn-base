@@ -1,0 +1,157 @@
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	// ace.settings.sidebar_collapsed(true);
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+
+	);	
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+	$("tbody.tbody tr").click(function(){
+		$("tbody.tbody tr").removeClass("success");
+		$(this).addClass("success");
+		var order_detail_box = $("div.order-detail-box");
+		var sku = $(this).find("td .sku_value").val();
+
+		if($("#order-detail-iframe").attr("src").indexOf(sku) > 0 ){
+			order_detail_box.show();
+			//return true;
+		}
+			
+		var iframe_height = window.innerHeight-140;
+
+		order_detail_box.css({display:"block"});
+
+		var iframe=window.frames['order-detail-iframe'];
+		
+		//订单时间
+		var order_time=$("#order_time").val();
+		var data = $("#form_search").serialize();
+		data += ("&sku="+sku);
+		if($('#sku_'+sku+'_variations').length<1){	
+			//获取过规格列表，
+			var tr_obj=this;
+			$.post("{:U('getVariationList')}",data,function(msg){
+				if(msg.status){
+					var show_html=getVariationListHtml(msg.data,sku);
+					if(show_html){
+						$(show_html).insertAfter(tr_obj);
+					}		
+				}
+			});
+		}else{
+			//显示或者隐藏规格列表
+			if($('#sku_'+sku+'_variations').css('display')=='table-row' || $('#sku_'+sku+'_variations').css('display')==undefined){
+				$('#sku_'+sku+'_variations').hide();
+			}else{
+				$('#sku_'+sku+'_variations').show();
+			}
+		}
+
+		if(false){
+		//order_time!='' && order_time){
+			var url="{:U('OrderStatistics/detail')}?sku=" + sku + "&order_time=" + order_time + "&_"+  Math.round(new Date().getTime()/1000);	
+		}else{
+			var url="{:U('OrderStatistics/detail')}?sku=" + sku + "&_"+  Math.round(new Date().getTime()/1000);	
+		}
+
+		$("#order-detail-iframe").css({height:iframe_height});
+
+		$("#order-detail-iframe").attr("src",url);
+	});
+
+	//如果只有一条记录，默认打开详细框
+	if($("tbody.tbody tr").length == 1){
+		$("tbody.tbody tr").click();
+	}
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}
+	if($("#oaid").val() != ''){
+		$("#oaid").focus().select();
+	}
+	$("#oaid").click(function(){
+		$(this).select();
+	})
+})
+
+function showDetail(url){
+	$("#order-detail-iframe").attr("src",url);
+}
+
+function getVariationListHtml(data_list,sku){
+	var dd='<tr control="no_onclick" id="sku_'+sku+'_variations"><td colspan="4"><table class="table-condensed" style="width:100%;"><tr><td width="80px"><input type="checkbox" style="width:20px;" class="input-sm " onclick="selectVariationsAll(this,\''+sku+'\')">全选</td><th>变体</th><th>销量</th></tr>';
+	for (var i = 0; i < data_list.length; i++) {
+		dd=dd+'<tr><td width="80px" class="sku_name"><input type="checkbox" onclick="showVariationsDetail(\''+sku+'\')" style="width:20px;" class="input-sm sku_value_'+sku+'" value="'+data_list[i]['variation']+'"></td><td >'+data_list[i]['variation']+'</td><td width="50px">'+data_list[i]['variation_quantity_counts']+'</td></tr>';
+	};				
+	dd=dd+'</table></td></tr>';
+	return dd;
+}
+
+function selectVariationsAll(obj,sku){
+	var p_obj = $(obj).parent().parent().parent();
+
+	if($(obj).prop("checked")){
+		var select_type = 1;
+	}else{
+		var select_type = 0;
+	}
+	var obj_list = p_obj.find("input");
+	for (var i = 0; i < obj_list.length; i++) {
+		if(select_type){
+			obj_list.eq(i).prop("checked",true);
+		}else{
+			obj_list.eq(i).prop("checked",false);
+		}
+	}
+	showVariationsDetail(sku);
+}
+
+function showVariationsDetail(sku){
+	var obj=$('#sku_'+sku+'_variations table input');
+	var variation_list="";
+	for (var i = 0; i < obj.length; i++) {
+		if(obj.eq(i).prop('checked')==true){
+			variation_list+=( "&variations[]="+obj.eq(i).val() );
+		}
+	};
+	//订单时间
+	var order_time=$("#order_time").val();
+	if(variation_list!=""){
+		//+"&order_time=" + order_time 
+		var url="{:U('OrderStatistics/detail')}?sku=" + sku + variation_list+ "&_"+  Math.round(new Date().getTime()/1000);	
+		showDetail(url);	
+	}else{
+		return;
+	}
+}
+
+
+// --></mce:script>
+</script>

@@ -1,0 +1,316 @@
+<style type="text/css">
+.online_product_td_div {
+	height: 80px;
+	max-height: 80px;
+	width: 100%;
+}
+</style>
+<div class="message-container" style="width:100%;overflow:scroll;">
+	<table class="table table-striped table-hover">
+		
+			<include file="Layout:title_v2"/>
+			
+			<tbody class="tbody">
+				<?php 
+					//判断是否需要默认显示图片
+					if(count($list)<=100){
+						$thumbnail_show=true;
+					}else{
+						$thumbnail_show=false;
+					}
+				?>
+			<empty name="list">
+				<tr>
+					<td colspan="17" class="text-center" style="font-size:20px;">
+						<b>无订单数据，请尝试搜索或筛选</b>
+					</td>
+				</tr>
+			</empty>
+			<volist name="list" id="vo">
+				
+				<tr id="tr_{$vo.id}" data-id="{$vo.id}" class="<notempty name="vo.related_order_auto_id">danger .table-hover</notempty> showDetail" >
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							<notempty name="vo.related_order_auto_id"><b style="color:red;">合并{$vo.related_order_num}</b></notempty>
+							<br>
+							{$vo.id}
+						</label>
+						<br>
+						<a data-id="{$vo.id}" data-reload="1" class="showDetail btn btn-link">刷新详细</a>
+						
+						<eq name="vo.fulfill_by" value="Amazon">
+							<neq name="vo.account_id" value="101">
+								<a data-id="{$vo.id}" class="addManualOrder btn btn-link">申请手工订单</a>
+							</neq>
+						</eq>
+
+						<if condition=" isAdmin() ">
+							<br>
+							<a data-url="{:U('V2OrderDetail/addManualOrderView')}?order_auto_id={$vo.id}" class="showBox btn btn-link">编辑(admin)</a>
+						</if>
+					</td>
+					<td style="max-width:120px;word-break:break-all;">
+						{$vo.online_order_id}
+						<!-- <a href="{$vo.order_link}" target="_blank" title="{$vo.order_link}"></a> -->
+					</td>
+					<td style="width:80px;">
+						{$vo.order_time|date="y-m-d<bR>H:i:s",###}
+						<!-- <notempty name="vo.overtime_day">
+							<br>
+							<br>
+							<b class='red'>超时{$vo['overtime_day']}天</b>
+						</notempty> -->
+						<notempty name="vo.order_waiting_time">
+							<br>
+							<br>
+							经过<b class='red'>{$vo['order_waiting_time']}</b>
+						</notempty>
+
+					</td>
+					<td style="width:200px;">
+						<volist name="vo.online_product_data_list" id="p_data">
+							<div class="online_product_td_div">
+								<div class="pull-left" style="width:60px;">
+									<a href="{$p_data.thumbnail}" class="thumbnail" target="_blank">
+										<img src="<?php if($thumbnail_show){echo $p_data['thumbnail'];}?>" data-src="{$p_data.thumbnail}" width="60" />
+									</a>
+								</div>
+								<div class="pull-left" style="word-break:break-all;max-width:100px;margin-left:5px;">
+									{$p_data.online_sku}
+								</div>
+							</div>
+							<?php if($key+1 != count($vo['online_product_data_list'])){ echo '<hr>';} ?>
+						</volist>
+					</td>
+					<td>
+						{$vo.manual_process_status|L}
+
+						<notempty name="vo.disabled_status">
+							<br>
+							<br>
+							<br>
+							{$vo.disabled_status|L}
+						</notempty>
+
+						<eq name="vo.is_false_order" value="Yes">
+							<br>
+							<br>
+							<b class="red">刷单订单</b>
+						</eq>
+					</td>
+					<td>
+						<volist name="vo.local_status_data" id="local_status">
+							{$local_status|L}<br>
+						</volist>
+	
+						<notempty name="vo.have_returned">
+							<br>
+							<br>
+							存在退货
+						</notempty>
+						
+					</td>
+					<!-- <td>
+						{$vo.local_flag_name}
+					</td> -->
+					<td>
+						<span class="V2EditMemo" data-field="local_memo" data-table-name="v2_order_detail" data-field-value="{$vo.id}"><pre>{$vo.local_memo}</pre></span>
+
+						<eq name="vo.has_product_online_memo" value="Yes">
+							<br>
+							<br>
+							<span class="label label-danger arrowed">有线上备注</span>
+						</eq>
+					</td>
+					<td>
+						<volist name="vo.online_product_data_list" id="online_product">
+							<div class="online_product_td_div">
+								{$online_product.online_payment_status|L}
+							</div>
+							<?php if($key+1 != count($vo['online_product_data_list'])){ echo '<hr>';} ?>
+						</volist>
+					</td>
+					<td>
+						<volist name="vo.online_product_data_list" id="online_product">
+							<div class="online_product_td_div">
+								{$online_product.online_shipping_status|L}
+							</div>
+							<?php if($key+1 != count($vo['online_product_data_list'])){ echo '<hr>';} ?>
+						</volist>
+						{$vo.fulfill_by}
+					</td>
+					<td>{$vo.quantity_total}</td>
+					<td style="min-width:100px;max-width:150px;word-break:break-all;">
+						{$vo.online_shipping_first_name}{$vo.online_shipping_last_name}
+					</td>		 
+					<td>
+						{$vo.local_shipping_country}<br>
+						{$vo.country_data.name_cn} ({$vo.local_country_code})
+					</td>
+					<td>{$vo.account_data.show_name}</td>
+					<td>{$vo.account_data.website}</td>
+					<td>{$vo.currency_symbol}{$vo.price_total}</td>
+					<td>{$vo.currency_symbol}{$vo.shipping_fee_total}</td>
+					<td>{$vo.currency_symbol}{$vo.estimate_total}</td>
+				</tr>
+				<notempty name="vo.is_last_related">
+					<tr>
+						<td colspan="17" style="height:8px;padding:0px;"></td>
+					</tr>
+				</notempty>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+
+</div>
+</form>
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+
+<script type="text/javascript">
+var click_list = [];
+var showDetail_id = 0;
+
+$(function($){
+	$(".showDetail").click(function(){
+		var id = $(this).data("id");
+		var reload = $(this).data("reload");
+		showDetail(id,reload);
+	});
+
+	$("tbody.tbody tr").click(function(){
+
+	});
+
+	//如果只有一条记录，默认打开详细框
+	if($("tbody.tbody tr").length == 1){
+		$(".showDetail").eq(0).click();
+	}
+	
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}
+
+	$("input").change(function(){
+		$(this).val($.trim($(this).val()));
+	});
+
+	//4连击打开详情
+	// $("tbody.tbody tr").click(function(){
+	// 	var now_time = new Date().getTime();
+	// 	var id = $(this).find("input[name='id[]']").val();
+	// 	var tmp = click_list[id];
+	// 	var new_count = 1;
+	// 	if(!tmp){
+	// 		click_list[id]={count:new_count,last_time:now_time};
+	// 	}else{
+	// 		last_time = tmp.last_time;
+	// 		if(now_time-last_time > 200 || now_time-last_time <= 0){
+	// 			click_list[id]={count:new_count,last_time:now_time};//重置
+	// 		}else{
+	// 			new_count = tmp['count'] + 1;
+	// 			if(new_count>=4){
+	// 				showBox(false,"{:U("V2OrderDetail/detail")}?id="+id);
+	// 				new_count = 1;
+	// 			}
+	// 			click_list[id]={count:new_count,last_time:now_time};//重置
+	// 		}
+
+	// 	}
+	// });
+
+
+	//显示图片
+	$("#toggleImage").click(function(){
+		if($(".thumbnail img").attr("src") == ''){
+			$(this).html("隐藏图片");
+			$(".thumbnail img").each(function(k,v){ 
+				$(v).attr("src",$(v).data("src"));
+			})
+		}else{
+			$(this).html("显示图片");
+			$(".thumbnail img").attr("src",'');
+		}
+	});
+
+	$(".autoProcess").click(function(){
+		var id = $(this).data("id");
+		if(!id){
+			alertWarning("系统错误，请联系技术人员");
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('orderAutoProcess')}",{id:id},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				showDetail(id,1);
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	})
+
+	$(document).ready(function(){
+        if($(".message-container table tr").length == 2){
+            $("#id-toggle-all").click();
+        }
+    })
+    
+	//输入框显蓝字
+	$(':input[type="text"]').each(function(i){
+		$(this).css({color:"blue"});
+	});
+
+	$(".addManualOrder").click(function(){
+		var id = $(this).data("id");
+		if(!id){
+			alertWarning("参数错误");
+			return false;
+		}
+		
+		var title = "申请复制创建手工订单:"+id;
+        var param_data = {id:id};
+        var form_data = {
+            title:title,
+            content: '<a href="{:U('V2OrderDetail/index')}?order_auto_id='+id+'" class="btn btn-primary" target="_blank">查看订单</a>',
+            thumbnail:'',
+            audit_action_id:25,
+            param_json:$.param(param_data),
+        };
+
+        showBox();
+        tmpSendForm("{:U('V2AuditFlow/addView')}",form_data,"middleBoxIframe");
+
+	});
+});
+
+function showDetail(id,reload){
+	if(!id){
+		return false;
+	}
+	if(showDetail_id != id  || reload){
+		$("tbody.tbody tr").removeClass("success");
+		$("#tr_"+id).addClass("success");
+
+		showBottomBox("{:U('V2OrderDetail/detail')}?id=" + id);
+
+		showDetail_id = id;
+	}
+	
+}
+</script>

@@ -1,0 +1,86 @@
+<layout name='Layout/ace_popup' />
+	<form action="{:U('save')}" method="POST" name="productForm" id="productForm" class="well form-horizontal clearfix">
+		<input type="hidden" name="id" value="{$data.id}">
+		<input type="hidden" id="order_auto_id" name="order_auto_id" value="{$data.order_auto_id}" >
+		<input type="hidden" name="opmode" value="{$data.opmode}" >
+		<input type="hidden" name="memo" value="{$data.memo}">
+		<div class="form-group">
+			<label class="control-label" for="productForm_product_name">标题</label>
+			<input class="form-control" type="text" id="productForm_product_name" name="product_name" value="{$data.product_name}">
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="productForm_sku">SKU</label>
+			<input class="form-control" type="text" id="productForm_sku" name="sku" value="{$data.sku}">
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="product_id">线上Product Id</label>
+			<input class="form-control" type="text" id="product_id" name="product_id" value="{$data.product_id}">
+		</div>		
+		<div class="form-group">
+			<label class="control-label" for="productForm_variation">规格</label>
+			<input class="form-control" type="text" id="productForm_variation" name="variation" value="{$data.variation}">
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="productForm_quantity">数量</label>
+			<input class="form-control" type="text" id="productForm_quantity" name="quantity" value="{$data.quantity}">
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="productForm_purchased_quantity">已采购数量</label>
+			<div >
+				<b>{$data.purchased_quantity}</b><br>
+				(已采购数量不能在这里修改。请核对 采购记录 或 使用库存记录，再按 <b>更新状态</b>)
+			</div>
+		<!-- 	<input class="form-control" type="text" id="productForm_purchased_quantity" name="purchased_quantity" value="{$data.purchased_quantity}"> -->
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="productForm_thumbnail">图片网址</label>
+			<input class="form-control" type="text" id="productForm_thumbnail" name="thumbnail" value="{$data.thumbnail}">
+			<br>
+			<a href="#" class="thumbnail col-xs-2"><img src="{$data.thumbnail}" width="60" /></a>
+		</div>
+		<div class="form-group">
+			<label class="control-label red" for="productForm_sku">本地状态</label>
+			<select name="local_state" class="form-control">
+				{$localStateSelect}
+			</select>
+		</div>
+		<div class="form-group text-center">
+			<input type="submit" id="productFormSubmit" data-loading-text="正在保存..."  class="btn btn-primary" value="保存" />
+			<a class="cancel_box btn btn-danger">取消</a>
+		</div>
+	</form>
+<script type="text/javascript">
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#editProductIframe").css("height",height);
+
+	$("#productFormSubmit").click(function(){
+		var data = $("#productForm").serialize();
+		var url = $("#productForm").attr("action");
+		$.post(url,data,function(r){
+			if(r.status){
+				//更新状态
+				var ids = $("#order_auto_id").val();
+				$.post("{:U('OrderDetail/updateOrderState')}",{ids:ids},function(msg){
+					parent.frames['order-detail-iframe'].location.reload(true);
+					parent.$("#editProduct").modal("hide");
+				}).error(function(){
+					parent.frames['order-detail-iframe'].location.reload(true);
+					parent.$("#editProduct").modal("hide");
+				})
+				
+
+			}
+		})
+		return false;
+	})
+
+	$(".cancel_box").click(function(){
+		parent.$("#editProduct").modal("hide");
+	});
+})
+</script>

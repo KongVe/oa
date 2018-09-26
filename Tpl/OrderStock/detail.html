@@ -1,0 +1,235 @@
+<layout name='Layout/ace_popup' />
+
+	<form action="" method="POST" name="dataForm" id="dataForm" class="well form-horizontal clearfix">
+
+
+		<input type="hidden" name="sku" value="{$Think.request.sku}" >
+
+		<!-- 所有相关绑定 -->
+		<volist name="Think.request.stock_bind_ids" id="sbi">
+			<input type="hidden" name="stock_bind_ids[]" value="{$sbi}" />
+		</volist>
+		<!-- 当前库存SKU的绑定 -->
+
+		<notempty name="Think.request.stock_bind_id">
+			<input type="hidden" name="stock_bind_id" value="{$_REQUEST['stock_bind_id']}" />
+		</notempty>
+		
+		<foreach name="Think.request.product_auto_id" item="pp_id">
+			<input type="hidden" name="product_auto_id[]" value="{$pp_id}" />
+		</foreach>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<input type="hidden" id="need_use_quantity" value="{$need_use_quantity}" />
+				使用库存 当前产品需要采购 <b>{$need_use_quantity} </b>件,已选取 <b id="show_total">0</b>件
+				<span class="col-sm-4 pull-right">
+					<input type="text" name="search_sku" id="search_sku" placeholder="搜索库存SKU" value="{$Think.request.search_sku}"/>
+					<a class="btn btn-primary btn-xs" onclick="searchStock(this)">搜索</a>
+				</span>
+
+			</div>
+		</div>
+		<div class="panel-body">
+			<div class="col-xs-12" style="font-size:18px;color:red;">
+				使用库存后，请到 <a href="{:U('v2_stock_warehouse_out_plan/index')}" class="btn btn-primary btn-sm" target="_blank">出库单页面</a> 建新系统对应库存数量的出库单
+			</div>
+			<foreach name="stockList" item="stock_data" key="k_sku">
+				<table class="table">
+					<tr>
+						<td><b>SKU:</b></td>
+						<td colspan="1">{$k_sku}</td>
+						<td>
+							<a href="{$stock_data[0].thumbnail}" target="_blank" class="thumbnail"><img src="{$stock_data[0].thumbnail}" width="80" /></a>
+						</td>
+					</tr>
+					<tr>
+						<td><b>需要的规格:</b></td>
+						<td colspan="2"><b class="red">
+							<?php
+								if($_REQUEST['variation']){
+									echo urldecode(urldecode(urldecode(urldecode($_REQUEST['variation']))));
+								}else{
+									echo "无";
+								}
+								
+							?>
+						</b></td>
+					</tr>
+					<tr>
+						<th style="width:220px">选择规格</th>
+						<th style="width:200px">货架位</th>
+						<th>库存数量</th>
+						<th>使用</th>
+					</tr>
+					<foreach name="stock_data" item="stock">
+						<tr id="tr_{$k_sku}_{$key}">
+							<td>
+								{$stock.variation}
+								<notempty name="stock.sku_product_data.id">
+									<span class="pull-right"><a href="{:U('V2SkuProduct/index')}?id={$stock.sku_id}" class="" target="_blank">{$stock.sku_product_data.sku}</a></span>
+								
+
+								</notempty>
+							</td>
+							<td>{$stock.place_name}</td>
+							<!-- <td>{$stock.place_quantity}</td>   -->
+							
+							<td>{$stock.place_quantity}</td>  
+							<td>
+								<!-- <a class="btn btn-primary btn-sm pull-left btn-use" data-key="{$key}" data-id="{$stock.id}">使用</a> -->
+								<a class="btn btn-primary btn-sm pull-left" data-key="{$key}" data-id="{$k_sku}_{$key}" onclick="changeQuantity(this,1)">+</a>
+								<input name="quantity[{$stock.id}][{$stock.place_id}]" id="quantity_{$k_sku}_{$key}" value="0" class="pull-left form-control input-purchase" data-bak="0" data-min="0" data-max="{$stock.place_quantity}" onchange="check_use_quantity(this);"/>
+								<a class="btn btn-danger btn-sm pull-left" data-key="{$key}" data-id="{$k_sku}_{$key}"  onclick="changeQuantity(this,false)">-</a>
+
+								<span class="pull-left span-purchase">&nbsp;件</span>
+
+							</td>
+						</tr>
+					</foreach>
+				</table>
+			</foreach>		
+		</div>
+		<div class="form-group text-center">
+			<a onclick='submitUseData()'   class="btn btn-primary" />提交</a>
+
+			<a onclick='cancel()'   class="btn btn-warning"  />关闭</a>
+		</div>
+	</form>
+
+
+<div class="thumbnailBox">
+	<a target="_blank" class="thumbnail"><img src="" width="200px"/></a>
+</div>
+
+
+<script type="text/javascript">
+
+	$(".thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top+50,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+
+function searchStock(obj){
+	var search_sku = $("#search_sku").val();
+	if(search_sku==undefined || !search_sku){
+		alertWarning("请输入SKU");
+		return false
+	}
+	$("#dataForm").attr("action","{:U('OrderStock/detail')}");
+	$("#dataForm").submit();
+}
+function changeQuantity(obj,type) {
+	var input_obj=$("#quantity_"+$(obj).data('id'));
+	var input_q = parseInt($(input_obj).val());
+	if(type){
+		//+
+		input_q += 1;
+		input_obj.val(input_q)
+	}else{
+		//-
+		input_q -= 1;
+		if(input_q>=0){
+			input_obj.val(input_q);
+		}
+	}
+	check_use_quantity(input_obj);
+}
+
+function check_use_quantity(obj){
+	var input_q = parseInt($(obj).val()),
+	max_q = parseInt($(obj).attr('data-max')),
+	min_q = parseInt($(obj).attr('data-min')),
+	bak_q = parseInt($(obj).attr('data-bak')),
+	need_use_quantity = parseInt($("#need_use_quantity").val()),
+	input_q_total = 0 ;
+	if(isNaN(input_q)){
+		input_q=0;
+	}
+	$(obj).val(input_q);
+	if(input_q > max_q){
+		alertWarning("该货架位数量不足");
+		$(obj).val(bak_q);
+		return false
+	}
+	if(input_q < min_q){
+		alertWarning("请输入正确的数量");
+		$(obj).val(bak_q);
+		return false
+	}
+	var input_q_objs=$('.input-purchase');
+	for (var i = 0; i < input_q_objs.length; i++) {
+		input_q_total += parseInt(input_q_objs.eq(i).val());
+	};
+	if(input_q_total > need_use_quantity){
+		alertWarning("使用库存的总和大于当前需要使用库存的数量");
+		$(obj).val(bak_q);
+		return false
+	}
+	$("#show_total").html(input_q_total);
+	$(obj).attr("data-bak",input_q);
+}
+
+function submitUseData(){
+	if(parseInt($("#show_total").html()) == 0){
+		alertWarning("当前选择库存数量为0");
+		return false
+	}
+	if(!confirm("确认提交？")){
+		return false
+	}
+	$.post("{:U('OrderStock/useStock')}",$("#dataForm").serialize(),function(msg){
+		if(msg.status){
+			parent.frames['purchase-detail-iframe'].location.reload(true);
+			parent.$("#bottomBox").modal("hide");
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alertWarning("网络错误，请重试");
+	})
+}
+function cancel(){
+	// parent.frames['purchase-detail-iframe'].location.reload(true);
+	parent.$("#bottomBox").modal("hide");
+	return false;
+}
+
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#bottomBoxIframe").css("height",height);
+
+	$(".btn-use").click(function(){
+		obj = $(this);
+		var stock_id = obj.data("id"),
+			quantity = $("#quantity_" + stock_id).val(),
+			product_id = $("input[name='product_auto_id[]']").serialize(),
+			key = obj.data("key"),
+			data = "stock_id=" + stock_id + "&quantity=" + quantity + "&" + product_id;
+
+			data += ("&"+$("#tr_"+key+" input").serialize());
+			
+		$.post("{:U('OrderStock/useStock')}",data,function(r){
+			if(r.status){
+				obj.hide();
+			}else{
+				alert(r.info);
+			}
+		})
+
+	});
+})
+</script>

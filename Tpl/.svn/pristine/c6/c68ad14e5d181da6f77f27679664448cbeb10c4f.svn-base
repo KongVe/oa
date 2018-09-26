@@ -1,0 +1,12 @@
+<script type="text/javascript">
+	jQuery(function($){
+		
+		$("#main_thumbnail").change(function(r){
+			var src=$("#main_thumbnail").val();
+			$('#thumbnail_show').attr('href',src);
+			$('#thumbnail_show img').attr('src',src);
+		});
+
+		
+	})
+</script>

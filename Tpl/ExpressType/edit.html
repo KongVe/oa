@@ -1,0 +1,73 @@
+<layout name='Layout/ace_layout' />
+{:W('PageHeader',array('name'=>'编辑物流方式'))}
+
+<form method='post' id="form_data" name="form_data" enctype="multipart/form-data"   class="well form-horizontal">
+	<input type="hidden" id="ajax" name="ajax" value="0">
+	<input type="hidden" id="type" name="type" value="{$type}">
+	<input type="hidden" id="folder" name="folder" value="{$folder}">
+	<input type="hidden" id="fid" name="fid" value="{$folder}">
+	<if condition="$_REQUEST['id'] neq ''">
+		<input type="hidden" id="id" name="id" value="{$vo.id}">
+		<input type="hidden" id="opmode" name="opmode" value="edit">
+	<else/>
+		<input type="hidden" id="opmode" name="opmode" value="add">
+	</if>
+
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-3 control-label" for="express_type" >英文简称：</label>
+			<div class="col-sm-9">
+				<input class="form-control" type="text" id="express_type" name="express_type" value="{$vo.express_type}"  check="require" msg="请输入英文简称 如 CRI" placeholder="英文简称">
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-3 control-label" for="express_name" >中文名称：</label>
+			<div class="col-sm-9">
+				<input class="form-control" type="text" id="express_name" name="express_name" value="{$vo.express_name}"  check="require" msg="请输入中文名称" placeholder="中文名称">
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group col-sm-12">
+		<div class="form-group col-sm-6">
+			<label class="col-sm-3 control-label" for="forwarder_id" >承运商：</label>
+			<div class="col-sm-9">
+				<include 	file="ExpressForwarder:selectforwarderid" />
+		
+			</div>
+		</div>
+	</div>
+
+	<div class="action">
+		<if condition="$_REQUEST['id'] neq ''">
+			<input class="btn btn-sm btn-primary" type="button" value="保存" onclick="save();">
+		<else/>
+			<input class="btn btn-sm btn-primary" type="button" value="创建" onclick="save();">
+		</if>
+		
+		<input class="btn btn-sm btn-default" type="button" value="关闭" onclick="window.close();">
+	</div>
+</form>
+
+<script type="text/javascript">
+	function save() {
+		if($("#forwarder_id").val()==""){
+			alertWarning("请选择承运商");
+			return;
+		}
+		$("#ajax").val(1);
+		//editor.sync();
+		if (check_form("form_data")) {
+			sendForm("form_data", "{:U('Save')}",'',function(msg){
+				alert(msg.info);
+				if(msg.status){
+					window.opener=null;window.open('','_self');window.close();
+				}
+			});
+		}
+	}
+
+</script>

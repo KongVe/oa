@@ -1,0 +1,65 @@
+<layout name='Layout/ace_layout' />
+{$alert}
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="purchase" value="selected" />
+	<foreach name="Think.post.order_auto_id" item="id">
+		<input name="order_auto_id[]" type="hidden" value="{$id}" />
+	</foreach>
+<div class="page-header clearfix">
+	<h1 class="col-sm-5">{$_GET['year']}年{$_GET['month']}月 用户:{$user_info['emp_name']} 销售数据(正在开发)</h1>
+	<div class="col-sm-5 pull-right">
+		<div class="input-group">
+			
+		</div>
+	</div>
+	
+</div>	
+<div class="message-container">
+	<table class="table table-hover table-bordered">
+			<tr>
+				<!-- <th style="width:90px;">订单ID</th> -->
+				<th>SKU</th>
+				<th>图片</th>
+				<th>标题</th>
+				<th>数量</th>
+				<th>总标价</th>
+				<th>总运费</th>
+				<!-- <th>下单时间</th> -->
+				<!-- <th>国际运费</th>
+				<th>拿货价</th> -->
+
+				<th>操作</th>
+			</tr>
+			<tbody class="tbody">
+			<volist name="list" id="info">
+				<tr id="tr_{$key}">
+					<!-- <td>
+						<input type="hidden" name="tr_key" value="{$key}" />
+						<foreach name="info.product_auto_id" item="pai" >
+							<input type="hidden" name="id[]" value="{$pai}"  />
+						</foreach>
+						<a href="{$info.thumbnail}" target="_blank" class="thumbnail"><img src="{$info.thumbnail}" width="60" /></a>
+					</td> -->
+					<!-- <td>{$info.order_auto_id}</td> -->
+					<td>{$info.original_sku}</td>
+					<td><a href="{$info.thumbnail}" class="thumbnail" target="_blank"><img src="{$info.thumbnail}" width="60" /></a></td>
+					<td>{$info.product_name}</td>
+					<td>{$info.sku_quantity}</td>
+					<!-- <td>{$info.local_state}</td> -->
+					<!-- <td>{$info.product_state}</td> -->
+					<td>{$info.sku_price}</td>
+					<td>{$info.sku_shipping_fee}</td>
+					<!-- <td>{$info.order_time|date="y-m-d H:i",###}</td> -->
+					<td>
+						<!-- <a href="{:U( 'detail?year='.$info['Year'].'&month='.$info['Month'] )}" target="_blank">查看详情</a> -->
+					</td>
+				</tr>
+			</volist>
+
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>

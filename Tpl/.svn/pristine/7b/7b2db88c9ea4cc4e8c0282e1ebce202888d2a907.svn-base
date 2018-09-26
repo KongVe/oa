@@ -1,0 +1,114 @@
+
+<div class="form-group col-sm-12">
+	<label class="col-sm-2 control-label">
+		动作要求：
+	</label>
+	<div class="col-sm-10">
+		<pre>{$vo.task_require}</pre>
+	</div>
+</div>
+
+
+<div class="form-group col-sm-12">
+	<label class="col-sm-2 control-label">
+		相关图片：
+	</label>
+	<div class="col-sm-10">
+		<div class="col-sm-6">
+	        <?php for($key=0; $key<10; $key++){ ?>
+	        	<notempty name="vo['require_images'][$key]">
+					<div class="col-sm-4">
+		                <a href="{$vo.require_images.$key}" class="thumbnail" target="_blank" style="height:100px;"><img src="<?php echo $vo['require_images'][$key]; ?>"  style="height:100px;"/></a>
+		            </div>
+		        </notempty>
+
+	        <?php } ?>
+
+	    </div>
+	</div>
+</div>
+
+
+<div class="form-group col-sm-12">
+	
+	<hr>
+	<hr>
+
+	<label class="col-sm-2 control-label">
+		完成反馈内容：
+	</label>
+	<div class="col-sm-10">
+		<pre>{$vo.task_feedback}</pre>
+	</div>
+</div>
+
+
+<div class="form-group col-sm-12">
+	<label class="col-sm-2 control-label">
+		反馈相关图片：
+	</label>
+	<div class="col-sm-10">
+		<div class="col-sm-6">
+	        <?php for($key=0; $key<10; $key++){ ?>
+	        	<notempty name="vo['feedback_images'][$key]">
+					<div class="col-sm-4">
+		                <a href="{$vo.feedback_images.$key}" class="thumbnail" target="_blank" style="height:100px;"><img src="<?php echo $vo['feedback_images'][$key]; ?>"  style="height:100px;"/></a>
+		            </div>
+		        </notempty>
+
+	        <?php } ?>
+
+	    </div>
+	</div>
+</div>
+
+
+
+<div class="form-group col-sm-12">
+	
+	<hr>
+	<hr>
+
+	<label class="col-sm-2 control-label">
+		完成反馈内容：
+	</label>
+	<div class="col-sm-10">
+		<pre>{$vo.task_review}</pre>
+	</div>
+</div>
+
+
+<div class="form-group col-sm-12">
+	<label class="col-sm-2 control-label">
+		反馈相关图片：
+	</label>
+	<div class="col-sm-10">
+		<div class="col-sm-6">
+	        <?php for($key=0; $key<10; $key++){ ?>
+	        	<notempty name="vo['review_images'][$key]">
+					<div class="col-sm-4">
+		                <a href="{$vo.review_images.$key}" class="thumbnail" target="_blank" style="height:100px;"><img src="<?php echo $vo['review_images'][$key]; ?>"  style="height:100px;"/></a>
+		            </div>
+		        </notempty>
+
+	        <?php } ?>
+
+	    </div>
+	</div>
+</div>
+
+
+<script type="text/javascript">
+
+
+$(".thumbnail_clipboard").click(function(){
+	$(this).parents('.reason_pictures_wrap').next().removeClass("hidden");
+});
+
+$(function(){
+	if($("input.thumbnail_clipboard").length > 0){
+		downloadThumbnailClipboard();
+	}
+});
+
+</script>

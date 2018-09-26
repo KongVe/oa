@@ -1,0 +1,386 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" action="{:U()}" id="form_search" method="post" class="form-inline">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">{$title}</h1>
+	<div class="col-sm-10">
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					添加时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}" placeholder="添加时间">
+			</div>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					采购时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="purchase_time" id="purchase_time" value="{$Think.request.purchase_time}" placeholder="采购时间">
+			</div>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					入库时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="instock_time" id="instock_time" value="{$Think.request.instock_time}" placeholder="入库时间">
+			</div>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					关闭时间
+				</span>
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="cancel_time" id="cancel_time" value="{$Think.request.cancel_time}" placeholder="关闭时间">
+			</div>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					添加用户
+				</span>
+				<select name="add_uid[]" id="add_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+					<option value="">选择用户</option>
+					<volist name="user_list" id="user">
+						<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['add_uid'])){echo 'selected="selected"';} ?> >{$user.show_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					采购用户
+				</span>
+				<select name="purchase_uid[]" id="purchase_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+					<option value="">选择用户</option>
+					<volist name="user_list" id="user">
+						<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['purchase_uid'])){echo 'selected="selected"';} ?> >{$user.show_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					入库用户
+				</span>
+				<select name="instock_uid[]" id="instock_uid" size="1" multiple="multiple" style="width:100%;" placeholder="选择用户">
+					<option value="">选择用户</option>
+					<volist name="user_list" id="user">
+						<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['instock_uid'])){echo 'selected="selected"';} ?> >{$user.show_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group col-xs-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					关闭用户
+				</span>
+				<select name="cancel_uid[]" id="cancel_uid" size="1" multiple="multiple"  style="width:100%;" placeholder="选择用户">
+					<option value="">选择用户</option>
+					<volist name="user_list" id="user">
+						<option value="{$user.id}" <?php if(in_array($user['id'], $_REQUEST['cancel_uid'])){echo 'selected="selected"';} ?> >{$user.show_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group col-sm-3">
+			<div class="input-group">
+				<span class="input-group-addon">
+					计划序号
+				</span>
+				<input class="form-control" type="text" id="id" name="ids" value="{$Think.request.ids}"  placeholder="计划序号, 英文逗号分隔" />
+			</div>
+		</div>
+		<div class="input-group col-sm-3">
+			<div class="input-group">
+				<input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="规格SKU，SKU名称"/>
+				<span class="input-group-btn">
+					<button class="btn btn-sm btn-info" type="submit" title="搜索"> <i class="bigger-135 icon-search"></i> </button>
+				</span>
+			</div>
+		</div>
+	</div>
+</div>	
+
+
+
+<div class="message-container" id="container_table" style="width:100%;overflow:scroll;">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="btn-group col-sm-2">
+				<a data-url="{:U('edit')}" class="showBox btn btn-primary">添加计划</a>
+			</div>
+
+			<div class="btn-group col-sm-2">
+				<a class="purchaseByPlanIds btn btn-inverse">采购选中</a>
+			</div>
+
+
+			<div class="btn-group col-sm-3">
+				<label>
+					<input type="checkbox" class="ace input-lg click_submit_form" name="is_cancel" value="1" <notempty name="Think.request.is_cancel">checked="checked"</notempty> />
+					<span class="lbl">
+						包含已关闭
+					</span>
+				<label>
+			</div>
+		</div>
+	</div>
+
+	<table class="table table-hover table-bordered">
+
+		<include file="Layout:title_v2"/>
+		
+		<tbody class="tbody">
+		<volist name="list" id="vo">
+			<tr id="tr_{$vo.id}" >
+				<td  >
+					<label class="inline pull-left">
+						<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+						<span class="lbl"></span>
+						{$vo.id}
+					</label>
+				</td>
+				<td >
+					<a href="{$vo.thumbnail}" class="thumbnail" target="_blank"><img src="{$vo.thumbnail}" data-src="{$vo.thumbnail}" width="60" /></a>
+					<a href="{:U('V2SkuProduct/index')}?id={$vo.sku_id}" target="_blank">{$vo.sku}</a>
+				</td>
+				<td >
+					{$vo.sku_name}
+				</td>
+				<td >
+					{$vo.warehouse_name}
+				</td>
+				<td >
+					{$vo.purchase_source|L}
+				</td>
+				<td >
+					<b>{$vo.purchase_state|L}</b>
+					<eq name="vo.is_cancel" value="Yes">
+						<br>
+						<b>(已关闭)</b>
+					</eq>
+					<?php
+						if(in_array($vo['purchase_state'], array('Partial purchasing','Purchasing','Instock'))){
+					?>
+						<br>
+						<a href="{:U('V2PurchaseDetail/index')}?id={$vo.detail_id_list|implode=",",###}" target="_blank" class="btn btn-info btn-xs">查看采购批次</a>
+					<?php
+						}
+					?>
+					<br>
+					<br>
+					{$vo.review_state|L}
+				</td>
+				<td >
+					<eq name="vo.instock_state" value="Instock">
+						<b>{$vo.instock_state|L}</b>
+					<else/>
+						{$vo.instock_state|L}
+					</eq>
+				</td>
+				<td >
+					{$vo.plan_quantity}
+				</td>
+				<td >
+					{$vo.purchasing_quantity}
+				</td>
+				<td >
+					{$vo.instock_quantity|default="未入库"}
+				</td>
+				<td >
+					{$vo.add_user_name}
+					<br>
+					{$vo.add_time|default=""|date="y-m-d H:i",###}
+				</td>
+				
+				<td >
+					{$vo.purchase_user_name|default="未采购"}
+					<br>
+					{$vo.purchase_time|default=""|date="y-m-d H:i",###}
+				</td>
+				
+				
+				<td >
+					{$vo.instock_user_name|default="未入库"}
+					<br>
+					{$vo.instock_time|default=""|date="y-m-d H:i",###}
+				</td>
+				<td >
+					{$vo.cancel_user_name|default="无"}
+					<br>
+					{$vo.cancel_time|default=""|date="y-m-d H:i",###}
+				</td>
+				<td >
+					<span class="V2EditMemo" data-field="memo" data-table-name="v2_purchase_plan" data-field-value="{$vo.id}"><pre>{$vo.memo}</pre></span>
+				</td>
+
+				<td>
+					<a data-url="{:U('viewMapDetail')}?id={$vo.id}" class="showBox btn btn-success btn-sm">详情</a>
+					<br>
+
+					<?php
+						if( $_SESSION['authId']==$vo['add_uid'] || isAdmin("61")){
+					?>
+						<eq name="vo.is_cancel" value="No">
+							
+							<?php
+								if(in_array($vo['purchase_state'], array("Waiting purchase"))){
+							?>
+								<a data-url="{:U('edit')}?id={$vo.id}" class="showBox btn btn-primary btn-sm">修改</a>
+								<!-- <a class="del_plan btn btn-warning btn-sm" data-id="{$vo.id}">删除</a> -->
+								<br>
+							<?php
+								}
+							?>
+								
+							<?php
+								if(in_array($vo['purchase_state'], array('Waiting purchase','Purchasing','Partial purchasing')) ){
+							?>
+								<a class="cancel_plan btn btn-danger btn-sm" data-id="{$vo.id}">关闭</a>
+							<?php
+								}
+							?>
+							
+						<else/>
+							<b>已关闭</b>
+						</eq>
+
+						<a data-url="{:U('OperateLog/view')}?id={$vo.id}&table_name=v2_purchase_plan" class="showBox btn btn-info btn-sm">日志</a>
+					<?php
+						}
+					?>
+				</td>
+			</tr>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+
+</form>
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+<script type="text/javascript">
+$(function($){
+	$("#add_uid").select2();
+	$("#purchase_uid").select2();
+	$("#instock_uid").select2();
+	$("#cancel_uid").select2();
+
+	$(".del_plan").click(function(){
+		var id = $(this).attr("data-id");
+		if(!id){
+			return false;
+		}
+	
+		if(!confirm("确认删除？将不可恢复")){
+			return false;
+		}
+
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('del')}",{id:id,opmode:'del'},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	
+	});
+
+	$(".cancel_plan").click(function(){
+		var id = $(this).attr("data-id");
+		if(!id){
+			return false;
+		}
+		if(!confirm("确认关闭该采购计划？将不能执行新的采购。采购中 和 已入库 的数量不受影响。")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('cancelPlan')}",{id:id,opmode:'edit'},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".stockout").click(function(){
+		var id = $(this).attr("data-id");
+		if(!id){
+			return false;
+		}
+		if(!confirm("请确认该采购计划中的没有采购到一件。确认断货操作？")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('stockout')}",{id:id,opmode:'edit'},function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".purchaseByPlanIds").click(function(){
+		// var data = $("input[name^='id[]']").serialize();
+		// if(!data){
+		// 	alertWarning("请选择采购计划");
+
+		// 	return false;
+		// }
+
+		var data = "";
+		var list = $("input[name^='id[]']");
+		for (var i = 0; i < list.length; i++) {
+			if(list.eq(i).prop("checked")){
+				data += ("&ids[]="+list.eq(i).val());
+			}
+		};
+		tmpSendForm("{:U('waitingPurchaseList')}",data);
+		
+	});
+});
+
+</script>

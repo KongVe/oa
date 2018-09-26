@@ -1,0 +1,50 @@
+<layout name='Layout/ace_popup_v2' />
+	<form action="{:U('save')}" method="POST" name="editForm" id="editForm" class="well form-horizontal clearfix" role="form">
+		<div class="form-group col-sm-12">
+			<label class="col-xs-1" for="asin">ASIN</label> 
+			<input class="col-xs-6" type="text" id="asin" name="asin" value="{$vo.asin}">
+		</div>
+		<div class="form-group col-sm-12">
+			<label class="col-xs-1" for="asin">website</label> 
+			<select name="website" id="website">
+				<volist name="website_list" id="website">
+					<option value="{$website}">{$website}</option>
+				</volist>
+			</select>
+		</div>
+		<div class="form-group col-sm-12 text-center">
+			<input type="submit" id="editFormSubmit" data-loading-text="正在保存..."  class="btn btn-primary" value="保存" />
+		</div>
+	</form>
+
+<script type="text/javascript">
+$(function(){
+	/*maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#middleBoxIframe").css("height",height);*/
+
+
+
+
+	$("#editFormSubmit").click(function(){
+		$("#editFormSubmit").attr("disabled","disabled");
+		var data = $("#editForm").serialize();
+		var url = $("#editForm").attr("action");
+		$.post(url,data,function(r){
+			$("#editFormSubmit").attr("disabled",null);
+			if(r.status){
+				parent.$("#form_search").submit();
+			}else{
+				alertWarning(r.info);
+				return false;
+			}
+		})
+		return false;
+	})
+})
+
+
+</script>

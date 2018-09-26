@@ -1,0 +1,131 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo intval(!$sort); ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+<div class="page-header clearfix">
+	<h1 class="col-sm-2">Recommendaton Inventory</h1>
+	<div class="col-sm-10 pull-right">				
+			<div class="form-group col-sm-1 pull-left">
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="LastUpdated" id="LastUpdated" value="{$Think.request.LastUpdated}"    readonly="readonly" placeholder="LastUpdated">
+			</div>		
+			<div class="input-group col-sm-3">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="请输入搜索内容"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div>
+	</div>
+</div>
+<script type="text/javascript">
+   /*
+    * 请修改下面js对象的内容以完成定制
+    * 内容：请定制为需要提醒用户的内容,
+    * 时间：请定制为事件发生的时间，格式为：年-月-日 时:分 
+    * advance：请定制为需要提前提醒用户的时间，0为准时提醒
+    * url： 请定制为提醒用户访问的url链接
+    * icon： 生成的icon的大小，可选值为1，2，3，尺寸分别为90*24，63*24，50*16
+    * 注意：如果不使用标准接口，而是按需要自己生成链接地址
+    * 请用encodeURIComponent对内容和时间进行编码。
+    */ 
+var __qqClockShare = {
+   content: "fffeqf",
+   time: "2016-8-23 9:00",
+   advance: 0,
+   url: "http://32323",
+   icon: "1_1"
+};
+document.write('<a href="http://qzs.qq.com/snsapp/app/bee/widget/open.htm#content=' + encodeURIComponent(__qqClockShare.content) +'&time=' + encodeURIComponent(__qqClockShare.time) +'&advance=' + __qqClockShare.advance +'&url=' + encodeURIComponent(__qqClockShare.url) + '" target="_blank"><img src="http://i.gtimg.cn/snsapp/app/bee/widget/img/' + __qqClockShare.icon + '.png" style="border:0px;"/></a>');
+
+</script>
+<div class="message-container">
+	<table class="table table-striped table-hover">
+		
+		 	<include file="Layout:title"/>
+			<tbody class="tbody">
+			<volist name="list" id="vo">
+				<tr>
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td>{$vo.account.show_name}</td>
+					<td>
+						<a href="{$vo.sellyours_link}" target="_blank">{$vo.ASIN}</a>
+						<br>
+						{$vo.SKU}
+					</td>	
+					<td><a href="{$vo.thumbnail}" target="_blank" class="thumbnail"><img src="{$vo.thumbnail}" width="60" /><br>
+					<a href="{$vo.product_link}" target="_blank" title="{$vo.ItemName}"><?php echo substr($vo['ItemName'], 0,10) . "..."; ?></a></a>
+					</td>
+					<td>{$vo.LastUpdated}</td>
+					<td>{$vo.RecommendationReason}</td>	
+					<td>{$vo.FulfillmentChannel}</td> 
+					<td>{$vo.DaysUntilStockRunsOut}</td>
+					<td>{$vo.SalesForTheLast14Days}</td>
+					<td>{$vo.SalesForTheLast30Days}</td> 
+					<td>{$vo.AvailableQuantity}</td>
+					<td>{$vo.InboundQuantity}</td>
+					<td>{$vo.DaysOutOfStockLast30Days}</td>
+					<td>{$vo.LostSalesInLast30Days}</td>			
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" height="300px" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<script type="text/javascript">
+jQuery(function($){
+	//close sidebar
+	//ace.settings.sidebar_collapsed(true);
+
+
+	$(".filter_checkbox").click(function(){
+		$("#form_search").submit();
+	})
+	$(".sort_button").click(function(){
+		$("#order").val($(this).attr("name"));
+		if($("#sort").val() == "1"){
+			$("#sort").val("0");
+		}else{
+			$("#sort").val("1");
+		}		
+		$("#form_search").submit();
+	})
+
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+
+
+	//如果有搜索值，默认全选了搜索值
+	if($("#q").val() != ''){
+		$("#q").focus().select();
+	}	
+})
+
+
+</script>

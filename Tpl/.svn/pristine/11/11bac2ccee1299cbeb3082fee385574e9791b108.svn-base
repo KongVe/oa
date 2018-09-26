@@ -1,0 +1,37 @@
+<div class="form-group">
+	<label class="control-label">下单时间</label><br/>
+	<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="param[order_time]" id="order_time" value="<?php if($_REQUEST['param']['order_time']){ echo $_REQUEST['param']['order_time'];}?>"  placeholder="下单时间">
+</div>
+<div class="form-group">
+	<label class="control-label">订单状态
+	</label>
+	<select name="param[order_state]" class="form-control">
+		<option value="all" selected="selected">All</option>
+		<option value="new_orders">New Orders</option>
+		<option value="cancelled">Cancelled</option>
+		<option value="processing_order">Processing Order</option>
+		<option value="shipped">Shipped</option><option value="refunded">Refunded</option>
+	</select>	
+</div>
+<?php
+	$accountInfo = M("OrderAccount")->find($_REQUEST['param']['account_id']);
+
+	$map = array(
+		'website'	=>	$accountInfo['website'],
+		'account'	=>	$accountInfo['account_name'],
+		'order_state'	=>	array('in',array('Waiting ship','Confirming money')),
+		'local_state'	=>	array('not in',array('End','Returned')),
+		);
+	$earliestOrder = M("OrderDetail")->where($map)->order("order_time asc")->find();
+
+	if($earliestOrder){
+		$beginTime = date('Y-m-d',$earliestOrder['order_time'] - 3600 * 24);	
+	}else{
+		$beginTime = date("Y-m-d",time()-3600*24);
+	}
+	
+
+ ?>
+<script type="text/javascript">
+	$("#order_time").val("<?php echo $beginTime . ' - ' . date('Y-m-d'); ?>");
+</script>

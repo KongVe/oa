@@ -1,0 +1,41 @@
+<layout name='Layout/ace_popup_v2' />
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			<b>ASIN Detail</b>
+		</div>
+		<div class="panel-body">
+			<table class="table table-striped table-hover">
+				<tr>
+					<td>ASIN</td>
+					<td>{$vo.asin}</td>
+					<td><a href="{$vo.thumbnail}" target="_blank" class="thumbnail">
+						<img src="{$vo.thumbnail}" width=100 />
+					</a></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			<b>Sales Tracking</b>
+		</div>
+		<div class="panel-body">
+			<table class="table table-striped table-hover">
+				<tr>
+					<td>Date</td>
+					<td>Inventory</td>
+					<td>Sold</td>
+				</tr>
+				<volist name="vo.inventory_tracker.graphData" id="data">
+					<tr>
+						<td>{$data.timestamp}</td>
+						<td>{$data.inventory}</td>
+						<td>{$data.sold}</td>
+					</tr>
+				</volist>
+			</table>
+		</div>
+	</div>
+<script type="text/javascript">
+
+</script>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>layuiAdmin std - 通用后台管理模板系统（iframe标准版）</title>
+  <meta name="renderer" content="webkit">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <link rel="stylesheet" href="__PUBLIC__/LayuiAdminCloud/layui/css/layui.css" media="all">
+  <link rel="stylesheet" href="__PUBLIC__/LayuiAdminCloud/css/admin.css" media="all">
+  
+  <script>
+  ///^http(s*):\/\//.test(location.href) || alert('请先部署到 localhost 下再访问');
+</script>
+</head>
+<body layadmin-themealias="default">
+ <div class="layui-fluid">
+  <div class="layui-card">
+    <div class="layui-card-header">{$title}</div>
+    <div class="layui-card-body" style="padding: 15px;">
+      <form class="layui-form" id="form1" action="" lay-filter="component-form-group">
+        <div class="layui-form-item">
+          <label class="layui-form-label">id</label>
+          <div class="layui-input-block">
+            <input type="text" name="id" lay-verify="title" placeholder="id" autocomplete="off" class="layui-input" >
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">uid</label>
+          <div class="layui-input-block">
+            <input type="text" name="add_uid" lay-verify="title" autocomplete="off" class="layui-input"  placeholder="uid">
+          </div>          
+        </div>
+        <div class="layui-form-item">
+
+          <label class="layui-form-label">分数</label>
+          <div class="layui-input-block">
+            <input type="text" name="standard_score" lay-verify="title" placeholder="分数"  class="layui-input"autocomplete="off">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">分数类型</label>
+          <div class="layui-input-block">
+            <input type="text" name="score_type" lay-verify="title" placeholder="分数类型"  class="layui-input"autocomplete="off">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">分类</label>
+          <div class="layui-input-block">
+            <input type="text" name="standard_category_id" lay-verify="title" placeholder="分类"  class="layui-input"autocomplete="off">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">创建时间</label>
+          <div class="layui-input-block">
+            <input type="text" name="add_time" lay-verify="title" placeholder="创建时间"  class="layui-input"autocomplete="off">
+          </div>
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">标题</label>
+          <div class="layui-input-block">
+            <input type="text" name="title" lay-verify="title" placeholder="标题"  class="layui-input"autocomplete="off">
+          </div>         
+        </div>
+        <div class="layui-form-item">
+          <label class="layui-form-label">内容</label>
+          <div class="layui-input-block">
+            <textarea class="layui-textarea" name="content" placeholder="内容" autocomplete="off"></textarea> 
+          </div>      
+        </div>
+        <div class="layui-form-item layui-layout-admin">
+          <div class="layui-input-block">
+            <div class="layui-footer" style="left: 0;">
+              <button class="layui-btn" lay-submit="" lay-filter="formDemo">立即提交</button>
+              <button lay-submit="" class="layui-btn layui-btn-primary" lay-filter="formReset">重置</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<script src="__PUBLIC__/LayuiAdminCloud/layui/layui.js"></script>
+<!-- <script type="text/javascript" src="__PUBLIC__/assets/js/jquery-1.9.1.min.js"></script> -->
+<script type="text/javascript" src="/Tpl/LayuiAdmin/lib/index.all.common.js"></script>
+<script>
+ var category_list = {$category_list|default=""|json_encode};
+  var vo = {$vo|default=""|json_encode};
+  var parent_Url = getParam('parent_urlId');
+  layui.use(['form','jquery','laydate'],function () {
+    var form = layui.form;
+    var $ = layui.$;
+    // for(var key in vo){
+
+    // }
+    layui.laydate.render({elem:'input[name="add_time"]'})
+    $(function(){
+      $.each(vo,function(i,v){
+        if(!v._chlid){
+        $('[name="'+i+'"]').val(v);
+      }else{
+
+      }
+      })
+    })
+    form.on('submit(formDemo)', function(data){debugger
+      layer.msg(JSON.stringify(data.field));
+      console.log($(parent.document).find('[data-search="'+parent_Url+'"]'));
+      $(parent.document).attr('[data-search="'+parent_Url+'"]').tableItem.reload();
+      return false;
+    });
+    form.on('button(formReset)', function(data){debugger
+       $.each(vo,function(i,v){
+        $('[name="'+i+'"]').val(v);
+      })
+       return false;
+    });
+  })
+</script>
+</body>
+</html>

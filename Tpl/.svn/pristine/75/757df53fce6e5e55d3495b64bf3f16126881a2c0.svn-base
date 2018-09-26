@@ -1,0 +1,123 @@
+<layout name='Layout/ace_layout' />
+<form name="form_search" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+<div class="page-header clearfix">
+	<h1 class="col-sm-4">{$title}</h1>
+	<div class="col-sm-5 pull-right">
+			<div class="form-group col-sm-3 pull-left">
+				<div class="col-sm-12">
+					<select class="form-control" id="commonQ">
+						<option value=''>选择常用搜索</option>
+						<option value="wish">Wish</option>
+						<option value="amazon">Amazon</option>
+						<option value="aliexpres">Aliexpress</option>
+						<option value="luulla">Luulla</option>
+						<option value="taobao">taobao</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group col-sm-3 pull-left">
+				<div class="col-sm-12">
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}"    readonly="readonly" placeholder="添加时间">
+				</div>
+			</div>				
+			<div class="input-group col-sm-6">
+				<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="可搜索 计划名称, URL"/>
+				<div class="input-group-btn">
+					<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+					<button class="btn btn-sm btn-danger" onclick="this.form.q.value='';this.form.submit();" title="重置"><i class="icon-rotate-right" ></i></button>
+				</div>
+			</div>
+	</div>
+</div>
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a class="btn btn-sm btn-primary" onclick="add()" >新增</a>	
+		</div>
+		<div class="btn-group">
+			<a class="btn btn-sm btn-inverse" href="{:U('PlanActionLog/index')}" target="_blank">所有记录</a>
+		</div>
+	</div>
+</div>
+<div class="message-container">
+	<table class="table table-striped table-hover">
+		
+			<include file="Layout:title_v2"/>
+			
+			<tbody class="tbody">
+			<volist name="list" id="vo">
+				<tr>
+					<td>
+						<label class="inline pull-left">
+							<input class="ace" type="checkbox" name="id[]" value="{$vo.id}" />
+							<span class="lbl"></span>
+							{$vo.id}
+						</label>
+					</td>
+					<td>
+						<span class="editStatic" field="title" onclick="editStatic(this,'{:U('save')}?id={$vo.id}','textarea')">{$vo.title}</span>
+						<br>
+						URL: {$vo.url}
+					</td>
+					<td>{$vo.data}</td>
+					<td>{$vo.crontab}</td>
+					<td>{$vo.emp_name}</td>
+					<td>{$vo.status}<?php if($vo['status'] == 'Error'){ ?> <a class="btn btn-success btn-xs" id="btn-corrected-{$vo.id}"    onclick="corrected({$vo.id})">修正</a> <?php } ?></td>
+					<td>{$vo.has_retry_times}</td>
+					<td>{$vo.last_plan_action_success_time}</td>
+					<td><a class="showBox" data-url="{:U('PlanActionLog/detail')}?latest=true&plan_id={$vo.id}">{$vo.last_plan_action_executing_seconds}</td>
+					<td>{$vo.debug}</td>
+					<td>
+						<span class="editStatic" field="memo" onclick="editStatic(this,'{:U('save')}?id={$vo.id}','textarea')">{$vo.memo}</span>
+					</td>
+					<td>
+						<a class="btn btn-success " id="executeFront_{$vo.id}" onclick="executeFront({$vo.id});">执行</a>
+						<a class="btn btn-primary " href="{:U('PlanActionLog/index')}?plan_id={$vo.id}" target="_blank">记录</a>
+						<a class="btn btn-danger "    onclick="edit({$vo.id})">修改</a>
+						<a class="btn btn-warning "  id="clearLock_{$vo.id}"  onclick="clearLock({$vo.id})">解锁</a>
+						<a class="btn"  id="copy_{$vo.id}"  onclick="copy({$vo.id})">复制</a>
+						<a class="btn btn-danger"  id="stopAction_{$vo.id}"  onclick="stopAction({$vo.id})">停止</a>
+					</td>
+				</tr>
+			</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+	<div style="height:300px;"></div>
+	<div class="order-detail-box col-lg-12" id="order-detail-box" style="position:fixed;z-index:100;height:300px;left:0px;display:none;">
+		<iframe src="" id="order-detail-iframe" frameborder="0" height="300px" name="order-detail-iframe" srolling="auto"  width="100%"></iframe>
+	</div>
+</div>
+</form>
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+
+<div class="modal fade" id="editProduct" role="dialog"  tabindex="-1" aria-labelledby="editProductLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="editProductIframe" name="editProductIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox" role="dialog"  tabindex="-1" aria-labelledby="bottomBoxLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBoxIframe" name="bottomBoxIframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="modal fade" id="bottomBox1" role="dialog"  tabindex="-1" aria-labelledby="bottomBox1Label" aria-hidden="true">
+	<div class="modal-dialog">
+		<iframe src=""  id="bottomBox1Iframe" name="bottomBox1Iframe"  style="width:800px;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+<div class="thumbnailBox">
+	<a href="#" target="_blank" class="thumbnail"><img src="" /></a>
+</div>
+<style>
+.showBottomBox{cursor: pointer;}
+</style>

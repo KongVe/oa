@@ -1,0 +1,188 @@
+<layout name='Layout/ace_popup' />
+
+{:W('PageHeader',array('name'=>'添加出库单'))}
+
+<form method='post' action="{:U('saveCheck')}" id="editForm" action="" class="well form-horizontal clearfix">
+	<input type="hidden" id="ajax" value="1"/>
+	<input type="hidden"  id="id" name="stock_id" value="{$stock_id}">
+
+	<div class="form-group col-xs-12">
+    	<label class="col-sm-4 text-right" for="sku_id">规格SKU:</label>
+		<div class="col-sm-6 input-group">
+			<input  style="width:100%" value="" type="hidden" id="sku_id" name="sku_id" check="require" msg="请输入规格SKU" placeholder="请输入规格SKU">
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12">
+    	<label class="col-sm-4 text-right" for="warehouse_id">选择仓库:</label>
+		<div class="col-sm-4 input-group">
+			<select name="warehouse_id" id="warehouse_id" class="form-control" check="require" msg="请选择仓库" >
+				<option value="">请选择仓库</option>
+				<volist name="warehouse_list" id="warehouse">
+					<option value="{$warehouse.id}" <eq name="vo.warehouse_id" value="$warehouse.id">selected="selected"</eq> >{$warehouse.warehouse_name}</option>
+				</volist>
+			</select>
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12">
+		<label class="col-sm-4 text-right" for="memo">货架位:</label>
+		<div class="col-sm-8">
+			<select name="place_id" id="place_id" class="form-control" check="require" msg="请选择货架位"></select>
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12">
+    	<label class="col-sm-4 text-right" for="quantity"><b>出库数量</b>:</label>
+		<div class="col-sm-2 input-group">
+			<input class="form-control" value="" type="number" id="quantity" name="quantity" check="require" msg="请输入数量" placeholder="请输入数量">
+			<span class="input-group-addon">
+				个
+			</span>
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12">
+		<label class="col-sm-4 text-right">选择库存所属用户</label>
+		<div class="col-sm-4">
+			<select name="owner_uid" id="owner_uid" style="width:100%;">
+				<option value="">无限制</option>
+				<volist name="user_list" id="user">
+					<option value="{$user.id}">{$user.emp_name}</option>
+				</volist>
+			</select>
+		</div>
+		<div class="help-block">
+			可选，该库存属于哪个用户
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12">
+		<label class="col-sm-4 text-right" for="memo">原因:</label>
+		<div class="col-sm-8">
+			<textarea class="form-control" id="memo" name="memo" msg="请输入原因" check="require" placeholder="请输入原因" >{$vo.memo}</textarea>
+		</div>
+	</div>
+
+	<div class="form-group col-xs-12">
+		<label class="col-sm-4 text-right"></label>
+		<div class="col-sm-8">
+			<input data-close="1" data-reload="1" class="defaultEditFormSubmit btn btn-sm btn-primary" data-reload="1" type="button" value="保存">
+			<input class="close_box_button btn btn-sm btn-default" type="button" value="取消">
+		</div>
+	</div>
+</form>
+
+<script type="text/javascript">
+$(function() {
+	
+	$('#sku_id').select2({
+	    placeholder          : "请输入搜索SKU或SKU名称",
+	    minimumInputLength   : 1,
+	    multiple             : true,
+	    // separator            : "",                          // 分隔符
+	    maximumSelectionSize : 1,                               // 限制数量
+	    initSelection        : function (element, callback) {   // 初始化时设置默认值
+	        // var data = [];
+	        // if(init_data.length>0){
+	        // 	data.push(init_data);
+	        // 	callback(data);
+	        // }
+	    },
+	    // createSearchChoice   : function(term, data) {           // 创建搜索结果（使用户可以输入匹配值以外的其它值）
+	    //     return { id: term, text: term };
+	    // },
+	    formatSelection : function (item) { return item.sku_text; },  // 选择结果中的显示
+	    formatResult    : function (item) { return item.sku_text; },  // 搜索列表中的显示
+	    ajax : {
+	        url      : "{:U('V2SkuProduct/ajaxGetSkuProduct')}",              // 异步请求地址
+	        dataType : "json",                  // 数据类型
+	        data     : function (term, page) {  // 请求参数（GET）
+	            return { q: term };
+	        },
+	        results      : function (data, page) {
+	        		input_sku = data.data;
+					return {results:data.data}; 
+				},  
+	         // 构造返回结果
+	        escapeMarkup : function (m) { return m; }               // 字符转义处理
+	    }
+	});
+	
+	$('#sku_id').change(function(){
+		getStockPlaceData();
+	});
+	$('#warehouse_id').change(function(){
+		getStockPlaceData();
+	});
+
+	$(".editFormSubmit").click(function(){
+		alertWarning("系统错误，请联系技术人员");
+		return false;
+		if(!confirm("确认操作？")){
+        	return false;
+        }
+        $("input").attr("disabled",null);
+        var data = $("#editForm").serialize();
+        var url = $("#editForm").attr("action");
+        
+        var btn = $(".editFormSubmit").button('loading');
+        if (check_form("editForm")) {
+            sendForm("editForm", url,false,function(msg){
+                btn.button('reset');
+                if(msg.status){
+                	
+                    var form_data = {
+                        title:msg.data.title,
+                        content:msg.data.content,
+                        thumbnail:msg.data.stock_data.thumbnail,
+                        audit_action_id:13,
+                        param_json:$.param(msg.data.param),
+                    };
+
+                    tmpSendForm("{:U('V2AuditFlow/addView')}",form_data,"_self");
+                    return false;
+                
+                }else{
+                    alertWarning(msg.info);
+                }
+            });
+        }else{
+            btn.button('reset');
+        }
+    });
+}); 
+
+function getStockPlaceData(){
+	//获取库存
+	var warehouse_id = $("#warehouse_id").val();
+	var sku_id = $("#sku_id").val();
+	if(!warehouse_id || !sku_id){
+		showPlaceList(false);
+		return false;
+	}
+	$.post("{:U('V2Stock/ajaxGetStockPlaceData')}",{warehouse_id:warehouse_id,sku_id:sku_id},function(msg){
+		if(msg.status){
+			showPlaceList(msg.data);
+		}else{
+			showPlaceList(false);
+		}
+	}).error(function(){
+		alertWarning("网络错误，请重试");
+		return false;
+	});
+}
+
+function showPlaceList(list){
+	if(!list){
+		$("#place_id").html('<option value="">未获取到库存</option>');
+		return false;
+	}
+	$("#place_id").html('<option value="">请选择货架位</option>');
+	for (var i = 0; i < list.length; i++) {
+		$("#place_id").append('<option value="'+list[i].place_id+'">'+list[i].place_show_name+' (可用数量: '+list[i].available_quantity+' 个)</option>');
+	};
+	return 1;
+}
+
+</script>

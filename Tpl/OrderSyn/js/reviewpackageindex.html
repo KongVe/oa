@@ -1,0 +1,333 @@
+<script type="text/javascript">
+var product_type_list = {$productTypeList|json_encode};
+$(function(){
+	$(".tbody .thumbnail").hover(
+		function(){
+			$(".thumbnailBox img").attr("src",$("img",this).attr("src"));
+			var position = $(this).position(),
+			outerWidth = $(this).outerWidth(true),
+			box_top = position.top,
+			box_left = position.left + outerWidth + 10;
+			$(".thumbnailBox").css({top:box_top,left:box_left}).show();
+		},
+		function(){
+			$(".thumbnailBox").hide();
+		}
+	);
+})
+
+//修改物流方式与国家的关联记忆 
+function changeExpressType(obj,express_type_id){
+	if(confirm('是否修改物流方式与国家的关联？')){
+		var country = $(obj).data('country'), express_type = $('#'+express_type_id).val(), data = {'country':country,'express_type':express_type};
+		console.log(express_type);
+		$.post("{:U('OrderExpress/save')}",data,function(r){
+			if(r.status){
+				alert('关联成功');
+			}else{
+				alert(r.info);
+			}
+		});
+	}
+}
+
+//修改物流方式与SKU和订单帐号的关联记忆
+function changeSkuExpressType(obj,website,account_id,account_name,sku_list,express_type_id,package_id,country_code){
+	if(confirm('该平台帐号的 指定国家 的 指定产品 默认发此物流，优先级大于"国绑",是否绑定? ')){
+		var express_type = $('#'+express_type_id).val();
+		var product_type = $('#declare_name_'+package_id).val();
+		data = {
+			'sku_list':sku_list,
+			'express_type':express_type,
+			'website':website,
+			'account_id':account_id,
+			'account_name':account_name,
+			'product_type':product_type,
+			'country_code':country_code,
+		};
+
+		$.post("{:U('OrderExpress/saveSkuExpress')}",data,function(r){
+			if(r.status){
+				alert('关联成功');
+			}else{
+				alert(r.info);
+			}
+		});
+	}
+}
+
+//删除物流方式与SKU和订单帐号的关联记忆
+function delSkuExpressType(obj,website,account_id,account_name,sku_list,express_type_id,package_id){
+	if(confirm('确认删除？所有的"全绑",和"专绑"都将删除，"国绑"的不会删除')){
+		var express_type = $('#'+express_type_id).val();
+		var product_type = $('#declare_name_'+package_id).val();
+		data = {
+			'sku_list':sku_list,
+			'express_type':express_type,
+			'website':website,
+			'account_id':account_id,
+			'account_name':account_name,
+			'product_type':product_type,
+		};
+
+		$.post("{:U('OrderExpress/delSkuExpressType')}",data,function(r){
+			if(r.status){
+				alert('删除成功');
+			}else{
+				alert(r.info);
+			}
+		});
+	}
+}
+
+function viewSkuExpressType(obj,website,account_id,account_name,sku_list,country_code){
+	var url = "{:U('OrderExpress/viewSkuExpressType')}"+"?";
+	url += "&website="+website;
+	url += "&account_id="+account_id;
+	url += "&account_name="+account_name;
+	url += "&sku_list="+sku_list;
+	url += "&country_code="+country_code;
+	showBox('',url);
+}
+
+//修改申报名称跟SKU的关联记忆 
+function changeDeclareName(package_id){
+	
+
+	var obj = $("#select_declare_name"+package_id);
+
+	var sku = $(obj).data('sku');
+	declare_name = $(obj).val();
+	if(declare_name != null && declare_name!=undefined && declare_name!=''){
+		// $(obj).next().val(declare_name);
+		$("#declare_name_"+package_id).val(declare_name);
+	}
+
+	setCustomDeclareName(package_id);
+	
+	if(declare_name=="Apparel Shoes"){
+		return;
+	}
+
+	data = {'sku':sku,'declare_name':declare_name};
+	$.post("{:U('OrderSyn/saveProductType')}",data,function(r){
+		if(r.status){
+			$(obj).parent("div.form-group").addClass("has-success");
+		}else{
+			//alert(r.info);
+		}
+	});
+}
+//设置自定义的申报名称
+function setCustomDeclareName(package_id){
+	var obj = $("#select_declare_name"+package_id);
+	var name_en = $("input[name='declare_name["+package_id+"]']").val();
+	if(!name_en || name_en == undefined ){
+		return false;
+	}
+	console.log(package_id);
+	console.log(name_en);
+	for (var i = 0; i < product_type_list.length; i++) {
+		if(name_en==product_type_list[i]['product_type']){
+			console.log(product_type_list[i]);
+			$("input[name='declare_name_cn["+package_id+"]']").val(product_type_list[i]['product_type_name_cn']);
+			return true
+		}
+	};
+
+	return false
+}
+
+//提交包裹审核
+function reviewPackageSubmit(){
+	$('#syncCK1').html('正在提交..');
+	$('.reviewPackageSubmit').attr('disabled',true);
+	$.post("{:U('OrderPackage/get_forwarder_list')}",$('#form_search').serialize(),function(msg){
+		
+		if(msg.status==1){
+			$('#syncCK1').html('提交完成，<b>请过一段时间后到物流包裹列表下载今天提审的PDF。</b>');
+			//alertWarning("提审完毕，暂时不支持下载标签",1);
+			//模拟多线程
+			
+			//setTimeout(downloadPackagePDF(msg.data,0),1);
+			setTimeout(syncCK1Tracking,1);
+
+		}else{
+			$('#syncCK1').html('提交失败。');
+			alertWarning(msg.info);
+			// window.location.reload();
+		}
+		$('.reviewPackageSubmit').attr('disabled',false);
+	}).error(function(){
+		alertWarning('网络错误,请重试.');
+		$('.reviewPackageSubmit').attr('disabled',false);
+	})
+}
+
+//批量修改选项
+function changeAllExpressTypeSelect (all) {
+	if(all){
+		//全部
+		if(!confirm("确认更改全部物流方式的选项？")){
+			return false;
+		}
+		var obj_list=$('.express_type');
+	}else{
+		
+		var obj_list=[];
+		for (var i = 0; i < $(".pull-left .ace").length; i++) {
+			if($(".pull-left .ace").eq(0).prop('checked')){
+				obj_list.push($('#express_type_'+$(".pull-left .ace").eq(i).val()));
+			}
+		};
+	}
+	var change_express_type =$("#change_express_type").val()
+	for (var i = 0; i < obj_list.length; i++) {
+		obj_list[i].val(change_express_type);
+	};
+}
+//提交下载PDF到服务器 //最多重试3次
+function downloadPackagePDF(package_id_list,i,attempt){
+	if(package_id_list.length<=i){
+		$('#syncCK1').html( '提审完毕。PDF下载完成。' );
+		alert("pdf下载完成");
+		return;
+	}else{
+
+		$.post("{:U('OrderPackage/printLabel')}",{package_id:package_id_list[i],isSubmmitPackage:1},function(msg){
+			
+			if(msg.status==1){
+				$('#syncCK1').html('提交完成，正在下载PDF。'+parseInt( parseFloat(i/package_id_list.length)*100)+"%" );
+				i++;
+
+				downloadPackagePDF(package_id_list,i,0);
+			}else{
+				attempt++;
+
+				if(attempt>3){
+					i++;
+					downloadPackagePDF(package_id_list,i,0);
+					return;
+				}else{
+					$('#syncCK1').html('提交完成，正在下载PDF。'+parseInt( parseFloat(i/package_id_list.length)*100)+"% 重试 "+attempt+' 次' );
+
+					if(msg.info!="undefined"){
+						alertWarning(msg.info); 
+					}
+					
+					console.log(msg.info); 
+
+					downloadPackagePDF(package_id_list,i,attempt);
+				}
+				
+				
+			}
+		}).error(function(){
+			attempt++;
+			if(attempt>3){
+				i++;
+				downloadPackagePDF(package_id_list,i,0);
+				return;
+			}else{
+				$('#syncCK1').html('正在下载PDF。'+parseInt( parseFloat(i/package_id_list.length)*100)+"% 重试 "+attempt+' 次' );
+				
+				downloadPackagePDF(package_id_list,i,attempt);
+			}
+		});
+	}
+}
+
+function syncCK1Tracking(){
+	//ajax获取所有格式正确的出口易PackageCode
+	if($(".order_auto_id").eq(0).val()=="undefined"){
+		return;
+	}
+
+	$("#progress").html("正在获取跟踪号..");
+	var chk_value =[];  
+	for (var i = 0; i < $(".order_auto_id").length; i++) {
+		chk_value.push($(".order_auto_id").eq(i).val());
+	};
+
+	$.ajax({
+		type:'POST',
+		url:'{:U("OrderSyn/getLocalRightCK1PackageCodeList")}',
+		data:{ key:"888",choose:1, order_auto_id:chk_value },
+		success:function(data){
+			if(data.status==0){
+				alert(data.info);
+				$("#progress").html("");
+			}else{
+				ajaxprogress(data,0,1,0);//递归	
+			}			
+		},
+		error:function(){
+
+		}
+	});
+}
+
+//递归 ajax异步提交
+function ajaxprogress(data,ii,choose,success_count){
+	var dataArr=new Array();
+	var j=0;
+
+	for(i=ii;i<data.data.length;i++){
+
+		dataArr[j]=data.data[i];
+			j++;
+		if( (i>0 && i%10==0) ||( ( i==(data.data.length-1) ) && ((i%10!=0)||i==0) )){
+			console.log(dataArr);
+			
+			$.ajax({
+				type: 'POST',
+				//async:false,
+				url: '{:U("OrderSyn/syncCK1")}',
+				data: {PackageCodeArr:[dataArr],choose:choose},
+			    success:function (data2){
+
+			    	$("#progress").html("正在获取跟踪号: " +parseInt(((i+1)/data.data.length)*100)+"%");				    	
+			    	
+			    	if(data2.status==1){
+			    		success_count+=dataArr.length;
+			    	}	
+
+					if(data2.status=="error"){
+					//报error时停止执行
+
+						alert(data2.info);
+						return false;
+					}
+
+					if(data2.status==0){
+						success_count=success_count+dataArr.length-data2.data;
+					}
+
+					if(i>=data.data.length-1){
+
+						$("#progress").html(parseInt(((i+1)/data.data.length)*100)+"%");	
+
+						
+
+						if(data.data!=0){
+							alertWarning("获取跟踪号完毕,总共处理条数:"+data.data.length+" 条,成功："+success_count+" 条",1); //"错误："+error_count+" 条");
+			 			}else{
+			 				alertWarning("获取跟踪号完毕，未有更新");
+			 				$("#progress").html("");
+			 			}
+						return;
+					}
+					ajaxprogress(data,i+1,choose,success_count);
+
+				},
+				error:function(){
+					ajaxprogress(data,i+1,choose,success_count);
+				},
+			});
+
+			break;//跳出循环
+		}	
+	}	
+}
+
+</script>

@@ -1,0 +1,390 @@
+<layout name='Layout/ace_layout' />
+<style type="text/css">
+.message-container table tbody.tbody tr{border-top-style:inset;}
+hr{
+	margin-top:0px;
+	margin-bottom:0px;
+}
+</style>
+<form name="form_search" action="{:U()}" id="form_search" method="post">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+	<input type="hidden" name="id" value="{$Think.request.id}" />
+	<input type="hidden" name="ids" value="{$Think.request.ids}" />
+	<input type="hidden" name="manual_type" value="{$Think.request.manual_type}" />
+	
+<div class="page-header clearfix">
+	<h1 class="col-sm-4">{$title}</h1>
+	<div class="col-sm-8 pull-right">
+		<!-- <notempty name="Think.request.ids">
+			<div class="form-group col-sm-2" >
+				<label>
+					<input type="checkbox" class="ace input-lg" name="ids" value="{$Think.request.ids}" <notempty name="Think.request.ids">checked="checked"</notempty> />
+					<span class="lbl padding-5">
+						在当前结果中搜索
+					</span>
+				<label>
+			</div>
+		</notempty> -->
+		<div class="col-sm-6">
+			<div class="input-group">
+				<input class="form-control" type="text" name="q" id="q" value="{$Think.request.q}" placeholder="搜索订单ID" onchange="$(this).val($.trim($(this).val()))"/>
+				<div class="input-group-btn">
+					<button class="btn btn-sm btn-info" type="submit"> <i class="bigger-125 icon-search"></i> </button>
+					<a class="roload_form_action btn btn-sm btn-danger" title="重新载入"><i class="bigger-125 icon-rotate-right"></i> </a>
+					<a class="btn btn-sm btn-success" onclick="toggle_adv_search();"><i id="toggle_adv_search_icon" class="bigger-125 icon-chevron-up"></i></a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<a class="showBox btn btn-primary" data-url="{:U('V2OrderDetail/needManualListHelp')}">各状态说明</a>
+搜索订单时请点击 <b>搜索订单</b> 分栏
+
+<a class="showBox btn btn-primary btn-sm" data-url="{:U('V2OrderDetail/changeParamTypeView')}">格式化单号</a>
+
+<hr>
+<div>
+	<ul class="nav nav-tabs">
+		<volist name="manual_process_status_list" id="manual_process_status">
+			<li <eq name="Think.request.manual_type" value="$manual_process_status.key"> class="active" </eq> >
+	    		<a href="{:U('')}?manual_type={$manual_process_status.key}">
+	    			{$manual_process_status.name_cn} 
+	    			<notempty name="manual_process_status.counts">
+	    				<span class="badge badge-important">{$manual_process_status.counts|default="0"}</span>
+	    			</notempty>
+	    		</a>
+	  		</li>
+		</volist>
+	</ul>
+</div>
+
+<!-- 导入高级订单搜索div -->
+<include file="V2OrderDetail:ordersearchdiv"/>
+
+<div class="operate panel panel-default">
+	<div class="panel-body">
+		<div class="btn-group">
+			<a class="orderAutoProcess btn btn-sm btn-inverse">自动处理</a>
+		</div>
+		<div class="btn-group">
+			<a class="reActivate btn btn-sm btn-primary">重新激活</a>
+		</div>
+		<div class="btn-group">
+			<a class="confirmPackageNormal btn btn-sm btn-info">已修正地址重新提审</a>
+		</div>
+		<div class="btn-group">
+			<a class="advancePicking btn btn-sm btn-primary">提前拣货</a>
+		</div>
+
+		<div class="btn-group">
+			<a class="combineOrder btn btn-sm btn-inverse">合并订单</a>
+		</div>
+		<div class="btn-group">
+			<a class="cancelCombineOrder btn btn-sm btn-danger">取消合并</a>
+		</div>
+		<div class="btn-group">
+			<a class="setExceptionState btn btn-sm btn-primary">标记异常</a>
+		</div>
+		<div class="btn-group">
+			<a class="cancelExceptionState btn btn-sm btn-danger">取消异常</a>
+		</div>
+		<div class="btn-group">
+			<a class="btn btn-sm btn-info" id="toggleImage">显示图片</a>
+		</div>
+
+		<if condition=" isAdmin('46,10026') ">
+			<div class="btn-group">
+				<a data-url="{:U('V2OrderDetail/addManualOrderView')}" class="showBox btn btn-sm btn-inverse">添加手工订单(admin)</a>
+			</div>
+			<div class="btn-group">
+				<a class="delOrder btn btn-sm btn-warning">删除订单(admin)</a>
+			</div>
+		</if>
+
+		<div class="btn-group">
+			<a class="batchCancelPicking btn btn-sm btn-danger">批量撤销拣货</a>
+		</div>
+
+	</div>
+</div>
+
+<script type="text/javascript">
+$(function($){
+	
+
+	$(".orderAutoProcess").click(function(){
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择订单");
+			return false;
+		}
+		if(!confirm("确认自动处理所选的订单？")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('orderAutoProcess')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				parent.frames['order-detail-iframe'].window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".reActivate").click(function(){
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择订单");
+			return false;
+		}
+		if(!confirm("确认重新激活所选的订单？")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('reActivate')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".confirmPackageNormal").click(function(){
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择订单");
+			return false;
+		}
+		if(!confirm("确认已修正地址和物流，将重新提审？")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('confirmPackageNormal')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".combineOrder").click(function(){
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择订单");
+			return false;
+		}
+		if(!confirm("确认合并订单？")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('combineOrder')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".cancelCombineOrder").click(function(){
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择订单");
+			return false;
+		}
+		if(!confirm("确认取消合并？选择其中一个订单也会把该组订单的全部订单拆分")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('cancelCombineOrder')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+	
+	$(".setExceptionState").click(function(){
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择订单");
+			return false;
+		}
+		if(!confirm("确认标记为 订单异常?")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('setExceptionState')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".cancelExceptionState").click(function(){
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择订单");
+			return false;
+		}
+		if(!confirm("确认取消 订单异常 状态？将会自动进行一次 自动处理")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('cancelExceptionState')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".batchCancelPicking").click(function(){
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择订单");
+			return false;
+		}
+		if(!confirm("确认取消 订单异常 状态？将会自动进行一次 自动处理")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('batchCancelPicking')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+	
+	$(".advancePicking").click(function(){
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择订单");
+			return false;
+		}
+		if(!confirm("确认提前拣货？")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('advancePicking')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".delOrder").click(function(){
+		var check = prompt("请输入 delete 确认删除订单");
+		if(check != "delete"){
+			return false;
+		}
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择订单");
+			return false;
+		}
+		if(!confirm("确认删除订单？将不可撤销")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('delOrder')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+
+	$(".confirmPackageNormal").click(function(){
+		var data = $('[name="id[]"]').serialize();
+		if(!data){
+			alertWarning("请选择订单");
+			return false;
+		}
+		if(!confirm("确认地址或包裹修正完成？")){
+			return false;
+		}
+		var btn = $(this);
+		btn.button('loading');
+		$.post("{:U('confirmPackageNormal')}",data,function(msg){
+			btn.button('reset');
+			if(msg.status){
+				alertWarning(msg.info,1);
+			}else{
+				alertWarning(msg.info);
+			}
+		}).error(function(){
+			alertWarning("网络错误,请重试");
+			btn.button('reset');
+		});
+	});
+});
+</script>
+
+<include file="V2OrderDetail:indexbody"/>

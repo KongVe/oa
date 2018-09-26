@@ -1,0 +1,256 @@
+<layout name='Layout/ace_layout' />
+
+<form name="form_search" id="form_search" method="post" class="form-inline">
+	<input type="hidden" name="_sort" id="sort" value="<?php echo !$sort; ?>" >
+	<input type="hidden" name="_order" id="order" value="{$order}">
+<div class="page-header clearfix">
+	<h1 class="col-xs-3">产品开发列表</h1>
+	<div class="col-xs-9 pull-right">
+		<div class="form-group col-sm-2 pull-left">
+			<div class="col-sm-12">
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="add_time" id="add_time" value="{$Think.request.add_time}"    readonly="readonly" placeholder="添加时间">
+			</div>
+		</div>	
+	<!-- 	<div class="form-group col-sm-2 pull-left">
+			<div class="col-sm-12">
+				<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="pattern_time" id="pattern_time" value="{$Think.request.pattern_time}"    readonly="readonly" placeholder="入库时间">
+			</div>
+		</div>	 -->
+
+		<div class="form-group col-xs-3">
+			<label class="sr-only" >q</label>
+			<input  class="form-control" onkeypress="if(event.keyCode==13) {submit_search();return false;}" type="text" name="q" id="q" value="{$Think.post.q}" placeholder="搜索产品简称,SKU"/>
+		</div>
+		<div class="form-group">
+			<a class="btn btn-sm btn-warning" onclick="submit_search();" title="搜索"><i class="icon-search" ></i></a>
+			<button class="btn btn-sm btn-danger" onclick="window.location.reload();" title="重置"><i class="icon-rotate-right" ></i></button>
+		</div>
+	</div>
+</div>	
+<div class="message-container" id="container_table" style="width:100%;">
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="btn-group">
+				<a onclick="showMiddleBox('{:U('edit')}');" target="_blank" class="btn btn-danger" id="createTemplate">添加</a>
+			</div>
+		</div>
+	</div>
+
+	<table class="table table-hover table-bordered">
+		<include file="Layout:title"/>
+		
+		<tbody class="tbody">
+		<volist name="list" id="vo">
+			<tr id="tr_{$vo.id}" >
+				<td  >
+					<label class="inline pull-left">
+						<input class="ace" type="checkbox" name="template_id[]" value="{$vo.id}" />
+						<span class="lbl"></span>
+						{$vo.id}
+					</label>
+				</td>
+				<td >
+					{$vo.sku}
+				</td>
+				<td >
+					{$vo.short_name}
+				</td>
+				<td >
+					<b>
+					<?php
+						echo toCnName($vo['status'],"ProductDevelop");
+					?>
+					</b>
+				</td>
+				<td style="min-width:100px;">
+					<a href="{:U('view?id='.$vo['id'])}" target="_blank" class="thumbnail" target="_blank"><img src="{$vo.add_thumbnail}" data-src="{$vo.add_thumbnail}" width="120" /></a>
+				</td>
+				<td style="max-width:150px;">
+					{$vo.variations}
+				</td>
+				<td >
+					{$vo.add_user_name}
+				</td>
+				<td >
+					{$vo.add_time|default="无"|date="y-m-d H:i",###}
+				</td>
+				<td >
+					￥{$vo.estimate_cost|default="0"}
+				</td>
+				<td >
+					{$vo.estimate_weight|default="0"}克
+				</td>
+				<td >
+					{$vo.develop_user_name}
+				</td>
+				<td >
+					{$vo.develop_time|default="无"|date="y-m-d H:i",###}
+				</td>
+				<td >
+					{$vo.photo_user_name}
+				</td>
+				<td >
+					{$vo.photo_time|default="无"|date="y-m-d H:i",###}
+				</td>
+
+				<td>
+					<notempty name="vo.is_del" >
+						<b>
+							已禁用
+						</b>				
+					<else/>
+						可用
+					</notempty>
+				</td>
+				<td style="min-width:340px;">
+					<div class="col-sm-12">
+						<a class="btn btn-info btn-sm" href="{:U('view?id='.$vo['id'])}" target="_blank">查 看</a>
+
+						<a class="btn btn-inverse btn-sm" href="{:U('downZip?id='.$vo['id'])}" target="_blank">打包下载</a>
+
+						<?php 
+							if(isAdmin()){
+						?>
+							<eq name="vo.status" value="Wait develop check">
+								<a class="btn btn-info btn-sm" onclick="checkProduct({$vo.id},'develop')">确认打版</a>
+							</eq>
+							<eq name="vo.status" value="Wait photo check">
+								<a class="btn btn-info btn-sm" onclick="checkProduct({$vo.id},'photo')">确认拍图</a>
+							</eq>
+						<?php 
+							}
+						?>
+						<br>
+						<br>
+						<empty name="vo.is_del">
+
+							<a onclick="showMiddleBox('{:U('edit?id='.$vo['id'])}');" class="btn btn-primary btn-sm">修改产品</a>
+							
+							<?php 
+								if(in_array($vo['status'], array("Wait develop","Wait photo check","Wait photo","Finish"))){
+							?>
+								<notempty name="vo.develop_uid">
+									<a onclick="showMiddleBox('{:U('developEdit?id='.$vo['id'])}');" class="btn btn-inverse btn-sm">修改打版</a>
+								<else/>
+									<a onclick="showMiddleBox('{:U('developEdit?id='.$vo['id'])}');" class="btn btn-inverse btn-sm">打 版</a>
+								</notempty>
+							<?php 
+								}
+							?>
+							<?php 
+								if(in_array($vo['status'], array("Wait photo","Finish"))){
+							?>
+								<notempty name="vo.photo_uid">
+									<a onclick="showMiddleBox('{:U('photoEdit?id='.$vo['id'])}');" class="btn btn-primary btn-sm">修改拍图</a>
+								<else/>	
+									<a onclick="showMiddleBox('{:U('photoEdit?id='.$vo['id'])}');" class="btn btn-primary btn-sm">拍 图</a>
+								</notempty>
+							<?php 
+								}
+							?>
+						
+						</empty>
+						<?php 
+							if(isAdmin() || $vo['add_uid']==$_SESSION['authId']){
+						?>
+							<empty name="vo.is_del">
+								<a class="btn btn-danger btn-sm" onclick="state({$vo.id},1)">禁 用</a>
+							<else/>
+								<a class="btn btn-danger btn-sm" onclick="state({$vo.id},0)">启 用</a>
+							</empty>
+						<?php 
+							}
+						?>
+					</div>
+				</td>
+			</tr>
+		</volist>
+		</tbody>
+	</table>
+	<div class="pagination">
+		{$page}
+	</div>	
+</div>
+</form>
+
+<div id="tmp" class="display-none">
+	<form name="form_tmp" id="form_tmp" method="post" class="form-inline">
+	</form>
+</div>
+
+<div class="thumbnailBox" >
+	<a href="#" target="_blank" class="thumbnail"><img style="height:300px;" src="" /></a>
+</div>
+
+
+<!-- 模态弹窗-->
+<div class="modal fade" id="middleBox" role="dialog"  tabindex="-1" aria-labelledby="middleBoxLabel" aria-hidden="true">
+	<div class="modal-dialog" style="height:100%;width:65%;">
+		<iframe src=""  id="middleBoxIframe" name="middleBoxIframe"  style="width:100%;height:100%" scrolling="auto" ></iframe>
+	</div>
+</div>
+
+<div class="modal fade" id="RightBox" role="dialog"  tabindex="-1" aria-labelledby="RightBoxIframe" aria-hidden="true">
+	<div class="modal-dialog" style="width:100%;height:100%;margin-left: 20%;padding-bottom:0px;">
+		<iframe src=""  id="RightBoxIframe" name="RightBoxIframe"  style="width:80%;z-index:100;height:100%;" scrolling="auto" ></iframe>
+	</div>
+</div>
+</script>
+
+
+<script type="text/javascript">
+function state(id,type) {
+	if(!confirm("确认禁用？")){
+		return;
+	}
+	if(type){
+		is_del=1;
+	}else{
+		is_del=0;
+	}
+
+	$.post("{:U('save')}",{id:id,opmode:'edit',is_del:is_del},function(msg){
+		if(msg.status){
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alert("网络错误,请重试");
+		window.location.reload();
+	});
+}
+
+function checkProduct(id,type) {
+	if(!confirm("确认操作？")){
+		return;
+	}
+
+	$.post("{:U('checkProduct')}",{id:id,opmode:'edit',type:type},function(msg){
+		if(msg.status){
+			alertWarning(msg.info),1;
+			window.location.reload();
+		}else{
+			alertWarning(msg.info);
+		}
+	}).error(function(){
+		alert("网络错误,请重试");
+	});
+}
+
+function del(id) {
+	if(confirm("确认删除？将不可恢复")){
+		$.post("{:U('save')}",{id:id,opmode:'del'},function(msg){
+			if(msg.status){
+				window.location.reload();
+			}else{
+				alertWarning(msg.info);
+			}
+			
+		}).error(function(){
+			alert("网络错误,请重试");
+			window.location.reload();
+		});
+	}
+}
+</script>

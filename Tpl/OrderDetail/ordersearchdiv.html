@@ -1,0 +1,124 @@
+
+<div class="adv_search panel panel-default display-none"  id="adv_search" style="">
+	<div class="panel-heading">
+		<div class="row">
+			<h4 class="col-xs-6">高级搜索</h4>
+			<div class="col-xs-6 text-right">
+				<!-- <a  class="btn btn-sm btn-info" onclick="submit_adv_search();">搜索</a> -->
+				<a  class="btn btn-sm " onclick="close_adv_search();">关闭</a>
+			</div>
+		</div>
+	</div>
+	<div class="panel-body">
+	
+		<div class="form-group col-sm-2">
+			<div class="input-group">
+				<span class="input-group-btn">
+					订单序号：
+				</span>
+				<input  class="form-control" type="text" id="oaid" name="oaid" value="{$Think.request.oaid}"  placeholder="订单序号" />
+			</div>
+		</div>
+
+		<div class="form-group col-sm-2">
+			<div class="input-group">
+				<span class="input-group-btn">
+					产品序号：
+				</span>
+				<input  class="form-control" type="text" id="paid" name="paid" value="{$Think.request.paid}"  placeholder="产品序号" />
+			</div>
+		</div>
+
+		<div class="form-group col-sm-2">
+			<div class="input-group">
+				<span class="input-group-btn">
+					颜色：
+				</span>
+				<input  class="form-control" type="text" id="color" name="color" value="{$Think.request.color}"  placeholder="颜色" />
+			</div>
+		</div>
+
+		<div class="form-group col-sm-2">
+			<div class="input-group">
+				<span class="input-group-btn">
+					尺码：
+				</span>
+				<input  class="form-control" type="text" id="size" name="size" value="{$Think.request.size}"  placeholder="尺码" />
+			</div>
+		</div>
+		
+		
+
+		<div class="form-group col-sm-3">
+			<div class="input-group">
+				<span class="input-group-btn">
+					物流方式：<br>
+					(按住Ctrl多选)
+				</span>
+				<select class="form-control" name="express_type[]" multiple="multiple">
+					<option value="">请选择物流方式</option>
+					<volist name="express_type_list" id="express_type">
+						<option value="{$express_type.express_type}" <?php if(in_array($express_type['express_type'], $_REQUEST['express_type'])){ echo 'selected="selected"';}?> >{$express_type.express_type} {$express_type.express_name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		<div class="col-sm-12">
+			<div class="form-group col-sm-2">
+				<div class="input-group">
+					<span class="input-group-btn">
+						下单时间：
+					</span>
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="order_time" id="order_time" value="{$Think.request.order_time}"    placeholder="下单时间">
+				</div>
+			</div>
+
+			<div class="form-group col-sm-2">
+				<div class="input-group">
+					<span class="input-group-btn">
+						打印时间：
+					</span>
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="local_print_time" id="local_print_time" value="{$Think.request.local_print_time}" placeholder="打印时间">
+				</div>
+			</div>
+
+			<div class="form-group col-sm-2">
+				<div class="input-group">
+					<span class="input-group-btn">
+						发货时间：
+					</span>
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="local_send_time" id="local_send_time" value="{$Think.request.local_send_time}"    placeholder="发货时间">
+				</div>
+			</div>
+
+			<div class="form-group col-sm-2">
+				<div class="input-group">
+					<span class="input-group-btn">
+						出仓时间：
+					</span>
+					<input style="cursor:pointer;" data-date-format="yyyy-mm-dd"  class="form-control input-date-range" type="text" name="local_out_storage_time" id="local_out_storage_time" value="{$Think.request.local_out_storage_time}"    placeholder="发货时间">
+				</div>
+			</div>
+
+			<div class="form-group col-sm-3">
+				<label class="control-label" for="size">包裹打印：</label>
+				<label>
+					<input type="radio" name="is_print_orders" value="yes" <eq name="Think.request.is_print_orders" value="yes">
+					checked="checked"</eq> />
+					已打印
+				</label>
+				&nbsp;|&nbsp;
+				<label>
+					<input type="radio" name="is_print_orders" value="no" <eq name="Think.request.is_print_orders" value="no">checked="checked"</eq> />
+					未打印
+				</label>
+				&nbsp;|&nbsp;
+				<label>
+					<input type="radio" name="is_print_orders" value="" <empty name="Think.request.is_print_orders">checked="checked"</empty> />
+					&nbsp;全&nbsp;部&nbsp;
+				</label>
+			</div>
+		</div>
+	</div>
+</div>

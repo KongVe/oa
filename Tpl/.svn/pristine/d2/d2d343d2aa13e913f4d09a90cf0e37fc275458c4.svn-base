@@ -1,0 +1,50 @@
+<script type="text/javascript">
+jQuery(function($){
+	getCurrentIP();
+});
+
+
+function addAccount(){
+	$("#middleBoxIframe").attr("src","<?php echo U("FalseAccount/edit"); ?>?fromExecute=1&_" + Math.round(new Date().getTime()/1000));
+	$("#middleBox").modal({backdrop:'static'}).modal("show");		
+}
+
+function getCurrentIP(){
+	var newScript = "<script type=\"text/javascript\" src=\"http://img.barboola.com/falseIp.php\"><\/script>";
+	$("body").append(newScript);
+}
+
+function getCurrentServer(){
+	$.post("{:U('FalsePlan/getCurrentServer')}",currentServer,function(r){
+		if(r.status){
+			showCurrentIP(r.data.currentIP);
+			getUsedCurrentIPAccounts(r.data.currentIP);
+		}else{
+			alert(r.info);
+		}
+	})
+}
+
+function showCurrentIP(ip){
+	$("#currentIP").html(ip);
+}
+
+
+//获取当前哪些账号使用过当前IP
+function getUsedCurrentIPAccounts(ip){
+	var data = $("input[name='id[]']").attr("checked","checked").serialize();
+	data =  data + "&ip=" + ip;
+	$.post("{:U('getUsedCurrentIPAccounts')}",data,function(r){
+		if(r.status){
+			if(r.data.accountList){
+				for(var i = 0; i < r.data.accountList.length; i++){
+					account = r.data.accountList[i];
+					$("#usedCurrentIP_" + account['id']).addClass("red").html("是");
+				}
+			}
+		}else{
+			alert(r.info);
+		}
+	})
+}
+</script>

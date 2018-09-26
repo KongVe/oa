@@ -1,0 +1,188 @@
+<layout name='Layout/ace_popup' />
+<div class="page-header">
+	<h1>采购详细</h1>
+	<div>
+	</div>
+</div>
+<form action="{:U('purchasing')}" method="POST" class="well form-horizontal clearfix" id="data_form" name="data_form" >
+
+	<input type="hidden" name="source_id" value="{$Think.request.source_id}" />
+	<input type="hidden" name="tr_key" id="tr_key" value="{$Think.request.tr_key}" />
+	<input type="hidden" name="stock_bind_id" id="stock_bind_id" value="{$stock_bind_id}">
+	<foreach name="stock_bind_ids" item="stock_bind_id" >
+		<input type="hidden" name="stock_bind_ids[]" value="{$stock_bind_id}" />
+	</foreach>
+	<foreach name="product_auto_ids" item="product_id" >
+		<input type="hidden" name="product_id[]" value="{$product_id}" />
+	</foreach>
+	<foreach name="purchase_plan_ids" item="ppi" >
+		<input type="hidden" name="purchase_plan_id[]" value="{$ppi}" />
+	</foreach>
+	
+	<div class="form-group" style="width:40%">
+		<label class="control-label" for="message_value">单次采购标识</label>
+		<input type="text" name="message_id" id="message_value" class="form-control" value="{$purchase_code}" />
+		<p>1688采购的请复制到对应1688订单的留言里</p>
+		<p style="color:red;">注意：如果用采购车采购,请复制采购车里面的标识码</p>
+	</div>
+
+	<div class="form-group" style="width:40%">
+		<label class="control-label" for="quantity">采购数量</label>
+		<input type="text" name="quantity" id="quantity" data-max="{$need_purchase_total}" data-bak="{$need_purchase_total}" class="form-control" check="number" value="{$need_purchase_total}" />
+		<span>订单采购数量：<b>{$product_need_quantity|default=0}</b> 采购计划数量：<b>{$purchase_plan_need_quantity|default=0}</b> </span>
+	</div>
+	<div class="form-group" style="width:40%">
+		<label class="control-label"  for="price">采购单价</label>
+		<input type="text" name="price" id="price" class="form-control"  value="{$source.price}" check="require"/>
+	</div>	
+	<div class="form-group">
+		<label class="control-label" for="purchase_flag">采购标志</label>
+		<input type="text" name="purchase_flag" id="purchase_flag" class="form-control" />
+		<span class="help-block">可填入采购时的订单号，或者其它注明</span>
+	</div>
+	
+	{$sourceHtml}
+
+	<div class="form-group text-center">
+		<a id="addToCart"class="btn btn-danger">加入采购车</a>
+		<a href="{:U('purchaseCartIndex')}" target="_blank" class="btn btn-danger">查看采购车</a>
+		<input type="submit" class="btn btn-primary"  value="采购" />
+		<div class="pull-right">
+			<a class="btn btn-warning" onclick="parent.$('#bottomBox').modal('hide');">关闭</a>
+			&nbsp;&nbsp;
+		<div>
+	</div>
+	
+</form>
+<div class="adjustPriceBox popover fade bottom in">
+	<div class="arrow"></div>
+	<div class="popover-content">
+		<a class="btn btn-success btn-xs" data-price="3">+3</a>
+		<a class="btn btn-success btn-xs" data-price="5">+5</a>
+		<a class="btn btn-success btn-xs" data-price="8">+8</a>
+
+	</div>
+</div>
+
+
+
+<!-- 警告弹窗 -->
+<div class="modal fade " id="alertBox" tabindex="-1" role="dialog" aria-labelledby="alertBoxLabel" aria-hidden="true">
+  <div class="modal-dialog">
+  	<div class="bs-example">
+      <div class="alert alert-danger fade in" id="alertStatus">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h4> </h4>
+        <p id="alerBody"></p>
+
+        <p>
+          <button type="button" class="btn btn-primary btn-sm" data-dismiss="modal" id="alertConfirm">确认</button>
+        </p>
+      </div>
+    </div>   
+  </div><!-- /.modal-dialog -->
+</div>
+
+<script type="text/javascript">
+$(function(){
+	maxHeight = parent.document.documentElement.clientHeight ;
+	height = document.body.clientHeight+ 50;
+	if(height > maxHeight){
+		height = maxHeight;
+	}
+	parent.$("#bottomBoxIframe").css("height",height);
+
+	$("#data_form").submit(function(){
+		$(this).attr("disabled",true);
+		if(!checkQuantity()){
+			
+			return false;
+		}
+		if(check_form("data_form")){
+			var data = $("#data_form").serialize();
+			$.post("{:U('OrderPurchase/purchase')}",data,function(r){
+				if(r.status){
+					var tr_key = $("#tr_key").val();
+					parent.$("#tr_"+ tr_key).addClass("danger");
+					parent.$("#purchase-detail-box").hide("fast");
+					parent.$("#bottomBox").modal("hide");
+				}else{
+					alert(r.info());
+				}
+				$(this).attr("disabled",false);
+			}).error(function(){
+				$(this).attr("disabled",false);
+			})
+		}else{
+			$(this).attr("disabled",false);
+		}
+		return false;
+	})
+
+	$("#quantity").change(function(){
+		var q_max=parseInt($(this).data('max'));
+		var q_bak=parseInt($(this).data('bak'));
+		var val=parseInt($(this).val());
+		if(val<1 || val >q_max){
+			alertWarning("请输入正确的数量");
+			$(this).val(q_bak);
+		}
+	});
+	$("input[name^='price']").hover(
+		function(){
+			sourcePrice = $(this).val();
+			inputId = $(this).attr("id");
+			var position = $(this).position(),
+			box_top = position.top + 34,
+			box_left = position.left ;
+
+
+			$(".adjustPriceBox a").data("sourcePrice",sourcePrice).data("inputId",inputId);
+			$(".adjustPriceBox").css({top:box_top,left:box_left}).show(); 
+		}
+	);
+
+	$(".adjustPriceBox a").click(function(){
+		var sourcePrice = parseFloat($(this).data("sourcePrice")),
+			adjustPrice = parseFloat($(this).data("price")),
+			inputId = $(this).data("inputId");
+		$("#" + inputId).val(sourcePrice + adjustPrice);
+	})
+
+	$("body").click(function(){
+		$(".adjustPriceBox").hide();	
+	})
+
+	//加入购物车
+	$("#addToCart").click(function(){
+		if(!checkQuantity()){
+			return false;
+		}
+		$("#addToCart").attr('disabled',true);
+		$.post("{:U('addPurchaseCart')}",$('#data_form').serializeArray(),function(msg){
+
+			$("#addToCart").attr('disabled','');
+			if(msg.status==1){
+				var tr_key = $("#tr_key").val();
+				parent.$("#tr_"+ tr_key).addClass("warning");
+				parent.$("#purchase-detail-box").hide("fast");
+				parent.$("#bottomBox").modal("hide");
+			}else{
+				alertWarning(msg.info);
+			}
+
+		});
+	})
+})
+
+function checkQuantity(){
+	var q = parseInt($("#quantity").val());
+	var q_max=parseInt($("#quantity").attr('data-max'));
+	if(q<1 || q>q_max){
+		alertWarning("采购数量数据异常，请呼叫技术人员排错");
+		return false;
+	}else{
+		return true;
+	}
+}
+</script>

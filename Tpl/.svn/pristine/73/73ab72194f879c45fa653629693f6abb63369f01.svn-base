@@ -1,0 +1,153 @@
+<layout name="Layout/ace_layout_v3"/>
+<link rel="stylesheet" href="__PUBLIC__/assets-v3/css/ui-jqgrid.min.css"/>
+<script  src="__PUBLIC__/assets-v3/js/jquery.jqGrid.min.js"></script>
+<script src="__PUBLIC__/assets/js/jqGrid/i18n/grid.locale-cn.js"></script>
+<span style="display: none;opacity: 0" id="len_arr"></span>
+<button class="btn btn-info" onclick="btn_add()">新增</button>
+<div style="display: table;width: 100%;" id="grid-page">
+  <table id="grid-table"></table> 
+  <div id="grid-pager"></div>
+</div>
+<div class="modal-dialog modal-lg" role="document">
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+     <div class="modal-content">
+      <div class="modal-header">
+       <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+       <h4 class="modal-title" id="myModalLabel">新增</h4>
+     </div>
+     <div class="modal-body">
+
+       <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">序号</label>
+        <div class="col-sm-9">
+          <input type="text" name="id" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">分类</label>
+        <div class="col-sm-9">
+          <input type="text" name="category_id" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">标题</label>
+        <div class="col-sm-9">
+          <input type="text" name="title" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">内容</label>
+        <div class="col-sm-9">
+          <input type="text" name="content" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">分数类型</label>
+        <div class="col-sm-9">
+          <input type="text" name="score_type" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">分数</label>
+        <div class="col-sm-9">
+          <input type="text" name="score" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">状态</label>
+        <div class="col-sm-9">
+          <input type="text" name="status" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">来源</label>
+        <div class="col-sm-9">
+          <input type="text" name="source_type" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">创建人</label>
+        <div class="col-sm-9">
+          <input type="text" name="add_uid" class="form-control" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">创建时间</label>
+        <div class="col-sm-9">
+          <input type="text" name="add_time" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">审核人</label>
+        <div class="col-sm-9">
+          <input type="text" name="owner_uid" class="form-control" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">审核时间</label>
+        <div class="col-sm-9">
+          <input type="text" name="review_time" class="form-control" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+     <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span>关闭</button>
+     <button type="button" id="btn_submit" class="btn btn-primary" data-dismiss="modal"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>保存</button>
+   </div>
+ </div>
+</div>
+</div>
+</div>
+<script type="text/javascript">
+  var filter_list = {$filter_list|default=""|json_encode};
+  var config_data = {$config_data|default=""|json_encode};
+  var colModel = [];
+  var list_len = config_data.title_list.length;
+  
+
+  $(function() {
+    serch_list('search_table');
+    $.ajax({
+      url:config_data.search_url,
+      type:'GET',
+      dataType:'json',
+      success:function(data){
+        
+       clomodel('grid-table',data.data.results,'#grid-pager')
+       $('div[role="grid"]').css('overflow','auto')
+       $('#grid-table').setGridWidth($('#search_table').width())
+     }
+   })
+  })
+  function get_list(post_list){
+    $.post(config_data.search_url,post_list,function(data,s){
+
+      if(data.status == 0){
+        $.showPreloader(data.info)
+        setTimeout(function () {
+          $.hidePreloader();
+        }, 2000);
+        return false;
+      }
+      push_all_list = data;
+      re_form()
+      $.closePanel()
+      $.showPreloader('正在加载') 
+      $('#card-list').empty();
+      list_push(data)
+      $.hidePreloader()
+      $(document).off('infinite')
+    });
+  }
+  function btn_add(){
+    window.location.href = window.location.href.replace('index','edit');
+  }
+  function edit(data){
+    window.location.href = window.location.href.replace('index','edit')+'?id='+data
+  }
+  function detail(data){
+    window.location.href  = window.location.href.replace('index','detail')+'?id='+data
+  }
+</script>
